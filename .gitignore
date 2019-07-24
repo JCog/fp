@@ -1,4 +1,4 @@
-/rom
-/obj
-/bin
-armips*
+/rom/
+/obj/
+/bin/
+*.exe
