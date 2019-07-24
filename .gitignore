@@ -1,4 +1,5 @@
-/rom/
-/obj/
-/bin/
+rom/
+obj/
+bin/
 *.exe
+*.z64
