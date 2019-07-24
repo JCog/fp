@@ -1,0 +1,6 @@
+% bool
+True  = 00000001
+False = 00000000
+
+% camID
+Default = 00000000

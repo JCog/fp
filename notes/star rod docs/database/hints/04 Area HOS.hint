@@ -1,0 +1,20 @@
+
+name	80219138	GoombarioTutor1
+
+name	8021AE34	Ember
+name	8021B5BC	Script_Split
+
+add		8021D680	Actor
+name	8021D680	Magikoopa
+name	8021D6A8	FlyingMagikoopa
+name	8021DE8C	Script_RunAway
+name	8021F660	Script_HealOne
+name	8021FBEC	Script_HealAll
+name	8022028C	Script_ShapeSpell
+name	8022166C	Magiclone
+name	80221694	FlyingMagiclone
+name	80221700	Script_MakeCopy
+name	80221DC0	Script_BoostAttack
+name	80222508	Script_BoostDefense
+name	80222C50	Script_Electrify
+name	802233DC	Script_Vanish

@@ -1,0 +1,202 @@
+{\rtf1\ansi\deff0\adeflang1025
+{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\fmodern\fprq1\fcharset128 Consolas;}{\f4\fswiss\fprq1\fcharset0 Consolas;}{\f5\froman\fprq0\fcharset128 ;}{\f6\fnil\fprq2\fcharset0 Microsoft YaHei;}{\f7\fswiss\fprq1\fcharset128 Consolas;}{\f8\fnil\fprq2\fcharset0 Mangal;}{\f9\fnil\fprq0\fcharset128 Mangal;}}
+{\colortbl;\red0\green0\blue0;\red0\green0\blue128;\red128\green0\blue0;\red0\green128\blue0;\red128\green128\blue128;}
+{\stylesheet{\s0\snext0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033 Default;}
+{\*\cs15\snext15 Numbering Symbols;}
+{\*\cs16\snext16\cf2\ul\ulc0\langfe255\lang255 Internet Link;}
+{\s17\sbasedon0\snext18{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb240\sa120\keepn\cf0\kerning1\hich\af6\langfe2052\dbch\af8\loch\f2\fs28\lang1033 Heading;}
+{\s18\sbasedon0\snext18{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb0\sa120\cf0\kerning1\hich\af0\langfe2052\dbch\af0\loch\f3\fs20\lang1033 Text body;}
+{\s19\sbasedon18\snext19{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb0\sa120\cf0\kerning1\hich\af0\langfe2052\dbch\af9\loch\f3\fs20\lang1033 List;}
+{\s20\sbasedon0\snext20{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb120\sa120\cf0\i\kerning1\hich\af0\langfe2052\dbch\af9\ai\loch\f3\fs20\lang1033 Caption;}
+{\s21\sbasedon0\snext21{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\kerning1\hich\af0\langfe2052\dbch\af9\loch\f3\fs20\lang1033 Index;}
+{\s22\sbasedon0\snext22{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\kerning1\hich\af7\langfe2052\dbch\af7\loch\f3\fs20\lang1033 Table Contents;}
+{\s23\sbasedon22\snext23\qc{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\b\kerning1\hich\af7\langfe2052\dbch\af7\ab\loch\f3\fs20\lang1033 Table Heading;}
+}{\info{\creatim\yr0\mo0\dy0\hr0\min0}{\revtim\yr0\mo0\dy0\hr0\min0}{\printim\yr0\mo0\dy0\hr0\min0}{\comment OpenOffice.org}{\vern3410}}\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709
+
+{\*\pgdsctbl
+{\pgdsc0\pgdscuse195\pgwsxn12240\pghsxn15840\marglsxn1134\margrsxn1134\margtsxn1134\margbsxn1134\pgdscnxt0 Default;}}
+\formshade{\*\pgdscno0}\paperh15840\paperw12240\margl1134\margr1134\margt1134\margb1134\sectd\sbknone\sectunlocked1\pgndec\pgwsxn12240\pghsxn15840\marglsxn1134\margrsxn1134\margtsxn1134\margbsxn1134\ftnbj\ftnstart1\ftnrstcont\ftnnar\aenddoc\aftnrstcont\aftnstart1\aftnnrlc
+\pgndec\pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs22\ab\rtlch \ltrch\loch\fs22
+Introduction}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Disclaimer: I know practically nothing about how MIDI files are structured. Hence my reluctance to support custom music.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Audio data is stored one big contiguous part of the ROM, from 0x0F00000 to 0x1942C40. At 0x0F00000, we find a 'SBN' (sound bank?) file which contains a file table of all the other audio files. There are six types of files in the table and one special file that comes after it. The six types can be identified by the first four bytes in the file header: BGM (music track), SEF (sound effects), BK (bank), PER (percussion), PRG (program? very short file), and MSEQ (??). The special file is INIT, found at 19425C0, which describes how different sound banks and sequences are combined to form music tracks.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Music is loaded to 801DA070}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+when is is loaded?}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+80053DA4\tab JAL 80054E00}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+80054E40\tab JAL 8005F490}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+8005F518\tab JAL 80060E20}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+80060E9C\tab JAL ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Starting from known map functions:}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Track ID indexes into second table from the INIT file.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+801E8A40 + 8 * track = 801E8D90}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\b\hich\af4\dbch\af4\afs22\ab\rtlch \ltrch\loch\fs22\loch\f4
+Audio Data (0F00000 - 1942C40)}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+SBN Header (0x40 bytes at 0xF00000)}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+00\tab 'SBN '}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+04\tab 00A42C40\tab (offset) end of files}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+10\tab 00000040\tab (offset) table start}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+14\tab 000000EC\tab number of entries}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+18\tab 000007C0\tab (offset) first file}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+1C\tab 000007A0\tab (offset) timestamp string '20001104163016'}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+24\tab 00A425C0\tab (offset) INIT file}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+Each entry is 8 bytes:}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+00\tab 000007C0\tab (int) offset}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+04\tab }{\cf3\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+1}{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+0001998\tab }{\cf3\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+format}{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+ / length}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+There are 6 types of files:}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+BGM  (fmt = 1)\tab music track?}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+SEF  (fmt = 2)\tab sound effect?}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+BK   (fmt = 3)\tab bank?}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+PER  (fmt = 4)\tab percussion?}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+PRG  (fmt = 4)\tab }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+MSEQ (fmt = 4)\tab }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\hich\af4\dbch\af4\rtlch \ltrch\loch\loch\f4
+Each of these files starts with an identfier 'MSEQ', 'BGM ', etc}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs22\ab\rtlch \ltrch\loch\fs22
+INIT File (19425C0)}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\i\b\ai\ab\rtlch \ltrch\loch
+Header (0x20 bytes)}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch
+ }{\rtlch \ltrch\loch
+00\tab \tab 'INIT'}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch
+ }{\rtlch \ltrch\loch
+04\tab \tab 00000672\tab file length}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch
+ }{\rtlch \ltrch\loch
+08\tab \tab 0020/0104\tab list 1 offset/length}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch
+ }{\rtlch \ltrch\loch
+0C\tab \tab 0130/0508\tab list 2 offset/length -- A0 entries...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch
+ }{\rtlch \ltrch\loch
+10\tab \tab 0640/0032\tab list 3 offset/length}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+list 2:}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+each entry is 8 bytes long, composed of four half-words corresponding to indexes into the file table}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Might glean some information from:}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{{\*\bkmkstart __DdeLink__63_730700911}{\field{\*\fldinst HYPERLINK "http://level42.ca/projects/ultra64/Documentation/man/pro-man/pro19/index.html" }\cf2\ul\ulc0\langfe255{\fldrslt \cf2\ul\ulc0\langfe255\lang255\rtlch \ltrch\loch\lang255{\*\bkmkend __DdeLink__63_730700911}
+http://level42.ca/projects/ultra64/Documentation/man/pro-man/pro19/index.html}}}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+header}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+42474D20 000033BF 31303120 00000000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+04000000 }{\cf3\rtlch \ltrch\loch
+002A}{\rtlch \ltrch\loch
+002F 00320034 }{\cf4\rtlch \ltrch\loch
+0009}{\rtlch \ltrch\loch
+0003 0012000C }{\cf4\rtlch \ltrch\loch
+30FD12C0}{\rtlch \ltrch\loch
+ 7F361900 00000000 30FE12C0 7F421900 00000000 30FE1450 7F3E1900 00000000 305F5F50 28000000 30185040 28000500 30766046 28000000 30775A37 28000000 30775F3C 28000000 30764B58 32000D00 31146440 0A000000 30A35A2D 19000000 30A34628 19070000 30676244 2D000000 3086623F 2D000000 301C643C 190C0000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\cf3\rtlch \ltrch\loch
+1000000F}{\rtlch \ltrch\loch
+ 1000014B 10000BD0 1000042C 00000000 100004F4 100005A6 00000000 10000873 00000000 10000B12 30000000 1000093A 50000000 00000000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+Start of SOMETHING, its position is given the address of the }{\cf3\rtlch \ltrch\loch
+highlighted word + 0xF words}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+The first 0x40 bytes are some kind of header, followed by }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+00400000 00592000 01FA2000 03932000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+03CD2000 0422A000 046D2000 04982000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+00000000 00000000 00000000 00000000 }
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+00000000 00000000 00000000 00000000}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+E0005AE1 73E6000A 78487848 ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af8\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par }

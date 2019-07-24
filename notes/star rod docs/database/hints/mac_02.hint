@@ -1,0 +1,9 @@
+
+% Chuck Quizmo
+add		802461F4	IntTable
+size	802461F4	50
+newline	802461F4	2
+name	802461F4	QuizRequirements
+add		802461B4	ByteTable
+size	802461B4	40
+name	802461B4	QuizAnswers

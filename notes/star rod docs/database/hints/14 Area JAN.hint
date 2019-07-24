@@ -1,0 +1,21 @@
+
+name	80218880	SpearGuy
+name	802188A8	Script_SetSpearStance
+name	802199AC	Script_SpearStab
+name	80219ED0	Script_SummonBackup
+name	8021A8F8	Script_BecomeShyGuy
+name	8021ACBC	Script_SpearThrow
+
+name	8021DA70	HurtPlant
+
+name	8021EAB4	JungleFuzzy
+name	8021F260	Script_Divide
+name	8021F66C	Script_LeechAttack
+
+name	80221960	MBush
+
+name	80222680	MediGuy
+name	80222ED0	Script_FlyingAttack
+name	802236B8	Script_HealOneAlly
+
+name	80223C18	SpikeTop

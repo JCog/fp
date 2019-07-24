@@ -1,0 +1,15 @@
+
+name	802187F0	PutridPiranha
+name	80218F60	Script_Bite
+name	80219908	Script_Breath
+
+name	8021A0D0	WMagikoopa
+name	8021B458	Script_ShapeSpell
+name	8021BA74	Script_WandStrike
+name	8021C0E4	Script_RunAway
+name	8021C3D0	Script_HealOne
+name	8021D1CC	Script_HealAll
+
+% Previously unused, but available
+add		8021A0F8	Actor
+name	8021A0F8	FlyingWMagikoopa

@@ -1,0 +1,41 @@
+
+name	80218F9C	LavaBubble
+name	80219A84	Script_FireTackle
+name	8021A274	Script_Fireballs_Partner
+name	8021A7E8	Script_Fireballs_Player
+
+name	8021B1D0	PutridPiranha
+name	8021B940	Script_Bite
+name	8021C2E8	Script_Breath
+
+name	8021C9A8	SpikeTop
+name	8021CC8C	Script_SpikeTop_FallDown
+name	8021D0C0	Script_SpikeTop_HandleEvent_Ceiling
+name	8021D618	Script_SpikeTop_HandleEvent_Floor
+name	8021E3B4	Script_SpikeTop_TakeTurn_Ceiling
+name	8021EE6C	Script_SpikeTop_TakeTurn_Floor
+
+name	8021F9C0	MediGuy
+name	80220210	Script_FlyingAttack
+name	802209F8 	Script_HealOneAlly
+
+% Previously unused, but available
+add		80221060	Actor
+name	80221060	RMagikoopa
+
+name	80221088	FlyingRMagikoopa
+name	802223E8 	Script_RMagikoopa_ShapeSpell
+name	80222A04	Script_RMagikoopa_WandStrike
+name	80223074	Script_RMagikoopa_RunAway
+
+% Previously unused, but available
+add		80223D20	Actor
+name	80223D20	WMagikoopa
+
+name	80223D48	FlyingWMagikoopa
+name	802250A8	Script_WMagikoopa_ShapeSpell
+name	802256C4	Script_WMagikoopa_WandStrike
+name	80225D34	Script_WMagikoopa_RunAway
+name	80226020	Script_HealOne
+name	80226E1C	Script_HealAll
+

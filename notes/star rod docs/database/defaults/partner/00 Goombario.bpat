@@ -1,0 +1,9 @@
+
+@ $Function_80238B60
+[2C]  LTW	V0, V0 ($Global_ActorTattleTable)
+[38]  LIA	V1, $Global_ActorTattleTable
+
+@ $Function_80238BCC
+[1CC]  LTB	V1, V0 ($Global_ActorOffsetsTable)
+[1EC]  LTB	V1, V0 ($Global_ActorOffsetsTable[1])
+[210]  LTB	A0, V0 ($Global_ActorOffsetsTable[2])

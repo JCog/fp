@@ -1,0 +1,3 @@
+% unaligned short tables are a corner case covered by hints
+add		80242C0C	ShortTable
+size	80242C0C	C

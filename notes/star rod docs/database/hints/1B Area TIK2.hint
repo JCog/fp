@@ -1,0 +1,22 @@
+
+name	8021A808	Blooper
+name	8021B168	Script_TakeTurn_Blooper
+name	8021B204	Script_Tackle
+name	8021B8D0	Script_SprayInk
+
+name	8021C804	ElectroBlooper
+name	8021C914	Script_UpdateElectictyPosition
+name	8021D568	Script_Electrify
+name	8021D74C	Script_Tackle_ElectroBlooper
+name	8021DE18	Script_ElectroTackle
+name	8021E4F4	Script_SprayInk_ElectroBlooper
+
+name	8021F6F4	SuperBlooper
+name	8022011C	Script_TakeTurn_SuperBlooper
+name	802203FC	Script_Tackle_SuperBlooper
+name	8022096C	Script_SprayInk_SuperBlooper
+name	80221068	Script_SpawnBabies
+name	802214BC	Script_Enrage
+name	802216BC	Script_EnragedTackle
+
+name	80222628	BlooperBaby

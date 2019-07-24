@@ -1,0 +1,37 @@
+
+name	8021C9D4	Function_GetPlayerPercentHP
+
+% associated with an unused battle in kpa_bt01 -- part of bowser's castle
+name	8021D410	UnusedBowser
+
+% used during the introductory raid on Peach's castle
+name	8021F3A8	IntroBowser
+name	8022050C	Script_IntroUseStarRod
+name	8021FD54	Script_IntroClawSwipe
+name	802200E0	Script_IntroFireBreath
+
+% final boss battle
+name	80221698	Bowser1
+name	80222BA0	Script_UseStarRod1
+name	802238E8	Script_HealSelf1
+name	802248A4	Script_DisableJump1
+name	80225898	Script_ClawSwipe1
+name	80225DD0	Script_Shockwave1
+name	802267C8	Script_FireBreath1
+
+name	80227748	Bowser2
+name	80229118	Script_HealSelf2
+name	8022A0F4	Script_DisableJump2
+name	8022B0E8	Script_ClawSwipe2
+name	8022B600	Script_Shockwave2
+name	8022BFF8	Script_FireBreath2
+name	8022CD88	Script_Thunderbolt2
+
+name	8022D678	Bowser3
+name	8022FF44	Script_HealSelf3
+name	8023047C	Script_UseMove3			% For whatever reason, TakeTurn just wraps this script
+name	80230D60	Script_DisableJump3
+name	80231D54	Script_ClawSwipe3
+name	8023226C	Script_Shockwave3
+name	80232C64	Script_FireBreath3
+name	802339F4	Script_Thunderbolt3

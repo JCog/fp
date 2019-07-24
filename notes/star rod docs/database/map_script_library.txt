@@ -1,0 +1,31 @@
+
+80285960 : EnterWalk		% Player walks toward an entrance
+% var0	*script that binds exits, will be executed after the entry animation plays
+
+80285CB0 : EnterSavePoint	% Spawns the player at saved coordinates (used when GetLoadType == 1).
+
+80285CF4 : ExitWalk			% Player walks through an exit, using the heading set by UseExitHeading
+
+80285DAC : ExitSingleDoor	% (7E6C2C)
+% var0	exit ID
+% var1	door collider ID
+% var2	door model ID
+% var3	swing direction (1` | -1`)
+
+80285DD4 : EnterSingleDoor	% (7E6C54)
+% var0	entry ID
+% var1	unused?
+% var2	door model ID
+% var3	swing direction
+
+80285E4C : ExitDoubleDoor
+% var0	exit ID
+% var1	door collider ID
+% var2	left door model ID
+% var3	right door model ID
+
+80285E74 : EnterDoubleDoor
+% var0	entry ID
+% var1	unused?
+% var2	left door model ID
+% var3	right door model ID

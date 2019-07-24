@@ -1,0 +1,9 @@
+
+% Chuck Quizmo
+add		802466E8	IntTable
+size	802466E8	50
+newline	802466E8	2
+name	802466E8	QuizRequirements
+add		802466A8	ByteTable
+size	802466A8	40
+name	802466A8	QuizAnswers

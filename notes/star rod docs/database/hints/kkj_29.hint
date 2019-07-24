@@ -1,0 +1,7 @@
+
+% This is a really neat example of some scripting.
+% 
+
+name	80240030	Function_MonitorA	% Waits a certain number of frames for an A button input
+
+name	802412D8	Script_DoRound		% Does a round of the quiz

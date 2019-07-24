@@ -1,0 +1,27 @@
+
+add		80219870	IntTable
+name	80219870	TuffPuffIDs
+size	80219870	80
+
+name	80219B9C	HuffNPuff
+% ActorVars:
+%	1 = turn count
+%	2 = TuffPuff flags (each bit represents one of the TuffPuffs)
+
+name	8021A38C	Script_ShedTuffPuffs
+
+name	8021C1EC	Script_ChargeThunder
+name	8021D92C	Script_BodySlam
+name	8021E8C8	Script_HealOrSlam
+name	8021F378	Script_HurricaneBreath
+name	80220BE8	Script_Thunderstorm
+name	802215D8	Script_HighBodySlam
+
+name	80228438	Script_TuffPuffSwarm
+
+name	8022F758	TuffPuff
+
+name	80230784	MontyMole
+name	802308A0	EmptyMoleHole
+
+name	80231968	Spike

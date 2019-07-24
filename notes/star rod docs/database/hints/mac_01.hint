@@ -1,0 +1,15 @@
+
+name	80248048	RowfItemPositions
+name	80247E5C	RowfDummyPriceList
+name	80248054	ShopOwnerRowf
+
+% not detected by the automatic dump process
+add		80247F88	BadgeShopInventory
+size	80247F88	C0
+name	80247F88	RowfBadgeInventory
+
+% Chuck Quizmo
+add		80248CD4	IntTable
+newline	80248CD4	2
+name	80248CD4	QuizRequirements
+name	80248C94	QuizAnswers

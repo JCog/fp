@@ -1,0 +1,10 @@
+
+add		80252784	DataTable
+size	80252784	230
+newline	80252784	7
+
+% Chuck Quizmo
+add		8024716C	IntTable
+newline	8024716C	2
+name	8024716C	QuizRequirements
+name	8024712C	QuizAnswers

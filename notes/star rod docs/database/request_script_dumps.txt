@@ -1,0 +1,21 @@
+% ROM offset : context (battle | map) : name (optional)
+% Context determines which set of functions are loaded.
+
+07E6C2C : map : ExitSingleDoor	% 80285DAC
+07E6C54 : map : EnterSingleDoor	% 80285DD4
+
+1C7924	: battle : DoNormalHit	% 80299044 
+1C89B0	: battle : DoBurnHit	% 8029A0D0
+1C8FDC	: battle : DoShockHit	% 8029A6FC 
+1C9550	: battle : DoImmune	% 8029AC70 
+1C97A0	: battle : DoDeath	% 8029AEC0 
+1C9B0C	: battle : DoScareAway	% 8029B22C
+1CA278	: battle : ?		% 8029B998 associated with events B and 21
+1CA650	: battle : ?		% 8029BD70
+1CA798	: battle : DoReturnHome	% 8029BEB8
+1CA880	: battle : DoRecover 	% 8029BFA0
+1CAC5C	: battle : DoAirLift	% 8029C37C
+1CAD88	: battle : DoBlowAway	% 8029C4A8
+
+1B379C  : battle : PlayerScriptDispatcher % 80284EBC
+1B7644  : battle : PlayerHappyPhase       % 80288D64

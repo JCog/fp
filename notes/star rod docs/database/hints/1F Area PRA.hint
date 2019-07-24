@@ -1,0 +1,40 @@
+name	8021960C	Swoopula
+
+name	8021D940	AlbinoDino
+
+name	8021E728	WhiteClubba
+
+name	8021F7E0	RMagikoopa
+add		8021F808	Actor
+name	8021F808	FlyingRMagikoopa
+name	802217F4	Script_RMagikoopa_RunAway
+name	80220B68	Script_RMagikoopa_ShapeSpell
+name	80221184	Script_RMagikoopa_WandStrike
+
+name	802224A0	GRNMagikoopa
+add		802224C8	Actor
+name	802224C8	FlyingGRNMagikoopa
+name	802244B4	Script_GRNMagikoopa_RunAway
+name	80223828	Script_GRNMagikoopa_ShapeSpell
+name	80223E44	Script_GRNMagikoopa_WandStrike
+
+name	80225160	YMagikoopa
+name	80225188	FlyingYMagikoopa
+name	80227174	Script_YMagikoopa_RunAway
+name	802264E8	Script_YMagikoopa_ShapeSpell
+name	80226B04	Script_YMagikoopa_WandStrike
+
+name	80227E70	GRYMagikoopa
+add		80227E98	Actor
+name	80227E98	FlyingGRYMagikoopa
+name	80229E84	Script_GRYMagikoopa_RunAway
+name	802291F8	Script_GRYMagikoopa_ShapeSpell
+name	80229814	Script_GRYMagikoopa_WandStrike
+
+name	8022AB30	WMagikoopa
+name	8022AB58	FlyingWMagikoopa
+name	8022BEB8	Script_WMagikoopa_ShapeSpell
+name	8022C4D4	Script_WMagikoopa_WandStrike
+name	8022CB44	Script_WMagikoopa_RunAway
+name	8022CE30	Script_HealOne
+name	8022DC2C 	Script_HealAll

@@ -1,0 +1,156 @@
+{\rtf1\ansi\deff3\adeflang1025
+{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\fswiss\fprq1\fcharset128 Consolas;}{\f4\fmodern\fprq1\fcharset128 Consolas;}{\f5\fswiss\fprq0\fcharset128 ;}{\f6\fnil\fprq2\fcharset0 Microsoft YaHei;}{\f7\fnil\fprq2\fcharset0 Mangal;}{\f8\fnil\fprq0\fcharset128 Mangal;}}
+{\colortbl;\red0\green0\blue0;\red128\green0\blue0;\red128\green128\blue128;}
+{\stylesheet{\s0\snext0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033 Default;}
+{\s15\sbasedon0\snext16{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb240\sa120\keepn\cf0\kerning1\hich\af6\langfe2052\dbch\af7\loch\f2\fs28\lang1033 Heading;}
+{\s16\sbasedon0\snext16{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb0\sa120\cf0\kerning1\hich\af3\langfe2052\dbch\af3\loch\f3\fs24\lang1033 Text body;}
+{\s17\sbasedon16\snext17{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb0\sa120\cf0\kerning1\hich\af3\langfe2052\dbch\af8\loch\f3\fs24\lang1033 List;}
+{\s18\sbasedon0\snext18{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\sb120\sa120\cf0\i\kerning1\hich\af3\langfe2052\dbch\af8\ai\loch\f3\fs24\lang1033 Caption;}
+{\s19\sbasedon0\snext19{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\kerning1\hich\af3\langfe2052\dbch\af8\loch\f3\fs24\lang1033 Index;}
+{\s20\sbasedon0\snext20{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\kerning1\hich\af5\langfe2052\dbch\af7\loch\f3\fs20\lang1033 Table Contents;}
+{\s21\sbasedon20\snext21\qc{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf0\b\kerning1\hich\af5\langfe2052\dbch\af7\ab\loch\f3\fs20\lang1033 Table Heading;}
+}{\info{\creatim\yr0\mo0\dy0\hr0\min0}{\revtim\yr0\mo0\dy0\hr0\min0}{\printim\yr0\mo0\dy0\hr0\min0}{\comment OpenOffice.org}{\vern3410}}\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709
+
+{\*\pgdsctbl
+{\pgdsc0\pgdscuse195\pgwsxn12240\pghsxn15840\marglsxn1134\margrsxn1134\margtsxn1134\margbsxn1134\pgdscnxt0 Default;}}
+\formshade{\*\pgdscno0}\paperh15840\paperw12240\margl1134\margr1134\margt1134\margb1134\sectd\sbknone\sectunlocked1\pgndec\pgwsxn12240\pghsxn15840\marglsxn1134\margrsxn1134\margtsxn1134\margbsxn1134\ftnbj\ftnstart1\ftnrstcont\ftnnar\aenddoc\aftnrstcont\aftnstart1\aftnnrlc
+\pgndec\pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs22\ab\rtlch \ltrch\loch\fs22
+Map Entities}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+Entities are reusable game objects that the player can interact with like coin blocks, springs, or switches. They are created with a call to MakeEntity. Some entities are only available in particular areas. These exclusive entities are loaded to address 802BAE00 via func_80110C14 using hardcoded areaIDs. There are three such mutually exclusive groups. All other entities are always loaded.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+After creating an entity, you may need to bind a GameFlag to it via AssignBlockFlag or AssignCrateFlag for it to remember its state. You may also need to bind a script to trigger when the entity is used via AssignScript.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+Creating many of these entities is demonstrated in example maps ex_00 and ex_01. Others can be found by searched the dumped source files.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b0\afs20\ab0\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs20\ab\rtlch \ltrch\loch
+Only available in jan / iwa}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BC788\tab CymbalPlant\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BC7AC\tab PinkFlower\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BC7F4\tab SpinningFlower\tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCBD8\tab BellbellPlant\tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCBFC\tab TrumpetPlant\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCC20\tab SpongyFlower\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCD9C\tab RedArrowSigns \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs20\ab\rtlch \ltrch\loch
+Only available in}{\b\ab\rtlch \ltrch\loch
+ sbk / omo}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCA74\tab Tweester\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCB44\tab StarBoxLaucher\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs20\ab\rtlch \ltrch\loch
+Only available in}{\b\ab\rtlch \ltrch\loch
+ all other areas}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCD68\tab Padlock\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCE84\tab BoardedFloor\tab \tab Expects script (usually to set flag).}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCF00\tab BombableRock1\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802BCF24\tab BombableRock2\tab Expects script (found in trd_09 only).}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\b\afs20\ab\rtlch \ltrch\loch
+Always loaded}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802E9A18\tab SavePoint\tab \tab Requires special script when loading the map.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802E9BB0\tab RedSwitch\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802E9BD4\tab BlueSwitch\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802E9BF8\tab HugeBlueSwitch\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802E9C1C\tab GreenStompSwitch\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA07C\tab MultiTriggerBlock\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA0C4\tab BrickBlock\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA0E8\tab MultiCoinBrick\tab Expects block flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA10C\tab Hammer1Block\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA130\tab Hammer1BlockWide\tab Expects script. Collision box is much wider.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA154\tab Hammer1BlockThick\tab Expects script. Collision box is slightly thicker.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA178\tab Hammer1BlockTiny\tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA19C\tab Hammer2Block \tab Granite versions of Hammer1Blocks.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA1C0\tab Hammer2BlockWide \tab ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA1E4\tab Hammer2BlockThick \tab ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA208\tab Hammer2BlockTiny   ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA22C\tab Hammer3Block\tab \tab Metal versions of Hammer1Blocks.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA274\tab Hammer3BlockThick \tab ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA298\tab Hammer3BlockTiny\tab ...}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA2E0\tab PowBlock\tab \tab Does nothing on its own. Can bind a script to it.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA564\tab YellowBlock\tab \tab Expects block flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA588\tab HiddenYellowBlock\tab Expects block flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA5AC\tab RedBlock\tab \tab Expects block flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA5D0\tab HiddenRedBlock \tab Expects block flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA5F4 \tab SingleTriggerBlock\tab Can bind to script. (Temporarily) destroyed when hit.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA7E0\tab HealingBlock\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EA910\tab SuperBlock\tab \tab Expects block flag and script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAA30\tab ScriptSpring\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAA54\tab SimpleSpring\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAB04\tab HiddenPanel\tab \tab Uses panel flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAE0C\tab GiantChest\tab \tab Expects flag and script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAE30\tab Chest\tab \tab \tab }{{\*\bkmkstart __DdeLink__99_721978660}\afs20\rtlch \ltrch\loch{\*\bkmkend __DdeLink__99_721978660}
+Expects flag and script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAF80\tab BlueWarpPipe\tab \tab ---}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAED4 \tab WoodenCrate\tab \tab Optionally uses crate flag.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\afs20\rtlch \ltrch\loch
+802EAFDC\tab Signpost\tab \tab Expects script.}
+\par \pard\plain \s0{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\nowidctlpar\cf0\kerning1\hich\af5\langfe2052\dbch\af7\afs24\lang1081\loch\f3\fs20\lang1033{\rtlch \ltrch\loch
+}
+\par }

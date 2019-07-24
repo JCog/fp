@@ -1,0 +1,554 @@
+00002001   12 Area OMO3         $SpriteTable_80218E74   $Actor_BigLanternGhost_80218EBC
+00020000   02 Area KMR Part 3   $SpriteTable_80225F0C   $Actor_JrTroopa3_80225F54
+00020000   02 Area KMR Part 3   $SpriteTable_80228014   $Actor_JrTroopa4_8022805C
+00020000   02 Area KMR Part 3   $SpriteTable_8022A6E0   $Actor_JrTroopa5_8022A728
+00020000   03 Area MAC          $SpriteTable_8022348C   $Actor_Lee_8021D4A0
+00020000   03 Area MAC          $SpriteTable_80224514   $Actor_Lee_8021D4A0
+00020000   03 Area MAC          $SpriteTable_80225A80   $Actor_Lee_8021D4A0
+00020000   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00020000   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00020000   06 Area TRD Part 1   $SpriteTable_80219DD8   $Actor_BillBlaster_80219E20
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00020000   09 Area IWA          $SpriteTable_8021A508   $Actor_MontyMole_8021A574
+00020000   09 Area IWA          $SpriteTable_8021B708   $Actor_Buzzar_8021B7BC
+00020000   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00020000   0A Area SBK          $SpriteTable_8021D6B4   $Actor_Bandit_8021D700
+00020000   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00020000   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00020000   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00020000   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+00020000   0E Area ARN          $SpriteTable_80223D30   $Actor_TubbasHeart_80223D78
+00020000   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00020000   13 Area KGR          $SpriteTable_80218B00   $Actor_Fuzzipede_80218B48
+00020000   19 Area FLO2         $SpriteTable_80219B0C   $Actor_HuffNPuff_80219B9C
+00020000   19 Area FLO2         $SpriteTable_80219B0C   $Actor_HuffNPuff_80219B9C
+00020000   19 Area FLO2         $SpriteTable_80230718   $Actor_MontyMole_80230784
+00020000   1B Area TIK2         $SpriteTable_8021A7C0   $Actor_Blooper_8021A808
+00020000   1B Area TIK2         $SpriteTable_8021C7BC   $Actor_ElectroBlooper_8021C804
+00020000   1B Area TIK2         $SpriteTable_8021F6AC   $Actor_SuperBlooper_8021F6F4
+00020000   1B Area TIK2         $SpriteTable_802225E0   $Actor_SuperBlooper_8021F6F4
+00020000   1D Area SAM          $SpriteTable_80221694   $Actor_Duplighost_8021AFD0
+00020000   1D Area SAM          $SpriteTable_80222620   $Actor_Duplighost_8021AFD0
+00020000   1D Area SAM          $SpriteTable_802239F8   $Actor_Duplighost_8021AFD0
+00020000   1E Area SAM2         $SpriteTable_80219F20   $Actor_Monstar_80219F68
+00020000   20 Area PRA2         $SpriteTable_8022056C   $Actor_CrystalBit_80220644
+00020000   20 Area PRA2         $SpriteTable_802205B4   $Actor_CrystalBit_8022066C
+00020000   20 Area PRA2         $SpriteTable_802205FC   $Actor_CrystalBit_80220694
+00020000   21 Area PRA3         $SpriteTable_80220714   $Actor_Duplighost_8021A050
+00020000   21 Area PRA3         $SpriteTable_802216A0   $Actor_Duplighost_8021A050
+00020000   21 Area PRA3         $SpriteTable_80222A78   $Actor_GhostWatt_80222AC0
+00020000   24 Area KPA3         $SpriteTable_802219C4   $Actor_Duplighost_8021B300
+00020000   24 Area KPA3         $SpriteTable_80222950   $Actor_GhostBow_80222998
+00020000   24 Area KPA3         $SpriteTable_80223D28   $Actor_GhostWatt_80223D70
+00020000   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00020000   27 Area DIG          $SpriteTable_80221704   $Actor_Bandit_80221728
+00020000   27 Area DIG          $SpriteTable_80226E08   $Actor_MontyMole_80226E74
+00020000   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00020001   00 Area KMR Part 1   $SpriteTable_8021CC70   $Actor_Paragoomba_8021CD00
+00020001   00 Area KMR Part 1   $SpriteTable_8021CC70   $Actor_Paragoomba_8021CD00
+00020001   00 Area KMR Part 1   $SpriteTable_8021CC70   $Actor_Paragoomba_8021CD00
+00020001   02 Area KMR Part 3   $SpriteTable_8021C320   $Actor_Paragoomba_8021C3B0
+00020001   02 Area KMR Part 3   $SpriteTable_8021C320   $Actor_Paragoomba_8021C3B0
+00020001   02 Area KMR Part 3   $SpriteTable_8021C320   $Actor_Paragoomba_8021C3B0
+00020001   02 Area KMR Part 3   $SpriteTable_8021F8C0   $Actor_Paragoomba_8021F950
+00020001   02 Area KMR Part 3   $SpriteTable_8021F8C0   $Actor_Paragoomba_8021F950
+00020001   02 Area KMR Part 3   $SpriteTable_8021F8C0   $Actor_Paragoomba_8021F950
+00020001   02 Area KMR Part 3   $SpriteTable_8022C640   $Actor_JrTroopa6_8022C6AC
+00020001   02 Area KMR Part 3   $SpriteTable_8022C640   $Actor_JrTroopa6_8022C6AC
+00020001   04 Area HOS          $SpriteTable_8021D614   $Actor_FlyingMagikoopa_8021D6A8
+00020001   04 Area HOS          $SpriteTable_8021D614   $Actor_FlyingMagikoopa_8021D6A8
+00020001   05 Area NOK          $SpriteTable_8021B280   $Actor_Paragoomba_8021B310
+00020001   05 Area NOK          $SpriteTable_8021B280   $Actor_Paragoomba_8021B310
+00020001   05 Area NOK          $SpriteTable_8021B280   $Actor_Paragoomba_8021B310
+00020001   05 Area NOK          $SpriteTable_80223A9C   $Actor_Paratroopa_80223B08
+00020001   05 Area NOK          $SpriteTable_80223A9C   $Actor_Paratroopa_80223B08
+00020001   06 Area TRD Part 1   $SpriteTable_8021EC6C   $Actor_Paratroopa_8021ECD8
+00020001   06 Area TRD Part 1   $SpriteTable_8021EC6C   $Actor_Paratroopa_8021ECD8
+00020001   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00020001   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00020001   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00020001   0A Area SBK          $SpriteTable_8021D66C   $Actor_Bandit_8021D6D8
+00020001   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00020001   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00020001   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00020001   0E Area ARN          $SpriteTable_8021B460   $Actor_HyperParagoomba_8021B4F0
+00020001   0E Area ARN          $SpriteTable_8021B460   $Actor_HyperParagoomba_8021B4F0
+00020001   0E Area ARN          $SpriteTable_8021B460   $Actor_HyperParagoomba_8021B4F0
+00020001   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00020001   11 Area OMO2         $SpriteTable_8022C8F0   $Actor_ToyTank_8022C95C
+00020001   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00020001   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00020001   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00020001   15 Area JAN2         $SpriteTable_8021A064   $Actor_WMagikoopa2_8021A0F8
+00020001   15 Area JAN2         $SpriteTable_8021A064   $Actor_WMagikoopa2_8021A0F8
+00020001   16 Area KZN          $SpriteTable_80220FF4   $Actor_RMagikoopa2_80221088
+00020001   16 Area KZN          $SpriteTable_80220FF4   $Actor_RMagikoopa2_80221088
+00020001   16 Area KZN          $SpriteTable_80223CB4   $Actor_WMagikoopa2_80223D48
+00020001   16 Area KZN          $SpriteTable_80223CB4   $Actor_WMagikoopa2_80223D48
+00020001   18 Area FLO          $SpriteTable_8021C038   $Actor_Spiny_8021C080
+00020001   18 Area FLO          $SpriteTable_80224D34   $Actor_RMagikoopa2_80224DC8
+00020001   18 Area FLO          $SpriteTable_80224D34   $Actor_RMagikoopa2_80224DC8
+00020001   18 Area FLO          $SpriteTable_802279F4   $Actor_GRNMagikoopa2_80227A88
+00020001   18 Area FLO          $SpriteTable_802279F4   $Actor_GRNMagikoopa2_80227A88
+00020001   18 Area FLO          $SpriteTable_8022A6B4   $Actor_WMagikoopa2_8022A748
+00020001   18 Area FLO          $SpriteTable_8022A6B4   $Actor_WMagikoopa2_8022A748
+00020001   18 Area FLO          $SpriteTable_8022E314   $Actor_YMagikoopa2_8022E3A8
+00020001   18 Area FLO          $SpriteTable_8022E314   $Actor_YMagikoopa2_8022E3A8
+00020001   19 Area FLO2         $SpriteTable_80219B0C   $Actor_HuffNPuff_80219B9C
+00020001   1A Area TIK          $SpriteTable_8021D3BC   $Actor_DarkParatroopa_8021D428
+00020001   1A Area TIK          $SpriteTable_8021D3BC   $Actor_DarkParatroopa_8021D428
+00020001   1A Area TIK          $SpriteTable_80225880   $Actor_Paragloomba_80225910
+00020001   1A Area TIK          $SpriteTable_80225880   $Actor_Paragloomba_80225910
+00020001   1A Area TIK          $SpriteTable_80225880   $Actor_Paragloomba_80225910
+00020001   1A Area TIK          $SpriteTable_8022EA88   $Actor_Spiny_8022EAD0
+00020001   1D Area SAM          $SpriteTable_8022C4A4   $Actor_GRYMagikoopa2_8022C538
+00020001   1D Area SAM          $SpriteTable_8022C4A4   $Actor_GRYMagikoopa2_8022C538
+00020001   1E Area SAM2         $SpriteTable_8021C000   $Actor_Paragoomba_8021C090
+00020001   1E Area SAM2         $SpriteTable_8021C000   $Actor_Paragoomba_8021C090
+00020001   1E Area SAM2         $SpriteTable_8021C000   $Actor_Paragoomba_8021C090
+00020001   1E Area SAM2         $SpriteTable_8021F2C4   $Actor_GRYMagikoopa2_8021F358
+00020001   1E Area SAM2         $SpriteTable_8021F2C4   $Actor_GRYMagikoopa2_8021F358
+00020001   1F Area PRA          $SpriteTable_8021F774   $Actor_RMagikoopa2_8021F808
+00020001   1F Area PRA          $SpriteTable_8021F774   $Actor_RMagikoopa2_8021F808
+00020001   1F Area PRA          $SpriteTable_80222434   $Actor_GRNMagikoopa2_802224C8
+00020001   1F Area PRA          $SpriteTable_80222434   $Actor_GRNMagikoopa2_802224C8
+00020001   1F Area PRA          $SpriteTable_802250F4   $Actor_YMagikoopa2_80225188
+00020001   1F Area PRA          $SpriteTable_802250F4   $Actor_YMagikoopa2_80225188
+00020001   1F Area PRA          $SpriteTable_80227E04   $Actor_GRYMagikoopa2_80227E98
+00020001   1F Area PRA          $SpriteTable_80227E04   $Actor_GRYMagikoopa2_80227E98
+00020001   1F Area PRA          $SpriteTable_8022AAC4   $Actor_WMagikoopa2_8022AB58
+00020001   1F Area PRA          $SpriteTable_8022AAC4   $Actor_WMagikoopa2_8022AB58
+00020001   21 Area PRA3         $SpriteTable_8022C2B4   $Actor_RMagikoopa2_8022C348
+00020001   21 Area PRA3         $SpriteTable_8022C2B4   $Actor_RMagikoopa2_8022C348
+00020001   21 Area PRA3         $SpriteTable_8022EF74   $Actor_GRYMagikoopa2_8022F008
+00020001   21 Area PRA3         $SpriteTable_8022EF74   $Actor_GRYMagikoopa2_8022F008
+00020001   22 Area KPA          $SpriteTable_802250B4   $Actor_FlyingMagikoopa_80225148
+00020001   22 Area KPA          $SpriteTable_802250B4   $Actor_FlyingMagikoopa_80225148
+00020001   25 Area KPA4         $SpriteTable_8021E964   $Actor_FlyingMagikoopa_8021E9F8
+00020001   25 Area KPA4         $SpriteTable_8021E964   $Actor_FlyingMagikoopa_8021E9F8
+00020001   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00020001   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00020001   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00020001   27 Area DIG          $SpriteTable_802216BC   $Actor_Bandit_80221728
+00020001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+00020001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+00020001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00020001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00020001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00020020   01 Area KMR Part 2   $SpriteTable_802209C8   $Actor_GoombaKing_80220A10
+00020022   19 Area FLO2         $SpriteTable_8022F710   $Actor_HuffNPuff_80219B9C
+00022000   09 Area IWA          $SpriteTable_8021A60C   $Actor_MontyMole_8021A574
+00022000   19 Area FLO2         $SpriteTable_8023081C   $Actor_MontyMole_80230784
+00022000   27 Area DIG          $SpriteTable_80226F0C   $Actor_MontyMole_80226E74
+00022001   14 Area JAN          $SpriteTable_802187F0   $Actor_SpearGuy_80218880
+00022001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+00100001   Partner_07_Lakilester   $SpriteTable_8023A2B0   $Actor_Lakilester_8023A2F8
+00100003   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00120000   01 Area KMR Part 2   $SpriteTable_8022339C   $Actor_GoomnutTree_80223450
+00120000   01 Area KMR Part 2   $SpriteTable_8022339C   $Actor_GoomnutTree_80223450
+00120000   01 Area KMR Part 2   $SpriteTable_8022339C   $Actor_GoomnutTree_80223450
+00120000   01 Area KMR Part 2   $SpriteTable_8022339C   $Actor_GoomnutTree_80223450
+00120000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00120000   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00120000   17 Area KZN2         $SpriteTable_8021D1F4   $Actor_LavaPiranha_8021D23C
+00120000   17 Area KZN2         $SpriteTable_8022522C   $Actor_LavaBud_80225274
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120000   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00120001   03 Area MAC          $SpriteTable_8022851C   $Actor_Lee_8021D4A0
+00120001   03 Area MAC          $SpriteTable_8022DAF0   $Actor_TheMaster3_8022DB38
+00120001   04 Area HOS          $SpriteTable_8021AD80   $Actor_Ember_8021AE34
+00120001   04 Area HOS          $SpriteTable_8021AD80   $Actor_Ember_8021AE34
+00120001   04 Area HOS          $SpriteTable_8021AD80   $Actor_Ember_8021AE34
+00120001   04 Area HOS          $SpriteTable_8021AD80   $Actor_Ember_8021AE34
+00120001   09 Area IWA          $SpriteTable_8021A508   $Actor_MontyMole_8021A574
+00120001   09 Area IWA          $SpriteTable_8021B708   $Actor_Buzzar_8021B7BC
+00120001   09 Area IWA          $SpriteTable_8021B708   $Actor_Buzzar_8021B7BC
+00120001   09 Area IWA          $SpriteTable_8021B708   $Actor_Buzzar_8021B7BC
+00120001   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00120001   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00120001   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+00120001   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+00120001   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+00120001   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00120001   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00120001   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00120001   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00120001   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00120001   10 Area OMO          $SpriteTable_80227564   $Actor_SpyGuy_802275AC
+00120001   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00120001   11 Area OMO2         $SpriteTable_8022C8F0   $Actor_ToyTank_8022C95C
+00120001   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00120001   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00120001   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00120001   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00120001   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00120001   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00120001   16 Area KZN          $SpriteTable_80218EE8   $Actor_LavaBubble_80218F9C
+00120001   16 Area KZN          $SpriteTable_80218EE8   $Actor_LavaBubble_80218F9C
+00120001   16 Area KZN          $SpriteTable_80218EE8   $Actor_LavaBubble_80218F9C
+00120001   16 Area KZN          $SpriteTable_80218EE8   $Actor_LavaBubble_80218F9C
+00120001   18 Area FLO          $SpriteTable_80219FE4   $Actor_Lakitu_8021A050
+00120001   18 Area FLO          $SpriteTable_80219FE4   $Actor_Lakitu_8021A050
+00120001   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00120001   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00120001   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00120001   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00120001   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00120001   19 Area FLO2         $SpriteTable_80230718   $Actor_MontyMole_80230784
+00120001   19 Area FLO2         $SpriteTable_80231920   $Actor_Spike_80231968
+00120001   1D Area SAM          $SpriteTable_80226290   $Actor_Duplighost_8021AFD0
+00120001   1D Area SAM          $SpriteTable_80227EEC   $Actor_Gulpit_80227F58
+00120001   1D Area SAM          $SpriteTable_80227EEC   $Actor_Gulpit_80227F58
+00120001   21 Area PRA3         $SpriteTable_80225310   $Actor_GhostLakilester_80225358
+00120001   22 Area KPA          $SpriteTable_8021CC14   $Actor_DryBones_8021CC5C
+00120001   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00120001   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00120001   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00120001   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00120001   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00120001   22 Area KPA          $SpriteTable_8022C8E0   $Actor_Ember_8022C994
+00120001   22 Area KPA          $SpriteTable_8022C8E0   $Actor_Ember_8022C994
+00120001   22 Area KPA          $SpriteTable_8022C8E0   $Actor_Ember_8022C994
+00120001   22 Area KPA          $SpriteTable_8022C8E0   $Actor_Ember_8022C994
+00120001   24 Area KPA3         $SpriteTable_802265C0   $Actor_Duplighost_8021B300
+00120001   26 Area KKJ          $SpriteTable_802186D0   $Actor_KammyKoopa_80218718
+00120001   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00120001   27 Area DIG          $SpriteTable_80226E08   $Actor_MontyMole_80226E74
+00120001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120002   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00120003   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120003   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120003   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120003   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00120003   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00122001   14 Area JAN          $SpriteTable_802187F0   $Actor_SpearGuy_80218880
+00122001   14 Area JAN          $SpriteTable_802187F0   $Actor_SpearGuy_80218880
+00122003   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00122003   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00124002   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00800000   00 Area KMR Part 1   $SpriteTable_802196C8   $Actor_Goomba_802196EC
+00800000   00 Area KMR Part 1   $SpriteTable_8021B088   $Actor_SpikedGoomba_8021B0AC
+00800000   00 Area KMR Part 1   $SpriteTable_8021CC70   $Actor_Paragoomba_8021CD00
+00800000   01 Area KMR Part 2   $SpriteTable_80219968   $Actor_BlueGoomba_8021998C
+00800000   01 Area KMR Part 2   $SpriteTable_8021B778   $Actor_RedGoomba_8021B79C
+00800000   01 Area KMR Part 2   $SpriteTable_8021D4B8   $Actor_BlueGoomba_8021D4DC
+00800000   01 Area KMR Part 2   $SpriteTable_8021EEB8   $Actor_RedGoomba_8021EEDC
+00800000   01 Area KMR Part 2   $SpriteTable_8022339C   $Actor_GoomnutTree_80223450
+00800000   02 Area KMR Part 3   $SpriteTable_8021A448   $Actor_SpikedGoomba_8021A46C
+00800000   02 Area KMR Part 3   $SpriteTable_8021C320   $Actor_Paragoomba_8021C3B0
+00800000   02 Area KMR Part 3   $SpriteTable_8021F8C0   $Actor_Paragoomba_8021F950
+00800000   02 Area KMR Part 3   $SpriteTable_80222AE4   $Actor_JrTroopa1_80222B08
+00800000   02 Area KMR Part 3   $SpriteTable_802244C4   $Actor_JrTroopa2_802244E8
+00800000   02 Area KMR Part 3   $SpriteTable_8022C640   $Actor_JrTroopa6_8022C6AC
+00800000   03 Area MAC          $SpriteTable_80219E24   $Actor_Chan_80219E48
+00800000   03 Area MAC          $SpriteTable_8021D47C   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_8021EA50   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_8022069C   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_80222394   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_80226A80   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_8022851C   $Actor_Lee_8021D4A0
+00800000   03 Area MAC          $SpriteTable_8022A364   $Actor_TheMaster1_8022A388
+00800000   03 Area MAC          $SpriteTable_8022B790   $Actor_TheMaster2_8022B7B4
+00800000   03 Area MAC          $SpriteTable_8022DAF0   $Actor_TheMaster3_8022DB38
+00800000   04 Area HOS          $SpriteTable_80219114   $Actor_GoombarioTutor1_80219138
+00800000   04 Area HOS          $SpriteTable_8021AD80   $Actor_Ember_8021AE34
+00800000   04 Area HOS          $SpriteTable_8021D5F0   $Actor_Magikoopa_8021D680
+00800000   04 Area HOS          $SpriteTable_8021D614   $Actor_FlyingMagikoopa_8021D6A8
+00800000   04 Area HOS          $SpriteTable_80221624   $Actor_FlyingMagikoopa_8021D6A8
+00800000   04 Area HOS          $SpriteTable_80221648   $Actor_FlyingMagikoopa_8021D6A8
+00800000   05 Area NOK          $SpriteTable_80219808   $Actor_Goomba_8021982C
+00800000   05 Area NOK          $SpriteTable_8021B280   $Actor_Paragoomba_8021B310
+00800000   05 Area NOK          $SpriteTable_8021E468   $Actor_SpikedGoomba_8021E48C
+00800000   05 Area NOK          $SpriteTable_8021FFC4   $Actor_KoopaTroopa_8021FFE8
+00800000   05 Area NOK          $SpriteTable_80222108   $Actor_Fuzzy_8022212C
+00800000   05 Area NOK          $SpriteTable_80223A9C   $Actor_Paratroopa_80223B08
+00800000   05 Area NOK          $SpriteTable_80227AB4   $Actor_KentCKoopa_80227BF8
+00800000   06 Area TRD Part 1   $SpriteTable_80219018   $Actor_BulletBill_8021903C
+00800000   06 Area TRD Part 1   $SpriteTable_8021A70C   $Actor_Bobomb_8021A730
+00800000   06 Area TRD Part 1   $SpriteTable_8021CA44   $Actor_KoopaTroopa_8021CA68
+00800000   06 Area TRD Part 1   $SpriteTable_8021EC6C   $Actor_Paratroopa_8021ECD8
+00800000   07 Area TRD Part 2   $SpriteTable_80225624   $Actor_GNinjakoopa_80225648
+00800000   07 Area TRD Part 2   $SpriteTable_802285C4   $Actor_RNinjakoopa_802285E8
+00800000   07 Area TRD Part 2   $SpriteTable_8022B564   $Actor_BNinjakoopa_8022B588
+00800000   07 Area TRD Part 2   $SpriteTable_8022E504   $Actor_YNinjakoopa_8022E528
+00800000   08 Area TRD Part 3   $SpriteTable_80218344   $Actor_GoombarioTutor2_80218368
+00800000   09 Area IWA          $SpriteTable_802187EC   $Actor_Cleft_80218810
+00800000   09 Area IWA          $SpriteTable_8021FD54   $Actor_Whacka_8021FD78
+00800000   09 Area IWA          $SpriteTable_80220A04   $Actor_Whacka_80220A28
+00800000   09 Area IWA          $SpriteTable_80221720   $Actor_Whacka_80221744
+00800000   0A Area SBK          $SpriteTable_8021D66C   $Actor_Bandit_8021D6D8
+00800000   0B Area ISK Part 1   $SpriteTable_8021C568   $Actor_Swooper_8021C58C
+00800000   0B Area ISK Part 1   $SpriteTable_8021E594   $Actor_BuzzyBeetle_8021E5B8
+00800000   0D Area MIM          $SpriteTable_80218478   $Actor_ForestFuzzy_8021849C
+00800000   0D Area MIM          $SpriteTable_8021A924   $Actor_Bzzap_8021A9FC
+00800000   0D Area MIM          $SpriteTable_8021D44C   $Actor_PiranhaPlant_8021D470
+00800000   0E Area ARN          $SpriteTable_80218828   $Actor_HyperGoomba_8021884C
+00800000   0E Area ARN          $SpriteTable_8021B460   $Actor_HyperParagoomba_8021B4F0
+00800000   0E Area ARN          $SpriteTable_80220C14   $Actor_HyperCleft_80220C38
+00800000   0E Area ARN          $SpriteTable_80225D4C   $Actor_TubbaBlubba_80225D70
+00800000   0F Area DGB          $SpriteTable_80218104   $Actor_Clubba_80218128
+00800000   10 Area OMO          $SpriteTable_802192D0   $Actor_ShyGuy_802192F4
+00800000   10 Area OMO          $SpriteTable_8021ADD0   $Actor_ShyGuy_8021ADF4
+00800000   10 Area OMO          $SpriteTable_8021C8D0   $Actor_ShyGuy_8021C8F4
+00800000   10 Area OMO          $SpriteTable_8021E3D0   $Actor_ShyGuy_8021E3F4
+00800000   10 Area OMO          $SpriteTable_8021FED0   $Actor_ShyGuy_8021FEF4
+00800000   10 Area OMO          $SpriteTable_802219C8   $Actor_AntiGuy_802219EC
+00800000   10 Area OMO          $SpriteTable_8022351C   $Actor_MediGuy_80223540
+00800000   10 Area OMO          $SpriteTable_80224AEC   $Actor_GrooveGuy_80224B10
+00800000   10 Area OMO          $SpriteTable_80227564   $Actor_SpyGuy_802275AC
+00800000   10 Area OMO          $SpriteTable_8022977C   $Actor_SkyGuy_80229854
+00800000   10 Area OMO          $SpriteTable_8022CC34   $Actor_PyroGuy_8022CC58
+00800000   10 Area OMO          $SpriteTable_8022DFEC   $Actor_SlotMachinestop_8022E010
+00800000   12 Area OMO3         $SpriteTable_8021B80C   $Actor_SlotMachinestart_8021B858
+00800000   12 Area OMO3         $SpriteTable_8021D208   $Actor_Goomba_8021D22C
+00800000   12 Area OMO3         $SpriteTable_8021EC14   $Actor_Clubba_8021EC38
+00800000   12 Area OMO3         $SpriteTable_8021F7D8   $Actor_Fuzzy_8021F7FC
+00800000   12 Area OMO3         $SpriteTable_802210E0   $Actor_HammerBros_802211B8
+00800000   12 Area OMO3         $SpriteTable_8022839C   $Actor_Koopatrol_802283C0
+00800000   12 Area OMO3         $SpriteTable_8022CDB0   $Actor_ShyGuy_8022CDD4
+00800000   14 Area JAN          $SpriteTable_802187F0   $Actor_SpearGuy_80218880
+00800000   14 Area JAN          $SpriteTable_8021DA4C   $Actor_HurtPlant_8021DA70
+00800000   14 Area JAN          $SpriteTable_8021EA90   $Actor_JungleFuzzy_8021EAB4
+00800000   14 Area JAN          $SpriteTable_8022193C   $Actor_MBush_80221960
+00800000   14 Area JAN          $SpriteTable_8022265C   $Actor_MediGuy_80222680
+00800000   14 Area JAN          $SpriteTable_80223BF4   $Actor_SpikeTop_80223C18
+00800000   15 Area JAN2         $SpriteTable_802187CC   $Actor_PutridPiranha_802187F0
+00800000   15 Area JAN2         $SpriteTable_8021A040   $Actor_WMagikoopa1_8021A0D0
+00800000   15 Area JAN2         $SpriteTable_8021A064   $Actor_WMagikoopa2_8021A0F8
+00800000   16 Area KZN          $SpriteTable_80218EE8   $Actor_LavaBubble_80218F9C
+00800000   16 Area KZN          $SpriteTable_8021B1AC   $Actor_PutridPiranha_8021B1D0
+00800000   16 Area KZN          $SpriteTable_8021C984   $Actor_SpikeTop_8021C9A8
+00800000   16 Area KZN          $SpriteTable_8021F99C   $Actor_MediGuy_8021F9C0
+00800000   16 Area KZN          $SpriteTable_80220FF4   $Actor_RMagikoopa2_80221088
+00800000   16 Area KZN          $SpriteTable_80223CB4   $Actor_WMagikoopa2_80223D48
+00800000   17 Area KZN2         $SpriteTable_8022884C   $Actor_LavaBud_80225274
+00800000   18 Area FLO          $SpriteTable_80219FE4   $Actor_Lakitu_8021A050
+00800000   18 Area FLO          $SpriteTable_8021C038   $Actor_Spiny_8021C080
+00800000   18 Area FLO          $SpriteTable_8021D858   $Actor_CrazeeDayzee_8021D87C
+00800000   18 Area FLO          $SpriteTable_8021EA34   $Actor_Bzzap_8021EB0C
+00800000   18 Area FLO          $SpriteTable_802214F8   $Actor_AmazyDayzee_8022151C
+00800000   18 Area FLO          $SpriteTable_802226A4   $Actor_RuffPuff_802226C8
+00800000   18 Area FLO          $SpriteTable_802236DC   $Actor_MediGuy_80223700
+00800000   18 Area FLO          $SpriteTable_80224D10   $Actor_RMagikoopa1_80224DA0
+00800000   18 Area FLO          $SpriteTable_80224D34   $Actor_RMagikoopa2_80224DC8
+00800000   18 Area FLO          $SpriteTable_802279F4   $Actor_GRNMagikoopa2_80227A88
+00800000   18 Area FLO          $SpriteTable_8022A690   $Actor_WMagikoopa1_8022A720
+00800000   18 Area FLO          $SpriteTable_8022A6B4   $Actor_WMagikoopa2_8022A748
+00800000   18 Area FLO          $SpriteTable_8022E2F0   $Actor_YMagikoopa1_8022E380
+00800000   18 Area FLO          $SpriteTable_8022E314   $Actor_YMagikoopa2_8022E3A8
+00800000   19 Area FLO2         $SpriteTable_80231920   $Actor_Spike_80231968
+00800000   1A Area TIK          $SpriteTable_8021A1A4   $Actor_DarkKoopa_8021A1C8
+00800000   1A Area TIK          $SpriteTable_8021D3BC   $Actor_DarkParatroopa_8021D428
+00800000   1A Area TIK          $SpriteTable_802222D8   $Actor_Gloomba_802222FC
+00800000   1A Area TIK          $SpriteTable_80223C98   $Actor_SpikedGloomba_80223CBC
+00800000   1A Area TIK          $SpriteTable_80225880   $Actor_Paragloomba_80225910
+00800000   1A Area TIK          $SpriteTable_80228A84   $Actor_BuzzyBeetle_80228AA8
+00800000   1A Area TIK          $SpriteTable_8022BA14   $Actor_SpikeTop_8022BA38
+00800000   1A Area TIK          $SpriteTable_8022EA88   $Actor_Spiny_8022EAD0
+00800000   1B Area TIK2         $SpriteTable_8021A7C0   $Actor_Blooper_8021A808
+00800000   1B Area TIK2         $SpriteTable_8021C7BC   $Actor_ElectroBlooper_8021C804
+00800000   1B Area TIK2         $SpriteTable_8021F6AC   $Actor_SuperBlooper_8021F6F4
+00800000   1B Area TIK2         $SpriteTable_802225E0   $Actor_SuperBlooper_8021F6F4
+00800000   1C Area TIK3         $SpriteTable_80219908   $Actor_Swooper_8021992C
+00800000   1C Area TIK3         $SpriteTable_8021B918   $Actor_Swoopula_8021B93C
+00800000   1D Area SAM          $SpriteTable_8021AFAC   $Actor_Duplighost_8021AFD0
+00800000   1D Area SAM          $SpriteTable_8021CBF8   $Actor_Duplighost_8021AFD0
+00800000   1D Area SAM          $SpriteTable_8021E7D8   $Actor_Duplighost_8021AFD0
+00800000   1D Area SAM          $SpriteTable_80220434   $Actor_GhostBombette_80220458
+00800000   1D Area SAM          $SpriteTable_802248EC   $Actor_Duplighost_8021AFD0
+00800000   1D Area SAM          $SpriteTable_80226290   $Actor_Duplighost_8021AFD0
+00800000   1D Area SAM          $SpriteTable_80227EEC   $Actor_Gulpit_80227F58
+00800000   1D Area SAM          $SpriteTable_802295A0   $Actor_GulpitRocks_802295C4
+00800000   1D Area SAM          $SpriteTable_80229BD4   $Actor_WhiteClubba_80229BF8
+00800000   1D Area SAM          $SpriteTable_8022ABC4   $Actor_FrostPiranha_8022ABE8
+00800000   1D Area SAM          $SpriteTable_8022C480   $Actor_GRYMagikoopa1_8022C510
+00800000   1D Area SAM          $SpriteTable_8022C4A4   $Actor_GRYMagikoopa2_8022C538
+00800000   1E Area SAM2         $SpriteTable_8021C000   $Actor_Paragoomba_8021C090
+00800000   1E Area SAM2         $SpriteTable_8021F2A0   $Actor_GRYMagikoopa1_8021F330
+00800000   1E Area SAM2         $SpriteTable_8021F2C4   $Actor_GRYMagikoopa2_8021F358
+00800000   1F Area PRA          $SpriteTable_802195E8   $Actor_Swoopula_8021960C
+00800000   1F Area PRA          $SpriteTable_8021D91C   $Actor_AlbinoDino_8021D940
+00800000   1F Area PRA          $SpriteTable_8021E704   $Actor_WhiteClubba_8021E728
+00800000   1F Area PRA          $SpriteTable_8021F750   $Actor_RMagikoopa1_8021F7E0
+00800000   1F Area PRA          $SpriteTable_8021F774   $Actor_RMagikoopa2_8021F808
+00800000   1F Area PRA          $SpriteTable_80222410   $Actor_GRNMagikoopa1_802224A0
+00800000   1F Area PRA          $SpriteTable_80222434   $Actor_GRNMagikoopa2_802224C8
+00800000   1F Area PRA          $SpriteTable_802250D0   $Actor_YMagikoopa1_80225160
+00800000   1F Area PRA          $SpriteTable_802250F4   $Actor_YMagikoopa2_80225188
+00800000   1F Area PRA          $SpriteTable_80227DE0   $Actor_GRYMagikoopa1_80227E70
+00800000   1F Area PRA          $SpriteTable_80227E04   $Actor_GRYMagikoopa2_80227E98
+00800000   1F Area PRA          $SpriteTable_8022AAA0   $Actor_WMagikoopa1_8022AB30
+00800000   1F Area PRA          $SpriteTable_8022AAC4   $Actor_WMagikoopa2_8022AB58
+00800000   21 Area PRA3         $SpriteTable_8021A02C   $Actor_Duplighost_8021A050
+00800000   21 Area PRA3         $SpriteTable_8021BC78   $Actor_GhostGoombario_8021BC9C
+00800000   21 Area PRA3         $SpriteTable_8021D858   $Actor_GhostKooper_8021D87C
+00800000   21 Area PRA3         $SpriteTable_8021F4B4   $Actor_GhostBombette_8021F4D8
+00800000   21 Area PRA3         $SpriteTable_8022396C   $Actor_Duplighost_8021A050
+00800000   21 Area PRA3         $SpriteTable_80225310   $Actor_GhostLakilester_80225358
+00800000   21 Area PRA3         $SpriteTable_80226F08   $Actor_Swoopula_80226F2C
+00800000   21 Area PRA3         $SpriteTable_8022B244   $Actor_WhiteClubba_8022B268
+00800000   21 Area PRA3         $SpriteTable_8022C290   $Actor_RMagikoopa1_8022C320
+00800000   21 Area PRA3         $SpriteTable_8022C2B4   $Actor_RMagikoopa2_8022C348
+00800000   21 Area PRA3         $SpriteTable_8022EF50   $Actor_GRYMagikoopa1_8022EFE0
+00800000   21 Area PRA3         $SpriteTable_8022EF74   $Actor_GRYMagikoopa2_8022F008
+00800000   22 Area KPA          $SpriteTable_80218A24   $Actor_BonyBeetle_80218A48
+00800000   22 Area KPA          $SpriteTable_8021CC14   $Actor_DryBones_8021CC5C
+00800000   22 Area KPA          $SpriteTable_8021E5A0   $Actor_HammerBros_8021E678
+00800000   22 Area KPA          $SpriteTable_802205CC   $Actor_Koopatrol_802205F0
+00800000   22 Area KPA          $SpriteTable_80225090   $Actor_Magikoopa_80225120
+00800000   22 Area KPA          $SpriteTable_802250B4   $Actor_FlyingMagikoopa_80225148
+00800000   22 Area KPA          $SpriteTable_80229284   $Actor_Magiclone_802292CC
+00800000   22 Area KPA          $SpriteTable_802292A8   $Actor_Magikoopa_80225120
+00800000   22 Area KPA          $SpriteTable_8022C8E0   $Actor_Ember_8022C994
+00800000   23 Area KPA2         $SpriteTable_8021D3EC   $Actor_Bowser1_8021D410
+00800000   23 Area KPA2         $SpriteTable_8021F384   $Actor_IntroBowser_8021F3A8
+00800000   23 Area KPA2         $SpriteTable_80221674   $Actor_Bowser1_80221698
+00800000   23 Area KPA2         $SpriteTable_80227724   $Actor_Bowser2_80227748
+00800000   23 Area KPA2         $SpriteTable_8022D654   $Actor_Bowser3_8022D678
+00800000   24 Area KPA3         $SpriteTable_80219778   $Actor_AntiGuy_8021979C
+00800000   24 Area KPA3         $SpriteTable_8021B2DC   $Actor_Duplighost_8021B300
+00800000   24 Area KPA3         $SpriteTable_8021CF28   $Actor_Duplighost_8021B300
+00800000   24 Area KPA3         $SpriteTable_8021EB08   $Actor_GhostKooper_8021EB2C
+00800000   24 Area KPA3         $SpriteTable_80220764   $Actor_Duplighost_8021B300
+00800000   24 Area KPA3         $SpriteTable_80224C1C   $Actor_Duplighost_8021B300
+00800000   24 Area KPA3         $SpriteTable_802265C0   $Actor_Duplighost_8021B300
+00800000   25 Area KPA4         $SpriteTable_80218708   $Actor_BombshellBlaster_8021872C
+00800000   25 Area KPA4         $SpriteTable_80218EC8   $Actor_BombshellBill_80218EEC
+00800000   25 Area KPA4         $SpriteTable_80219E7C   $Actor_Koopatrol_80219EA0
+00800000   25 Area KPA4         $SpriteTable_8021E940   $Actor_Magikoopa_8021E9D0
+00800000   25 Area KPA4         $SpriteTable_8021E964   $Actor_FlyingMagikoopa_8021E9F8
+00800000   25 Area KPA4         $SpriteTable_80222B34   $Actor_Magikoopa_8021E9D0
+00800000   25 Area KPA4         $SpriteTable_80222B58   $Actor_FlyingMagiclone_80222BA4
+00800000   26 Area KKJ          $SpriteTable_802186D0   $Actor_KammyKoopa_80218718
+00800000   27 Area DIG          $SpriteTable_8021AAD8   $Actor_Fuzzy_8021AAFC
+00800000   27 Area DIG          $SpriteTable_802216BC   $Actor_Bandit_80221728
+00800000   27 Area DIG          $SpriteTable_80223830   $Actor_ShyGuy_80223854
+00800000   27 Area DIG          $SpriteTable_802290DC   $Actor_SlotMachinestart_80229128
+00800000   Partner_05_Watt      $SpriteTable_8023908C   $Actor_Watt_802390B0
+00800001   02 Area KMR Part 3   $SpriteTable_80225F0C   $Actor_JrTroopa3_80225F54
+00800001   02 Area KMR Part 3   $SpriteTable_80228014   $Actor_JrTroopa4_8022805C
+00800001   02 Area KMR Part 3   $SpriteTable_8022A6E0   $Actor_JrTroopa5_8022A728
+00800001   03 Area MAC          $SpriteTable_8022348C   $Actor_Lee_8021D4A0
+00800001   03 Area MAC          $SpriteTable_80224514   $Actor_Lee_8021D4A0
+00800001   03 Area MAC          $SpriteTable_80225A80   $Actor_Lee_8021D4A0
+00800001   07 Area TRD Part 2   $SpriteTable_8021A748   $Actor_FakeBowser_8021A8D4
+00800001   09 Area IWA          $SpriteTable_8021B708   $Actor_Buzzar_8021B7BC
+00800001   0A Area SBK          $SpriteTable_80218338   $Actor_Pokey_80218410
+00800001   0B Area ISK Part 1   $SpriteTable_80218CC8   $Actor_PokeyMummy_80218DA0
+00800001   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+00800001   12 Area OMO3         $SpriteTable_80222F18   $Actor_Pokey_80222FF0
+00800001   27 Area DIG          $SpriteTable_8021C388   $Actor_Pokey_8021C460
+00800001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+00800001   2B Area OMO2_3       $SpriteTable_802310E8   $Actor_ShyStack_802312E0
+00800005   29 Area OMO2_1       $SpriteTable_80231168   $Actor_ShySquad_802313A8
+00800005   2D Area OMO2_5       $SpriteTable_802310B8   $Actor_ShySquad_802312F8
+00800009   17 Area KZN2         $SpriteTable_8021D1F4   $Actor_LavaPiranha_8021D23C
+00800020   01 Area KMR Part 2   $SpriteTable_802209C8   $Actor_GoombaKing_80220A10
+00800020   17 Area KZN2         $SpriteTable_80223FFC   $Actor_PetitPiranha_80224020
+00800028   19 Area FLO2         $SpriteTable_80219B0C   $Actor_HuffNPuff_80219B9C
+00800028   20 Area PRA2         $SpriteTable_80218AF4   $Actor_CrystalKing_80218B18
+00802000   0F Area DGB          $SpriteTable_80218D24   $Actor_TubbaBlubba_80218D48
+00802000   27 Area DIG          $SpriteTable_80225384   $Actor_TubbaBlubba_802253A8
+00820000   12 Area OMO3         $SpriteTable_80218E74   $Actor_BigLanternGhost_80218EBC
+00820001   11 Area OMO2         $SpriteTable_8022F6C0   $Actor_LightBulb_8022F6E4
+00820001   2E Area OMO2_6       $SpriteTable_802310B8   $Actor_ShyGuy_802311FC
+00900001   0B Area ISK Part 1   $SpriteTable_80221604   $Actor_StoneChomp_8022176C
+00900001   0C Area ISK Part 2   $SpriteTable_80218D34   $Actor_Tutankoopa_8021BBF4
+00900021   17 Area KZN2         $SpriteTable_8022522C   $Actor_LavaBud_80225274
+00920001   11 Area OMO2         $SpriteTable_8022C8F0   $Actor_ToyTank_8022C95C
+20120001   11 Area OMO2         $SpriteTable_802183E8   $Actor_GeneralGuy_80218430
+20120001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+20120001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+20120001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+20120001   2A Area OMO2_2       $SpriteTable_802312F8   $Actor_StiltGuy_80231418
+20820000   11 Area OMO2         $SpriteTable_802183E8   $Actor_GeneralGuy_80218430
+20820000   2C Area OMO2_4       $SpriteTable_802310B8   $Actor_ShyGuy_802310DC
+40120000   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+40120000   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+40120000   0C Area ISK Part 2   $SpriteTable_8021BAD4   $Actor_Tutankoopa_8021BBF4
+80800001   06 Area TRD Part 1   $SpriteTable_80219DD8   $Actor_BillBlaster_80219E20
+80800001   09 Area IWA          $SpriteTable_8021A508   $Actor_MontyMole_8021A574
+80800001   0E Area ARN          $SpriteTable_80223D30   $Actor_TubbasHeart_80223D78
+80800001   13 Area KGR          $SpriteTable_80218B00   $Actor_Fuzzipede_80218B48
+80800001   19 Area FLO2         $SpriteTable_80230718   $Actor_MontyMole_80230784
+80800001   1D Area SAM          $SpriteTable_80221694   $Actor_Duplighost_8021AFD0
+80800001   1D Area SAM          $SpriteTable_80222620   $Actor_Duplighost_8021AFD0
+80800001   1D Area SAM          $SpriteTable_802239F8   $Actor_Duplighost_8021AFD0
+80800001   1E Area SAM2         $SpriteTable_80219F20   $Actor_Monstar_80219F68
+80800001   21 Area PRA3         $SpriteTable_80220714   $Actor_Duplighost_8021A050
+80800001   21 Area PRA3         $SpriteTable_802216A0   $Actor_Duplighost_8021A050
+80800001   21 Area PRA3         $SpriteTable_80222A78   $Actor_GhostWatt_80222AC0
+80800001   24 Area KPA3         $SpriteTable_802219C4   $Actor_Duplighost_8021B300
+80800001   24 Area KPA3         $SpriteTable_80222950   $Actor_GhostBow_80222998
+80800001   24 Area KPA3         $SpriteTable_80223D28   $Actor_GhostWatt_80223D70
+80800001   27 Area DIG          $SpriteTable_80226E08   $Actor_MontyMole_80226E74
+80800021   20 Area PRA2         $SpriteTable_8022056C   $Actor_CrystalBit_80220644
+80800021   20 Area PRA2         $SpriteTable_802205B4   $Actor_CrystalBit_8022066C
+80800021   20 Area PRA2         $SpriteTable_802205FC   $Actor_CrystalBit_80220694
+80800023   19 Area FLO2         $SpriteTable_8022F710   $Actor_HuffNPuff_80219B9C

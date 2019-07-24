@@ -1,0 +1,22 @@
+
+add		80242D74	IntTable
+size	80242D74	70
+name	80242D74	CreditList_Start
+newline	80242D74	7
+
+add		80242DE4	IntTable
+size	80242DE4	690
+name	80242DE4	CreditList_Titles
+newline	80242DE4	7
+
+add		80243474	IntTable
+size	80243474	11B8
+name	80243474	CreditList_Names
+newline	80243474	7
+
+name	80246ADC	Script_ShowCredits
+name	80244648	Script_ShowTitles
+name	80244668	Script_ShowNames
+name	80244688	Script_ShowStart
+
+name	80242580	Function_ShowCreditList

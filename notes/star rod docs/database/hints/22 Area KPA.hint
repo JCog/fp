@@ -1,0 +1,32 @@
+
+name	80218A48	BonyBeetle
+name	802198B0	Script_Tackle
+name	8021A870	Script_Tackle_Spikes
+name	8021BF98	Script_FlipOver
+name	8021C768	Script_FlipOver_Spikes
+
+name	8021CC5C	DryBones
+
+name	8021E678	HammerBros
+
+name	802205F0	Koopatrol
+name	80222064	Script_ShellToss
+name	80222DB8	Script_SuperShellToss
+name	80223E14	Script_SummonBackup
+
+name	80225120	Magikoopa
+name	80225148	FlyingMagikoopa
+name	80225AEC	Script_RunAway
+name	802272C0	Script_HealOne
+name	8022784C	Script_HealAll
+name	80227EEC	Script_ShapeSpell
+name	802292CC	Magiclone
+name	802292F4	FlyingMagiclone
+name	80229360	Script_MakeCopy
+name	80229A20	Script_BoostAttack
+name	8022A168	Script_BoostDefense
+name	8022A8B0	Script_Electrify
+name	8022B03C	Script_Vanish
+
+name	8022C994	Ember
+name	8022D11C	Script_Split

@@ -1,0 +1,29 @@
+
+% not detected by the automatic dump process
+add		802435EC	BadgeShopInventory
+size	802435EC	B4
+name	802435EC	MerlowBadgeInventory
+
+name	802447D0	ByteTable_HintPrices
+name	802417EC	Function_HasEnoughCoins
+name	80241860	Function_DeductHintCoins
+name	802418A4	Function_RefundHintCoins
+
+add		802447D4	DataTable
+size	802447D4	3B4
+newline	802447D4	3
+name	802447D4	BadgeHintData
+
+add		80244B88	DataTable
+size	80244B88	C0
+newline	80244B88	3
+name	80244B88	SuperBlockHintData
+
+add		80244C48	DataTable
+size	80244C48	2F4
+newline	80244C48	3
+name	80244C48	StarPieceHintData
+
+name	8024126C	Function_GetBadgeHint		% length at function offset 9C, 128, 1B0, 238
+name	802414E4	Function_GetSuperBlockHint	% length at function offset 9C, 144
+name	80241668	Function_GetStarPieceHint	% length at function offset 9C, 144

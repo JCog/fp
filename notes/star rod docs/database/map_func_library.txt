@@ -1,0 +1,168 @@
+
+% MAP FUNCTION LIBRARY
+% This file lists script API functions (those callable from scripts) which are loaded
+% outside of battle. Most of these functions are unavailable during battles.
+% Functions available at all times are found in shared_func_library
+
+% You can add new functions to this file or rename exising ones.
+% Function names and addresses must have a one-to-one relationship, but functions may
+% have multiple argument lists / call signatures, each with its own line in this file.
+
+% Basic argument types are: int, bool, ???
+% Map scripts can also use: modelID, colliderID, and zoneID
+% Additional types can be added with enum files in /res/database/types/
+
+% Arguments can also be pointers to data structures. If the type is known, these data
+% structures will be examined and dumped during the recursive dump process.
+
+% Pointer arguments can specify a name, ex: $Script("Init") or a length, ex: $IntTable(2)
+% The length can also be given by one of the other function arguments, ex: $VectorList(#2)
+% (in this example, we set the list length to the value of the third function argument).
+
+% Not used by scripts, but some functions use this:
+800654F0 : StringPrintf     :   *   % args : *dest, format, string -- used to combine %s_shape/%s_hit with map names
+
+% 80044180 : ??? : int, int % sets flag bits at 800B0F10, the start of the 'after battle' / 'battle outcome' 'battle report' struct, 4 = don't drop player coins (or rewards generally?)
+
+80044298 : MakeNpcs         :   int, $NpcGroupList
+80044340 : RemoveNpc        :   npcID
+
+8004457C : GetBattleOutcome :   int                 % args: *out (0 = player won, 1 = player lost, 2 = player ran, 3 = enemy ran) -- whether the player gets a game over from losing is determined by the battle script
+% 800445A8  (0) *out = parent otherNPC[C4]
+% 800445D4 (14) *out = parent otherNPC[C8]
+% 80044600 (77) *out = (byte) parent otherNPC[5]
+8004462C : DoNpcDefeat      :   none                % kills parent's defeat script and replaces it with an instance of 80077E38
+80044840 : StartBattle      :   none                % begins a battle with the NPC's assigned encounter
+80044860 : StartBattleWith  :   songID              % same as the previous, but you can set the song
+8004489C : StartBossBattle  :   songID              % args : songID
+80044A78 : BindNpcAI        :   npcID, $Script      % ("NpcAI")
+80044BAC : BindNpcIdle      :   npcID, $Script      % ("Idle")  -- paused while the interaction prompt is active, executes after init is done
+80044C2C : RestartNpcAI     :   npcID               % kills the current AI script and launches a new copy
+80044CF0 : EnableNpcAI      :   npcID, bool         % pauses/unpauses AI script for a given npc
+80044DA4 : SetNpcAux        :   npcID, $Script      % kills the current aux script and launches a new one from $Script
+80044EB8 : BindNpcAux       :   npcID, $Script      % ("Aux") -- helper script that executes after init script is done, loop for a continous background script
+80044F38 : RestartNpcAux    :   npcID               % kills the current aux script and launches a new copy
+80044FF0 : EnableNpcAux     :   npcID, bool         % pauses/unpauses aux script for a given npc
+800450A4 : BindNpcInteract  :   npcID, $Script      % ("Interact")
+80045140 : BindNpcHit       :   npcID, $Script      % ("Hit")
+800451DC : BindNpcDefeat    :   npcID, $Script      % ("Defeat") -- executes after battle
+8004525C : SetOwnerVar      :   int, int            % args : index, value
+800452C0 : GetOwnerVar      :   int, int            % args : index, *dest
+80045320 : SetNpcVar        :   npcID, int, int     % args : npcID, index, value -- sets (&NPC + 6C + 4*index) to value, looks like there are 16 of them
+800453BC : GetNpcVar        :   npcID, int, int     % args : npcID, index, *dest
+% 8004545C  (0) set parent (id=script[14C])  rotation : int, int, int (44/48/4C)
+8004550C : SetOwnerFlags    :   int                 % args : flags -- directly sets flags of parent NPC
+80045524 : SetOwnerFlagBits :   int, bool           % args : flags, 1 (set : OR flags) | 0 (reset : AND ~flags)
+80045614 : GetOwnerNpcID    :   int                 % args : *out
+80045688 : SetNpcFlagBits2  :   npcID, int, int     % args : npcID, flags, 1 (set : OR flags) | 0 (reset : AND ~flags)
+
+8004A47C : DoBasicAI        :   $AISettings         % args : $AISettings
+
+800E96F8 : ShowCoinCounter  :   bool        % shows coin counter in lower left hand corner
+
+% These should be shared, from ~80110000 to ~80150000
+80111D38 : MakeEntity       :   *           % custom arg spec
+80111FB0 : AssignScript     :   $Script     % args : script to attach
+80111FF8 : AssignAreaFlag   :   int         % args : index
+801120B8 : AssignFlag       :   int
+8011206C : AssignBlockFlag  :   int
+80112114 : AssignPanelFlag  :   int
+80112170 : AssignCrateFlag  :   int
+
+80281860 : MakeShop         :   $ShopItemPositions, $ShopInventory, $ShopPriceList, ???
+80281BD8 : MakeShopOwner    :   $ShopOwnerNPC
+80281CAC : MakeDoorAdvanced :   int, $Script("OpenDoor"), $Script("MoveWalls"), $Script("DropDoor"), $Script("ToggleVis"), colliderID, colliderID, modelID, $NpcList
+
+802832E0 : CreatePushBlockGrid  :   int, int, int, int, int, int, int   % args: systemID, sizeNx, sizeNz, centerX, centerY, centerZ, ???
+8028347C : SetPushBlock         :   int, int, int, int                  % args: systemID, gridX, gridZ, type (0 = no, 1 = block, 2 = occlusion)
+802835C0 : GetPushBlock         :   int, int, int, int                  % args: systemID, gridX, gridZ, *out (0 = no, 1 = block, 2 = occlusion)
+802836B8 : GetGridIndexFromPos  :   int, int, int, int, int, int        % args: systemID, posX, posY, posZ, *out gridX, *out gridZ
+802837AC : BindPushBlockFallEffect  :   int, $Function                  % args: systemID, $Function 
+
+802C9ED8 : ResetFromLava    :   $LavaResetList
+
+802CA400 : GotoMap          :   $ASCII, int         % args : map name, entry index
+802CA420 : GotoMapSpecial   :   $ASCII, int, int    % args : map name, entry index, transition type (fade to white/black, star wipe, mario head cutout, curtain close, etc)
+802CA460 : GetEntryID       :   int     % args : *out -- returns the entrance ID that the player used to enter the current map
+802CA490 : GetMapID         :   int     % args : *out -- used by the forever forest maps (mim_*) to load current ID to a game byte
+802CA4C0 : GetLoadType      :   int     % args : *type (0 = loaded from another map | 1 = loaded from main menu) -- used for spawning the player at save points
+802CA4F4 : SetRenderMode    :   modelID, int    % args : modelID, mode
+
+802CDCB0 : SetNpcPos        :   npcID, int, int, int    % args : npcID, XYZ
+% 802CDDB0 moved to shared
+802CDED4 : SetNpcScale      :   npcID, int, int, int    % args : npcID, *FLOAT ScaleX, *FLOAT ScaleY, *FLOAT ScaleZ
+802CE01C : SetNpcSpeed      :   npcID, int              % args : npcID, *FLOAT
+802CE088 : SetNpcJumpscale  :   npcID, int              % args : npcID, *FLOAT scale
+% 802CE0F4 moved to shared
+802CE160 : GetNpcAnimation  :   npcID, int              % args : npcID, OUT animation
+802CE22C : MoveNpcTo        :   npcID, int, int, int    % args : npcID, x, z, speed (0 = use NpcSpeed)
+802CE6C4 : NpcJump0         :   npcID, int, int, int, int               % args : npcID, x, y, z, height -- calls 802CE434 with A2 :         IS THIS FOR FLYING?
+802CE6E0 : NpcJump1         :   npcID, int, int, int, int               % args : npcID, x, y, z, height -- calls 802CE434 with A2 : 1
+802CE6FC : NpcJumpX         :   npcID, int, int, int, int, int, int     % args : npcID, x, y, z, duration, height, landing style? -- moves an npc in a parabolic arc
+802CEA10 : GetNpcYaw        :   npcID, int              % args : npcID, OUT yaw
+802CEA84 : SetNpcYaw        :   npcID, int              % args : npcID, angle
+802CEB04 : InterpNpcYaw     :   npcID, int, int         % args : npcID, target angle, time -- turns gradually over some number of frames (however, turn animation will often be abrupt)
+802CECC8 : NpcFacePlayer    :   npcID, int              % args : npcID, ??? (1 allows looking back and forth between targets, 0 = fixed?) -- set yaw to face player
+802CEE80 : NpcFaceNpc       :   npcID, npcID, int       % args : npcID, npcID to face toward (cannot be player), ??? (1 allows looking back and forth between targets, 0 = fixed?) -- set yaw to face other NPC
+
+% 802CF370  12    
+802CF4E8 : DisablePartnerAI :   int         % ??? -- partner will no longer try to follow mario, still has physics though
+802CF52C : EnablePartnerAI  :   none        % enables follow player AI
+
+802CF5B8 : BringPartnerOut  :   partnerID   % brings out temporary extra partner, Npc:Partner will refer to this temporary partner until they are put away
+802CF988 : PutPartnerAway   :   none        % puts away a temporary partner
+
+802D02B0 : SayMessage0      :   npcID, int, int, ???, print         % args : npcID, talk animation, idle animation, ???, stringID - calls 802D0320 (A2 : 0)
+% args : npcID, talk animation, idle animation, ???, ???, ??? stringID -- calls 802D0320 (A2 : 0)
+% flo_21 has: SayMessage0 ( 00000000 007C0030 007C0005 00000100 FFFFFFE2 0000001E 001100CE )
+802D02B0 : SayMessage0      :   npcID, int, int, ???, ???, ???, print   
+% First ??? is flags
+% 00000008  don't turn to face player
+
+802D02CC : SayMessage1      :   npcID, int, int, ???    % args : npcID, animation 1, animtaion 2, ??? -- calls 802D0320 (A2 : 1)
+% args : npcID, animation 1, animtaion 2, ???, ???, stringID -- calls 802D0320 (A2 : 1)
+% kzn_19 has: SayMessage1 ( .PartnerNpcID 00040006 00040001 00000000 *Var[2] *Var[7] ) -- *Var[2] is an npcID
+802D02CC : SayMessage1      :   npcID, int, int, ???, ???, ???      
+
+% used to resume a message? strings start with [NEXT] rather than [BEGIN:XX]
+802D02E8 : SayMessage2      :   npcID, int, int, ???, print         % args : npcID, talk animation, idle animation, ???, stringID      -- calls 802D0320 (A2 : 2)
+% args : npcID, talk animation, idle animation, ???, ???, ???, stringID -- calls 802D0320 (A2 : 2)
+% sam_05 has:  SayMessage2 ( 00000006 007E000B 007E000B 00000100 00000000 00000064 001200E3 )
+802D02E8 : SayMessage2      :   npcID, int, int, ???, ???, ???, print
+
+802D0304 : SayMessage3      :   npcID, int, int, ???, ???, print    % args : npcID, talk animation, idle animation, ???, ???, stringID -- calls 802D0320 (A2 : 3)
+802D0894 : ShowMessage      :   print, ???, ???     % args : stringID, ???, ??? -- used by signs and NPCs that cannot be seen, speech bubble doesn't connect to anything
+% 802D095C -- another way to show messages, used by HuffNPuff in flo_21
+802D0B6C : ShowChoice       :   print               % args : stringID options -- chosen index will be returned in *Var[0]
+802D0CEC : SetMessageString :   int, int            % args : pointer to a message string (XXXXFD), string variable index (0/1/etc)
+802D0D44 : SetMessageValue  :   int, int            % args : value, string variable index (0/1/etc)
+
+802D0DA0 : HidePlayerShadow     :   bool                % args : 1 (hide) | 0 (reveal)
+802D0DE4 : DisablePlayerPhysics :   bool                % args : 1 (disable) | 0 (enable) -- disables gravity, automatic animations (falling, etc), camera controller updates, but NOT partner AI
+802D0E28 : DisablePlayerInput   :   bool                % args : 1 (disable) | 0 (enable)
+802D0EF0 : SetPlayerPos         :   int, int, int       % args : X, Y, Z
+802D1024 : SetPlayerSpeed       :   int                 % args : *FLOAT speed
+802D1054 : SetPlayerJumpscale   :   int                 % args : *FLOAT scale
+802D1084 : SetPlayerAnimation   :   playerAnim          % args : animation
+802D1134 : MovePlayerTo         :   int, int, int       % args : x, y, z
+802D18E8 : PlayerJump           :   int, int, int, int  % args : x, y, z, height
+802D193C : InterpPlayerYaw      :   int, int            % args : target angle, time
+802D1B04 : PlayerFaceNpc        :   npcID, int          % args : npcID to face, ??? (1 allows looking back and forth between targets, 0 = fixed?) -- set player yaw to face npc
+
+802D1D28 : GetPlayerTargetYaw   :   int     % args : OUT target yaw
+802D1D60 : SetPlayerFlagBits    :   int, bool       % args : flags, 1 (set : OR flags) | 0 (reset : AND ~flags)
+% 802D1DD0 (86) : returns 8010F07C -- might be used to discriminate between different player actions in the overworld (spin jump vs hammer attack, see mac_01)
+802D1DFC : GetPlayerPos         :   int, int, int   % args : destx, desty, destz
+802D1E94 : GetPlayerAnimation   :   int     % args : OUT animation -- return player[C8]
+802D1EC0 : FullyRestoreHPandFP  :   none    % no args
+802D1EE0 : FullyRestoreSP       :   none    % no args
+802D1EFC : EnablePartner        :   partnerID
+802D1F38 : DisablePartner       :   partnerID
+
+802D216C : UseExitHeading   :   int, int    % args : move distance, exit id (used for angle - 180)
+
+802D2AA8 : DisablePulseStone    :   bool    % args : 0 (enable) | 1 (disable) -- sets a flag that make pulse stone appear on sbk maps
+802D2B88 : Disable8bitMario     :   bool    % args : 0 (pixel mario) | 1 (paper maio)
+802D2CD8 : PlaySoundAtPlayer    :   int, int        % args : sound ID, always zero?
+
+% lerp is also used in conjuction with 802D70D0
