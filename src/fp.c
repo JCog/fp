@@ -14,12 +14,12 @@ fp_ctxt_t fp = {
 
 void fp_main(void){
 
-	gfx_begin();
+	/*gfx_begin();*/
 	char test_string[100]  = "hello, printing is working";
     char test_two[100]  = "i need to make an input display now";
-	gfx_printf(10, 20, test_string);
-    gfx_printf(10, 30, test_two);
-	gfx_finish();
+	/*gfx_printf(10, 20, test_string);*/
+    /*gfx_printf(10, 30, test_two);*/
+	/*gfx_finish();*/
 
 	pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
 

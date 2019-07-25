@@ -1,7 +1,7 @@
 .n64
 .relativeinclude on
 
-.create "../rom/fp_plus-pm64j.z64", 0
+.create "../rom/fp.z64", 0
 .incbin "../rom/base.z64"
 
 .definelabel PAYLOAD_ROM, 0x02800000
@@ -19,8 +19,8 @@
 ;=======================
 
 ;what the crc should be according to crctool
-.orga 0x10
-.word 0x000FDBEA, 0xDCD37EBE
+;.orga 0x10
+;.word 0x000FDBEA, 0x95B120E1
 
 ;=================================================
 ; Base ROM Editing Region
