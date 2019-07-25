@@ -7,22 +7,28 @@
 #include "pm64.h"
 #include "gfx.h"
 
-_Bool ready = 0;
+__attribute__((section(".data")))
+fp_ctxt_t fp = { 
+    .ready = 0, 
+};
 
 void fp_main(void){
 
 	gfx_begin();
 	char test_string[100]  = "hello, printing is working";
-	gfx_printf(10, 10, test_string);
+    char test_two[100]  = "i need to make an input display now";
+	gfx_printf(10, 20, test_string);
+    gfx_printf(10, 30, test_two);
 	gfx_finish();
 
 	pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
+
 }
 
 void init(){
 
     gfx_init();
-    ready = 1;
+    fp.ready = 1;
 
 }
 
@@ -48,7 +54,7 @@ static void init_stack(void (*func)(void)) {
 ENTRY void _start(void){
 
 	init_gp();
-	if(!ready){
+	if(!fp.ready){
 		init_stack(init);
 	}
 	init_stack(fp_main);
