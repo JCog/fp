@@ -16,9 +16,7 @@ fp_ctxt_t fp = {
 void fp_main(void){
 
 	gfx_begin();
-    int num = 8;
-    #warning num;
-	input_t buttons = pm_status.input.x;
+	input_t buttons = pm_status.input.pad;
     gfx_printf(15, 30, "%4i", buttons);
 	gfx_finish();
 

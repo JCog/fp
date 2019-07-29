@@ -58,7 +58,7 @@ typedef struct{
 
 /* Data */
 #define disp_buf              (*(gfx_t*)      pm_dlistBuffer_addr)
-#define pm_status             ((status_t)   pm_Status_addr)
+#define pm_status             (*(status_t*)   pm_Status_addr)
 
 /*function prototypes*/
 typedef void (*pm_GameUpdate_t) ();
