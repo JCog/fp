@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <startup.h>
+#include <startup.c>
 #include <inttypes.h>
 #include "fp.h"
 #include "pm64.h"
@@ -14,19 +15,20 @@ fp_ctxt_t fp = {
 
 void fp_main(void){
 
-	/*gfx_begin();*/
-	char test_string[100]  = "hello, printing is working";
-    char test_two[100]  = "i need to make an input display now";
-	/*gfx_printf(10, 20, test_string);*/
-    /*gfx_printf(10, 30, test_two);*/
-	/*gfx_finish();*/
+	gfx_begin();
+    int num = 8;
+    #warning num;
+	input_t buttons = pm_status.input.x;
+    gfx_printf(15, 30, "%4i", buttons);
+	gfx_finish();
 
 	pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
 
 }
 
 void init(){
-
+    clear_bss();
+    do_global_ctors();
     gfx_init();
     fp.ready = 1;
 

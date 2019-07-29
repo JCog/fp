@@ -4,12 +4,14 @@ CC          = mips64-gcc
 LD          = mips64-g++
 AS			= mips64-gcc
 OBJCOPY     = mips64-objcopy
-ARMIPS      = build/armips
-BUILDFILE   = build/build.asm
+ARMIPS      = armips
+BUILDFILE   = build.asm
+GRU         = gru 
+LUAFILE     = crc.lua
 
 ADDRESS     = 0x80400040
 CFLAGS      = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks 
-CPPFLAGS	= -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
+CPPFLAGS	= -DPACKAGE=$(PACKAGE) -DURL=$(URL)
 LDFLAGS     = -T fp-link.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
 SRCDIR      = src
 OBJDIR      = obj
@@ -43,6 +45,9 @@ $(BIN)      : $(ELF) | $(BINDIR)
 
 patch       : $(BIN)
 	$(ARMIPS) $(BUILDFILE)
+
+crc   : $(BIN)
+	$(GRU) $(LUAFILE)
 
 compress	: patch
 	rm -rf Archive.bin
