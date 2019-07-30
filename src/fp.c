@@ -15,12 +15,16 @@ fp_ctxt_t fp = {
 
 void fp_main(void){
 
-	gfx_begin();
-	input_t buttons = pm_status.input.pad;
-    gfx_printf(15, 30, "%4i", buttons);
-	gfx_finish();
+    gfx_begin();
+    int16_t pad_x = pm_status.control_x;
+    int16_t pad_y = pm_status.control_y;
+    uint16_t pad   = pm_status.raw.pad;
+    gfx_printf(15, 30, "%4i", pad_x);
+    gfx_printf(45, 30, "%4i", pad_y);
+    gfx_printf(85, 30, "%4x", pad);
+    gfx_finish();
 
-	pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
+    pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
 
 }
 
@@ -53,10 +57,10 @@ static void init_stack(void (*func)(void)) {
 /* fp entry point - init stack and call main function */
 ENTRY void _start(void){
 
-	init_gp();
-	if(!fp.ready){
-		init_stack(init);
-	}
-	init_stack(fp_main);
+    init_gp();
+    if(!fp.ready){
+        init_stack(init);
+    }
+    init_stack(fp_main);
 
 }
