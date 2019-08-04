@@ -36,20 +36,20 @@ typedef struct{
             uint16_t    cl      : 1;
             uint16_t    cr      : 1;
       };
-      uint16_t          pad;                /* 0x0004 */               
+      uint16_t          buttons;                /* 0x0004 */               
     };
 }input_t;
 
 typedef struct{
-    input_t         raw;                       /* 0x0000 */
+    input_t         raw;                       /* 0x0000 */ /* raw input */
     char            unk_0x04[0x0C];            /* 0x0004 */
-    input_t         one_frame;                 /* 0x0010 */
+    input_t         pad_press_release;         /* 0x0010 */ /* one frame when pressed or released */
     char            unk_0x14[0x0C];            /* 0x0014 */
-    input_t         held_timer;                /* 0x0020 */
+    input_t         pad_held;                  /* 0x0020 */ /* once every 4 frames */
     char            unk_0x24[0x0C];            /* 0x0024 */
     input_t         previous;                  /* 0x0030 */
     char            unk_0x34[0x0C];            /* 0x0034 */
-    int8_t          control_x;                 /* 0x0040 */
+    int8_t          control_x;                 /* 0x0040 */ 
     char            unk_0x41[0x03];            /* 0x0041 */
     int8_t          control_y;                 /* 0x0044 */
     char            unk_0x45[0x03];            /* 0x0045 */

@@ -7,6 +7,7 @@
 #include "fp.h"
 #include "pm64.h"
 #include "gfx.h"
+#include "input.h"
 
 __attribute__((section(".data")))
 fp_ctxt_t fp = { 
@@ -16,12 +17,24 @@ fp_ctxt_t fp = {
 void fp_main(void){
 
     gfx_begin();
-    int16_t pad_x = pm_status.control_x;
-    int16_t pad_y = pm_status.control_y;
-    uint16_t pad   = pm_status.raw.pad;
-    gfx_printf(15, 30, "%4i", pad_x);
-    gfx_printf(45, 30, "%4i", pad_y);
-    gfx_printf(85, 30, "%4x", pad);
+    
+    
+
+      /* draw input display */
+    {
+        input_t pad   = pm_status.raw;
+        int16_t pad_x = pm_status.control_x;
+        int16_t pad_y = pm_status.control_y;
+        gfx_printf(16,240-16,"%4i %4i",pad_x,pad_y);
+        gfx_printf_color(106,240-16,GPACK_RGBA8888(0x00,0x00,0xFF,0xFF),"%s", pad.a?"A":" ");
+        gfx_printf_color(116,240-16,GPACK_RGBA8888(0x00,0xFF,0x00,0xFF),"%s", pad.b?"B":" ");
+        gfx_printf_color(126,240-16,GPACK_RGBA8888(0xFF,0x00,0x00,0xFF),"%s", pad.s?"S":" ");
+        gfx_printf_color(136,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
+        gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
+        gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
+    }
+
+
     gfx_finish();
 
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/

@@ -11,7 +11,7 @@ LUAFILE     = crc.lua
 
 ADDRESS     = 0x80400040
 CFLAGS      = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks 
-CPPFLAGS	= -DPACKAGE=$(PACKAGE) -DURL=$(URL)
+CPPFLAGS	= -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
 LDFLAGS     = -T fp-link.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
 SRCDIR      = src
 OBJDIR      = obj
