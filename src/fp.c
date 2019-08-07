@@ -16,11 +16,21 @@ fp_ctxt_t fp = {
 
 void fp_main(void){
 
-    gfx_begin();
     
+    gfx_begin();
+    input_update();
+    uint16_t current = get_current_frame();
+    gfx_printf(15, 30, "%4x", current);
+
+    uint16_t current_test  = pm_status.raw.buttons;
+    gfx_printf(15, 60, "%4x", current_test);
+
+
+
     
 
       /* draw input display */
+    /*
     {
         input_t pad   = pm_status.raw;
         int16_t pad_x = pm_status.control_x;
@@ -33,10 +43,10 @@ void fp_main(void){
         gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
         gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
     }
+    */
 
 
     gfx_finish();
-
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
 
 }

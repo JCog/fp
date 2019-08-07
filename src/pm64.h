@@ -43,7 +43,7 @@ typedef struct{
 typedef struct{
     input_t         raw;                       /* 0x0000 */ /* raw input */
     char            unk_0x04[0x0C];            /* 0x0004 */
-    input_t         pad_press_release;         /* 0x0010 */ /* one frame when pressed or released */
+    input_t         press_release;         /* 0x0010 */ /* one frame when pressed or released */
     char            unk_0x14[0x0C];            /* 0x0014 */
     input_t         pad_held;                  /* 0x0020 */ /* once every 4 frames */
     char            unk_0x24[0x0C];            /* 0x0024 */
