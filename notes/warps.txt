@@ -1,0 +1,22 @@
+addr_roomchangestate = 0x8009E754
+addr_roomchangeptr   = 0x80156748
+val_roomchangeptr    = 0x80035DFC
+addr_roomgroup       = 0x8007408A
+addr_roomvalue       = 0x80074090
+addr_roomentrance    = 0x80074092
+
+8007408A short group id
+8007408C short copy of group
+80074090 short room
+80074092 entrance
+
+function handleWarp(room_group, dropdown)
+    return function()
+        local room_value = tonumber(forms.gettext(dropdown), 16)
+        mainmemory.write_u16_be(addr_roomchangestate, 0x0001)
+        mainmemory.write_u32_be(addr_roomchangeptr, val_roomchangeptr)
+        mainmemory.write_u16_be(addr_roomgroup, room_group)
+        mainmemory.write_u16_be(addr_roomvalue, room_value)
+        mainmemory.write_u16_be(addr_roomentrance, 0x0000)
+    end
+end

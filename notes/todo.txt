@@ -1,0 +1,8 @@
+to do:
+
+implement better graphics to stop graphical glitches
+document player struct with notes 
+in player struct, mess with inputs. may find more useful variables for input tracking
+implement menu system
+implement watches
+implement cheats
