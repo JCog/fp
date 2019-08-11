@@ -18,6 +18,11 @@ void fp_main(void){
 
     
     gfx_begin();
+    gfx_printf(15,30,"%g",pm_status.player_xyz_copy.x);
+    gfx_printf(15,40,"%g",pm_status.player_xyz_copy.y);
+    gfx_printf(15,50,"%g",pm_status.player_xyz_copy.z);
+    gfx_printf(15,60,"%g",pm_status.player_angle_copy);
+
 
     /* draw input display */
     {
@@ -39,6 +44,7 @@ void fp_main(void){
 
     gfx_finish();
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
+    
 
 }
 
@@ -76,5 +82,6 @@ ENTRY void _start(void){
         init_stack(init);
     }
     init_stack(fp_main);
+
 
 }

@@ -92,21 +92,35 @@ typedef struct{
     int16_t         room_id;                    /* 0x008C */
     int16_t         entrance_id;                /* 0x008E */
     char            unk_0x90[0x08];             /* 0x0090 */
-    xyz_t           mario_pos_copy;             /* 0x0098 */
-    float           mario_angle_copy;           /* 0x00A4 */
+    xyz_t           player_xyz_copy;            /* 0x0098 */
+    float           player_angle_copy;          /* 0x00A4 */
 
 }status_t;
 
+typedef struct{
+    int32_t         animation_related;          /*0x0000*/ /*third byte related to cutscenes - write 0 to break free*/
+    char            unk_0x04[0x04];             /*0x0004*/
+    uint16_t        idle_timer;                 /*0x0008*/
+    char            unk_0x0A[0x02];             /*0x000A*/
+    char            unk_0x0C[0x02];             /*0x000C*/
+    uint16_t        transparency;               /*0x000E*/ /*0xFF00 when spinning*/
+    uint16_t        flash_timer;                /*0x0010*/ /*used when running away*/
+
+
+
+}player_t;
 
 /* Addresses */
 #define pm_Status_addr         0x80074004
 #define pm_DlistBuffer_addr    0x8009A64C
+#define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
 
 
 /* Data */
-#define disp_buf              (*(gfx_t*)      pm_DlistBuffer_addr)
+#define pm_disp_buf           (*(gfx_t*)      pm_DlistBuffer_addr)
 #define pm_status             (*(status_t*)   pm_Status_addr)
+#define pm_player             (*(player_t*)   pm_player_addr)
 
 /*Function Prototypes*/
 typedef void (*pm_GameUpdate_t) ();

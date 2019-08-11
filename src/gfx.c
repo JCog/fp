@@ -88,7 +88,7 @@ void gfx_begin(){
 
 void gfx_finish(){
     gSPEndDisplayList(gfx_disp_p++);
-    gSPDisplayList(disp_buf.p++,gfx_disp);
+    gSPDisplayList(pm_disp_buf.p++,gfx_disp);
     Gfx *disp_w = gfx_disp_work;
     gfx_disp_work = gfx_disp;
     gfx_disp = disp_w;
