@@ -18,19 +18,29 @@ void fp_main(void){
 
     
     gfx_begin();
-    
+
+    pm_player.stats.boots_upgrade = 2;
+    pm_player.stats.hammer_upgrade = 2;
     pm_player.stats.hp = 99;
     pm_player.stats.max_hp = 99;
+    pm_player.stats.menu_max_hp = 99;
+    pm_player.stats.fp = 99;
+    pm_player.stats.max_fp = 99;
+    pm_player.stats.menu_max_fp = 99;
+    pm_player.stats.bp = 99;
+    pm_player.stats.has_action_command = 1;
+    pm_player.stats.coins = 99;
+
+    gfx_printf(15, 30, "%8x", &pm_player.timer);
 
 
 
 
     /* draw input display */
     {
-        input_t      input  = pm_status.input;
-        controller_t pad    = input.raw;
-        int16_t      pad_x  = input.control_x;
-        int16_t      pad_y  = input.control_y;
+        controller_t pad    = pm_status.raw;
+        int16_t      pad_x  = pm_status.control_x;
+        int16_t      pad_y  = pm_status.control_y;
 
         gfx_printf(16,240-16,"%4i %4i",pad_x,pad_y);
         gfx_printf_color(106,240-16,GPACK_RGBA8888(0x00,0x00,0xFF,0xFF),"%s", pad.a?"A":" ");

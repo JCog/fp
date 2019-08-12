@@ -7,13 +7,6 @@
 #define PM64_SCREEN_HEIGHT   240
 
 typedef struct{
-    Gfx             *p;
-    uint32_t        unk;
-    Gfx             *buf;
-
-}gfx_t;
-
-typedef struct{
     float           x;                          /* 0x0000 */
     float           y;                          /* 0x0004 */
     float           z;                          /* 0x0008 */
@@ -64,18 +57,11 @@ typedef struct{
     int16_t         hold_timer_start_value;     /* 0x0048 */ /* writes 0F to hold_timer when input is pressed*/
     char            unk_0x4A[0x02];             /* 0x004A */
     char            unk_0x4C[0x0C];             /* 0x004C */
-    int16_t         hold_timer;                 /* 0x0058*/  /*counts from 0F to 00 to start held variable*/
+    int16_t         hold_timer;                 /* 0x0058 */  /*counts from 0F to 00 to start held variable*/
     char            unk_0x5A[0x02];             /* 0x005A */            
     char            unk_0x5C[0x04];             /* 0x005C */            
     int16_t         held_timer;                 /* 0x0060 */ /*FFFF when nothing held, when hold_timer hits 0 it will cycle between 0 and 3*/
-    char            unk_0x62[0x02];             /* 0x0062 */       
-                                                /* size: 0x0064 */    
-
-}input_t;
-
-
-typedef struct{
-    input_t         input;                      /* 0x0000 */
+    char            unk_0x62[0x02];             /* 0x0062 */ 
     char            unk_0x64[0xC];              /* 0x0064 */
     int8_t          actor_related;              /* 0x0070 */ /*some actors dissapear when value is changed*/
     int8_t          demo_flag;                  /* 0x0071 */ /*1 for demo. 0 in normal gameplay freezes mario*/
@@ -96,105 +82,124 @@ typedef struct{
     xyz_t           player_position_copy;       /* 0x0098 */
     float           player_angle_copy;          /* 0x00A4 */
 
-}status_t;
+}status_ctxt_t;
+
+typedef struct {
+    char            unk_0x00[0x230];            /*0x00000*/
+    Gfx             buf[0x2000];                /*0x00230*/
+    Gfx             buf_work[0x200];            /*0x10230*/
+    Mtx             unk_mtx[0x200];             /*0x11230*/
+                                                /*size: 0x19230*/
+}disp_buf_t;
 
 typedef struct{
-    controller_t    raw;                        /* 0x0000 */
-    controller_t    previous;                   /* 0x0004 */
-    controller_t    pad_held;                   /* 0x0008 */
-    int32_t         pad_x;                      /* 0x000C */
-    int32_t         pad_y;                      /* 0x0010 */
-    controller_t    pad_held_list[10];          /* 0x0014 */
-    controller_t    pad_pressed_list[10];       /* 0x001E */
-    controller_t    held_timer_list[10];        /* 0x0028 */
-    int32_t         pad_x_list[10];             /* 0x0032 */
-    int32_t         pad_y_list[10];             /* 0x003C */
-    uint32_t        timer;                      /* 0x0046 */
-                                                /* size: 0x0050 */   
-}player_input_t;
+    Gfx             *p;                         /*0x00000*/
+    uint32_t        unk;                        /*0x00004*/
+    disp_buf_t      *disp_buf;                  /*0x00008*/
+                                                /*size: 0x0000C*/
+}gfx_ctxt_t;
 
 typedef struct{
     uint8_t         boots_upgrade;              /* 0x0000 */
     uint8_t         hammer_upgrade;             /* 0x0001 */
     uint8_t         hp;                         /* 0x0002 */
-    uint8_t         max_hp;                     /* 0x0002 */
+    uint8_t         max_hp;                     /* 0x0003 */
+    uint8_t         menu_max_hp;                /* 0x0004 */ /*gets copied to max_hp when unpausing */
+    uint8_t         fp;                         /* 0x0005 */
+    uint8_t         max_fp;                     /* 0x0006 */
+    uint8_t         menu_max_fp;                /* 0x0007 */ /*gets copied to max_hp when unpausing */
+    uint8_t         bp;                         /* 0x0008 */
+    uint8_t         level;                      /* 0x0009 */
+    uint8_t         has_action_command;         /* 0x000A */
+    char            unk_0x0B[0x01];             /* 0x000B */
+    int16_t         coins;                      /* 0x000C */
+
 
 }stats_t;
 
 typedef struct{
-    int32_t         animation_related;          /*0x0000*/ /*third byte related to cutscenes - write 0 to break free*/
-    char            unk_0x04[0x04];             /*0x0004*/
-    uint16_t        idle_timer;                 /*0x0008*/
-    char            unk_0x0A[0x02];             /*0x000A*/
-    char            unk_0x0C[0x02];             /*0x000C*/
-    uint16_t        transparency;               /*0x000E*/ /*0xFF00 when spinning*/
-    uint16_t        flash_timer;                /*0x0010*/ /*used when running away*/
-    char            unk_0x12[0x02];             /*0x0012*/
-    uint16_t        busy;                       /*0x0014*/ /*changed when talking/opening doors/loading zones*/
-    int16_t         truncated_x;                /*0x0016*/ /*used for hazard respawns*/
-    char            unk_0x18[0x02];             /*0x0018*/
-    int16_t         truncated_z;                /*0x001A*/ /*used for hazard respawns*/
-    char            unk_0x1C[0x0C];             /*0x001C*/
-    xyz_t           position;                   /*0x0028*/
-    char            unk_0x34[0x08];             /*0x0034*/
-    float           jumped_from_x;              /*0x003C*/
-    float           jumped_from_z;              /*0x0040*/
-    float           landed_at_x;                /*0x0044*/
-    float           landed_at_z;                /*0x0048*/
-    float           jumped_from_y;              /*0x004C*/
-    float           last_jump_height;           /*0x0050*/
-    float           speed;                      /*0x0054*/
-    float           walk_speed;                 /*0x0058*/ /*constant: 0x40000000 = 2.0*/
-    float           run_speed;                  /*0x005C*/ /*constant: 0x40800000 = 4.0*/
-    char            unk_0x60[0x0C];             /*0x0060*/
-    float           jump_const;                 /*0x006C*/ /*used by jumping func to compare if jump_var_1 less than const*/
-    float           jump_var_1;                 /*0x0070*/ /*related to rise/fall speeed*/ 
-    float           jump_var_2;                 /*0x0074*/ /*related to height cap*/
-    float           jump_var_3;                 /*0x0078*/ /*related to height cap*/
-    float           jump_var_4;                 /*0x007C*/ /*related to height cap*/
-    float           movement_angle;             /*0x0080*/ /*locking this makes you move in only that direction regardless of control stick angle*/
-    float           facing_angle;               /*0x0084*/
-    char            unk_0x88[0x08];             /*0x0088*/
-    float           body_rotation;              /*0x0090*/ /*used for turning effect*/
-    char            unk_0x94[0x10];             /*0x0094*/
-    int32_t         sprite_animation;           /*0x00A4*/ /* 1st byte: back turned=01 | 4th byte: animations 00-32*/
-    float           left_right;                 /*0x00A8*/ /*0.0=left, 180.0=right*/
-    char            unk_0xAC[0x14];             /*0x00AC*/
-    uint16_t        frames_in_air;              /*0x00C0*/
-    char            unk_0xC2[0x02];             /*0x00C2*/
-    char            unk_0xC4[0x02];             /*0x00C4*/
-    uint16_t        interactable_id;            /*0x00C8*/ /*only for doors?*/
-    int32_t         *talkable_npc;              /*0x00CA*/
-    char            unk_0xCE[0x08];             /*0x00CE*/
-    float           spin_variable;              /*0x00D6*/
-    char            unk_0xDA[0x04];             /*0x00DA*/
-    player_input_t  input;                      /*0x00DE*/
-    char            unk_0x12E[0xCC];            /*0x012E*/
-    uint8_t         spin_cooldown_timer;        /*0x01FA*/ /*4 frames at the end of spin*/
-    char            unk_0x25B[0x02];            /*0x01FB*/
-    uint8_t         spin_timer;                 /*0x01FD*/
-    char            unk_0x1FE[0x20];            /*0x01FE*/
-    float           spin_speed;                 /*0x021E*/
-    char            unk_0x222[0x04];            /*0x0222*/
-    char            unk_0x226[0x01];            /*0x0226*/
-    uint8_t         spin_duration;              /*0x0227*/
-    char            unk_0x228[0x02];            /*0x0228*/
-    char            unk_0x230[0x10];            /*0x0230*/
-    stats_t         stats;                      /*0x0240*/
+    int32_t         animation_related;          /* 0x0000*/ /*third byte related to cutscenes - write 0 to break free*/
+    char            unk_0x04[0x04];             /* 0x0004*/
+    uint16_t        idle_timer;                 /* 0x0008*/
+    char            unk_0x0A[0x02];             /* 0x000A*/
+    char            unk_0x0C[0x02];             /* 0x000C*/
+    uint16_t        transparency;               /* 0x000E*/ /*0xFF00 when spinning*/
+    uint16_t        flash_timer;                /* 0x0010*/ /*used when running away*/
+    char            unk_0x12[0x02];             /* 0x0012*/
+    uint16_t        busy;                       /* 0x0014*/ /*changed when talking/opening doors/loading zones*/
+    int16_t         truncated_x;                /* 0x0016*/ /*used for hazard respawns*/
+    char            unk_0x18[0x02];             /* 0x0018*/
+    int16_t         truncated_z;                /* 0x001A*/ /*used for hazard respawns*/
+    char            unk_0x1C[0x0C];             /* 0x001C*/
+    xyz_t           position;                   /* 0x0028*/
+    char            unk_0x34[0x08];             /* 0x0034*/
+    float           jumped_from_x;              /* 0x003C*/
+    float           jumped_from_z;              /* 0x0040*/
+    float           landed_at_x;                /* 0x0044*/
+    float           landed_at_z;                /* 0x0048*/
+    float           jumped_from_y;              /* 0x004C*/
+    float           last_jump_height;           /* 0x0050*/
+    float           speed;                      /* 0x0054*/
+    float           walk_speed;                 /* 0x0058*/ /*constant: 0x40000000 = 2.0*/
+    float           run_speed;                  /* 0x005C*/ /*constant: 0x40800000 = 4.0*/
+    char            unk_0x60[0x0C];             /* 0x0060*/
+    float           jump_const;                 /* 0x006C*/ /*used by jumping func to compare if jump_var_1 less than const*/
+    float           jump_var_1;                 /* 0x0070*/ /*related to rise/fall speeed*/ 
+    float           jump_var_2;                 /* 0x0074*/ /*related to height cap*/
+    float           jump_var_3;                 /* 0x0078*/ /*related to height cap*/
+    float           jump_var_4;                 /* 0x007C*/ /*related to height cap*/
+    float           movement_angle;             /* 0x0080*/ /*locking this makes you move in only that direction regardless of control stick angle*/
+    float           facing_angle;               /* 0x0084*/
+    char            unk_0x88[0x08];             /* 0x0088*/
+    float           body_rotation;              /* 0x0090*/ /*used for turning effect*/
+    char            unk_0x94[0x10];             /* 0x0094*/
+    int32_t         sprite_animation;           /* 0x00A4*/ /* 1st byte: back turned=01 | 4th byte: animations 00-32*/
+    float           left_right;                 /* 0x00A8*/ /*0.0=left, 180.0=right*/
+    char            unk_0xAC[0x14];             /* 0x00AC*/
+    uint16_t        frames_in_air;              /* 0x00C0*/
+    char            unk_0xC2[0x02];             /* 0x00C2*/
+    char            unk_0xC4[0x02];             /* 0x00C4*/
+    uint16_t        interactable_id;            /* 0x00C6*/ /*only for doors?*/
+    int32_t         *talkable_npc;              /* 0x00C8*/
+    char            unk_0xCC[0x08];             /* 0x00CC*/
+    float           spin_variable;              /* 0x00D4*/
+    char            unk_0xD8[0x04];             /* 0x00D8*/
+    controller_t    raw;                        /* 0x00DC*/
+    controller_t    previous;                   /* 0x00E0*/
+    controller_t    pad_held;                   /* 0x00E4*/
+    int32_t         pad_x;                      /* 0x00E8*/
+    int32_t         pad_y;                      /* 0x00EC*/
+    controller_t    pad_held_list[10];          /* 0x00F0*/
+    controller_t    pad_pressed_list[10];       /* 0x0118*/
+    controller_t    held_timer_list[10];        /* 0x0140*/
+    int32_t         pad_x_list[10];             /* 0x0168*/
+    int32_t         pad_y_list[10];             /* 0x0190*/
+    uint32_t        timer;                      /* 0x01B8*/
+    char            unk_0x1BC[0xCC];            /* 0x01BC*/
+    uint8_t         spin_cooldown_timer;        /* 0x0288*/ /*4 frames at the end of spin*/
+    char            unk_0x289[0x02];            /* 0x0289*/
+    uint8_t         spin_timer;                 /* 0x028B*/
+    char            unk_0x28C[0x20];            /* 0x028C*/
+    float           spin_speed;                 /* 0x02AC*/
+    char            unk_0x2B0[0x04];            /* 0x02B0*/
+    char            unk_0x2B4[0x01];            /* 0x02B4*/
+    uint8_t         spin_duration;              /* 0x02B5*/
+    char            unk_0x228[0x02];            /* 0x02B6*/
+    char            unk_0x2B8[0x10];            /* 0x02B8*/
+    stats_t         stats;                      /* 0x02C8*/
 
-}player_t;
+}player_ctxt_t;
 
 /* Addresses */
-#define pm_Status_addr         0x80074004
-#define pm_DlistBuffer_addr    0x8009A64C
+#define pm_status_addr         0x80074004
+#define pm_gfx_addr            0x8009A64C
 #define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
 
-
 /* Data */
-#define pm_disp_buf           (*(gfx_t*)      pm_DlistBuffer_addr)
-#define pm_status             (*(status_t*)   pm_Status_addr)
-#define pm_player             (*(player_t*)   pm_player_addr)
+#define pm_gfx                (*(gfx_ctxt_t*)      pm_gfx_addr)
+#define pm_status             (*(status_ctxt_t*)   pm_status_addr)
+#define pm_player             (*(player_ctxt_t*)   pm_player_addr)
 
 /*Function Prototypes*/
 typedef void (*pm_GameUpdate_t) ();
