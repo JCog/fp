@@ -18,10 +18,8 @@ void fp_main(void){
 
     
     gfx_begin();
-    gfx_printf(15,30,"%g",pm_status.player_xyz_copy.x);
-    gfx_printf(15,40,"%g",pm_status.player_xyz_copy.y);
-    gfx_printf(15,50,"%g",pm_status.player_xyz_copy.z);
-    gfx_printf(15,60,"%g",pm_status.player_angle_copy);
+    gfx_printf(15,60,"%8x",pm_player.talkable_npc);
+
 
 
     /* draw input display */
