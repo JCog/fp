@@ -18,6 +18,7 @@ void fp_main(void){
 
     
     gfx_begin();
+    
     pm_player.stats.hp = 99;
     pm_player.stats.max_hp = 99;
 
