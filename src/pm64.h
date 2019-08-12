@@ -73,11 +73,6 @@ typedef struct{
 
 }input_t;
 
-typedef struct{
-	controller_t	raw;						/* 0x0000 */
-	
-												/* size: 0x0050 */   
-}player_input_t;
 
 typedef struct{
     input_t         input;                      /* 0x0000 */
@@ -102,6 +97,29 @@ typedef struct{
     float           player_angle_copy;          /* 0x00A4 */
 
 }status_t;
+
+typedef struct{
+    controller_t    raw;                        /* 0x0000 */
+    controller_t    previous;                   /* 0x0004 */
+    controller_t    pad_held;                   /* 0x0008 */
+    int32_t         pad_x;                      /* 0x000C */
+    int32_t         pad_y;                      /* 0x0010 */
+    controller_t    pad_held_list[10];          /* 0x0014 */
+    controller_t    pad_pressed_list[10];       /* 0x001E */
+    controller_t    held_timer_list[10];        /* 0x0028 */
+    int32_t         pad_x_list[10];             /* 0x0032 */
+    int32_t         pad_y_list[10];             /* 0x003C */
+    uint32_t        timer;                      /* 0x0046 */
+                                                /* size: 0x0050 */   
+}player_input_t;
+
+typedef struct{
+    uint8_t         boots_upgrade;              /* 0x0000 */
+    uint8_t         hammer_upgrade;             /* 0x0001 */
+    uint8_t         hp;                 /* 0x0002 */
+    uint8_t         max_hp;                     /* 0x0002 */
+
+}stats_t;
 
 typedef struct{
     int32_t         animation_related;          /*0x0000*/ /*third byte related to cutscenes - write 0 to break free*/
@@ -150,8 +168,19 @@ typedef struct{
 	char			unk_0xCE[0x08];				/*0x00CE*/
 	float			spin_variable;				/*0x00D6*/
 	char			unk_0xDA[0x04];				/*0x00DA*/
-	player_input_t  player_input;				/*0x00DE*/
-
+	player_input_t  input;				        /*0x00DE*/
+    char            unk_0x12E[0xCC];            /*0x012E*/
+    uint8_t         spin_cooldown_timer;        /*0x01FA*/ /*4 frames at the end of spin*/
+    char            unk_0x25B[0x02];            /*0x01FB*/
+    uint8_t         spin_timer;                 /*0x01FD*/
+    char            unk_0x1FE[0x20];            /*0x01FE*/
+    float           spin_speed;                 /*0x021E*/
+    char            unk_0x222[0x04];            /*0x0222*/
+    char            unk_0x226[0x01];            /*0x0226*/
+    uint8_t         spin_duration;              /*0x0227*/
+    char            unk_0x228[0x02];            /*0x0228*/
+    char            unk_0x230[0x10];            /*0x0230*/
+    stats_t         stats;                      /*0x0240*/
 
 }player_t;
 

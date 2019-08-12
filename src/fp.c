@@ -18,7 +18,9 @@ void fp_main(void){
 
     
     gfx_begin();
-    gfx_printf(15,60,"%8x",pm_player.talkable_npc);
+    pm_player.stats.hp = 99;
+    pm_player.stats.max_hp = 99;
+
 
 
 
