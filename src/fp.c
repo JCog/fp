@@ -28,10 +28,14 @@ void fp_main(void){
     pm_player.stats.max_fp = 99;
     pm_player.stats.menu_max_fp = 99;
     pm_player.stats.bp = 99;
+    pm_player.stats.level = 27;
     pm_player.stats.has_action_command = 1;
-    pm_player.stats.coins = 99;
+    pm_player.stats.coins = 999;
+    pm_player.stats.star_pieces = 160;
 
-    gfx_printf(15, 30, "%8x", &pm_player.timer);
+    pm_player.stats.
+
+    /*gfx_printf(15, 30, "%8x", &pm_player.timer);*/
 
 
 
