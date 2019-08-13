@@ -113,35 +113,35 @@ typedef struct{
     uint8_t         has_action_command;         /* 0x000A */
     char            unk_0x0B[0x01];             /* 0x000B */
     int16_t         coins;                      /* 0x000C */
-    uint8_t         fortress_keys;         		/* 0x000E */
+    uint8_t         fortress_keys;              /* 0x000E */
     uint8_t         star_pieces;                /* 0x000F */
     uint8_t         star_points;                /* 0x0010 */
     char            unk_0x11[0x01];             /* 0x0011 */
-	uint8_t         current_partner;            /* 0x0012 */ /*0x00 - 0x0B*/
-	char            unk_0x13[0x01];             /* 0x0013 */
-	             								/* size: 0x0014 */
+    uint8_t         current_partner;            /* 0x0012 */ /*0x00 - 0x0B*/
+    char            unk_0x13[0x01];             /* 0x0013 */
+                                                /* size: 0x0014 */
 }stats_t;
 
 typedef struct {
-	uint8_t			in_party;					/* 0x00000 */
-	uint8_t			upgrade;					/* 0x00001 */
-	char			unk_0x02[0x06];				/* 0x00002 */
-												/* size: 0x00008 */
+    uint8_t         in_party;                   /* 0x00000 */
+    uint8_t         upgrade;                    /* 0x00001 */
+    char            unk_0x02[0x06];             /* 0x00002 */
+                                                /* size: 0x00008 */
 }partner_t;
 
 typedef struct{
-	partner_t		goombario;					/* 0x0000 */
-	partner_t		kooper;						/* 0x0008 */
-	partner_t		bombette;					/* 0x0010 */
-	partner_t		parakarry;					/* 0x0018 */
-	partner_t		goompa;						/* 0x0020 */
-	partner_t		watt;						/* 0x0028 */
-	partner_t		sushie;						/* 0x0030 */
-	partner_t		lakilester;					/* 0x0038 */
-	partner_t		bow;						/* 0x0040 */
-	partner_t		goombaria;					/* 0x0048 */
-	partner_t		twink;						/* 0x0050 */
-												/* size: 0x0058 */
+    partner_t       goombario;                  /* 0x0000 */
+    partner_t       kooper;                     /* 0x0008 */
+    partner_t       bombette;                   /* 0x0010 */
+    partner_t       parakarry;                  /* 0x0018 */
+    partner_t       goompa;                     /* 0x0020 */
+    partner_t       watt;                       /* 0x0028 */
+    partner_t       sushie;                     /* 0x0030 */
+    partner_t       lakilester;                 /* 0x0038 */
+    partner_t       bow;                        /* 0x0040 */
+    partner_t       goombaria;                  /* 0x0048 */
+    partner_t       twink;                      /* 0x0050 */
+                                                /* size: 0x0058 */
 }party_t;
 
 typedef struct{
@@ -214,13 +214,13 @@ typedef struct{
     char            unk_0x228[0x02];            /* 0x02B6 */
     char            unk_0x2B8[0x10];            /* 0x02B8 */
     stats_t         stats;                      /* 0x02C8 */
-    char            unk_0x14[0x08];				/* 0x02DC */
-    party_t			party;						/* 0x02E4 */
-    uint16_t		key_items[32];				/* 0x033C */
-    uint16_t		badges[128];				/* 0x037C */
-    uint16_t		items[10];					/* 0x047C */
-    uint16_t		storage[32];				/* 0x0490 */
-    uint16_t		equipped_badges[64];		/* 0x04D0 */
+    char            unk_0x14[0x08];             /* 0x02DC */
+    party_t         party;                      /* 0x02E4 */
+    uint16_t        key_items[32];              /* 0x033C */
+    uint16_t        badges[128];                /* 0x037C */
+    uint16_t        items[10];                  /* 0x047C */
+    uint16_t        storage[32];                /* 0x0490 */
+    uint16_t        equipped_badges[64];        /* 0x04D0 */
 
 }player_ctxt_t;
 
