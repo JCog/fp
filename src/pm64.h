@@ -44,7 +44,7 @@ typedef struct{
 typedef struct{
     controller_t    raw;                        /* 0x0000 */ /* raw input */
     char            unk_0x04[0x0C];             /* 0x0004 */            
-    controller_t    press_release;              /* 0x0010 */ /* one frame when pressed or released */
+    controller_t    pressed;                    /* 0x0010 */ /* one frame when pressed*/
     char            unk_0x14[0x0C];             /* 0x0014 */ 
     controller_t    pad_held;                   /* 0x0020 */ /* once every 4 frames */
     char            unk_0x24[0x0C];             /* 0x0024 */

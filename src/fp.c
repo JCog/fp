@@ -7,6 +7,7 @@
 #include "fp.h"
 #include "pm64.h"
 #include "gfx.h"
+#include "input.h"
 
 
 __attribute__((section(".data")))
@@ -18,6 +19,8 @@ void fp_main(void){
 
     
     gfx_begin();
+    input_update();
+
 
     pm_player.stats.boots_upgrade = 2;
     pm_player.stats.hammer_upgrade = 2;
@@ -32,11 +35,6 @@ void fp_main(void){
     pm_player.stats.has_action_command = 1;
     pm_player.stats.coins = 999;
     pm_player.stats.star_pieces = 160;
-
-    gfx_printf(15, 30, "%i", pm_status.raw.buttons);
-
-
-
 
     /* draw input display */
     {
@@ -55,8 +53,9 @@ void fp_main(void){
     }
     
 
-    gfx_finish();
+    gfx_finish();    /*output gfx display lists*/
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
+    set_pad_prev();  /*update previous input after game update*/
     
 
 }
