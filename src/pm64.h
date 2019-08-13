@@ -37,7 +37,7 @@ typedef struct{
             uint16_t    cr      : 1;
       };
       uint16_t          buttons;                /* 0x0003 */
-                                                /* size: 0x0004 */             
+                                                /* size: 0x0004 */        
     };
 }controller_t;
 

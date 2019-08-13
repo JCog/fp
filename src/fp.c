@@ -33,9 +33,7 @@ void fp_main(void){
     pm_player.stats.coins = 999;
     pm_player.stats.star_pieces = 160;
 
-    pm_player.stats.
-
-    /*gfx_printf(15, 30, "%8x", &pm_player.timer);*/
+    gfx_printf(15, 30, "%i", pm_status.raw.buttons);
 
 
 
