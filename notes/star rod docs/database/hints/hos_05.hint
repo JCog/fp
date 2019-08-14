@@ -1,3 +1,0 @@
-% unaligned short tables are a corner case covered by hints
-add		8024AAD4	ShortTable
-size	8024AAD4	68

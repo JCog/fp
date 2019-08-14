@@ -1,6 +1,0 @@
-% ROM offset : RAM address : name (optional)
-000BCD0 : 800308D0 : CamControl0
-000BDCC : 800309CC : CamControl6
-000BFFC : 80030BFC : CamControl1
-000C46C : 8003106C : CamControl5
-000C254 : 80030E54 : CamControl2

@@ -1,9 +1,0 @@
-
-% the number of models in this TreeModelList is not correct
-size	80243478	8
-
-% Chuck Quizmo
-add		80246C04	IntTable
-newline	80246C04	2
-name	80246C04	QuizRequirements
-name	80246BC4	QuizAnswers
