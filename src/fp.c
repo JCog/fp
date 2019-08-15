@@ -16,8 +16,6 @@ fp_ctxt_t fp = {
 };
 
 void fp_main(void){
-
-    
     gfx_begin();
     input_update();
 
@@ -50,13 +48,21 @@ void fp_main(void){
         gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
         gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
         
+        
     }
+    uint16_t pressed = get_pad_pressed_unrestricted();
+    uint16_t held = get_pad_held();
+    uint16_t released = get_pad_released();
+    gfx_printf(15,30,"%2x",pressed);
+    gfx_printf(15,40,"%2x",held);
+    gfx_printf(15,50,"%2x",released);
     
-
+    set_pad_prev();
     gfx_finish();    /*output gfx display lists*/
+}
+
+void gamestate_main(){
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
-    set_pad_prev();  /*update previous input after game update*/
-    
 
 }
 
@@ -93,7 +99,6 @@ ENTRY void _start(void){
     if(!fp.ready){
         init_stack(init);
     }
+    gamestate_main();
     init_stack(fp_main);
-
-
 }
