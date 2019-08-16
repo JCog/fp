@@ -84,6 +84,11 @@ typedef struct{
 
 }status_ctxt_t;
 
+typedef struct{
+    char            unk_0x00[0x10];             /* 0x0000 */
+    uint32_t        saveblock_freeze;           /* 0x0010 */ /*00000001 = frozen, loading zones dissapear. can be used for lzs*/
+}unk1_ctxt_t;
+
 typedef struct {
     char            unk_0x00[0x230];            /* 0x00000 */
     Gfx             buf[0x2000];                /* 0x00230 */
@@ -226,12 +231,14 @@ typedef struct{
 
 /* Addresses */
 #define pm_status_addr         0x80074004
+#define pm_unk1_addr            0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
 
 /* Data */
 #define pm_gfx                (*(gfx_ctxt_t*)      pm_gfx_addr)
+#define pm_unk1               (*(unk1_ctxt_t*)     pm_unk1_addr)
 #define pm_status             (*(status_ctxt_t*)   pm_status_addr)
 #define pm_player             (*(player_ctxt_t*)   pm_player_addr)
 

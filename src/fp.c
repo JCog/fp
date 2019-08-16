@@ -19,31 +19,19 @@ void fp_main(void){
     gfx_begin();
     input_update();
 
-
-    pm_player.stats.boots_upgrade = 2;
-    pm_player.stats.hammer_upgrade = 2;
-    pm_player.stats.fp = 99;
-    pm_player.stats.max_fp = 99;
-    pm_player.stats.menu_max_fp = 99;
-    pm_player.stats.bp = 99;
-    pm_player.stats.level = 27;
-    pm_player.stats.has_action_command = 1;
-    pm_player.stats.coins = 999;
-    pm_player.stats.star_pieces = 160;
-
     /* draw input display */
     {
         controller_t pad    = pm_status.raw;
         int16_t      pad_x  = pm_status.control_x;
         int16_t      pad_y  = pm_status.control_y;
 
-        gfx_printf(16,240-16,"%4i %4i",pad_x,pad_y);
-        gfx_printf_color(106,240-16,GPACK_RGBA8888(0x00,0x00,0xFF,0xFF),"%s", pad.a?"A":" ");
-        gfx_printf_color(116,240-16,GPACK_RGBA8888(0x00,0xFF,0x00,0xFF),"%s", pad.b?"B":" ");
-        gfx_printf_color(126,240-16,GPACK_RGBA8888(0xFF,0x00,0x00,0xFF),"%s", pad.s?"S":" ");
-        gfx_printf_color(136,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
-        gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
-        gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
+        gfx_printf(16,240-30,"%4i %4i",pad_x,pad_y);
+        gfx_printf_color(106,240-30,GPACK_RGBA8888(0x00,0x00,0xFF,0xFF),"%s", pad.a?"A":" ");
+        gfx_printf_color(116,240-30,GPACK_RGBA8888(0x00,0xFF,0x00,0xFF),"%s", pad.b?"B":" ");
+        gfx_printf_color(126,240-30,GPACK_RGBA8888(0xFF,0x00,0x00,0xFF),"%s", pad.s?"S":" ");
+        gfx_printf_color(136,240-30,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
+        gfx_printf_color(166,240-30,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
+        gfx_printf_color(206,240-30,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
     }
 
      /* draw floating watches */
@@ -54,6 +42,39 @@ void fp_main(void){
                 watch_printf(watch);
             }
         }
+    }
+
+    /* activate cheats */
+    {
+        if(fp.cheats & (1 << CHEAT_HP)){
+            pm_player.stats.hp = 99;
+            pm_player.stats.max_hp = 99;
+            pm_player.stats.menu_max_hp = 99;
+        }
+        if(fp.cheats & (1 << CHEAT_FP)){
+            pm_player.stats.fp = 99;
+            pm_player.stats.max_fp = 99;
+            pm_player.stats.menu_max_fp = 99;
+        }
+        if(fp.cheats & (1 << CHEAT_BP)){
+            pm_player.stats.bp = 99;
+        }
+        if(fp.cheats & (1 << CHEAT_COINS)){
+            pm_player.stats.coins = 99;
+        }
+        if(fp.cheats & (1 << CHEAT_STAR_POWER)){
+            
+        }
+        if(fp.cheats & (1 << CHEAT_STAR_POINTS)){
+            pm_player.stats.star_points = 99;
+        }
+        if(fp.cheats & (1 << CHEAT_STAR_PIECES)){
+            pm_player.stats.star_pieces = 160;
+        }
+        if(fp.cheats & (1 << CHEAT_PERIL)){
+            pm_player.stats.hp = 1;
+        }
+            
     }
 
     /* handle menu */
@@ -137,6 +158,7 @@ void init(){
     fp_commands[3].bind = make_bind(1, BUTTON_D_DOWN);
     fp_commands[4].bind = make_bind(1, BUTTON_D_LEFT);
     fp_commands[5].bind = make_bind(1, BUTTON_D_RIGHT);
+    fp_commands[6].bind = make_bind(2, BUTTON_R, BUTTON_D_DOWN);
 
     /*init menu and default it to inactive*/
     fp.menu_active = 0;
@@ -144,7 +166,8 @@ void init(){
 
     /*add menus*/
     fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
-    menu_add_submenu(&fp.main_menu,0,1,create_watches_menu(),"watches");
+    menu_add_submenu(&fp.main_menu,0,1,create_cheats_menu(),"cheats");
+    menu_add_submenu(&fp.main_menu,0,2,create_watches_menu(),"watches");
 
     /*ready*/
     fp.ready = 1;
