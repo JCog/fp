@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <startup.h>
-#include <startup.c>
 #include <inttypes.h>
 #include "fp.h"
 #include "gfx.h"
 #include "input.h"
 #include "commands.h"
+#include "watches.h"
 
 
 __attribute__((section(".data")))
@@ -44,6 +44,16 @@ void fp_main(void){
         gfx_printf_color(136,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
         gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
         gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
+    }
+
+     /* draw floating watches */
+    {
+        for(int i=0;i<fp.watch_cnt;i++){
+            watch_t *watch = vector_at(&fp.watches,i);
+            if(watch->floating){
+                watch_printf(watch);
+            }
+        }
     }
 
     /* handle menu */
@@ -116,6 +126,10 @@ void init(){
     do_global_ctors();
     gfx_init();
 
+    vector_init(&fp.watches, sizeof(watch_t));
+    vector_reserve(&fp.watches,WATCHES_MAX);
+    fp.watch_cnt = 0;
+
     /*hard coded button bindings*/
     fp_commands[0].bind = make_bind(2, BUTTON_R, BUTTON_D_UP);
     fp_commands[1].bind = make_bind(2, BUTTON_R, BUTTON_D_RIGHT);
@@ -126,10 +140,11 @@ void init(){
 
     /*init menu and default it to inactive*/
     fp.menu_active = 0;
-    menu_init(&fp.main_menu, 15, 50);
+    menu_init(&fp.main_menu, 15, 55);
 
-    /*add return button*/
+    /*add menus*/
     fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
+    menu_add_submenu(&fp.main_menu,0,1,create_watches_menu(),"watches");
 
     /*ready*/
     fp.ready = 1;
@@ -164,3 +179,7 @@ ENTRY void _start(void){
     gamestate_main();
     init_stack(fp_main);
 }
+
+#include <startup.c>
+#include <vector/vector.c>
+#include <list/list.c>

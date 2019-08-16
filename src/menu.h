@@ -4,7 +4,7 @@
 #include "gfx.h"
 #include "watches.h"
 
-#define MENU_SELECTED_COLOR GPACK_RGBA8888(0x80,0x80,0xFF,0xFF);
+#define MENU_SELECTED_COLOR GPACK_RGBA8888(0x10,0x10,0xFF,0xFF);
 #define MENU_DEFAULT_COLOR GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF);
 
 enum menu_nav{
