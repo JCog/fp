@@ -5,9 +5,9 @@
 #include <startup.c>
 #include <inttypes.h>
 #include "fp.h"
-#include "pm64.h"
 #include "gfx.h"
 #include "input.h"
+#include "commands.h"
 
 
 __attribute__((section(".data")))
@@ -22,9 +22,6 @@ void fp_main(void){
 
     pm_player.stats.boots_upgrade = 2;
     pm_player.stats.hammer_upgrade = 2;
-    pm_player.stats.hp = 99;
-    pm_player.stats.max_hp = 99;
-    pm_player.stats.menu_max_hp = 99;
     pm_player.stats.fp = 99;
     pm_player.stats.max_fp = 99;
     pm_player.stats.menu_max_fp = 99;
@@ -47,17 +44,65 @@ void fp_main(void){
         gfx_printf_color(136,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
         gfx_printf_color(166,240-16,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
         gfx_printf_color(206,240-16,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
-        
-        
     }
-    uint16_t pressed = get_pad_pressed_unrestricted();
-    uint16_t held = get_pad_held();
-    uint16_t released = get_pad_released();
-    gfx_printf(15,30,"%2x",pressed);
-    gfx_printf(15,40,"%2x",held);
-    gfx_printf(15,50,"%2x",released);
-    
-    set_pad_prev();
+
+    /* handle menu */
+    {
+        static _Bool skip_menu = 0;
+        uint16_t button_pressed = pm_status.pressed.buttons;
+
+        if(input_bind_pressed(0)){
+            skip_menu = 1;
+            fp.menu_active = !fp.menu_active;
+            if(fp.menu_active){
+                reserve_buttons(BUTTON_L | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_D_UP);
+            }else{
+                free_buttons(BUTTON_L | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_D_UP);
+            }
+        }
+
+        if(fp.menu_active && !skip_menu){
+            struct menu *fp_menu = &fp.main_menu;
+            enum menu_nav navdir = MENU_NAV_NONE;
+            enum menu_callback callback = MENU_CALLBACK_NONE;
+            if(button_pressed & BUTTON_D_DOWN){
+                navdir=MENU_NAV_DOWN;
+            }else if(button_pressed & BUTTON_D_UP){
+                navdir=MENU_NAV_UP;
+            }else if(button_pressed & BUTTON_D_LEFT){
+                navdir=MENU_NAV_LEFT;
+            }else if(button_pressed & BUTTON_D_RIGHT){
+                navdir=MENU_NAV_RIGHT;
+            }else if(button_pressed & BUTTON_L){
+                callback = MENU_CALLBACK_ACTIVATE;
+            }
+
+            menu_navigate(fp_menu,navdir);
+            menu_callback(fp_menu,callback);
+            menu_draw(fp_menu);
+        }
+
+        skip_menu = 0;
+    }
+
+    /* handle command bindings */
+    {
+        for(int i=0;i<7;i++){
+            _Bool activate = 0;
+            switch(fp_commands[i].type){
+                case COMMAND_HOLD:
+                    activate = input_bind_held(i);
+                    break;
+                case COMMAND_PRESS:
+                    activate = input_bind_pressed(i);
+                    break;
+            }
+            if(activate && fp_commands[i].proc){
+                fp_commands[i].proc();
+            }
+        }
+    }
+
     gfx_finish();    /*output gfx display lists*/
 }
 
@@ -70,6 +115,23 @@ void init(){
     clear_bss();
     do_global_ctors();
     gfx_init();
+
+    /*hard coded button bindings*/
+    fp_commands[0].bind = make_bind(2, BUTTON_R, BUTTON_D_UP);
+    fp_commands[1].bind = make_bind(2, BUTTON_R, BUTTON_D_RIGHT);
+    fp_commands[2].bind = make_bind(1, BUTTON_D_UP);
+    fp_commands[3].bind = make_bind(1, BUTTON_D_DOWN);
+    fp_commands[4].bind = make_bind(1, BUTTON_D_LEFT);
+    fp_commands[5].bind = make_bind(1, BUTTON_D_RIGHT);
+
+    /*init menu and default it to inactive*/
+    fp.menu_active = 0;
+    menu_init(&fp.main_menu, 15, 50);
+
+    /*add return button*/
+    fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
+
+    /*ready*/
     fp.ready = 1;
 
 }
@@ -92,7 +154,7 @@ static void init_stack(void (*func)(void)) {
 }
 
 
-/* fp entry point - init stack and call main function */
+/* fp entry point - init stack, update game, and call main function */
 ENTRY void _start(void){
 
     init_gp();

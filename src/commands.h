@@ -23,8 +23,6 @@ void command_levitate();
 void command_save_pos();
 void command_load_pos();
 
-
-
 extern struct command fp_commands[COMMAND_CNT];
 
 #endif

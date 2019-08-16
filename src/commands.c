@@ -2,7 +2,7 @@
 #include "input.h"
 #include "fp.h"
 
-struct command kz_commands[COMMAND_CNT] = {
+struct command fp_commands[COMMAND_CNT] = {
     {"show/hide menu",   COMMAND_PRESS,  0,   NULL},
     {"return from menu", COMMAND_PRESS,  0,   NULL},
     {"levitate",         COMMAND_HOLD,   0,   command_levitate},
