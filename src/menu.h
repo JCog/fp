@@ -6,6 +6,7 @@
 
 #define MENU_SELECTED_COLOR GPACK_RGBA8888(0x10,0x10,0xFF,0xFF);
 #define MENU_DEFAULT_COLOR GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF);
+#define MENU_GRAY_COLOR GPACK_RGBA8888(0xC0,0xC0,0xC0,0xFF);
 
 enum menu_nav{
     MENU_NAV_NONE = -1,
@@ -34,6 +35,7 @@ struct menu_item{
     uint8_t             interactive;
     uint16_t            x_offset;
     uint16_t            y_offset;
+    uint8_t             is_gray;
 };
 
 struct menu{
@@ -66,6 +68,7 @@ void menu_set_cell(struct menu *menu, uint16_t width, uint16_t height);
 void menu_set_padding(struct menu *menu, uint16_t x, uint16_t y);
 
 struct menu_item *menu_add(struct menu *menu, uint16_t x, uint16_t y, const char *text);
+struct menu_item *menu_add_gray(struct menu *menu, uint16_t x, uint16_t y, const char *text);
 struct menu_item *menu_add_submenu(struct menu *menu, uint16_t x, uint16_t y, struct menu *submenu, const char *name);
 struct menu_item *menu_add_button(struct menu *menu, uint16_t x, uint16_t y, const char *text, menu_button_callback callback, void *data);
 struct menu_item *menu_add_watch(struct menu *menu, uint16_t x, uint16_t y, watch_t *watch);

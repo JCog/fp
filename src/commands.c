@@ -15,7 +15,10 @@ struct command fp_commands[COMMAND_CNT] = {
 
 
 void command_levitate(){
-   pm_player.position.y += 1.0;
+    pm_player.animation |= 3;
+    pm_player.y_speed = 11;
+    pm_player.y_snap = -0.75;
+    pm_player.frames_in_air = 1;
 }
 
 void command_turbo(){

@@ -52,6 +52,9 @@ void menu_draw(struct menu *menu){
             continue;
         }
         uint32_t color = MENU_DEFAULT_COLOR;
+        if(item->is_gray){
+            color = MENU_GRAY_COLOR;
+        }
         if(item == menu->selected_item){
             color = MENU_SELECTED_COLOR;
         }
@@ -69,6 +72,24 @@ struct menu_item *menu_add(struct menu *menu, uint16_t x, uint16_t y, const char
         item->y = y;
         item->x_offset = 0;
         item->y_offset = 0;
+        item->draw_proc=NULL;
+        item->activate_proc=NULL;
+        item->navigate_proc=NULL;
+    }
+    return item;
+}
+
+struct menu_item *menu_add_gray(struct menu *menu, uint16_t x, uint16_t y, const char *text){
+    struct menu_item *item = list_push_back(&menu->items,NULL);
+    if(item){
+        item->text = text;
+        item->owner = menu;
+        item->interactive = 0;
+        item->x = x;
+        item->y = y;
+        item->x_offset = 0;
+        item->y_offset = 0;
+        item->is_gray = 1;
         item->draw_proc=NULL;
         item->activate_proc=NULL;
         item->navigate_proc=NULL;

@@ -19,6 +19,9 @@ void fp_main(void){
     gfx_begin();
     input_update();
 
+    pm_player.stats.level = 27;
+    pm_player.stats.has_action_command = 1;
+
     /* draw input display */
     {
         controller_t pad    = pm_status.raw;
@@ -33,6 +36,17 @@ void fp_main(void){
         gfx_printf_color(166,240-30,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
         gfx_printf_color(206,240-30,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
     }
+
+    /*
+    gfx_printf(15,50,"%s","current group: ");
+    gfx_printf(110,50,"%4x",pm_status.group_id);
+
+    gfx_printf(15,60,"%s","current  room: ");
+    gfx_printf(110,60,"%4x",pm_status.room_id);
+
+    gfx_printf(15,70,"%s","last entrance: ");
+    gfx_printf(110,70,"%4x",pm_status.entrance_id);
+    */
 
      /* draw floating watches */
     {
@@ -50,17 +64,20 @@ void fp_main(void){
             pm_player.stats.hp = 99;
             pm_player.stats.max_hp = 99;
             pm_player.stats.menu_max_hp = 99;
+            pm_hud.hp_value = 99;
         }
         if(fp.cheats & (1 << CHEAT_FP)){
             pm_player.stats.fp = 99;
             pm_player.stats.max_fp = 99;
             pm_player.stats.menu_max_fp = 99;
+            pm_hud.fp_value = 99;
         }
         if(fp.cheats & (1 << CHEAT_BP)){
             pm_player.stats.bp = 99;
         }
         if(fp.cheats & (1 << CHEAT_COINS)){
             pm_player.stats.coins = 99;
+            pm_hud.coin_value = 99;
         }
         if(fp.cheats & (1 << CHEAT_STAR_POWER)){
             
@@ -73,6 +90,7 @@ void fp_main(void){
         }
         if(fp.cheats & (1 << CHEAT_PERIL)){
             pm_player.stats.hp = 1;
+            pm_hud.hp_value = 1;
         }
             
     }
@@ -166,8 +184,13 @@ void init(){
 
     /*add menus*/
     fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
-    menu_add_submenu(&fp.main_menu,0,1,create_cheats_menu(),"cheats");
-    menu_add_submenu(&fp.main_menu,0,2,create_watches_menu(),"watches");
+    menu_add_submenu(&fp.main_menu,0,1,create_warps_menu(),"warps");
+    menu_add_submenu(&fp.main_menu,0,2,create_cheats_menu(),"cheats");
+    menu_add_submenu(&fp.main_menu,0,3,create_inventory_menu(),"inventory");
+    menu_add_submenu(&fp.main_menu,0,4,create_file_menu(),"file");
+    menu_add_submenu(&fp.main_menu,0,5,create_watches_menu(),"watches");
+    menu_add_submenu(&fp.main_menu,0,6,create_trainer_menu(),"trainer");
+    menu_add_submenu(&fp.main_menu,0,7,create_settings_menu(),"settings");
 
     /*ready*/
     fp.ready = 1;

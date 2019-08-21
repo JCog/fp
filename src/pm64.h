@@ -73,11 +73,11 @@ typedef struct{
     char            unk_0x7F[0x01];             /* 0x007F */
     char            unk_0x80[0x04];             /* 0x0080 */
     char            unk_0x84[0x02];             /* 0x0084 */
-    int16_t         group_id;                   /* 0x0086 */
-    int16_t         group_id_copy;              /* 0x0088 */
+    uint16_t        group_id;                   /* 0x0086 */
+    uint16_t        group_id_copy;              /* 0x0088 */
     char            unk_0x8A[0x02];             /* 0x008A */
-    int16_t         room_id;                    /* 0x008C */
-    int16_t         entrance_id;                /* 0x008E */
+    uint16_t        room_id;                    /* 0x008C */
+    uint16_t        entrance_id;                /* 0x008E */
     char            unk_0x90[0x08];             /* 0x0090 */
     xyz_t           player_position_copy;       /* 0x0098 */
     float           player_angle_copy;          /* 0x00A4 */
@@ -103,6 +103,50 @@ typedef struct{
     disp_buf_t      *disp_buf;                  /* 0x00008 */
                                                 /* size: 0x0000C */
 }gfx_ctxt_t;
+
+typedef struct{
+    uint32_t        hp_text;                    /* 0x00000 */
+    uint32_t        hp_icon;                    /* 0x00004 */
+    uint32_t        fp_text;                    /* 0x00008 */
+    uint32_t        fp_icon;                    /* 0x0000C */
+    uint32_t        coin_icon_background;       /* 0x00010 */
+    uint32_t        coin_icon;                  /* 0x00014 */
+    uint32_t        star_points_icon;           /* 0x00018 */
+    uint32_t        star_points_glare;          /* 0x0001C */
+    uint32_t        unk_icon1;                  /* 0x00020 */
+    uint32_t        unk_icon2;                  /* 0x00024 */
+    uint32_t        unk_icon3;                  /* 0x00028 */
+    uint32_t        unk_icon4;                  /* 0x0002C */
+    uint32_t        unk_icon5;                  /* 0x00030 */
+    int16_t         hud_x;                      /* 0x00034 */
+    int16_t         hud_y;                      /* 0x00036 */
+    uint16_t        hud_timer;                  /* 0x00038 */ /*hud will show up after 0xF0 frames of idle*/
+    uint8_t         hud_hidden;                 /* 0x0003A */ /*0 for shown, 1 for hidden*/
+    char            unk_0x3B[0x01];             /* 0x0003B */
+    uint8_t         hud_shown;                  /* 0x0003C */ /*1 for shown, 0 for hidden. this flag does not affect menu behavior*/
+    int8_t          hp_value;                   /* 0x0003D */
+    int8_t          fp_value;                   /* 0x0003E */
+    char            unk_0x3F[0x01];             /* 0x0003F */
+    uint16_t        coin_value;                 /* 0x00040 */
+    char            unk_0x42[0x02];             /* 0x00042 */
+    char            unk_0x44[0x04];             /* 0x00044 */
+    uint16_t        star_power_value;           /* 0x00048 */
+    uint8_t         hp_is_flashing;             /* 0x0004A */ /*non-zero value will flash*/
+    uint8_t         hp_flash_counter;           /* 0x0004B */
+    char            unk_0x4C[0x01];             /* 0x0004C */
+    uint8_t         fp_is_flashing;             /* 0x0004D */ /*non-zero value will flash*/
+    uint8_t         fp_flash_counter;           /* 0x0004E */
+    char            unk_0x4F[0x01];             /* 0x0004F */
+    uint8_t         unk_is_flashing;            /* 0x00050 */ /*think this is star power? cant check rn*/
+    uint8_t         unk_flash_counter;          /* 0x00051 */
+    uint8_t         star_points_is_flashing;    /* 0x00052 */ /*non-zero value will flash*/
+    uint8_t         star_points_flash_counter;  /* 0x00053 */
+    uint8_t         coin_is_flashing;           /* 0x00054 */ /*non-zero value will flash*/
+    uint8_t         coin_flash_counter;         /* 0x00055 */
+    char            unk_0x56[0x02];             /* 0x00056 */
+    char            unk_0x58[0x18];             /* 0x00058 */
+                                                /* size: 0x00070 */
+}hud_ctxt_t;
 
 typedef struct{
     uint8_t         boots_upgrade;              /* 0x0000 */ /*start: 8010F450*/
@@ -150,7 +194,7 @@ typedef struct{
 }party_t;
 
 typedef struct{
-    int32_t         animation_related;          /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
+    int32_t         animation;                  /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
     char            unk_0x04[0x04];             /* 0x0004 */
     uint16_t        idle_timer;                 /* 0x0008 */
     char            unk_0x0A[0x02];             /* 0x000A */
@@ -176,10 +220,10 @@ typedef struct{
     float           run_speed;                  /* 0x005C */ /*constant: 0x40800000 = 4.0*/
     char            unk_0x60[0x0C];             /* 0x0060 */
     float           jump_const;                 /* 0x006C */ /*used by jumping func to compare if jump_var_1 less than const*/
-    float           jump_var_1;                 /* 0x0070 */ /*related to rise/fall speeed*/ 
-    float           jump_var_2;                 /* 0x0074 */ /*related to height cap*/
-    float           jump_var_3;                 /* 0x0078 */ /*related to height cap*/
-    float           jump_var_4;                 /* 0x007C */ /*related to height cap*/
+    float           y_speed;                    /* 0x0070 */ /*related to rise/fall speeed*/ 
+    float           y_acceleration;             /* 0x0074 */ /*related to height cap*/
+    float           y_jerk;                     /* 0x0078 */ /*related to height cap*/
+    float           y_snap;                     /* 0x007C */ /*related to height cap*/
     float           movement_angle;             /* 0x0080 */ /*locking this makes you move in only that direction regardless of control stick angle*/
     float           facing_angle;               /* 0x0084 */
     char            unk_0x88[0x08];             /* 0x0088 */
@@ -231,8 +275,9 @@ typedef struct{
 
 /* Addresses */
 #define pm_status_addr         0x80074004
-#define pm_unk1_addr            0x8009A5A8
+#define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
+#define pm_hud_addr            0x8010F118
 #define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
 
@@ -240,6 +285,7 @@ typedef struct{
 #define pm_gfx                (*(gfx_ctxt_t*)      pm_gfx_addr)
 #define pm_unk1               (*(unk1_ctxt_t*)     pm_unk1_addr)
 #define pm_status             (*(status_ctxt_t*)   pm_status_addr)
+#define pm_hud                (*(hud_ctxt_t*)      pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)   pm_player_addr)
 
 /*Function Prototypes*/
