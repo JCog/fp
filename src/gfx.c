@@ -7,7 +7,7 @@
 #include <n64.h>
 #include "gfx.h"
 #include "pm64.h"
-
+#include "fp.h"
 
 #define           GFX_DISP_SIZE     0x10000
 static Gfx       *gfx_disp;
@@ -73,7 +73,7 @@ void gfx_mode_init(void)
   gDPSetCycleType(gfx_disp_p++, G_CYC_1CYCLE);
   gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
   gDPSetScissor(gfx_disp_p++, G_SC_NON_INTERLACE,
-                0, 0, PM64_SCREEN_WIDTH, Z64_SCREEN_HEIGHT);
+                0, 0, PM64_SCREEN_WIDTH, PM64_SCREEN_HEIGHT);
   gDPSetAlphaDither(gfx_disp_p++, G_AD_DISABLE);
   gDPSetColorDither(gfx_disp_p++, G_CD_DISABLE);
   gDPSetAlphaCompare(gfx_disp_p++, G_AC_NONE);
@@ -243,7 +243,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr,
         return NULL;
       }
       texldr->file_vaddr = texdesc->file_vaddr;
-      zu_getfile(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
+      /*zu_getfile(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);*/
     }
     if (texdesc->file_vsize == texture_size) {
       texture_data = texldr->file_data;

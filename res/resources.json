@@ -1,0 +1,106 @@
+{
+  "pressstart2p.png":
+  {
+    "type":         "texture",
+    "name":         "pressstart2p",
+    "format":       "i4",
+    "tile_height":  128
+  },
+  "move_icon.png":
+  {
+    "type":         "texture",
+    "name":         "move_icon",
+    "format":       "i4"
+  },
+  "checkbox.png":
+  {
+    "type":         "texture",
+    "name":         "checkbox",
+    "format":       "rgba32",
+    "tile_height":  10
+  },
+  "anchor.png":
+  {
+    "type":         "texture",
+    "name":         "anchor",
+    "format":       "i8",
+    "tile_height":  10
+  },
+  "list_icons.png":
+  {
+    "type":         "texture",
+    "name":         "list_icons",
+    "format":       "ia16",
+    "tile_height":  8
+  },
+  "check_icons.png":
+  {
+    "type":         "texture",
+    "name":         "check_icons",
+    "format":       "ia16",
+    "tile_height":  8
+  },
+  "button_icons.png":
+  {
+    "type":         "texture",
+    "name":         "button_icons",
+    "format":       "ia8",
+    "tile_height":  8
+  },
+  "pause_icons.png":
+  {
+    "type":         "texture",
+    "name":         "pause_icons",
+    "format":       "ia8",
+    "tile_height":  16
+  },
+  "macro_icons.png":
+  {
+    "type":         "texture",
+    "name":         "macro_icons",
+    "format":       "ia8",
+    "tile_height":  8
+  },
+  "movie_icons.png":
+  {
+    "type":         "texture",
+    "name":         "movie_icons",
+    "format":       "rgba16",
+    "tile_height":  15
+  },
+  "arrow_icons.png":
+  {
+    "type":         "texture",
+    "name":         "arrow_icons",
+    "format":       "ia8",
+    "tile_height":  8
+  },
+  "flag_icons.png":
+  {
+    "type":         "texture",
+    "name":         "flag_icons",
+    "format":       "rgba32",
+    "tile_height":  8
+  },
+  "file_icons.png":
+  {
+    "type":         "texture",
+    "name":         "file_icons",
+    "format":       "rgba32",
+    "tile_height":  9
+  },
+  "save_icons.png":
+  {
+    "type":         "texture",
+    "name":         "save_icons",
+    "format":       "rgba16",
+    "tile_height":  15
+  },
+  "crosshair.png":
+  {
+    "type":         "texture",
+    "name":         "crosshair",
+    "format":       "i4",
+    "tile_height":  32
+  }
+}

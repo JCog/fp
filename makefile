@@ -6,7 +6,8 @@ AS			= mips64-gcc
 OBJCOPY     = mips64-objcopy
 ARMIPS      = armips
 BUILDFILE   = build.asm
-GRU         = gru 
+GRU         = gru
+GRC         = grc
 LUAFILE     = crc.lua
 
 ADDRESS     = 0x80400040
@@ -16,9 +17,11 @@ LDFLAGS     = -T fp-link.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -
 SRCDIR      = src
 OBJDIR      = obj
 BINDIR      = bin
+RESDIR      = res
 CFILES      = *.c
 SFILES		= *.s
 NAME        = fp
+RESDESC     = $(RESDIR)/resources.json
 CSRC       := $(foreach s,$(CFILES),$(wildcard $(SRCDIR)/$(s)))
 COBJ        = $(patsubst $(SRCDIR)/%,$(OBJDIR)/%.o,$(CSRC))
 SSRC	   := $(foreach s,$(SFILES),$(wildcard $(SRCDIR)/$(s)))

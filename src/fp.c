@@ -9,7 +9,8 @@
 #include "gfx.h"
 #include "input.h"
 #include "commands.h"
-#include "watches.h"
+#include "resource.h"
+
 
 
 __attribute__((section(".data")))
@@ -18,10 +19,15 @@ fp_ctxt_t fp = {
 };
 
 void fp_main(void){
-    
+    gfx_mode_init();
 
     pm_player.stats.level = 27;
     pm_player.stats.has_action_command = 1;
+
+    /*splash screen*/
+    {
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0xC0, 0xFF));
+    }
 
     /* activate cheats */
     {
@@ -91,6 +97,10 @@ void init(){
     clear_bss();
     do_global_ctors();
 
+    gfx_start();
+    gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
+    gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM,G_CC_MODULATEIA_PRIM));
+
     /*hard coded button bindings*/
     fp_commands[0].bind = make_bind(2, BUTTON_R, BUTTON_D_UP);
     fp_commands[1].bind = make_bind(2, BUTTON_R, BUTTON_D_RIGHT);
@@ -113,6 +123,15 @@ void init(){
     menu_add_submenu(&fp.main_menu,0,5,create_watches_menu(),"watches");
     menu_add_submenu(&fp.main_menu,0,6,create_trainer_menu(),"trainer");
     menu_add_submenu(&fp.main_menu,0,7,create_settings_menu(),"settings");
+    */
+
+    int font_resource = RES_FONT_PRESSSTART2P;
+    gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
+    struct gfx_font *font = resource_get(font_resource);
+    /*
+    menu_set_font(fp.menu_main, font);
+    menu_set_cell_width(gz.menu_main, font->char_width + font->letter_spacing);
+    menu_set_cell_height(gz.menu_main, font->char_height + font->line_spacing);
     */
 
 

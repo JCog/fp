@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vector/vector.h>
 #include "pm64.h"
-#include "menu.h"
+
 
 enum cheats {
     CHEAT_HP,
@@ -36,7 +36,7 @@ typedef struct  {
 
 
 extern fp_ctxt_t fp;
-
+/*
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();
 struct menu *create_inventory_menu();
@@ -44,6 +44,6 @@ struct menu *create_file_menu();
 struct menu *create_watches_menu();
 struct menu *create_trainer_menu();
 struct menu *create_settings_menu();
-
+*/
 
 #endif
