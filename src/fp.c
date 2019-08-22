@@ -1,8 +1,10 @@
-    
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include <startup.h>
-#include <inttypes.h>
+#include <mips.h>
+#include <n64.h>
 #include "fp.h"
 #include "gfx.h"
 #include "input.h"
@@ -16,47 +18,10 @@ fp_ctxt_t fp = {
 };
 
 void fp_main(void){
-    gfx_begin();
-    input_update();
+    
 
     pm_player.stats.level = 27;
     pm_player.stats.has_action_command = 1;
-
-    /* draw input display */
-    {
-        controller_t pad    = pm_status.raw;
-        int16_t      pad_x  = pm_status.control_x;
-        int16_t      pad_y  = pm_status.control_y;
-
-        gfx_printf(16,240-30,"%4i %4i",pad_x,pad_y);
-        gfx_printf_color(106,240-30,GPACK_RGBA8888(0x00,0x00,0xFF,0xFF),"%s", pad.a?"A":" ");
-        gfx_printf_color(116,240-30,GPACK_RGBA8888(0x00,0xFF,0x00,0xFF),"%s", pad.b?"B":" ");
-        gfx_printf_color(126,240-30,GPACK_RGBA8888(0xFF,0x00,0x00,0xFF),"%s", pad.s?"S":" ");
-        gfx_printf_color(136,240-30,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s", pad.z?"Z":" ",pad.l?"L":" ",pad.r?"R":" ");
-        gfx_printf_color(166,240-30,GPACK_RGBA8888(0xFF,0xFF,0x00,0xFF),"%s%s%s%s", pad.cl?"<":" ",pad.cu?"^":" ", pad.cr?">":" ",pad.cd?"v":" ");
-        gfx_printf_color(206,240-30,GPACK_RGBA8888(0xFF,0xFF,0xFF,0xFF),"%s%s%s%s", pad.dl?"<":" ",pad.du?"^":" ", pad.dr?">":" ",pad.dd?"v":" ");
-    }
-
-    /*
-    gfx_printf(15,50,"%s","current group: ");
-    gfx_printf(110,50,"%4x",pm_status.group_id);
-
-    gfx_printf(15,60,"%s","current  room: ");
-    gfx_printf(110,60,"%4x",pm_status.room_id);
-
-    gfx_printf(15,70,"%s","last entrance: ");
-    gfx_printf(110,70,"%4x",pm_status.entrance_id);
-    */
-
-     /* draw floating watches */
-    {
-        for(int i=0;i<fp.watch_cnt;i++){
-            watch_t *watch = vector_at(&fp.watches,i);
-            if(watch->floating){
-                watch_printf(watch);
-            }
-        }
-    }
 
     /* activate cheats */
     {
@@ -95,44 +60,6 @@ void fp_main(void){
             
     }
 
-    /* handle menu */
-    {
-        static _Bool skip_menu = 0;
-        uint16_t button_pressed = pm_status.pressed.buttons;
-
-        if(input_bind_pressed(0)){
-            skip_menu = 1;
-            fp.menu_active = !fp.menu_active;
-            if(fp.menu_active){
-                reserve_buttons(BUTTON_L | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_D_UP);
-            }else{
-                free_buttons(BUTTON_L | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_D_UP);
-            }
-        }
-
-        if(fp.menu_active && !skip_menu){
-            struct menu *fp_menu = &fp.main_menu;
-            enum menu_nav navdir = MENU_NAV_NONE;
-            enum menu_callback callback = MENU_CALLBACK_NONE;
-            if(button_pressed & BUTTON_D_DOWN){
-                navdir=MENU_NAV_DOWN;
-            }else if(button_pressed & BUTTON_D_UP){
-                navdir=MENU_NAV_UP;
-            }else if(button_pressed & BUTTON_D_LEFT){
-                navdir=MENU_NAV_LEFT;
-            }else if(button_pressed & BUTTON_D_RIGHT){
-                navdir=MENU_NAV_RIGHT;
-            }else if(button_pressed & BUTTON_L){
-                callback = MENU_CALLBACK_ACTIVATE;
-            }
-
-            menu_navigate(fp_menu,navdir);
-            menu_callback(fp_menu,callback);
-            menu_draw(fp_menu);
-        }
-
-        skip_menu = 0;
-    }
 
     /* handle command bindings */
     {
@@ -152,7 +79,7 @@ void fp_main(void){
         }
     }
 
-    gfx_finish();    /*output gfx display lists*/
+
 }
 
 void gamestate_main(){
@@ -163,11 +90,6 @@ void gamestate_main(){
 void init(){
     clear_bss();
     do_global_ctors();
-    gfx_init();
-
-    vector_init(&fp.watches, sizeof(watch_t));
-    vector_reserve(&fp.watches,WATCHES_MAX);
-    fp.watch_cnt = 0;
 
     /*hard coded button bindings*/
     fp_commands[0].bind = make_bind(2, BUTTON_R, BUTTON_D_UP);
@@ -177,12 +99,12 @@ void init(){
     fp_commands[4].bind = make_bind(1, BUTTON_D_LEFT);
     fp_commands[5].bind = make_bind(1, BUTTON_D_RIGHT);
     fp_commands[6].bind = make_bind(2, BUTTON_R, BUTTON_D_DOWN);
+    
 
     /*init menu and default it to inactive*/
+    /*
     fp.menu_active = 0;
     menu_init(&fp.main_menu, 15, 55);
-
-    /*add menus*/
     fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
     menu_add_submenu(&fp.main_menu,0,1,create_warps_menu(),"warps");
     menu_add_submenu(&fp.main_menu,0,2,create_cheats_menu(),"cheats");
@@ -191,6 +113,9 @@ void init(){
     menu_add_submenu(&fp.main_menu,0,5,create_watches_menu(),"watches");
     menu_add_submenu(&fp.main_menu,0,6,create_trainer_menu(),"trainer");
     menu_add_submenu(&fp.main_menu,0,7,create_settings_menu(),"settings");
+    */
+
+
 
     /*ready*/
     fp.ready = 1;

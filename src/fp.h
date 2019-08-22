@@ -23,7 +23,7 @@ typedef struct  {
     struct vector           watches;
     size_t                  watch_cnt;
     uint16_t                cheats;
-    struct menu             main_menu;
+    /*struct menu             main_menu*/;
     /*struct settings        *settings;*/
     _Bool                   menu_active;
     float                   saved_x;
