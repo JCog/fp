@@ -2,7 +2,7 @@
 .relativeinclude on
 
 .create "rom/fp.z64", 0
-.incbin "rom/base.z64"
+.incbin "rom/pm64j.z64"
 
 .definelabel PAYLOAD_ROM, 0x02800000
 .definelabel PAYLOAD_RAM, 0x80400000
@@ -47,7 +47,7 @@ init:
 	nop
 
 .org FP_RAM
-.incbin "bin/fp.bin"
+.incbin "bin/PM64J/fp.bin"
 .align 8
 END:
 .close

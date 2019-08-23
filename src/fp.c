@@ -125,9 +125,11 @@ void init(){
     menu_add_submenu(&fp.main_menu,0,7,create_settings_menu(),"settings");
     */
 
+    /*
     int font_resource = RES_FONT_PRESSSTART2P;
     gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
     struct gfx_font *font = resource_get(font_resource);
+    */
     /*
     menu_set_font(fp.menu_main, font);
     menu_set_cell_width(gz.menu_main, font->char_width + font->letter_spacing);
