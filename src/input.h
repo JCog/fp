@@ -24,4 +24,6 @@ _Bool input_bind_pressed_raw(int index);
 void reserve_buttons(uint16_t button_bitmask);
 void free_buttons(uint16_t button_bitmask);
 
+extern const uint32_t input_button_color[];
+
 #endif

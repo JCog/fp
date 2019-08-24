@@ -51,6 +51,26 @@ uint16_t make_bind(int len, ...){
     return ret;
 }
 
+const uint32_t input_button_color[] =
+{
+  0xFFA000,
+  0xFFA000,
+  0xFFA000,
+  0xFFA000,
+  0xC0C0C0,
+  0xC0C0C0,
+  0x000000,
+  0x000000,
+  0xC8C8C8,
+  0xC8C8C8,
+  0xC8C8C8,
+  0xC8C8C8,
+  0xC80000,
+  0xC0C0C0,
+  0x009600,
+  0x5A5AFF,
+};
+
 void input_update(){
     uint16_t pm_pad = pm_status.raw.buttons;
     pad_pressed_raw = (pad ^ pm_pad) & pm_pad;

@@ -17,6 +17,7 @@ fp_ctxt_t fp = {
 };
 
 void fp_main(void){
+
     gfx_mode_init();
 
     /*hard code font for now. add to settings later*/
@@ -24,12 +25,14 @@ void fp_main(void){
     gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
     struct gfx_font *font = resource_get(0);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, alpha));
+    gfx_mode_set(GFX_MODE_DROPSHADOW, 1);
+    int cw = font->char_width + font->letter_spacing;
 
     /*draw input display*/
-    /*
+    
     {   
         int input_display_x = 16;
-        int input_display_y = 210;
+        int input_display_y = 230;
 
         uint16_t d_pad = pm_status.raw.buttons;
         int8_t   d_x   = pm_status.control_x;
@@ -59,7 +62,8 @@ void fp_main(void){
                                                      alpha));
           gfx_sprite_draw(&sprite);
       }
-    */
+  }
+    
     /* activate cheats */
     {
         if(fp.cheats & (1 << CHEAT_HP)){
@@ -141,8 +145,15 @@ void init(){
     fp_commands[5].bind = make_bind(1, BUTTON_D_RIGHT);
     fp_commands[6].bind = make_bind(2, BUTTON_R, BUTTON_D_DOWN);
     
+    /*
+    static struct menu menu;
+    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    fp.main_menu = &menu;
+    menu.selector = menu_add_button(&menu, 0, 0, "return",main_return_proc, NULL);
+    */
 
     /*init menu and default it to inactive*/
+
     /*
     fp.menu_active = 0;
     menu_init(&fp.main_menu, 15, 55);
@@ -160,7 +171,7 @@ void init(){
     
     
     /*
-    menu_set_font(fp.menu_main, font);
+    menu_set_font(fp.main_menu, font);
     menu_set_cell_width(gz.menu_main, font->char_width + font->letter_spacing);
     menu_set_cell_height(gz.menu_main, font->char_height + font->line_spacing);
     */
