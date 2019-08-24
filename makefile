@@ -34,7 +34,7 @@ crc         :
 
 define bin_template
 SRCDIR-$(1)      = src
-RESDIR-$(1)      = res
+RESDIR-$(1)      = res/$(3)
 OBJDIR-$(1)      = obj/$(2)
 BINDIR-$(1)      = bin/$(2)
 NAME-$(1)        = $(1)
@@ -48,7 +48,7 @@ RESSRC-$(1)     := $$(wildcard $$(RESDIR-$(1))/*)
 RESOBJ-$(1)      = $$(patsubst $$(RESDIR-$(1))/%,$$(OBJDIR-$(1))/$$(RESDIR)/%.o,$$(RESSRC-$(1)))
 ELF-$(1)         = $$(BINDIR-$(1))/$(3).elf
 BIN-$(1)         = $$(BINDIR-$(1))/$(3).bin
-OUTDIR-$(1)      = $$(OBJDIR-$(1)) $$(RESDIR-$(1)) $$(BINDIR-$(1))
+OUTDIR-$(1)      = $$(OBJDIR-$(1)) $$(OBJDIR-$(1))/$$(RESDIR) $$(BINDIR-$(1))
 BUILD-$(1)       = $(1)
 CLEAN-$(1)       = clean-$(1)
 $$(BUILD-$(1))   : $$(BIN-$(1))
@@ -58,14 +58,14 @@ $$(COBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
 	$(CC) $$(CPPFLAGS-$(1)) $$(CFLAGS) $$< -o $$@
 $$(SOBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
 	$(AS) -c -MMD -MP $$< -o $$@
-$$(ELF-$(1))      : $$(COBJ-$(1)) $$(SOBJ-$(1)) | $$(BINDIR-$(1))
+$$(ELF-$(1))      : $$(COBJ-$(1)) $$(SOBJ-$(1)) $$(RESOBJ-$(1)) | $$(BINDIR-$(1))
 	$(LD) $$(LDFLAGS) $$^ -o $$@
 $$(BIN-$(1))      : $$(ELF-$(1)) | $$(BINDIR-$(1))
 	$(OBJCOPY) -S -O binary $$< $$@
+$$(RESOBJ-$(1))   : $$(OBJDIR-$(1))/$$(RESDIR)/%.o: $$(RESDIR-$(1))/% $$(RESDESC) | $$(OBJDIR-$(1))/$$(RESDIR)
+	$$(GRC) $$< -d $$(RESDESC) -o $$@
 $$(OUTDIR-$(1))   : 
 	mkdir -p $$@
-$$(RESOBJ-$(1))  : $$(OBJDIR-$(1))/$$(RESDIR)/%.o: $$(RESDIR-$(1))/% $$(RESDESC) | $$(OBJDIR-$(1))/$$(RESDIR)
-	$$(GRC) $$< -d $$(RESDESC) -o $$@
 patch-$(1)        : $$(BIN-$(1))
 	$(ARMIPS) $$(BUILDFILE-$(1))
 endef
