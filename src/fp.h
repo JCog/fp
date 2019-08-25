@@ -4,8 +4,14 @@
 #include <stdint.h>
 #include <vector/vector.h>
 #include "pm64.h"
+#include "settings.h"
 
-typedef struct  {
+struct log_entry{  
+    char                   *msg;
+    int                     age;
+};
+
+typedef struct{
     _Bool                   ready;    
     struct vector           watches;
     size_t                  watch_cnt;
@@ -13,6 +19,7 @@ typedef struct  {
     struct menu             *main_menu;
     struct menu             *global;
     _Bool                   menu_active;
+    struct log_entry        log[SETTINGS_LOG_MAX];
     float                   saved_x;
     float                   saved_y;
     float                   saved_z;
@@ -22,6 +29,8 @@ typedef struct  {
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
+
+void add_log(const char *fmt, ...);
 
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();

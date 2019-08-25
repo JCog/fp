@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <string.h>
 #include "commands.h"
 #include "input.h"
 #include "fp.h"
@@ -27,6 +32,31 @@ void hide_menu(){
     input_reservation_set(0);
 }
 
+void add_log(const char *fmt, ...){
+    struct log_entry *ent = &fp.log[SETTINGS_LOG_MAX - 1];
+    if (ent->msg){
+        free(ent->msg);
+    }
+    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i){
+        fp.log[i] = fp.log[i - 1];
+    }
+      
+    va_list va;
+    va_start(va, fmt);
+    int l = vsnprintf(NULL, 0, fmt, va);
+    va_end(va);
+
+    ent = &fp.log[0];
+    ent->msg = malloc(l + 1);
+    if (!ent->msg){
+        return;
+    }
+    va_start(va, fmt);
+    vsprintf(ent->msg, fmt, va);
+    va_end(va);
+    ent->age = 0;
+}
+
 void levitate_proc(){
     pm_player.animation |= 3;
     pm_player.y_speed = 11;
@@ -37,8 +67,10 @@ void levitate_proc(){
 void turbo_proc(){
     if(pm_player.run_speed == 4.0){
         pm_player.run_speed = 32.0;
+        add_log("turbo enabled");
     } else if(pm_player.run_speed == 32.0){
         pm_player.run_speed = 4.0;
+        add_log("turbo disabled");
     }
 }
 
@@ -48,6 +80,7 @@ void save_pos_proc(){
     fp.saved_z = pm_player.position.z;
     fp.saved_facing_angle = pm_player.facing_angle;
     fp.saved_movement_angle = pm_player.movement_angle;
+    add_log("postition saved");
 }
 
 void load_pos_proc(){
@@ -56,14 +89,17 @@ void load_pos_proc(){
     pm_player.position.z = fp.saved_z;
     pm_player.facing_angle = fp.saved_facing_angle;
     pm_player.movement_angle = fp.saved_movement_angle;
+    add_log("postition loaded");
     
 }
 
 void lzs_proc(){
     if(pm_unk1.saveblock_freeze == 0){
         pm_unk1.saveblock_freeze = 1;
+        add_log("lzs enabled");
     } else if(pm_unk1.saveblock_freeze == 1){
         pm_unk1.saveblock_freeze = 0;
+        add_log("lzs disabled");
     }
 
 }
