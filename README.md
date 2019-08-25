@@ -1,4 +1,4 @@
-# fp-plus
+# fp
 A practice tool for Paper Mario 64 intended for use on N64 with an Everdrive.  
 Instructions for how to use this tool will be written when this project is closer to completion.  
   
