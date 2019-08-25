@@ -83,12 +83,12 @@ replace the 'e' with 'c' if you'd like to use your C drive:
 Then back in windows, create a folder in the fp project called "rom".  Place a totally legally obtained Mario Story (J) ROM in this folder and rename it to "base-j.z64".  
 Back in WSL, run the following:  
 ```cd /mnt/e/<path to fp>```  
-```make clean patch crc```  
+```make clean all crc```  
 This will create an obj and bin folder in the project and output a "fp.z64" file in the rom folder.  
   
 A breif explanation of what the make commands do:  
 ```make```: builds all of the c code in the src folder and compiles it to a .bin file. This gets injected to the rom.  
 ```clean```: erases the bin and obj folders from the previous build.  
-```patch```: runs armips to make changes to the base rom for injecting the binary and editing code to dma the binary at run time.    
+```all```: builds the obj and binary files to be appeneded to the rom. Also runs armips to patch the rom with the asm to dma the payload to ram at run time.     
 ```crc```: uses glanks lua tool called gru to update the rom crc. Since armips will dynamically allocate space for the binary depending on its size, the dma instructions change on each build so the crc needs to update accordingly.  
 
