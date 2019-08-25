@@ -1,6 +1,8 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+#define INPUT_REPEAT_DELAY    8
+
 #define BUTTON_C_RIGHT        0x0001
 #define BUTTON_C_LEFT         0x0002
 #define BUTTON_C_DOWN         0x0004

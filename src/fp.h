@@ -5,19 +5,6 @@
 #include <vector/vector.h>
 #include "pm64.h"
 
-
-enum cheats {
-    CHEAT_HP,
-    CHEAT_FP,
-    CHEAT_BP,
-    CHEAT_COINS,
-    CHEAT_STAR_POWER,
-    CHEAT_STAR_POINTS,
-    CHEAT_STAR_PIECES,
-    CHEAT_PERIL,
-    CHEAT_ENCOUNTER
-};
-
 typedef struct  {
     _Bool                   ready;    
     struct vector           watches;
@@ -33,7 +20,6 @@ typedef struct  {
     float                   saved_movement_angle;
     
 } fp_ctxt_t;
-
 
 extern fp_ctxt_t fp;
 /*

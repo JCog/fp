@@ -10,6 +10,7 @@
 #include "input.h"
 #include "commands.h"
 #include "resource.h"
+#include "settings.h"
 
 __attribute__((section(".data")))
 fp_ctxt_t fp = { 
@@ -19,6 +20,7 @@ fp_ctxt_t fp = {
 void fp_main(void){
 
     gfx_mode_init();
+    input_update();
 
     /*hard code font for now. add to settings later*/
     int alpha = 0xFF;
@@ -29,18 +31,14 @@ void fp_main(void){
     int cw = font->char_width + font->letter_spacing;
 
     /*draw input display*/
-    
     {   
-        int input_display_x = 16;
-        int input_display_y = 230;
-
         uint16_t d_pad = pm_status.raw.buttons;
         int8_t   d_x   = pm_status.control_x;
         int8_t   d_y   = pm_status.control_y;
 
         struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
-        gfx_printf(font, input_display_x, input_display_y,
+        gfx_printf(font, settings->input_display_x, settings->input_display_y,
                    "%4i %4i", d_x, d_y);
         static const int buttons[] =
         {
@@ -55,14 +53,14 @@ void fp_main(void){
           struct gfx_sprite sprite =
           {
             texture, b,
-            input_display_x + cw * 10 + x, input_display_y + y,
+            settings->input_display_x + cw * 10 + x, settings->input_display_y + y,
             1.f, 1.f,
           };
           gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b],
                                                      alpha));
           gfx_sprite_draw(&sprite);
       }
-  }
+    }
     
     /* activate cheats */
     {
@@ -97,30 +95,24 @@ void fp_main(void){
         if(fp.cheats & (1 << CHEAT_PERIL)){
             pm_player.stats.hp = 1;
             pm_hud.hp_value = 1;
-        }
-            
+        }    
     }
-
 
     /* handle command bindings */
     {
-        for(int i=0;i<7;i++){
-            _Bool activate = 0;
-            switch(fp_commands[i].type){
-                case COMMAND_HOLD:
-                    activate = input_bind_held(i);
-                    break;
-                case COMMAND_PRESS:
-                    activate = input_bind_pressed(i);
-                    break;
+        for (int i = 0; i < COMMAND_MAX; ++i) {
+            _Bool active = 0;
+            switch (fp_commands[i].command_type) {
+                case COMMAND_HOLD:       active = input_bind_held(i);        break;
+                case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
             }
-            if(activate && fp_commands[i].proc){
+            if (fp_commands[i].proc && active){   
                 fp_commands[i].proc();
             }
         }
     }
 
-gfx_flush();
+    gfx_flush();
 }
 
 void gamestate_main(){
@@ -136,14 +128,8 @@ void init(){
     gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM,G_CC_MODULATEIA_PRIM));
 
-    /*hard coded button bindings*/
-    fp_commands[0].bind = make_bind(2, BUTTON_R, BUTTON_D_UP);
-    fp_commands[1].bind = make_bind(2, BUTTON_R, BUTTON_D_RIGHT);
-    fp_commands[2].bind = make_bind(1, BUTTON_D_UP);
-    fp_commands[3].bind = make_bind(1, BUTTON_D_DOWN);
-    fp_commands[4].bind = make_bind(1, BUTTON_D_LEFT);
-    fp_commands[5].bind = make_bind(1, BUTTON_D_RIGHT);
-    fp_commands[6].bind = make_bind(2, BUTTON_R, BUTTON_D_DOWN);
+    /*load default settings*/
+    settings_load_default();
     
     /*
     static struct menu menu;

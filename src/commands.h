@@ -3,27 +3,36 @@
 
 #include "pm64.h"
 
-#define COMMAND_CNT 10
+enum commands{
+    COMMAND_MENU,
+    COMMAND_RETURN,
+    COMMAND_LEVITATE,
+    COMMAND_TURBO,
+    COMMAND_SAVEPOS,
+    COMMAND_LOADPOS,
+    COMMAND_LZS,
+    COMMAND_MAX
+};
 
-enum command_type{
+enum activation_type{
     COMMAND_HOLD,
     COMMAND_PRESS
 };
 
 struct command {
-    const char         *text;
-    enum command_type   type;
-    uint16_t            bind;
-    void              (*proc)();
+    const char             *text;
+    enum activation_type   command_type;
+    uint16_t               bind;
+    void                   (*proc)();
 };
 
-void command_levitate();
-void command_turbo();
-void command_levitate();
-void command_save_pos();
-void command_load_pos();
-void command_lzs();
+void levitate_proc();
+void turbo_proc();
+void levitate_proc();
+void save_pos_proc();
+void load_pos_proc();
+void lzs_proc();
 
-extern struct command fp_commands[COMMAND_CNT];
+extern struct command fp_commands[COMMAND_MAX];
 
 #endif

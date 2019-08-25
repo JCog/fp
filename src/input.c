@@ -3,6 +3,8 @@
 #include "input.h"
 #include "pm64.h"
 #include "commands.h"
+#include "settings.h"
+
 
 #define BIND_END 6
 
@@ -12,10 +14,10 @@ static uint16_t pad_pressed;
 static uint16_t pad_released;
 static uint16_t pad;
 static uint16_t reserved;
-static int bind_component_state[COMMAND_CNT];
-static int bind_time[COMMAND_CNT];
-static _Bool bind_pressed_raw[COMMAND_CNT];
-static _Bool bind_pressed[COMMAND_CNT];
+static int bind_component_state[COMMAND_MAX];
+static int bind_time[COMMAND_MAX];
+static _Bool bind_pressed_raw[COMMAND_MAX];
+static _Bool bind_pressed[COMMAND_MAX];
 
 static int bind_get_component(uint16_t bind, int index){
     return (bind >> (4 * index)) & 0xF;
@@ -84,14 +86,14 @@ void input_update(){
         }else{
             button_time[i] = 0;
         }
-        if((pad_pressed_raw & p) || button_time[i] >= 8){
+        if((pad_pressed_raw & p) || button_time[i] >= INPUT_REPEAT_DELAY){
             pad_pressed |= p;
         }
     }
-    uint16_t bind_pad[7];
-    _Bool bind_state[7];
-    for(int i=0;i<7;i++){
-        uint16_t *b = &fp_commands[i].bind;
+    uint16_t bind_pad[SETTINGS_BIND_MAX];
+    _Bool bind_state[SETTINGS_BIND_MAX];
+    for(int i=0; i < SETTINGS_BIND_MAX; i++){
+        uint16_t *b = &settings->binds[i];
         bind_pad[i] = bind_get_bitmask(*b);
         int *cs = &bind_component_state[i];
         int j;
@@ -129,9 +131,9 @@ void input_update(){
         }
         bind_state[i] = (*cs && (j==4 || c == BIND_END));
     }
-    for(int i=0;i<7;i++){
+    for(int i=0; i < SETTINGS_BIND_MAX; i++){
         uint16_t pi = bind_pad[i];
-        for(int j = 0;bind_state[i] && j < 7;j++){
+        for(int j = 0; bind_state[i] && j < SETTINGS_BIND_MAX; j++){
             if(!bind_state[j]) continue;
             uint16_t pj = bind_pad[j];
             if(pi!=pj && (pi & pj) == pi){
@@ -145,7 +147,7 @@ void input_update(){
         else{
             bind_time[i]++;
         }
-        bind_pressed[i] = (bind_pressed_raw[i] || bind_time[i] >= 8);
+        bind_pressed[i] = (bind_pressed_raw[i] || bind_time[i] >= INPUT_REPEAT_DELAY);
     }
 }
 
