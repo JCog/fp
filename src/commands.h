@@ -16,7 +16,8 @@ enum commands{
 
 enum activation_type{
     COMMAND_HOLD,
-    COMMAND_PRESS
+    COMMAND_PRESS,
+    COMMAND_PRESS_ONCE
 };
 
 struct command {
@@ -26,6 +27,8 @@ struct command {
     void                   (*proc)();
 };
 
+void show_menu();
+void hide_menu();
 void levitate_proc();
 void turbo_proc();
 void levitate_proc();

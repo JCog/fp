@@ -8,6 +8,7 @@
 #include "fp.h"
 #include "gfx.h"
 #include "input.h"
+#include "menu.h"
 #include "commands.h"
 #include "resource.h"
 #include "settings.h"
@@ -22,13 +23,10 @@ void fp_main(void){
     gfx_mode_init();
     input_update();
 
-    /*hard code font for now. add to settings later*/
-    int alpha = 0xFF;
-    gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
-    struct gfx_font *font = resource_get(0);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, alpha));
-    gfx_mode_set(GFX_MODE_DROPSHADOW, 1);
-    int cw = font->char_width + font->letter_spacing;
+    struct gfx_font *font = menu_get_font(fp.main_menu, 1);
+    uint8_t alpha = menu_get_alpha_i(fp.main_menu, 1);
+    int cw = menu_get_cell_width(fp.main_menu, 1);
+    int ch = menu_get_cell_height(fp.main_menu, 1);
 
     /*draw input display*/
     {   
@@ -61,41 +59,69 @@ void fp_main(void){
           gfx_sprite_draw(&sprite);
       }
     }
+
+    
+    /* handle menu input */
+    {
+        if (fp.menu_active) {
+            if (input_bind_pressed_raw(COMMAND_MENU)){
+                hide_menu();
+            }
+            else if (input_bind_pressed(COMMAND_RETURN)){
+                menu_return(fp.main_menu);
+            }
+            else {
+                uint16_t pad_pressed = input_pressed();
+                if (pad_pressed & BUTTON_D_UP)
+                    menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
+                if (pad_pressed & BUTTON_D_DOWN)
+                    menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
+                if (pad_pressed & BUTTON_D_LEFT)
+                    menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
+                if (pad_pressed & BUTTON_D_RIGHT)
+                    menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
+                if (pad_pressed & BUTTON_L)
+                    menu_activate(fp.main_menu);
+          }
+        }
+        else if (input_bind_pressed_raw(COMMAND_MENU))
+            show_menu();
+    }
     
     /* activate cheats */
     {
-        if(fp.cheats & (1 << CHEAT_HP)){
+        if(settings->cheats & (1 << CHEAT_HP)){
             pm_player.stats.hp = 99;
             pm_player.stats.max_hp = 99;
             pm_player.stats.menu_max_hp = 99;
             pm_hud.hp_value = 99;
         }
-        if(fp.cheats & (1 << CHEAT_FP)){
+        if(settings->cheats & (1 << CHEAT_FP)){
             pm_player.stats.fp = 99;
             pm_player.stats.max_fp = 99;
             pm_player.stats.menu_max_fp = 99;
             pm_hud.fp_value = 99;
         }
-        if(fp.cheats & (1 << CHEAT_BP)){
+        if(settings->cheats & (1 << CHEAT_BP)){
             pm_player.stats.bp = 99;
         }
-        if(fp.cheats & (1 << CHEAT_COINS)){
+        if(settings->cheats & (1 << CHEAT_COINS)){
             pm_player.stats.coins = 99;
             pm_hud.coin_value = 99;
         }
-        if(fp.cheats & (1 << CHEAT_STAR_POWER)){
+        if(settings->cheats & (1 << CHEAT_STAR_POWER)){
             
         }
-        if(fp.cheats & (1 << CHEAT_STAR_POINTS)){
+        if(settings->cheats & (1 << CHEAT_STAR_POINTS)){
             pm_player.stats.star_points = 99;
         }
-        if(fp.cheats & (1 << CHEAT_STAR_PIECES)){
+        if(settings->cheats & (1 << CHEAT_STAR_PIECES)){
             pm_player.stats.star_pieces = 160;
         }
-        if(fp.cheats & (1 << CHEAT_PERIL)){
+        if(settings->cheats & (1 << CHEAT_PERIL)){
             pm_player.stats.hp = 1;
             pm_hud.hp_value = 1;
-        }    
+        }
     }
 
     /* handle command bindings */
@@ -105,14 +131,32 @@ void fp_main(void){
             switch (fp_commands[i].command_type) {
                 case COMMAND_HOLD:       active = input_bind_held(i);        break;
                 case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
+                case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
             }
-            if (fp_commands[i].proc && active){   
+            if (fp_commands[i].proc && active){
                 fp_commands[i].proc();
             }
         }
     }
 
+    /* draw and animate menus */
+    {
+        while (fp.menu_active && menu_think(fp.main_menu))
+          ;
+        while (menu_think(fp.global))
+          ;
+
+        if (fp.menu_active){
+          menu_draw(fp.main_menu);
+        }
+        menu_draw(fp.global);
+    }
+
     gfx_flush();
+}
+
+static void main_return_proc(struct menu_item *item, void *data){
+    hide_menu();
 }
 
 void gamestate_main(){
@@ -128,41 +172,38 @@ void init(){
     gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM,G_CC_MODULATEIA_PRIM));
 
+    /*init fp variables*/
+    fp.menu_active = 0;
+
     /*load default settings*/
     settings_load_default();
-    
-    /*
-    static struct menu menu;
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    fp.main_menu = &menu;
-    menu.selector = menu_add_button(&menu, 0, 0, "return",main_return_proc, NULL);
-    */
 
-    /*init menu and default it to inactive*/
+    /*init menus*/
+    static struct menu main_menu;
+    static struct menu global;
+    static struct menu watches;
+    fp.main_menu = &main_menu;
+    fp.global = &global;
 
-    /*
-    fp.menu_active = 0;
-    menu_init(&fp.main_menu, 15, 55);
-    fp.main_menu.selected_item = menu_add_button(&fp.main_menu,0,0,"return",menu_return,NULL);
-    menu_add_submenu(&fp.main_menu,0,1,create_warps_menu(),"warps");
-    menu_add_submenu(&fp.main_menu,0,2,create_cheats_menu(),"cheats");
-    menu_add_submenu(&fp.main_menu,0,3,create_inventory_menu(),"inventory");
-    menu_add_submenu(&fp.main_menu,0,4,create_file_menu(),"file");
-    menu_add_submenu(&fp.main_menu,0,5,create_watches_menu(),"watches");
-    menu_add_submenu(&fp.main_menu,0,6,create_trainer_menu(),"trainer");
-    menu_add_submenu(&fp.main_menu,0,7,create_settings_menu(),"settings");
-    */
+    menu_init(&main_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&watches, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&global, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
-    
-    
-    
-    /*
-    menu_set_font(fp.main_menu, font);
-    menu_set_cell_width(gz.menu_main, font->char_width + font->letter_spacing);
-    menu_set_cell_height(gz.menu_main, font->char_height + font->line_spacing);
-    */
+    /*populate top level menus*/
+    main_menu.selector = menu_add_button(fp.main_menu, 0, 0, "return", main_return_proc, NULL);
+    menu_add_submenu(fp.main_menu,0,1,create_warps_menu(),"warps");
+    menu_add_submenu(fp.main_menu,0,2,create_cheats_menu(),"cheats");
+    menu_add_submenu(fp.main_menu,0,3,create_inventory_menu(),"inventory");
+    menu_add_submenu(fp.main_menu,0,4,create_file_menu(),"file");
+    menu_add_submenu(fp.main_menu,0,5,create_watches_menu(),"watches");
+    menu_add_submenu(fp.main_menu,0,6,create_trainer_menu(),"trainer");
+    menu_add_submenu(fp.main_menu,0,7,create_settings_menu(),"settings");
 
+    /* configure menu related commands */
+    input_bind_set_override(COMMAND_MENU, 1);
+    input_bind_set_override(COMMAND_RETURN, 1);
 
+    apply_menu_settings();
 
     /*ready*/
     fp.ready = 1;
