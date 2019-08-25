@@ -41,8 +41,9 @@ struct menu *create_cheats_menu(void)
     
     /*biuld menu*/
     for (int i = 0; i < CHEAT_MAX; ++i) {
-        menu_add_static(&menu, 0, 1 + i, labels[i], 0xC0C0C0);
-        menu_add_checkbox(&menu, 13, 1 + i, cheat_proc, (void*)i);
+        menu_add_checkbox(&menu, 0, 1 + i, cheat_proc, (void*)i);
+        menu_add_static(&menu, 2, 1 + i, labels[i], 0xC0C0C0);
+        
     }
     
     return &menu;

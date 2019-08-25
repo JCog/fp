@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 #include <math.h>
 #include <startup.h>
@@ -59,7 +60,6 @@ void fp_main(void){
           gfx_sprite_draw(&sprite);
       }
     }
-
     
     /* handle menu input */
     {

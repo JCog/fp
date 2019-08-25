@@ -17,12 +17,12 @@ void settings_load_default(void){
     d->bits.drop_shadow = 1;
     d->bits.input_display = 1;
     d->bits.log = 1;
-    d->menu_x = 15;
+    d->menu_x = 16;
     d->menu_y = 60;
     d->input_display_x = 16;
-    d->input_display_y = PM64_SCREEN_HEIGHT - 10;
-    d->log_x = PM64_SCREEN_WIDTH - 12;
-    d->log_y = PM64_SCREEN_HEIGHT - 23;
+    d->input_display_y = PM64_SCREEN_HEIGHT - 23;
+    d->log_x = PM64_SCREEN_WIDTH - 20;
+    d->log_y = PM64_SCREEN_HEIGHT - 33;
     d->n_watches = 0;
     d->cheats = 0;
     d->binds[COMMAND_MENU] = input_bind_make(2, BUTTON_R, BUTTON_D_UP);
