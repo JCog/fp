@@ -73,12 +73,12 @@ Then you need to "source" the file so that the changes you made take effect:
 At this point you shuold be able to call ```armips``` and have it tell you its usage parameters. If it tells you its not a known command, something went wrong.  
 You can also test one of the progams that came with glanks toolchain by calling ```gru```.  
 
-## Running fp-plus  
+## Running fp  
 With all programs installed, we are now ready to actually build the practice rom.  
 First clone this project to your location of choice. I personally keep it on the windows side because that is where I do all my editing and emulator testing. I just use WSL to build.  
 ```cd /mnt/e/<path to fp destination>```  
 replace the 'e' with 'c' if you'd like to use your C drive:  
-```git clone https://github.com/fig02/fp-plus.git```  
+```git clone https://github.com/fig02/fp.git```  
 
 Then back in windows, create a folder in the fp-plus project called "rom".  Place a totally legally obtained Mario Story (J) ROM in this folder and rename it to "base.z64".  
 Back in WSL, run the following:  
