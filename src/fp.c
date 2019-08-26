@@ -122,6 +122,17 @@ void fp_main(void){
             pm_player.stats.hp = 1;
             pm_hud.hp_value = 1;
         }
+        if(settings->cheats & (1 << CHEAT_ENCOUNTER)){
+            pm_overworld.partner_ability = 9;
+        }
+        if(settings->cheats & (1 << CHEAT_BREAK)){
+            int32_t third_byte_mask = 0xFFFF00FF;
+            int32_t check_mask = 0x0000FF00;
+
+            if((pm_player.animation & check_mask) == 0x2000){
+                pm_player.animation &= third_byte_mask;
+            }
+        }
     }
 
     /* handle command bindings */
@@ -236,6 +247,7 @@ void init(){
     input_bind_set_override(COMMAND_MENU, 1);
     input_bind_set_override(COMMAND_RETURN, 1);
 
+    /*get menu appearance*/
     apply_menu_settings();
 
     /*ready*/

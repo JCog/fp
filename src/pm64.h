@@ -110,6 +110,17 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
+    char            unk_0x00[0x03];             /* 0x0000 */
+    uint8_t         partner_ability;            /* 0x0003 */
+    int16_t         control_x_overworld;        /* 0x0004 */
+    int16_t         control_y_overworld;        /* 0x0006 */
+    controller_t    raw_overworld;              /* 0x0008 */
+    controller_t    pressed1_overworld;         /* 0x000C */
+    controller_t    pressed2_overworld;         /* 0x0010 */
+                                                /* size: 0x00014 */
+}overworld_ctxt_t;
+
+typedef struct{
     uint32_t        hp_text;                    /* 0x00000 */
     uint32_t        hp_icon;                    /* 0x00004 */
     uint32_t        fp_text;                    /* 0x00008 */
@@ -280,7 +291,7 @@ typedef struct{
 
 typedef struct{
     char            unk_0x00[0x08];             /* 0x0000 */
-    uint32_t        room_change_ptr;           /* 0x0008 */
+    uint32_t        room_change_ptr;            /* 0x0008 */
     char            unk_0x0C[0x0C];             /* 0x000C */
                                                 /* size: 0x0018 */
 }warp_ctxt_t;
@@ -290,19 +301,21 @@ typedef struct{
 #define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_unk2_addr           0x8009E6D0
+#define pm_overworld_addr      0x8010ED70
 #define pm_hud_addr            0x8010F118
 #define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
 #define pm_warp_addr           0x80156740
 
 /* Data */
-#define pm_status             (*(status_ctxt_t*)   pm_status_addr)
-#define pm_unk1               (*(unk1_ctxt_t*)     pm_unk1_addr)
-#define pm_gfx                (*(gfx_ctxt_t*)      pm_gfx_addr)
-#define pm_unk2               (*(unk2_ctxt_t*)     pm_unk2_addr)
-#define pm_hud                (*(hud_ctxt_t*)      pm_hud_addr)
-#define pm_player             (*(player_ctxt_t*)   pm_player_addr)
-#define pm_warp               (*(warp_ctxt_t*)     pm_warp_addr)
+#define pm_status             (*(status_ctxt_t*)      pm_status_addr)
+#define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
+#define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
+#define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
+#define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
+#define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
+#define pm_player             (*(player_ctxt_t*)      pm_player_addr)
+#define pm_warp               (*(warp_ctxt_t*)        pm_warp_addr)
 
 /*Function Prototypes*/
 typedef void (*pm_GameUpdate_t) ();

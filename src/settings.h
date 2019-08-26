@@ -29,6 +29,7 @@ enum cheats {
     CHEAT_STAR_PIECES,
     CHEAT_PERIL,
     CHEAT_ENCOUNTER,
+    CHEAT_BREAK,
     CHEAT_MAX
 };
 

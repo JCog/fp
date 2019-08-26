@@ -16,6 +16,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"save position",    COMMAND_PRESS_ONCE,  0,   save_pos_proc},
     {"load position",    COMMAND_PRESS_ONCE,  0,   load_pos_proc},
     {"lzs",              COMMAND_PRESS_ONCE,  0,   lzs_proc},
+    {"reload room",      COMMAND_PRESS_ONCE,  0,   reload_proc},
 };
 
 void show_menu(){
@@ -102,4 +103,10 @@ void lzs_proc(){
         add_log("lzs disabled");
     }
 
+}
+
+void reload_proc(){
+    pm_unk2.room_change_state = 1;
+    uint32_t val = 0x80035DFC;
+    pm_warp.room_change_ptr = val;
 }

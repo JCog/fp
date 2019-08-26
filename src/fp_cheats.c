@@ -11,7 +11,9 @@ static const char *labels[] =
     "star points",
     "star pieces",
     "peril",
-    "no encounter"
+    "no encounter",
+    "break free"
+    
 };
 
 static int cheat_proc(struct menu_item *item,
@@ -39,11 +41,10 @@ struct menu *create_cheats_menu(void)
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
     
-    /*biuld menu*/
+    /*build menu*/
     for (int i = 0; i < CHEAT_MAX; ++i) {
         menu_add_checkbox(&menu, 0, 1 + i, cheat_proc, (void*)i);
         menu_add_static(&menu, 2, 1 + i, labels[i], 0xC0C0C0);
-        
     }
     
     return &menu;
