@@ -1,11 +1,11 @@
 #include "menu.h"
 #include "settings.h"
 
-static char *PARTNERS = "none\0""goombario\0""kooper\0""bombette\0"
+const char *PARTNERS = "none\0""goombario\0""kooper\0""bombette\0"
 "parakarry\0""goompa\0""watt\0""sushie\0""lakilester\0""bow\0""goombaria\0"
 "parakarry\0""goompa\0""watt\0""sushie\0""lakilester\0""bow\0""goombaria\0"
 "twink\0";
-static char *RANK = "none\0""super\0""ultra\0";
+const char *RANK = "none\0""super\0""ultra\0";
 
 static int active_partner_proc(struct menu_item *item,
     enum menu_callback_reason reason,
@@ -63,9 +63,9 @@ struct menu *create_inventory_menu(void)
     menu_add_submenu(&menu, 0, 1, &partners, "partners");
 
     /*build partners menu*/
-    static int COLUMN_0_X = 0;
-    static int COLUMN_1_X = 11;
-    static int COLUMN_2_X = 13;
+    const int COLUMN_0_X = 0;
+    const int COLUMN_1_X = 11;
+    const int COLUMN_2_X = 13;
     int y_value = 0;
 
     partners.selector = menu_add_submenu(&partners, 0, y_value++, NULL, "return");
