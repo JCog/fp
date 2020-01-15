@@ -59,66 +59,67 @@ struct menu *create_inventory_menu(void)
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
 
 
-    /*build main menu*/
+    /*build inventory menu*/
     menu_add_submenu(&menu, 0, 1, &partners, "partners");
 
     /*build partners menu*/
+    static int COLUMN_0_X = 0;
     static int COLUMN_1_X = 11;
     static int COLUMN_2_X = 13;
     int y_value = 0;
 
     partners.selector = menu_add_submenu(&partners, 0, y_value++, NULL, "return");
 
-    menu_add_static(&partners, 0, y_value, "active", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "active", 0xC0C0C0);
     menu_add_option(&partners, COLUMN_2_X, y_value++, PARTNERS,
         active_partner_proc, NULL);
 
     y_value++;
     menu_add_static(&partners, COLUMN_2_X, y_value++, "rank", 0xC0C0C0);
 
-    menu_add_static(&partners, 0, y_value, "goombario", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "goombario", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.goombario);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.goombario);
 
-    menu_add_static(&partners, 0, y_value, "kooper", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "kooper", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.kooper);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.kooper);
 
-    menu_add_static(&partners, 0, y_value, "bombette", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "bombette", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.bombette);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.bombette);
 
-    menu_add_static(&partners, 0, y_value, "parakarry", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "parakarry", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.parakarry);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.parakarry);
 
-    menu_add_static(&partners, 0, y_value, "bow", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "bow", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.bow);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.bow);
 
-    menu_add_static(&partners, 0, y_value, "watt", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "watt", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.watt);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.watt);
 
-    menu_add_static(&partners, 0, y_value, "sushie", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "sushie", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.sushie);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.sushie);
 
-    menu_add_static(&partners, 0, y_value, "lakilester", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "lakilester", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.lakilester);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.lakilester);
 
     y_value++;
 
-    menu_add_static(&partners, 0, y_value, "goompa", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "goompa", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.goompa);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.goompa);
 
-    menu_add_static(&partners, 0, y_value, "goombaria", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "goombaria", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.goombaria);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.goombaria);
 
-    menu_add_static(&partners, 0, y_value, "twink", 0xC0C0C0);
+    menu_add_static(&partners, COLUMN_0_X, y_value, "twink", 0xC0C0C0);
     menu_add_checkbox(&partners, COLUMN_1_X, y_value, in_party_proc, &pm_player.party.twink);
     menu_add_option(&partners, COLUMN_2_X, y_value++, RANK, rank_proc, &pm_player.party.twink);
 
