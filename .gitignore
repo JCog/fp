@@ -2,3 +2,4 @@ obj/
 bin/
 *.exe
 *.z64
+/.vs
