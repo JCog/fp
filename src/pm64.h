@@ -110,6 +110,10 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
+    uint8_t        story_progress;             /* 0x0000 */
+}unk3_ctxt_t;
+
+typedef struct{
     char            unk_0x00[0x03];             /* 0x0000 */
     uint8_t         partner_ability;            /* 0x0003 */
     int16_t         control_x_overworld;        /* 0x0004 */
@@ -301,6 +305,7 @@ typedef struct{
 #define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_unk2_addr           0x8009E6D0
+#define pm_unk3_addr           0x800DBD50
 #define pm_overworld_addr      0x8010ED70
 #define pm_hud_addr            0x8010F118
 #define pm_player_addr         0x8010F188
@@ -312,6 +317,7 @@ typedef struct{
 #define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
+#define pm_unk3               (*(unk3_ctxt_t*)        pm_unk3_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
