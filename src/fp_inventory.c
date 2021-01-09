@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "settings.h"
+#include <stdio.h>
 
 const char *PARTNERS = "none\0""goombario\0""kooper\0""bombette\0"
 "parakarry\0""goompa\0""watt\0""sushie\0""lakilester\0""bow\0""goombaria\0"
@@ -150,17 +151,23 @@ struct menu *create_inventory_menu(void)
     static struct menu menu;
     static struct menu partners;
     static struct menu stats;
+    static struct menu items;
+    static struct menu key_items;
 
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&stats, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
 
 
     /*build inventory menu*/
     menu_add_submenu(&menu, 0, 1, &stats, "stats");
     menu_add_submenu(&menu, 0, 2, &partners, "partners");
+    menu_add_submenu(&menu, 0, 3, &items, "items");
+    menu_add_submenu(&menu, 0, 4, &key_items, "key items");
 
     /*build stats menu*/
     const int STATS_X_0 = 0;
@@ -267,6 +274,44 @@ struct menu *create_inventory_menu(void)
     menu_add_static(&partners, PARTNERS_X_0, y_value, "twink", 0xC0C0C0);
     menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.twink);
     menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.twink);
+
+    /*build items menu*/
+    const int ITEMS_X_0 = 0;
+    const int ITEMS_X_1 = 3;
+    y_value = 0;
+
+    items.selector = menu_add_submenu(&items, ITEMS_X_0, y_value++, NULL, "return");
+
+    int i;
+    for (i = 0; i < 10; i++) {
+        char buffer[3];
+        sprintf(buffer, "%d:", i);
+        menu_add_static(&items, ITEMS_X_0, y_value, buffer, 0xC0C0C0);
+        menu_add_intinput(&items, ITEMS_X_1, y_value++, 16, 3, halfword_mod_proc, &pm_player.items[i]);
+    }
+
+    /*build key items menu*/
+    const int KEY_ITEMS_X_0 = 0;
+    const int KEY_ITEMS_X_1 = 4;
+    const int KEY_ITEMS_X_2 = 10;
+    const int KEY_ITEMS_X_3 = 14;
+    y_value = 0;
+
+    key_items.selector = menu_add_submenu(&key_items, KEY_ITEMS_X_0, y_value++, NULL, "return");
+
+    for (i = 0; i < 16; i++) {
+        char buffer[4];
+        sprintf(buffer, "%02d:", i);
+        menu_add_static(&key_items, KEY_ITEMS_X_0, y_value, buffer, 0xC0C0C0);
+        menu_add_intinput(&key_items, KEY_ITEMS_X_1, y_value++, 16, 3, halfword_mod_proc, &pm_player.key_items[i]);
+    }
+    y_value = 1;
+    for (; i < 32; i++) {
+        char buffer[4];
+        sprintf(buffer, "%02d:", i);
+        menu_add_static(&key_items, KEY_ITEMS_X_2, y_value, buffer, 0xC0C0C0);
+        menu_add_intinput(&key_items, KEY_ITEMS_X_3, y_value++, 16, 3, halfword_mod_proc, &pm_player.key_items[i]);
+    }
 
     return &menu;
 }
