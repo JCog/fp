@@ -17,6 +17,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load position",    COMMAND_PRESS_ONCE,  0,   load_pos_proc},
     {"lzs",              COMMAND_PRESS_ONCE,  0,   lzs_proc},
     {"reload room",      COMMAND_PRESS_ONCE,  0,   reload_proc},
+    {"show coordinates", COMMAND_PRESS_ONCE,  0,   coords_proc}
 };
 
 void show_menu(){
@@ -109,4 +110,8 @@ void reload_proc(){
     pm_unk2.room_change_state = 1;
     uint32_t val = 0x80035DFC;
     pm_warp.room_change_ptr = val;
+}
+
+void coords_proc(){
+    fp.coord_active = !fp.coord_active;
 }

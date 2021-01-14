@@ -21,18 +21,21 @@ void settings_load_default(void){
     d->menu_y = 60;
     d->input_display_x = 16;
     d->input_display_y = PM64_SCREEN_HEIGHT - 23;
+    d->coord_display_x = 16;
+    d->coord_display_y = PM64_SCREEN_HEIGHT - 40;
     d->log_x = PM64_SCREEN_WIDTH - 20;
     d->log_y = PM64_SCREEN_HEIGHT - 33;
     d->n_watches = 0;
     d->cheats = 0;
     d->binds[COMMAND_MENU] = input_bind_make(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_LEVITATE] = input_bind_make(1, BUTTON_D_UP);
+    d->binds[COMMAND_LEVITATE] = input_bind_make(1, BUTTON_L);
     d->binds[COMMAND_TURBO] = input_bind_make(1, BUTTON_D_DOWN);
     d->binds[COMMAND_SAVEPOS] = input_bind_make(1, BUTTON_D_LEFT);
     d->binds[COMMAND_LOADPOS] = input_bind_make(1, BUTTON_D_RIGHT);
     d->binds[COMMAND_LZS] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
     d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_B, BUTTON_D_DOWN);
+    d->binds[COMMAND_COORDS] = input_bind_make(1, BUTTON_D_UP);
 }
 
 void apply_menu_settings(){

@@ -60,6 +60,16 @@ void fp_main(void){
     //      gfx_sprite_draw(&sprite);
     //  }
     //}
+
+    /* draw coordinates */
+    {
+        if (fp.coord_active) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+            gfx_printf(font, settings->coord_display_x, settings->coord_display_y, "x: %.4f", pm_player.position.x);
+            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch, "z: %.4f", pm_player.position.z);
+            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "y: %.4f", pm_player.position.y);
+        }
+    }
     
     /* handle menu input */
     {
@@ -218,6 +228,7 @@ void init(){
 
     /*init fp variables*/
     fp.menu_active = 0;
+    fp.coord_active = 0;
 
     /*load default settings*/
     settings_load_default();

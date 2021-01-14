@@ -19,6 +19,7 @@ typedef struct{
     struct menu             *main_menu;
     struct menu             *global;
     _Bool                   menu_active;
+    _Bool                   coord_active;
     struct log_entry        log[SETTINGS_LOG_MAX];
     float                   saved_x;
     float                   saved_y;

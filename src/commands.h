@@ -12,6 +12,7 @@ enum commands{
     COMMAND_LOADPOS,
     COMMAND_LZS,
     COMMAND_RELOAD,
+    COMMAND_COORDS,
     COMMAND_BREAK,
     COMMAND_MAX
 };
@@ -38,6 +39,7 @@ void save_pos_proc();
 void load_pos_proc();
 void lzs_proc();
 void reload_proc();
+void coords_proc();
 
 extern struct command fp_commands[COMMAND_MAX];
 
