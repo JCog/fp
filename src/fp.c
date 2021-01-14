@@ -245,14 +245,16 @@ void init(){
     menu_init(&global, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*populate top level menus*/
-    main_menu.selector = menu_add_button(fp.main_menu, 0, 0, "return", main_return_proc, NULL);
-    menu_add_submenu(fp.main_menu,0,1,create_warps_menu(),"warps");
-    menu_add_submenu(fp.main_menu,0,2,create_cheats_menu(),"cheats");
-    menu_add_submenu(fp.main_menu,0,3,create_player_menu(),"player");
-    menu_add_submenu(fp.main_menu,0,4,create_file_menu(),"file");
-    menu_add_submenu(fp.main_menu,0,5,create_watches_menu(),"watches");
-    menu_add_submenu(fp.main_menu,0,6,create_trainer_menu(),"trainer");
-    menu_add_submenu(fp.main_menu,0,7,create_settings_menu(),"settings");
+    int menu_index = 0;
+    main_menu.selector = menu_add_button(fp.main_menu, 0, menu_index++, "return", main_return_proc, NULL);
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_warps_menu(), "warps");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_cheats_menu(), "cheats");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_watches_menu(), "watches");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_trainer_menu(), "trainer");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
 
     /* configure menu related commands */
     input_bind_set_override(COMMAND_MENU, 1);
