@@ -33,8 +33,8 @@ void settings_load_default(void){
     d->binds[COMMAND_TURBO] = input_bind_make(1, BUTTON_D_DOWN);
     d->binds[COMMAND_SAVEPOS] = input_bind_make(1, BUTTON_D_LEFT);
     d->binds[COMMAND_LOADPOS] = input_bind_make(1, BUTTON_D_RIGHT);
-    d->binds[COMMAND_LZS] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
-    d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_B, BUTTON_D_DOWN);
+    d->binds[COMMAND_LZS] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
+    d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
     d->binds[COMMAND_COORDS] = input_bind_make(1, BUTTON_D_UP);
 }
 

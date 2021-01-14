@@ -7,6 +7,7 @@ const char *PARTNERS = "none\0""goombario\0""kooper\0""bombette\0"
 "parakarry\0""goompa\0""watt\0""sushie\0""lakilester\0""bow\0""goombaria\0"
 "twink\0";
 const char *RANK = "none\0""super\0""ultra\0";
+const char *SPELL_TYPE = "none\0""+3 ATK\0""+3 DEF\0""EXP x2\0""Coins x2\0";
 const char *ITEM_LIST[] = {
         "Jump",
         "Spin Jump",
@@ -558,9 +559,7 @@ static int in_party_proc(struct menu_item *item,
     return 0;
 }
 
-static int rank_proc(struct menu_item *item,
-    enum menu_callback_reason reason,
-    void *data) {
+static int rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     partner_t *partner = (partner_t *)data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != partner->upgrade)
@@ -571,6 +570,16 @@ static int rank_proc(struct menu_item *item,
     return 0;
 }
 
+static int spell_type_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != pm_player.merlee.spell_type)
+            menu_option_set(item, pm_player.merlee.spell_type);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        pm_player.merlee.spell_type = menu_option_get(item);
+    return 0;
+}
+
 struct menu *create_inventory_menu(void)
 {
     static struct menu menu;
@@ -578,6 +587,8 @@ struct menu *create_inventory_menu(void)
     static struct menu stats;
     static struct menu items;
     static struct menu key_items;
+    static struct menu merlee;
+    static struct menu star_power;
 
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -585,6 +596,8 @@ struct menu *create_inventory_menu(void)
     menu_init(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&star_power, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
 
 
@@ -593,6 +606,8 @@ struct menu *create_inventory_menu(void)
     menu_add_submenu(&menu, 0, 2, &partners, "partners");
     menu_add_submenu(&menu, 0, 3, &items, "items");
     menu_add_submenu(&menu, 0, 4, &key_items, "key items");
+    menu_add_submenu(&menu, 0, 5, &merlee, "merlee");
+    menu_add_submenu(&menu, 0, 6, &star_power, "star power");
 
     /*build stats menu*/
     const int STATS_X_0 = 0;
@@ -742,6 +757,38 @@ struct menu *create_inventory_menu(void)
         menu_add_static(&key_items, KEY_ITEMS_X_2, y_value, buffer, 0xC0C0C0);
         menu_add_intinput(&key_items, KEY_ITEMS_X_3, y_value++, 16, 3, halfword_mod_proc, &pm_player.key_items[i]);
     }
+
+    /*build merlee menu*/
+    const int MERLEE_X_0 = 0;
+    const int MERLEE_X_1 = 16;
+    y_value = 0;
+
+    merlee.selector = menu_add_submenu(&merlee, MERLEE_X_0, y_value++, NULL, "return");
+
+    menu_add_static(&merlee, MERLEE_X_0, y_value, "spell type", 0xC0C0C0);
+    menu_add_option(&merlee, MERLEE_X_1, y_value++, SPELL_TYPE, spell_type_proc, NULL);
+
+    menu_add_static(&merlee, MERLEE_X_0, y_value, "casts remaining", 0xC0C0C0);
+    menu_add_intinput(&merlee, MERLEE_X_1, y_value++, 10, 2, byte_mod_proc, &pm_player.merlee.casts_remaining);
+
+    menu_add_static(&merlee, MERLEE_X_0, y_value, "turns remaining", 0xC0C0C0);
+    menu_add_intinput(&merlee, MERLEE_X_1, y_value++, 10, 2, byte_mod_proc, &pm_player.merlee.turns_until_spell);
+
+    /*build star power menu*/
+    const int STAR_POWER_X_0 = 0;
+    const int STAR_POWER_X_1 = 19;
+    y_value = 0;
+
+    star_power.selector = menu_add_submenu(&star_power, STAR_POWER_X_0, y_value++, NULL, "return");
+
+    menu_add_static(&star_power, STAR_POWER_X_0, y_value, "star spirits saved", 0xC0C0C0);
+    menu_add_intinput(&star_power, STAR_POWER_X_1 + 1, y_value++, 10, 1, byte_mod_proc, &pm_player.star_power.star_spirits_saved);
+
+    menu_add_static(&star_power, STAR_POWER_X_0, y_value, "bars full", 0xC0C0C0);
+    menu_add_intinput(&star_power, STAR_POWER_X_1 + 1, y_value++, 10, 1, byte_mod_proc, &pm_player.star_power.full_bars_filled);
+
+    menu_add_static(&star_power, STAR_POWER_X_0, y_value, "partial bar", 0xC0C0C0);
+    menu_add_intinput(&star_power, STAR_POWER_X_1, y_value++, 16, 2, byte_mod_proc, &pm_player.star_power.partial_bars_filled);
 
     return &menu;
 }

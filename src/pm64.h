@@ -214,6 +214,23 @@ typedef struct{
 }party_t;
 
 typedef struct{
+    char            unk_0x00[0x01];             /* 0x0000 */
+    uint8_t         spell_type;                 /* 0x0001 */
+    uint8_t         casts_remaining;            /* 0x0002 */
+    char            unk_0x03[0x02];             /* 0x0003 */
+    uint8_t         turns_until_spell;          /* 0x0005 */
+                                                /* size: 0x0006 */
+}merlee_t;
+
+typedef struct{
+    uint8_t         star_spirits_saved;         /* 0x0000 */
+    char            unk_0x01[0x01];             /* 0x0001 */
+    uint8_t         full_bars_filled;           /* 0x0002 */
+    uint8_t         partial_bars_filled;        /* 0x0003 */
+                                                /* size: 0x0004 */
+}star_power_t;
+
+typedef struct{
     int32_t         animation;                  /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
     char            unk_0x04[0x04];             /* 0x0004 */
     uint16_t        idle_timer;                 /* 0x0008 */
@@ -290,6 +307,9 @@ typedef struct{
     uint16_t        items[10];                  /* 0x047C */
     uint16_t        storage[32];                /* 0x0490 */
     uint16_t        equipped_badges[64];        /* 0x04D0 */
+    merlee_t        merlee;                     /* 0x0550 */
+    star_power_t    star_power;                 /* 0x0556 */
+
 
 }player_ctxt_t;
 
