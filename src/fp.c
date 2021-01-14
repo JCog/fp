@@ -248,7 +248,7 @@ void init(){
     main_menu.selector = menu_add_button(fp.main_menu, 0, 0, "return", main_return_proc, NULL);
     menu_add_submenu(fp.main_menu,0,1,create_warps_menu(),"warps");
     menu_add_submenu(fp.main_menu,0,2,create_cheats_menu(),"cheats");
-    menu_add_submenu(fp.main_menu,0,3,create_inventory_menu(),"inventory");
+    menu_add_submenu(fp.main_menu,0,3,create_player_menu(),"player");
     menu_add_submenu(fp.main_menu,0,4,create_file_menu(),"file");
     menu_add_submenu(fp.main_menu,0,5,create_watches_menu(),"watches");
     menu_add_submenu(fp.main_menu,0,6,create_trainer_menu(),"trainer");

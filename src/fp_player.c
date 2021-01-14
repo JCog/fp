@@ -580,7 +580,7 @@ static int spell_type_proc(struct menu_item *item, enum menu_callback_reason rea
     return 0;
 }
 
-struct menu *create_inventory_menu(void)
+struct menu *create_player_menu(void)
 {
     static struct menu menu;
     static struct menu partners;
@@ -601,7 +601,7 @@ struct menu *create_inventory_menu(void)
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
 
 
-    /*build inventory menu*/
+    /*build player menu*/
     menu_add_submenu(&menu, 0, 1, &stats, "stats");
     menu_add_submenu(&menu, 0, 2, &partners, "partners");
     menu_add_submenu(&menu, 0, 3, &items, "items");
