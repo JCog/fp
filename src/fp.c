@@ -101,26 +101,19 @@ void fp_main(void){
     /* activate cheats */
     {
         if(settings->cheats & (1 << CHEAT_HP)){
-            pm_player.stats.hp = 99;
-            pm_player.stats.max_hp = 99;
-            pm_player.stats.menu_max_hp = 99;
-            pm_hud.hp_value = 99;
+            pm_player.stats.hp = pm_player.stats.max_hp;
         }
         if(settings->cheats & (1 << CHEAT_FP)){
-            pm_player.stats.fp = 99;
-            pm_player.stats.max_fp = 99;
-            pm_player.stats.menu_max_fp = 99;
-            pm_hud.fp_value = 99;
+            pm_player.stats.fp = pm_player.stats.max_fp;
         }
         if(settings->cheats & (1 << CHEAT_BP)){
-            pm_player.stats.bp = 99;
+            pm_player.stats.bp = 30;
         }
         if(settings->cheats & (1 << CHEAT_COINS)){
-            pm_player.stats.coins = 99;
-            pm_hud.coin_value = 99;
+            pm_player.stats.coins = 999;
         }
         if(settings->cheats & (1 << CHEAT_STAR_POWER)){
-            
+            pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
         }
         if(settings->cheats & (1 << CHEAT_STAR_POINTS)){
             pm_player.stats.star_points = 99;
@@ -130,7 +123,6 @@ void fp_main(void){
         }
         if(settings->cheats & (1 << CHEAT_PERIL)){
             pm_player.stats.hp = 1;
-            pm_hud.hp_value = 1;
         }
         if(settings->cheats & (1 << CHEAT_ENCOUNTER)){
             pm_overworld.partner_ability = 9;
