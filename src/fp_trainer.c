@@ -55,10 +55,12 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
     gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
+    gfx_printf(font, x, y + chHeight * menuY, "angle: ");
     if (pm_player.facing_angle >= 43.9f && pm_player.facing_angle <= 46.15f) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
-    gfx_printf(font, x, y + chHeight * menuY++, "angle: %.2f", pm_player.facing_angle);
+    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.facing_angle);
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * menuY, "position: ");
     if (goodPos) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
