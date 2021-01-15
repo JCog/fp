@@ -269,6 +269,7 @@ struct menu *create_player_menu(void) {
     static struct menu stats;
     static struct menu items;
     static struct menu key_items;
+    static struct menu badges;
     static struct menu merlee;
     static struct menu star_power;
 
@@ -278,23 +279,26 @@ struct menu *create_player_menu(void) {
     menu_init(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&star_power, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
 
+    int y_value = 0;
+    menu.selector = menu_add_submenu(&menu, 0, y_value++, NULL, "return");
 
     /*build player menu*/
-    menu_add_submenu(&menu, 0, 1, &stats, "stats");
-    menu_add_submenu(&menu, 0, 2, &partners, "partners");
-    menu_add_submenu(&menu, 0, 3, &items, "items");
-    menu_add_submenu(&menu, 0, 4, &key_items, "key items");
-    menu_add_submenu(&menu, 0, 5, &merlee, "merlee");
-    menu_add_submenu(&menu, 0, 6, &star_power, "star power");
+    menu_add_submenu(&menu, 0, y_value++, &stats, "stats");
+    menu_add_submenu(&menu, 0, y_value++, &partners, "partners");
+    menu_add_submenu(&menu, 0, y_value++, &items, "items");
+    menu_add_submenu(&menu, 0, y_value++, &key_items, "key items");;
+    menu_add_submenu(&menu, 0, y_value++, &badges, "badges");
+    menu_add_submenu(&menu, 0, y_value++, &merlee, "merlee");
+    menu_add_submenu(&menu, 0, y_value++, &star_power, "star power");
 
     /*build stats menu*/
     const int STATS_X_0 = 0;
     const int STATS_X_1 = 16;
-    int y_value = 0;
+    y_value = 0;
     stats_t *pm_stats = &pm_player.stats;
 
     stats.selector = menu_add_submenu(&stats, STATS_X_0, y_value++, NULL, "return");
@@ -422,11 +426,12 @@ struct menu *create_player_menu(void) {
 
     key_items.selector = menu_add_submenu(&key_items, KEY_ITEMS_X_0, y_value++, NULL, "return");
 
-    struct menu *pages = malloc(sizeof(*pages) * 2);
-    struct menu_item *tab = menu_add_tab(&key_items, KEY_ITEMS_X_0, y_value++, pages, 2);
+    int key_items_page_count = 2;
+    struct menu *key_items_pages = malloc(sizeof(*key_items_pages) * key_items_page_count);
+    struct menu_item *key_items_tab = menu_add_tab(&key_items, KEY_ITEMS_X_0, y_value++, key_items_pages, key_items_page_count);
     int page_size = 16;
-    for (int i = 0; i < 2; ++i) {
-        struct menu *page = &pages[i];
+    for (int i = 0; i < key_items_page_count; ++i) {
+        struct menu *page = &key_items_pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         y_value = 0;
         for (int j = 0; j < page_size; ++j) {
@@ -439,9 +444,38 @@ struct menu *create_player_menu(void) {
             menu_add_option(page, KEY_ITEMS_X_2, y_value++, ITEM_LIST, item_option_proc, &pm_player.key_items[item_index]);
         }
     }
-    menu_tab_goto(tab, 0);
-    menu_add_button(&key_items, 8, 0, "<", tab_prev_proc, tab);
-    menu_add_button(&key_items, 10, 0, ">", tab_next_proc, tab);
+    menu_tab_goto(key_items_tab, 0);
+    menu_add_button(&key_items, 8, 0, "<", tab_prev_proc, key_items_tab);
+    menu_add_button(&key_items, 10, 0, ">", tab_next_proc, key_items_tab);
+
+    /*build badges menu*/
+    const int BADGES_ITEMS_X_0 = 0;
+    const int BADGES_ITEMS_X_1 = 3;
+    const int BADGES_ITEMS_X_2 = 7;
+    y_value = 0;
+
+    badges.selector = menu_add_submenu(&badges, BADGES_ITEMS_X_0, y_value++, NULL, "return");
+
+    int badge_page_count = 8;
+    struct menu *badge_pages = malloc(sizeof(*badge_pages) * badge_page_count);
+    struct menu_item *badge_tab = menu_add_tab(&badges, BADGES_ITEMS_X_0, y_value++, badge_pages, badge_page_count);
+    for (int i = 0; i < badge_page_count; ++i) {
+        struct menu *page = &badge_pages[i];
+        menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+        y_value = 0;
+        for (int j = 0; j < page_size; ++j) {
+            char buffer[4];
+            int item_index = j + i * page_size;
+            sprintf(buffer, "%02d:", item_index);
+
+            menu_add_static(page, BADGES_ITEMS_X_0, y_value, buffer, 0xC0C0C0);
+            menu_add_intinput(page, BADGES_ITEMS_X_1, y_value, 16, 3, item_int_proc, &pm_player.badges[item_index]);
+            menu_add_option(page, BADGES_ITEMS_X_2, y_value++, ITEM_LIST, item_option_proc, &pm_player.badges[item_index]);
+        }
+    }
+    menu_tab_goto(badge_tab, 0);
+    menu_add_button(&badges, 8, 0, "<", tab_prev_proc, badge_tab);
+    menu_add_button(&badges, 10, 0, ">", tab_next_proc, badge_tab);
 
     /*build merlee menu*/
     const int MERLEE_X_0 = 0;
