@@ -82,7 +82,7 @@ void save_pos_proc(){
     fp.saved_z = pm_player.position.z;
     fp.saved_facing_angle = pm_player.facing_angle;
     fp.saved_movement_angle = pm_player.movement_angle;
-    add_log("postition saved");
+    add_log("position saved");
 }
 
 void load_pos_proc(){
@@ -91,7 +91,7 @@ void load_pos_proc(){
     pm_player.position.z = fp.saved_z;
     pm_player.facing_angle = fp.saved_facing_angle;
     pm_player.movement_angle = fp.saved_movement_angle;
-    add_log("postition loaded");
+    add_log("position loaded");
     
 }
 
