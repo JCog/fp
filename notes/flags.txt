@@ -1,0 +1,72 @@
+might be worth splitting up flags instead of having them as one giant group. I tried for a while, and this structure is close, but not quite the whole story:
+
+//    add_record(1, 6, &pm_flags.flags_EVT, "evt");
+//    add_record(1, 12, &pm_flags.flags_KMR, "goomba_village");
+//    add_record(1, 32, &pm_flags.flags_MAC, "toad_town");
+//    add_record(1, 10, &pm_flags.flags_TIK, "sewers");
+//    add_record(1, 2, &pm_flags.flags_KGR, "whale");
+//    add_record(1, 6, &pm_flags.flags_KKJ, "peachs_castle");
+//    add_record(1, 4, &pm_flags.flags_HOS, "star_haven");
+//    add_record(1, 10, &pm_flags.flags_NOK, "koopa_village");
+//    add_record(1, 6, &pm_flags.flags_TRD, "koopa_bros_fortress");
+//    add_record(1, 8, &pm_flags.flags_IWA, "mt_rugged");
+//    add_record(1, 4, &pm_flags.flags_DRO, "dry_dry_outpost");
+//    add_record(1, 10, &pm_flags.flags_SBK, "dry_dry_desert");
+//    add_record(1, 8, &pm_flags.flags_ISK, "dry_dry_ruins");
+//    add_record(1, 4, &pm_flags.flags_MIM, "forever_forest");
+//    add_record(1, 6, &pm_flags.flags_OBK, "boos_mansion");
+//    add_record(1, 4, &pm_flags.flags_ARN, "gusty_gulch");
+//    add_record(1, 8, &pm_flags.flags_DGB, "tubba_blubbas_castle");
+//    add_record(1, 14, &pm_flags.flags_OMO, "shy_guys_toybox");
+//    add_record(1, 12, &pm_flags.flags_JAN, "lava_lava_island");
+//    add_record(1, 6, &pm_flags.flags_KZN, "volcano");
+//    add_record(1, 8, &pm_flags.flags_FLO, "flower_fields");
+//    add_record(1, 8, &pm_flags.flags_SAM, "shiver_city");
+//    add_record(1, 8, &pm_flags.flags_PRA, "crystal_palace");
+//    add_record(1, 8, &pm_flags.flags_KPA, "bowsers_castle");
+//    add_record(1, 4, &pm_flags.flags_END, "credits");
+//    add_record(1, 2, &pm_flags.flags_OSR, "outside_peachs_castle");
+//    add_record(1, 6, &pm_flags.flags_BAT, "bat");
+//    add_record(1, 12, &pm_flags.flags_NPC, "npc");
+//    add_record(1, 4, &pm_flags.flags_BTL, "btl");
+//    add_record(1, 12, &pm_flags.flags_FBTL, "fbtl");
+//    add_record(1, 4, &pm_flags.flags_DOKAN, "dokan");
+//    add_record(1, 8, &pm_flags.flags_MAP, "map");
+
+
+
+//typedef struct{
+//    uint8_t         flags_EVT[6];                  /* 0x0000 */
+//    uint8_t         flags_KMR[12];               /* 0x0002 */
+//    uint8_t         flags_MAC[32];              /* 0x0010 */
+//    uint8_t         flags_TIK[10];               /* 0x0032 */
+//    uint8_t         flags_KGR[2];                  /* 0x003A */
+//    uint8_t         flags_KKJ[6];               /* 0x003C */
+//    uint8_t         flags_HOS[4];               /* 0x0044 */
+//    uint8_t         flags_NOK[10];               /* 0x0048 */
+//    uint8_t         flags_TRD[6];               /* 0x0050 */
+//    uint8_t         flags_IWA[8];               /* 0x0056 */
+//    uint8_t         flags_DRO[4];               /* 0x005E */
+//    uint8_t         flags_SBK[10];               /* 0x0062 */
+//    uint8_t         flags_ISK[8];               /* 0x006E */
+//    uint8_t         flags_MIM[4];               /* 0x0074 */
+//    uint8_t         flags_OBK[6];               /* 0x0078 */
+//    uint8_t         flags_ARN[4];               /* 0x007E */
+//    uint8_t         flags_DGB[8];               /* 0x0084 */
+//    uint8_t         flags_OMO[14];               /* 0x008A */
+//    uint8_t         flags_JAN[12];               /* 0x0098 */
+//    uint8_t         flags_KZN[6];               /* 0x00A4 */
+//    uint8_t         flags_FLO[8];               /* 0x00AC */
+//    uint8_t         flags_SAM[8];               /* 0x00B4 */
+//    uint8_t         flags_PRA[8];               /* 0x00BC */
+//    uint8_t         flags_KPA[8];               /* 0x00C2 */
+//    uint8_t         flags_END[4];               /* 0x00CA */
+//    uint8_t         flags_OSR[2];               /* 0x00CC */
+//    uint8_t         flags_BAT[6];               /* 0x00D0 */
+//    uint8_t         flags_NPC[12];               /* 0x00D4 */
+//    uint8_t         flags_BTL[4];                  /* 0x00E2 */
+//    uint8_t         flags_FBTL[12];              /* 0x00E4 */
+//    uint8_t         flags_DOKAN[4];             /* 0x00F0 */
+//    uint8_t         flags_MAP[8];               /* 0x00F4 */
+//                                                /* size: 0xFA */
+//}flags_ctxt_t;

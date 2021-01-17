@@ -110,6 +110,10 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
+    uint32_t        global_flags[64];           /* 0x0000 */
+}flags_ctxt_t;
+
+typedef struct{
     uint8_t        story_progress;             /* 0x0000 */
 }unk3_ctxt_t;
 
@@ -325,6 +329,7 @@ typedef struct{
 #define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_unk2_addr           0x8009E6D0
+#define pm_flags_addr          0x800DBC50
 #define pm_unk3_addr           0x800DBD50
 #define pm_overworld_addr      0x8010ED70
 #define pm_hud_addr            0x8010F118
@@ -337,6 +342,7 @@ typedef struct{
 #define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
+#define pm_flags              (*(flags_ctxt_t*)       pm_flags_addr)
 #define pm_unk3               (*(unk3_ctxt_t*)        pm_unk3_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)

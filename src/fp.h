@@ -36,6 +36,7 @@ void add_log(const char *fmt, ...);
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();
 struct menu *create_player_menu();
+struct menu *create_progression_menu();
 struct menu *create_file_menu();
 struct menu *create_watches_menu();
 struct menu *create_trainer_menu();
