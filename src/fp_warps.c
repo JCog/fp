@@ -5,6 +5,13 @@
 #include "settings.h"
 #include "pm64.h"
 
+const char *GROUPS = "00 goomba village\0""01 toad town\0""02 sewers\0""03 whale\0""04 peach's castle\0"
+"05 star haven\0""06 koopa village\0""07 koopa bros. fortress\0""08 mt. rugged\0""09 dry dry outpost\0"
+"0a dry dry desert\0""0b dry dry ruins\0""0c forever forest\0""0d boo's mansion\0""0e gusty gulch\0"
+"0f tubba's mansion\0""10 shy guy's toybox\0""11 lava lava island\0""12 volcano\0""13 flower fields\0""14 shiver city\0"
+"15 crystal palace\0""16 bowser's castle\0""17 outside peach's castle\0""18 credits\0""19 mini games\0""1a gave over\0"
+"1b debug\0";
+
 static uint16_t group;
 static uint16_t room;
 static uint16_t entrance;
@@ -21,6 +28,17 @@ static int halfword_mod_proc(struct menu_item *item,
   else if (reason == MENU_CALLBACK_CHANGED)
     *p = menu_intinput_get(item);
   return 0;
+}
+
+static int option_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint16_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p)
+            menu_option_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        *p = menu_option_get(item);
+    return 0;
 }
 
 static int warp_info_draw_proc(struct menu_item *item,
@@ -62,7 +80,7 @@ struct menu *create_warps_menu(void)
     menu_add_static(&menu, 0, 1, "places", 0xFFFFFF);
 
     menu_add_static(&menu, 0, 2, "group:", 0xC0C0C0);
-    menu_add_intinput(&menu, 10, 2, 16, 2, halfword_mod_proc, &group);
+    menu_add_option(&menu, 10, 2, GROUPS, option_mod_proc, &group);
 
     menu_add_static(&menu, 0, 3, "room:", 0xC0C0C0);
     menu_add_intinput(&menu, 10, 3, 16, 2, halfword_mod_proc, &room);
