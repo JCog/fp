@@ -1,5 +1,6 @@
 #include <math.h>
 #include "menu.h"
+#include "trainer.h"
 #include "settings.h"
 #include "gfx.h"
 
@@ -77,22 +78,19 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     return 1;
 }
 
-struct menu *create_trainer_menu(void)
+void create_trainer_menu(struct menu *menu)
 {
-    static struct menu menu;
     static struct menu issMenu;
     
     /* initialize menu */
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
+    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    menu_add_submenu(&menu, 0, 1, &issMenu, "ice staircase skip");
+    menu_add_submenu(menu, 0, 1, &issMenu, "ice staircase skip");
 
     /*build iss menu*/
-    menu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");
+    issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");
     menu_add_static_custom(&issMenu, 0, 1, iss_draw_proc, NULL, 0xFFFFFF);
-    
-    return &menu;
 }

@@ -39,7 +39,7 @@ struct menu *create_player_menu();
 struct menu *create_progression_menu();
 struct menu *create_file_menu();
 struct menu *create_watches_menu();
-struct menu *create_trainer_menu();
+struct menu *create_practice_menu();
 struct menu *create_debug_menu();
 struct menu *create_settings_menu();
 
