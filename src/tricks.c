@@ -87,19 +87,75 @@ void load_ch2_card_lzs() {
     warp(0xb, 0xe, 0);
 }
 
+void load_record_skip() {
+    check_for_hammer();
+    set_story_progress(0xd5);
+    pm_player.stats.current_partner = 3;
+    warp(0xd, 6, 0);
+}
+void load_bow_skip() {
+    set_story_progress(0xd9);
+    warp(0xc, 0xa, 1);
+}
+
+void load_stanley_save() {
+    check_for_hammer();
+    set_story_progress(0xde);
+    pm_player.stats.current_partner = 4;
+    warp(0xe, 3, 0);
+}
+
+void load_yakkey_trick_shot() {
+    set_story_progress(0xe0);
+    set_global_flag(0x42f, 0); //yakkey chest
+    warp(0xf, 0x12, 0);
+}
+
+void load_quick_escape() {
+    //TODO: figure out how to get tubba to appear
+    set_story_progress(0xe4);
+    pm_player.stats.current_partner = 4;
+    warp(0xf, 1, 4);
+}
+
+void load_ch3_card_lzs() {
+    set_story_progress(0xf0);
+    warp(0xe, 4, 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void load_fast_basement() {
+    set_story_progress(0x5e);
+    set_global_flag(0x60e, 0); //first switch
+    set_global_flag(0x60f, 0); //second switch
+    set_global_flag(0x615, 0); //basement fight
+    set_global_flag(0x614, 0); //hardened lava
+    warp(0x16, 7, 0);
+}
+
 void load_trick(int8_t trick) {
     switch (trick) {
-        case JR_SKIP:           load_jr_skip();             break;
-        case BLACK_TOAD_SKIP:   load_black_toad_skip();     break;
+        case JR_SKIP:               load_jr_skip();             break;
+        case BLACK_TOAD_SKIP:       load_black_toad_skip();     break;
 
-        case STAIRCASE_SKIP:    load_staircase_skip();      break;
-        case PIE_JUMPS:         load_pie_jumps();           break;
-        case LOG_SKIP:          load_log_skip();            break;
+        case STAIRCASE_SKIP:        load_staircase_skip();      break;
+        case PIE_JUMPS:             load_pie_jumps();           break;
+        case LOG_SKIP:              load_log_skip();            break;
 
-        case EARLY_SEED:        load_early_seed();          break;
-        case BUZZAR_SKIP:       load_buzzar_skip();         break;
-        case SLOW_GO_EARLY:     load_slow_go_early();       break;
-        case CH2_CARD_LZS:      load_ch2_card_lzs();        break;
+        case EARLY_SEED:            load_early_seed();          break;
+        case BUZZAR_SKIP:           load_buzzar_skip();         break;
+        case SLOW_GO_EARLY:         load_slow_go_early();       break;
+        case CH2_CARD_LZS:          load_ch2_card_lzs();        break;
+
+        case RECORD_SKIP:           load_record_skip();         break;
+        case BOW_SKIP:              load_bow_skip();            break;
+        case STANLEY_SAVE:          load_stanley_save();        break;
+        case YAKKEY_TRICK_SHOT:     load_yakkey_trick_shot();   break;
+        case QUICK_ESCAPE:          load_quick_escape();        break;
+        case CH3_CARD_LZS:          load_ch3_card_lzs();        break;
+
+        case FAST_BASEMENT:         load_fast_basement();       break;
     }
 }
 
@@ -158,6 +214,43 @@ static void ch2_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch2_card_lzs();
 }
 
+static void record_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = RECORD_SKIP;
+    load_record_skip();
+}
+
+static void bow_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BOW_SKIP;
+    load_bow_skip();
+}
+
+static void stanley_save_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = STANLEY_SAVE;
+    load_stanley_save();
+}
+
+static void yakkey_trick_shot_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = YAKKEY_TRICK_SHOT;
+    load_yakkey_trick_shot();
+}
+
+static void quick_escape_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = QUICK_ESCAPE;
+    load_quick_escape();
+}
+
+static void ch3_card_lzs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CH3_CARD_LZS;
+    load_ch3_card_lzs();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static void fast_basement_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FAST_BASEMENT;
+    load_fast_basement();
+}
+
 void create_tricks_menu(struct menu *menu)
 {
     int y_main = 0;
@@ -203,6 +296,12 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[3];
     menu_add_static(page, 0, y_tab++, "chapter 3", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "record skip", record_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "bow skip", bow_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "stanley save", stanley_save_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "yakkey trick shot", yakkey_trick_shot_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "quick escape", quick_escape_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ch3 card lzs", ch3_card_lzs_proc, NULL);
 
     /* chapter 4 */
     y_tab = 0;
@@ -228,6 +327,7 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[8];
     menu_add_static(page, 0, y_tab++, "chapter 8", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "fast basement", fast_basement_proc, NULL);
 
     menu_tab_goto(tab, 0);
     menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);

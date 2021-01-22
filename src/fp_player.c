@@ -290,7 +290,7 @@ struct menu *create_player_menu(void) {
     menu_add_submenu(&menu, 0, y_value++, &stats, "stats");
     menu_add_submenu(&menu, 0, y_value++, &partners, "partners");
     menu_add_submenu(&menu, 0, y_value++, &items, "items");
-    menu_add_submenu(&menu, 0, y_value++, &key_items, "key items");;
+    menu_add_submenu(&menu, 0, y_value++, &key_items, "key items");
     menu_add_submenu(&menu, 0, y_value++, &badges, "badges");
     menu_add_submenu(&menu, 0, y_value++, &merlee, "merlee");
     menu_add_submenu(&menu, 0, y_value++, &star_power, "star power");
