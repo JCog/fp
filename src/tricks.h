@@ -46,5 +46,20 @@ enum tricks {
     CANNONLESS
 };
 
+enum partners {
+    NONE,
+    GOOMBARIO,
+    KOOPER,
+    BOMBETTE,
+    PARAKARRY,
+    GOOMPA,
+    WATT,
+    SUSHIE,
+    LAKILESTER,
+    BOW,
+    GOOMBARIA,
+    TWINK
+};
+
 void create_tricks_menu(struct menu *menu);
 void load_trick(int8_t trick);

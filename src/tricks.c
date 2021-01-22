@@ -31,6 +31,10 @@ void check_for_hammer() {
     }
 }
 
+void set_partner(int partner) {
+    pm_player.stats.current_partner = partner;
+}
+
 void set_story_progress(int story_progress) {
     pm_unk3.story_progress = story_progress;
 }
@@ -52,7 +56,7 @@ void load_staircase_skip() {
 }
 
 void load_pie_jumps() {
-    pm_player.stats.current_partner = 2;
+    set_partner(KOOPER);
     warp(7, 3, 3);
 }
 
@@ -64,7 +68,7 @@ void load_log_skip() {
 
 void load_early_seed() {
     check_for_hammer();
-    pm_player.stats.current_partner = 2;
+    set_partner(KOOPER);
     warp(8, 2, 2);
 }
 
@@ -90,7 +94,7 @@ void load_ch2_card_lzs() {
 void load_record_skip() {
     check_for_hammer();
     set_story_progress(0xd5);
-    pm_player.stats.current_partner = 3;
+    set_partner(BOMBETTE);
     warp(0xd, 6, 0);
 }
 void load_bow_skip() {
@@ -101,7 +105,7 @@ void load_bow_skip() {
 void load_stanley_save() {
     check_for_hammer();
     set_story_progress(0xde);
-    pm_player.stats.current_partner = 4;
+    set_partner(PARAKARRY);
     warp(0xe, 3, 0);
 }
 
@@ -114,13 +118,42 @@ void load_yakkey_trick_shot() {
 void load_quick_escape() {
     //TODO: figure out how to get tubba to appear
     set_story_progress(0xe4);
-    pm_player.stats.current_partner = 4;
+    set_partner(PARAKARRY);
     warp(0xf, 1, 4);
 }
 
 void load_ch3_card_lzs() {
     set_story_progress(0xf0);
     warp(0xe, 4, 1);
+}
+
+void load_early_train() {
+    check_for_hammer();
+    set_story_progress(0xb7);
+    set_partner(PARAKARRY);
+    set_global_flag(0x12f, 0); //snowman doll
+    set_global_flag(0x130, 0); //volt shroom
+    set_global_flag(0x121, 0); //toy train
+    set_global_flag(0x131, 0); //dizzy dial
+    warp(1, 5, 0);
+}
+
+void load_early_whale_fast_music() {
+    check_for_hammer();
+    set_story_progress(0x04);
+    warp(1, 5, 1);
+}
+
+void load_frying_pan_wall_clip() {
+    check_for_hammer();
+    set_partner(PARAKARRY);
+    set_global_flag(0x474, 1); //fuzzy spawn cutscene
+    warp(0x10, 6, 0);
+}
+
+void load_ch4_card_lzs() {
+    set_story_progress(0x04);
+    warp(0x10, 0xe, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,26 +169,31 @@ void load_fast_basement() {
 
 void load_trick(int8_t trick) {
     switch (trick) {
-        case JR_SKIP:               load_jr_skip();             break;
-        case BLACK_TOAD_SKIP:       load_black_toad_skip();     break;
+        case JR_SKIP:                   load_jr_skip();                     break;
+        case BLACK_TOAD_SKIP:           load_black_toad_skip();             break;
 
-        case STAIRCASE_SKIP:        load_staircase_skip();      break;
-        case PIE_JUMPS:             load_pie_jumps();           break;
-        case LOG_SKIP:              load_log_skip();            break;
+        case STAIRCASE_SKIP:            load_staircase_skip();              break;
+        case PIE_JUMPS:                 load_pie_jumps();                   break;
+        case LOG_SKIP:                  load_log_skip();                    break;
 
-        case EARLY_SEED:            load_early_seed();          break;
-        case BUZZAR_SKIP:           load_buzzar_skip();         break;
-        case SLOW_GO_EARLY:         load_slow_go_early();       break;
-        case CH2_CARD_LZS:          load_ch2_card_lzs();        break;
+        case EARLY_SEED:                load_early_seed();                  break;
+        case BUZZAR_SKIP:               load_buzzar_skip();                 break;
+        case SLOW_GO_EARLY:             load_slow_go_early();               break;
+        case CH2_CARD_LZS:              load_ch2_card_lzs();                break;
 
-        case RECORD_SKIP:           load_record_skip();         break;
-        case BOW_SKIP:              load_bow_skip();            break;
-        case STANLEY_SAVE:          load_stanley_save();        break;
-        case YAKKEY_TRICK_SHOT:     load_yakkey_trick_shot();   break;
-        case QUICK_ESCAPE:          load_quick_escape();        break;
-        case CH3_CARD_LZS:          load_ch3_card_lzs();        break;
+        case RECORD_SKIP:               load_record_skip();                 break;
+        case BOW_SKIP:                  load_bow_skip();                    break;
+        case STANLEY_SAVE:              load_stanley_save();                break;
+        case YAKKEY_TRICK_SHOT:         load_yakkey_trick_shot();           break;
+        case QUICK_ESCAPE:              load_quick_escape();                break;
+        case CH3_CARD_LZS:              load_ch3_card_lzs();                break;
 
-        case FAST_BASEMENT:         load_fast_basement();       break;
+        case EARLY_TRAIN:               load_early_train();                 break;
+        case EARLY_WHALE_FAST_MUSIC:    load_early_whale_fast_music();      break;
+        case FRYING_PAN_WALL_CLIP:      load_frying_pan_wall_clip();        break;
+        case CH4_CARD_LZS:              load_ch4_card_lzs();                break;
+
+        case FAST_BASEMENT:             load_fast_basement();               break;
     }
 }
 
@@ -244,6 +282,26 @@ static void ch3_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch3_card_lzs();
 }
 
+static void early_train_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = EARLY_TRAIN;
+    load_early_train();
+}
+
+static void early_whale_fast_music_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = EARLY_WHALE_FAST_MUSIC;
+    load_early_whale_fast_music();
+}
+
+static void frying_pan_wall_clip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FRYING_PAN_WALL_CLIP;
+    load_frying_pan_wall_clip();
+}
+
+static void ch4_card_lzs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CH4_CARD_LZS;
+    load_ch4_card_lzs();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void fast_basement_proc(struct menu_item *item, void *data) {
@@ -307,6 +365,10 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[4];
     menu_add_static(page, 0, y_tab++, "chapter 4", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "early train", early_train_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "early whale (fast music)", early_whale_fast_music_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "frying pan wall clip", frying_pan_wall_clip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ch4 card lzs", ch4_card_lzs_proc, NULL);
 
     /* chapter 5 */
     y_tab = 0;
