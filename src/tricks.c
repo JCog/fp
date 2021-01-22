@@ -31,19 +31,23 @@ void check_for_hammer() {
     }
 }
 
+void set_story_progress(int story_progress) {
+    pm_unk3.story_progress = story_progress;
+}
+
 void load_jr_skip() {
-    pm_unk3.story_progress = 0x88;
+    set_story_progress(0x88);
     warp(0, 3, 0);
 }
 
 void load_black_toad_skip() {
     check_for_hammer();
-    pm_unk3.story_progress = 0x99;
+    set_story_progress(0x99);
     warp(1, 2, 2);
 }
 
 void load_staircase_skip() {
-    pm_unk3.story_progress = 0xa8;
+    set_story_progress(0xa8);
     warp(7, 4, 0);
 }
 
@@ -54,8 +58,33 @@ void load_pie_jumps() {
 
 void load_log_skip() {
     check_for_hammer();
-    pm_unk3.story_progress = 0xae;
+    set_story_progress(0xae);
     warp(1, 2, 3);
+}
+
+void load_early_seed() {
+    check_for_hammer();
+    pm_player.stats.current_partner = 2;
+    warp(8, 2, 2);
+}
+
+void load_buzzar_skip() {
+    pm_player.stats.current_partner = 4;
+    warp(8, 4, 0);
+}
+
+void load_slow_go_early() {
+    set_global_flag(0x37b, 1); //tutankoopa text
+    set_global_flag(0x380, 1); //block gone
+    set_global_flag(0x384, 1); //chest open
+    warp(0xb, 8, 0);
+}
+
+void load_ch2_card_lzs() {
+    //TODO: make this not crash when loading after failed attempt
+    set_story_progress(0xc8);
+    set_global_flag(0x37d, 1); //tutankoopa text in previous room
+    warp(0xb, 0xe, 0);
 }
 
 void load_trick(int8_t trick) {
@@ -66,6 +95,11 @@ void load_trick(int8_t trick) {
         case STAIRCASE_SKIP:    load_staircase_skip();      break;
         case PIE_JUMPS:         load_pie_jumps();           break;
         case LOG_SKIP:          load_log_skip();            break;
+
+        case EARLY_SEED:        load_early_seed();          break;
+        case BUZZAR_SKIP:       load_buzzar_skip();         break;
+        case SLOW_GO_EARLY:     load_slow_go_early();       break;
+        case CH2_CARD_LZS:      load_ch2_card_lzs();        break;
     }
 }
 
@@ -104,6 +138,26 @@ static void log_skip_proc(struct menu_item *item, void *data) {
     load_log_skip();
 }
 
+static void early_seed_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = EARLY_SEED;
+    load_early_seed();
+}
+
+static void buzzar_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BUZZAR_SKIP;
+    load_buzzar_skip();
+}
+
+static void slow_go_early_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SLOW_GO_EARLY;
+    load_slow_go_early();
+}
+
+static void ch2_card_lzs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CH2_CARD_LZS;
+    load_ch2_card_lzs();
+}
+
 void create_tricks_menu(struct menu *menu)
 {
     int y_main = 0;
@@ -116,20 +170,6 @@ void create_tricks_menu(struct menu *menu)
     int page_count = 9;
     struct menu *pages = malloc(sizeof(*pages) * page_count);
     struct menu_item *tab = menu_add_tab(menu, 0, y_main++, pages, page_count);
-//    for (int i = 0; i < page_count; ++i) {
-//        struct menu *page = &pages[i];
-//        menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-//        y_value = 0;
-//        for (int j = 0; j < page_size; ++j) {
-//            char buffer[4];
-//            int item_index = j + i * page_size;
-//            sprintf(buffer, "%02d:", item_index);
-//
-//            menu_add_static(page, KEY_ITEMS_X_0, y_value, buffer, 0xC0C0C0);
-//            menu_add_intinput(page, KEY_ITEMS_X_1, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
-//            menu_add_option(page, KEY_ITEMS_X_2, y_value++, ITEM_LIST, item_option_proc, &pm_player.key_items[item_index]);
-//        }
-//    }
     for (int i = 0; i < page_count; ++i) {
         struct menu *page = &pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -154,6 +194,10 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[2];
     menu_add_static(page, 0, y_tab++, "chapter 2", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "early seed", early_seed_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "buzzar skip", buzzar_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "slow go early", slow_go_early_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ch2 card lzs", ch2_card_lzs_proc, NULL);
 
     /* chapter 3 */
     y_tab = 0;

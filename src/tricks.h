@@ -7,6 +7,7 @@ enum tricks {
     PIE_JUMPS,
     LOG_SKIP,
     EARLY_SEED,
+    BUZZAR_SKIP,
     SLOW_GO_EARLY,
     CH2_CARD_LZS,
     RECORD_SKIP,
