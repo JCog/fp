@@ -156,6 +156,62 @@ void load_ch4_card_lzs() {
     warp(0x10, 0xe, 0);
 }
 
+void load_bhs() {
+    set_global_flag(0x084, 0); //key collected
+    set_global_flag(0x083, 1); //lock opened
+    warp(1, 3, 0);
+}
+
+void load_early_whale_slow_music() {
+    check_for_hammer();
+    set_story_progress(0x0d);
+    warp(1, 5, 1);
+}
+
+void load_raph_skip() {
+    set_story_progress(0x0f);
+    set_partner(PARAKARRY);
+    warp(0x11, 0x14, 0);
+}
+
+void load_piranha_first_strike() {
+    set_story_progress(0x0f);
+    set_partner(BOMBETTE);
+    set_global_flag(0x4f8, 0); //yellow yoshi text
+    set_global_flag(0x4cf, 0); //yellow yoshi saved
+    warp(0x11, 7, 0);
+}
+
+void load_lava_platform_cycle() {
+    set_story_progress(0x19);
+    warp(0x12, 1, 0);
+}
+
+void load_lava_puzzle_skip() {
+    check_for_hammer();
+    set_story_progress(0x1a);
+    set_partner(PARAKARRY);
+    warp(0x12, 5, 0);
+}
+
+void load_flarakarry() {
+    set_story_progress(0x1e);
+    set_partner(PARAKARRY);
+    warp(0x12, 0xb, 0);
+}
+
+void load_lava_piranha_skip() {
+    check_for_hammer();
+    set_story_progress(0x22);
+    set_global_flag(0x52f, 1); //talked to kolorado
+    warp(0x12, 0xd, 0);
+}
+
+void load_ch5_card_lzs() {
+    set_story_progress(0x23);
+    warp(0x12, 0xd, 1);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void load_fast_basement() {
@@ -192,6 +248,16 @@ void load_trick(int8_t trick) {
         case EARLY_WHALE_FAST_MUSIC:    load_early_whale_fast_music();      break;
         case FRYING_PAN_WALL_CLIP:      load_frying_pan_wall_clip();        break;
         case CH4_CARD_LZS:              load_ch4_card_lzs();                break;
+
+        case BHS:                       load_bhs();                         break;
+        case EARLY_WHALE_SLOW_MUSIC:    load_early_whale_slow_music();      break;
+        case RAPH_SKIP:                 load_raph_skip();                   break;
+        case PIRANHA_FIRST_STRIKE:      load_piranha_first_strike();        break;
+        case LAVA_PLATFORM_CYCLE:       load_lava_platform_cycle();         break;
+        case LAVA_PUZZLE_SKIP:          load_lava_puzzle_skip();            break;
+        case FLARAKARRY:                load_flarakarry();                  break;
+        case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
+        case CH5_CARD_LZS:              load_ch5_card_lzs();                break;
 
         case FAST_BASEMENT:             load_fast_basement();               break;
     }
@@ -302,6 +368,51 @@ static void ch4_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch4_card_lzs();
 }
 
+static void bhs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BHS;
+    load_bhs();
+}
+
+static void early_whale_slow_music_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = EARLY_WHALE_SLOW_MUSIC;
+    load_early_whale_slow_music();
+}
+
+static void raph_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = RAPH_SKIP;
+    load_raph_skip();
+}
+
+static void piranha_first_strike_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = PIRANHA_FIRST_STRIKE;
+    load_piranha_first_strike();
+}
+
+static void lava_platform_cycle_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LAVA_PLATFORM_CYCLE;
+    load_lava_platform_cycle();
+}
+
+static void lava_puzzle_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LAVA_PUZZLE_SKIP;
+    load_lava_puzzle_skip();
+}
+
+static void flarakarry_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FLARAKARRY;
+    load_flarakarry();
+}
+
+static void lava_piranha_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LAVA_PIRANHA_SKIP;
+    load_lava_piranha_skip();
+}
+
+static void ch5_card_lzs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CH5_CARD_LZS;
+    load_ch5_card_lzs();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void fast_basement_proc(struct menu_item *item, void *data) {
@@ -374,6 +485,15 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[5];
     menu_add_static(page, 0, y_tab++, "chapter 5", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "blue house skip", bhs_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "early whale (slow music)", early_whale_slow_music_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "raph/yoshi skip", raph_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "putrid piranha first strike", piranha_first_strike_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "lava platform cycle", lava_platform_cycle_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "lava puzzle skip", lava_puzzle_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "flarakarry", flarakarry_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "lava piranha skip/oob", lava_piranha_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ch5 card lzs", ch5_card_lzs_proc, NULL);
 
     /* chapter 6 */
     y_tab = 0;
