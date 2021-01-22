@@ -25,23 +25,47 @@ void warp(int group, int room, int entrance) {
     pm_warp.room_change_ptr = val;
 }
 
+void check_for_hammer() {
+    if (pm_player.stats.hammer_upgrade > 2) {
+        pm_player.stats.hammer_upgrade = 0;
+    }
+}
+
 void load_jr_skip() {
     pm_unk3.story_progress = 0x88;
     warp(0, 3, 0);
 }
 
 void load_black_toad_skip() {
-    if (pm_player.stats.hammer_upgrade == 0) {
-        pm_player.stats.hammer_upgrade = 1;
-    }
+    check_for_hammer();
     pm_unk3.story_progress = 0x99;
     warp(1, 2, 2);
 }
 
+void load_staircase_skip() {
+    pm_unk3.story_progress = 0xa8;
+    warp(7, 4, 0);
+}
+
+void load_pie_jumps() {
+    pm_player.stats.current_partner = 2;
+    warp(7, 3, 3);
+}
+
+void load_log_skip() {
+    check_for_hammer();
+    pm_unk3.story_progress = 0xae;
+    warp(1, 2, 3);
+}
+
 void load_trick(int8_t trick) {
     switch (trick) {
-        case JR_SKIP:           load_jr_skip();               break;
-        case BLACK_TOAD_SKIP:   load_black_toad_skip();       break;
+        case JR_SKIP:           load_jr_skip();             break;
+        case BLACK_TOAD_SKIP:   load_black_toad_skip();     break;
+
+        case STAIRCASE_SKIP:    load_staircase_skip();      break;
+        case PIE_JUMPS:         load_pie_jumps();           break;
+        case LOG_SKIP:          load_log_skip();            break;
     }
 }
 
@@ -63,6 +87,21 @@ static void jr_skip_proc(struct menu_item *item, void *data) {
 static void black_toad_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = BLACK_TOAD_SKIP;
     load_black_toad_skip();
+}
+
+static void staircase_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = STAIRCASE_SKIP;
+    load_staircase_skip();
+}
+
+static void pie_jumps_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = PIE_JUMPS;
+    load_pie_jumps();
+}
+
+static void log_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LOG_SKIP;
+    load_log_skip();
 }
 
 void create_tricks_menu(struct menu *menu)
@@ -107,6 +146,9 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[1];
     menu_add_static(page, 0, y_tab++, "chapter 1", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "staircase skip", staircase_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "pie jumps", pie_jumps_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "log skip", log_skip_proc, NULL);
 
     /* chapter 2 */
     y_tab = 0;
