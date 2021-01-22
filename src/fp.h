@@ -26,6 +26,7 @@ typedef struct{
     float                   saved_z;
     float                   saved_facing_angle;
     float                   saved_movement_angle;
+    int8_t                  saved_trick;
     
 } fp_ctxt_t;
 

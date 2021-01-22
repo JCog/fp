@@ -7,6 +7,7 @@
 #include "input.h"
 #include "fp.h"
 #include "settings.h"
+#include "tricks.h"
 
 struct command fp_commands[COMMAND_MAX] = {
     {"show/hide menu",   COMMAND_PRESS_ONCE,  0,   NULL},
@@ -17,7 +18,8 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load position",    COMMAND_PRESS_ONCE,  0,   load_pos_proc},
     {"lzs",              COMMAND_PRESS_ONCE,  0,   lzs_proc},
     {"reload room",      COMMAND_PRESS_ONCE,  0,   reload_proc},
-    {"show coordinates", COMMAND_PRESS_ONCE,  0,   coords_proc}
+    {"show coordinates", COMMAND_PRESS_ONCE,  0,   coords_proc},
+    {"load trick",       COMMAND_PRESS_ONCE,  0,   trick_proc}
 };
 
 void show_menu(){
@@ -114,4 +116,8 @@ void reload_proc(){
 
 void coords_proc(){
     fp.coord_active = !fp.coord_active;
+}
+
+void trick_proc(){
+    load_trick(fp.saved_trick);
 }

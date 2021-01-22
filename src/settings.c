@@ -36,6 +36,7 @@ void settings_load_default(void){
     d->binds[COMMAND_LZS] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
     d->binds[COMMAND_COORDS] = input_bind_make(1, BUTTON_D_UP);
+    d->binds[COMMAND_TRICK] = input_bind_make(2, BUTTON_R, BUTTON_Z);
 }
 
 void apply_menu_settings(){
