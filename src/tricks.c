@@ -212,6 +212,31 @@ void load_ch5_card_lzs() {
     warp(0x12, 0xd, 1);
 }
 
+void load_early_laki() {
+    check_for_hammer();
+    set_story_progress(0x2b);
+    warp(0x13, 0, 1);
+}
+
+void load_yellow_berry_skip() {
+    check_for_hammer();
+    set_story_progress(0x2d);
+    set_global_flag(0x554, 0); //yellow flower gate
+    warp(0x13, 0, 6);
+}
+
+void load_peach_warp() {
+    check_for_hammer();
+    set_story_progress(0x33);
+    set_partner(LAKILESTER);
+    warp(0x12, 0xc, 1);
+}
+
+void load_ch6_card_lzs() {
+    set_story_progress(0x38);
+    warp(0x13, 0xf, 0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void load_fast_basement() {
@@ -258,6 +283,11 @@ void load_trick(int8_t trick) {
         case FLARAKARRY:                load_flarakarry();                  break;
         case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
         case CH5_CARD_LZS:              load_ch5_card_lzs();                break;
+
+        case EARLY_LAKI:                load_early_laki();                  break;
+        case YELLOW_BERRY_SKIP:         load_yellow_berry_skip();           break;
+        case PEACH_WARP:                load_peach_warp();                  break;
+        case CH6_CARD_LZS:              load_ch6_card_lzs();                break;
 
         case FAST_BASEMENT:             load_fast_basement();               break;
     }
@@ -413,6 +443,26 @@ static void ch5_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch5_card_lzs();
 }
 
+static void early_laki_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = EARLY_LAKI;
+    load_early_laki();
+}
+
+static void yellow_berry_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = YELLOW_BERRY_SKIP;
+    load_yellow_berry_skip();
+}
+
+static void peach_warp_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = PEACH_WARP;
+    load_peach_warp();
+}
+
+static void ch6_card_lzs_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CH6_CARD_LZS;
+    load_ch6_card_lzs();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void fast_basement_proc(struct menu_item *item, void *data) {
@@ -499,6 +549,10 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[6];
     menu_add_static(page, 0, y_tab++, "chapter 6", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "early laki", early_laki_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "yellow berry skip", yellow_berry_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "peach warp", peach_warp_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ch6 card lzs", ch6_card_lzs_proc, NULL);
 
     /* chapter 7 */
     y_tab = 0;
