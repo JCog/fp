@@ -70,6 +70,11 @@ void fp_main(void){
             gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "y: %.4f", pm_player.position.y);
         }
     }
+
+    /* handle ace practice (should probably make toggleable at some point) */
+    {
+        pm_player.unk_pre_transparency = 0x81e;
+    }
     
     /* handle menu input */
     {
@@ -255,6 +260,27 @@ void init(){
 
     /*get menu appearance*/
     apply_menu_settings();
+
+    /* setup ace practice instructions */
+    pm_ace_store.last_timer = 0;
+    /*
+     * LUI t8, 0x8010
+     * ORI t8, t8, 0xf190
+     * LW  t1, 0x0000(t8)
+     * LUI t8, 0x807D
+     * SW  t1, 0x0000(t8)
+     */
+    pm_ace.instructions[0] = 0x3C188010;
+    pm_ace.instructions[1] = 0x3718F190;
+    pm_ace.instructions[2] = 0x8F090000;
+    pm_ace.instructions[3] = 0x3C18807D;
+    pm_ace.instructions[4] = 0xAF090000;
+    //
+    pm_ace.instructions[5] = 0x3C108006;
+    pm_ace.instructions[6] = 0xAE00A1C0;
+    pm_ace.instructions[7] = 0x0C016864;
+    pm_ace.instructions[8] = 0x080B0FAE;
+    pm_ace.instructions[9] = 0x27BD00B0;
 
     /*ready*/
     fp.ready = 1;

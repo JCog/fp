@@ -5,8 +5,7 @@
 #include "gfx.h"
 
 static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color,
-        draw_params->alpha));
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
     int chHeight = menu_get_cell_height(item->owner, 1);
     int chWidth = menu_get_cell_width(item->owner, 1);
@@ -78,19 +77,67 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     return 1;
 }
 
+static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
+    struct gfx_font *font = draw_params->font;
+    int chHeight = menu_get_cell_height(item->owner, 1);
+    int chWidth = menu_get_cell_width(item->owner, 1);
+    int x = draw_params->x;
+    int y = draw_params->y;
+
+    int effect_count = 0;
+    int i;
+    for (i = 0; i<96; i++) {
+        if (pm_effects.effects[i]) {
+            effect_count++;
+        }
+    }
+
+    int last_timer = pm_ace_store.last_timer;
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+    gfx_printf(font, x, y + chHeight * 0, "effects: ");
+    if (effect_count == 82) {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+    }
+    gfx_printf(font, x + chWidth * 12, y + chHeight * 0, "%d", effect_count);
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "last timer: ");
+    if (last_timer > 0x81f || last_timer < 0x810) {
+        //won't work
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
+    }
+    else if (last_timer == 0x81f) {
+        //will work
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+    }
+    else {
+        //might work
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
+    }
+    gfx_printf(font, x + chWidth * 12, y + chHeight * 1, "0x%x", last_timer);
+    return 1;
+}
+
 void create_trainer_menu(struct menu *menu)
 {
     static struct menu issMenu;
+    static struct menu aceMenu;
     
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
     menu_add_submenu(menu, 0, 1, &issMenu, "ice staircase skip");
+    menu_add_submenu(menu, 0, 2, &aceMenu, "oot ace");
 
     /*build iss menu*/
     issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");
     menu_add_static_custom(&issMenu, 0, 1, iss_draw_proc, NULL, 0xFFFFFF);
+
+    /*build ace menu*/
+    aceMenu.selector = menu_add_submenu(&aceMenu, 0, 0, NULL, "return");
+    menu_add_static_custom(&aceMenu, 0, 1, ace_draw_proc, NULL, 0xFFFFFF);
 }
