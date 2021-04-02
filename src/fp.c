@@ -261,7 +261,7 @@ void init(){
     /*get menu appearance*/
     apply_menu_settings();
 
-    /* setup ace practice instructions */
+    /* setup oot ace trainer */
     pm_ace_store.last_timer = 0;
     /*
      * LUI t8, 0x8010
@@ -281,6 +281,25 @@ void init(){
     pm_ace.instructions[7] = 0x0C016864;
     pm_ace.instructions[8] = 0x080B0FAE;
     pm_ace.instructions[9] = 0x27BD00B0;
+
+    int memory_value = 0;
+    int* pointer = (int*)0x807bfff8;
+    while (memory_value == 0) {
+        pointer--;
+        memory_value = *pointer;
+    }
+    int frame_window = (int) pointer;
+    frame_window -= 0x80400000;
+    if (frame_window % 0x4000 == 0) {
+        frame_window /= 0x40000;
+        frame_window -= 0x10;
+    }
+    else {
+        frame_window /= 0x40000;
+        frame_window -= 0xf;
+    }
+    frame_window *= -1;
+    fp.ace_frame_window = frame_window;
 
     /*ready*/
     fp.ready = 1;

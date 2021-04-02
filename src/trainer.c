@@ -3,6 +3,7 @@
 #include "trainer.h"
 #include "settings.h"
 #include "gfx.h"
+#include "fp.h"
 
 static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
@@ -99,22 +100,20 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     if (effect_count == 82) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
-    gfx_printf(font, x + chWidth * 12, y + chHeight * 0, "%d", effect_count);
+    gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "last timer: ");
-    if (last_timer > 0x81f || last_timer < 0x810) {
-        //won't work
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-    }
-    else if (last_timer == 0x81f) {
+    if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
         //will work
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
     else {
-        //might work
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
+        //won't work
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
     }
-    gfx_printf(font, x + chWidth * 12, y + chHeight * 1, "0x%x", last_timer);
+    gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "0x%x", last_timer);
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window: %d", fp.ace_frame_window);
     return 1;
 }
 
