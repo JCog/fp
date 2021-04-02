@@ -336,11 +336,17 @@ typedef struct{
     uint16_t        last_timer;
 }ace_store_ctxt_t;
 
+typedef struct{
+    char            unk_0x00[0x02];         /* 0x0000 */
+    uint8_t         iframe_timer;           /* 0x0002 */
+}unk4_ctxt_t;
+
 /* Addresses */
 #define pm_status_addr         0x80074004
 #define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_unk2_addr           0x8009E6D0
+#define pm_unk4_addr           0x800B0EF8
 #define pm_effects_addr        0x800B4378
 #define pm_flags_addr          0x800DBC50
 #define pm_unk3_addr           0x800DBD50
@@ -357,6 +363,7 @@ typedef struct{
 #define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
+#define pm_unk4               (*(unk4_ctxt_t*)        pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)     pm_effects_addr)
 #define pm_flags              (*(flags_ctxt_t*)       pm_flags_addr)
 #define pm_unk3               (*(unk3_ctxt_t*)        pm_unk3_addr)
