@@ -112,18 +112,7 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "last timer: ");
-    if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
-        //will work
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-    }
-    else {
-        //won't work
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-    }
-    gfx_printf(font, x + chWidth * 14, y + chHeight * 2, "0x%x", last_timer);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 3, "frame window: %d", fp.ace_frame_window);
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window: %d", fp.ace_frame_window);
     return 1;
 }
 

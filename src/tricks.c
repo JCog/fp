@@ -70,6 +70,7 @@ void load_oot_ace() {
     pm_player.stats.star_points = 50;
     pm_player.stats.hp = pm_player.stats.max_hp;
     pm_player.stats.fp = pm_player.stats.max_fp;
+    pm_ace_store.last_timer = 0;
     warp(0, 9, 0);
 }
 

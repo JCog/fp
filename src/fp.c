@@ -74,6 +74,19 @@ void fp_main(void){
     /* handle ace practice (should probably make toggleable at some point) */
     {
         pm_player.unk_pre_transparency = 0x81e;
+        int last_timer = pm_ace_store.last_timer;
+        if (last_timer != 0) {
+            if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
+                //will work
+                gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+            }
+            else {
+                //won't work
+                gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
+            }
+            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "0x%x", last_timer);
+        }
+
     }
     
     /* handle menu input */
