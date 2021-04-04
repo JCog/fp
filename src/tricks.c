@@ -50,6 +50,29 @@ void load_black_toad_skip() {
     warp(1, 2, 2);
 }
 
+void load_oot_ace() {
+    set_story_progress(0x90);
+    pm_player.stats.hammer_upgrade = 0;
+    set_partner(GOOMBARIO);
+    pm_player.party.goombario.in_party = 1;
+    pm_player.party.kooper.in_party = 0;
+    pm_player.party.bombette.in_party = 0;
+    pm_player.party.parakarry.in_party = 0;
+    pm_player.party.bow.in_party = 0;
+    pm_player.party.watt.in_party = 0;
+    pm_player.party.sushie.in_party = 0;
+    pm_player.party.lakilester.in_party = 0;
+    int i;
+    for (i = 0; i < 9; i++) {
+        pm_player.items[i] = 0;
+    }
+    pm_player.items[9] = 0x93; //whacka's bump
+    pm_player.stats.star_points = 50;
+    pm_player.stats.hp = pm_player.stats.max_hp;
+    pm_player.stats.fp = pm_player.stats.max_fp;
+    warp(0, 9, 0);
+}
+
 void load_staircase_skip() {
     set_story_progress(0xa8);
     warp(7, 4, 0);
@@ -252,6 +275,7 @@ void load_trick(int8_t trick) {
     switch (trick) {
         case JR_SKIP:                   load_jr_skip();                     break;
         case BLACK_TOAD_SKIP:           load_black_toad_skip();             break;
+        case OOT_ACE:                   load_oot_ace();                     break;
 
         case STAIRCASE_SKIP:            load_staircase_skip();              break;
         case PIE_JUMPS:                 load_pie_jumps();                   break;
@@ -311,6 +335,11 @@ static void jr_skip_proc(struct menu_item *item, void *data) {
 static void black_toad_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = BLACK_TOAD_SKIP;
     load_black_toad_skip();
+}
+
+static void oot_ace_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = OOT_ACE;
+    load_oot_ace();
 }
 
 static void staircase_skip_proc(struct menu_item *item, void *data) {
@@ -493,6 +522,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_static(page, 0, y_tab++, "prologue", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "jr skip", jr_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "black toad skip", black_toad_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "oot ace", oot_ace_proc, NULL);
 
     /* chapter 1 */
     y_tab = 0;
