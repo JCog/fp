@@ -236,7 +236,7 @@ typedef struct{
 
 typedef struct{
     int32_t         animation;                  /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
-    char            unk_0x04[0x04];             /* 0x0004 */
+    int32_t         unk_flags;                  /* 0x0004 */
     uint16_t        idle_timer;                 /* 0x0008 */
     char            unk_0x0A[0x02];             /* 0x000A */
     uint16_t        unk_pre_transparency;       /* 0x000C */
