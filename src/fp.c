@@ -239,6 +239,7 @@ void init(){
     /*init fp variables*/
     fp.menu_active = 0;
     fp.coord_active = 0;
+    fp.saved_trick = -1;
 
     /*load default settings*/
     settings_load_default();
