@@ -73,7 +73,9 @@ void fp_main(void){
 
     /* handle ace practice (should probably make toggleable at some point) */
     {
-        pm_player.unk_pre_transparency = 0x81e;
+        if (pm_status.group_id == 0 && pm_status.room_id == 9) {
+            pm_player.unk_pre_transparency = 0x81e;
+        }
         int last_timer = pm_ace_store.last_timer;
         if (last_timer != 0) {
             if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {

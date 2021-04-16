@@ -94,7 +94,6 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
         }
     }
 
-    int last_timer = pm_ace_store.last_timer;
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * 0, "effects: ");
     if (effect_count == 81) {
