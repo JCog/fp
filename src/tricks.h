@@ -3,6 +3,7 @@
 enum tricks {
     JR_SKIP,
     BLACK_TOAD_SKIP,
+    RETRIGGER_PROLOGUE,
     OOT_ACE,
     STAIRCASE_SKIP,
     PIE_JUMPS,

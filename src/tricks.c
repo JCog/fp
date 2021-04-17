@@ -50,6 +50,19 @@ void load_black_toad_skip() {
     warp(1, 2, 2);
 }
 
+void load_retrigger_prologue() {
+    check_for_hammer();
+    set_story_progress(0x9c);
+    set_global_flag(0x01e, 0); //dolly not collected
+    for (int i = 0; i < 32; i++) {
+        if (pm_player.key_items[i] == 0) {
+            pm_player.key_items[i] = 0x1c; //weight
+        }
+    }
+    set_partner(KOOPER);
+    warp(0, 2, 0);
+}
+
 void load_oot_ace() {
     set_story_progress(0x90);
     pm_player.stats.hammer_upgrade = 0;
@@ -261,6 +274,45 @@ void load_ch6_card_lzs() {
     warp(0x13, 0xf, 0);
 }
 
+void load_clippy_boots() {
+    set_global_flag(0x18d, 1); //super block broken
+    set_global_flag(0x18e, 0); //ultra block unbroken
+    set_partner(LAKILESTER);
+    pm_player.party.sushie.in_party = 1;
+    pm_player.party.lakilester.in_party = 1;
+    warp(2, 0x13, 0);
+}
+
+void load_murder_solved_early() {
+    set_partner(LAKILESTER);
+    set_story_progress(0x3e);
+    warp(0x14, 0xa, 0);
+}
+
+void load_sushie_glitch() {
+    set_partner(SUSHIE);
+    set_story_progress(0x43);
+    warp(0x14, 0xa, 0);
+}
+
+void load_ice_staircase_skip() {
+    set_partner(LAKILESTER);
+    set_story_progress(0x4b);
+    warp(0x14, 9, 0);
+}
+
+void load_mirror_clip() {
+    set_partner(LAKILESTER);
+    set_story_progress(0x4e);
+    warp(0x15, 1, 1);
+}
+
+void load_kooper_puzzle_skip() {
+    set_partner(KOOPER);
+    set_story_progress(0x51);
+    warp(0x15, 0xf, 0);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void load_fast_basement() {
@@ -276,6 +328,7 @@ void load_trick(int8_t trick) {
     switch (trick) {
         case JR_SKIP:                   load_jr_skip();                     break;
         case BLACK_TOAD_SKIP:           load_black_toad_skip();             break;
+        case RETRIGGER_PROLOGUE:        load_retrigger_prologue();          break;
         case OOT_ACE:                   load_oot_ace();                     break;
 
         case STAIRCASE_SKIP:            load_staircase_skip();              break;
@@ -314,6 +367,13 @@ void load_trick(int8_t trick) {
         case PEACH_WARP:                load_peach_warp();                  break;
         case CH6_CARD_LZS:              load_ch6_card_lzs();                break;
 
+        case CLIPPY_BOOTS:              load_clippy_boots();                break;
+        case MURDER_SOLVED_EARLY:       load_murder_solved_early();         break;
+        case SUSHIE_GLITCH:             load_sushie_glitch();               break;
+        case ICE_STAIRCASE_SKIP:        load_ice_staircase_skip();          break;
+        case MIRROR_CLIP:               load_mirror_clip();                 break;
+        case KOOPER_PUZZLE_SKIP:        load_kooper_puzzle_skip();          break;
+
         case FAST_BASEMENT:             load_fast_basement();               break;
     }
 }
@@ -336,6 +396,11 @@ static void jr_skip_proc(struct menu_item *item, void *data) {
 static void black_toad_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = BLACK_TOAD_SKIP;
     load_black_toad_skip();
+}
+
+static void retrigger_prologue_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = RETRIGGER_PROLOGUE;
+    load_retrigger_prologue();
 }
 
 static void oot_ace_proc(struct menu_item *item, void *data) {
@@ -493,6 +558,36 @@ static void ch6_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch6_card_lzs();
 }
 
+static void clippy_boots_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CLIPPY_BOOTS;
+    load_clippy_boots();
+}
+
+static void murder_solved_early_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = MURDER_SOLVED_EARLY;
+    load_murder_solved_early();
+}
+
+static void sushie_glitch_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SUSHIE_GLITCH;
+    load_sushie_glitch();
+}
+
+static void ice_staircase_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ICE_STAIRCASE_SKIP;
+    load_ice_staircase_skip();
+}
+
+static void mirror_clip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = MIRROR_CLIP;
+    load_mirror_clip();
+}
+
+static void kooper_puzzle_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = KOOPER_PUZZLE_SKIP;
+    load_kooper_puzzle_skip();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void fast_basement_proc(struct menu_item *item, void *data) {
@@ -523,6 +618,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_static(page, 0, y_tab++, "prologue", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "jr skip", jr_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "black toad skip", black_toad_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "retrigger prologue", retrigger_prologue_proc, NULL);
     menu_add_button(page, 0, y_tab++, "oot ace", oot_ace_proc, NULL);
 
     /* chapter 1 */
@@ -589,6 +685,12 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[7];
     menu_add_static(page, 0, y_tab++, "chapter 7", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "clippy boots", clippy_boots_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "murder solved early", murder_solved_early_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "sushie glitch", sushie_glitch_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ice staircase skip", ice_staircase_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "mirror clip", mirror_clip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "kooper puzzle skip", kooper_puzzle_skip_proc, NULL);
 
     /* chapter 8 */
     y_tab = 0;

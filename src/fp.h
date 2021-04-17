@@ -12,9 +12,7 @@ struct log_entry{
 };
 
 typedef struct{
-    _Bool                   ready;    
-    struct vector           watches;
-    size_t                  watch_cnt;
+    _Bool                   ready;
     uint16_t                cheats;
     struct menu             *main_menu;
     struct menu             *global;
