@@ -39,6 +39,14 @@ void set_story_progress(int story_progress) {
     pm_unk3.story_progress = story_progress;
 }
 
+void remove_key_item(int item_id) {
+    for (int i = 0; i < 32; i++) {
+        if (pm_player.key_items[i] == item_id) {
+            pm_player.key_items[i] = 0;
+        }
+    }
+}
+
 void load_jr_skip() {
     set_story_progress(0x88);
     warp(0, 3, 0);
@@ -106,6 +114,7 @@ void load_log_skip() {
 void load_early_seed() {
     check_for_hammer();
     set_partner(KOOPER);
+    remove_key_item(0x2c); //magical seed 2
     warp(8, 2, 2);
 }
 
@@ -132,6 +141,7 @@ void load_record_skip() {
     check_for_hammer();
     set_story_progress(0xd5);
     set_partner(BOMBETTE);
+    remove_key_item(0x1c);
     warp(0xd, 6, 0);
 }
 void load_bow_skip() {
@@ -149,6 +159,7 @@ void load_stanley_save() {
 void load_yakkey_trick_shot() {
     set_story_progress(0xe0);
     set_global_flag(0x42f, 0); //yakkey chest
+    remove_key_item(0x1f); //mystical key
     warp(0xf, 0x12, 0);
 }
 
@@ -172,6 +183,7 @@ void load_early_train() {
     set_global_flag(0x130, 0); //volt shroom
     set_global_flag(0x121, 0); //toy train
     set_global_flag(0x131, 0); //dizzy dial
+    remove_key_item(0x21); //toy train
     warp(1, 5, 0);
 }
 
@@ -196,6 +208,7 @@ void load_ch4_card_lzs() {
 void load_bhs() {
     set_global_flag(0x084, 0); //key collected
     set_global_flag(0x083, 1); //lock opened
+    remove_key_item(0x6b); //odd key
     warp(1, 3, 0);
 }
 
@@ -313,8 +326,6 @@ void load_kooper_puzzle_skip() {
     warp(0x15, 0xf, 0);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 void load_fast_basement() {
     set_story_progress(0x5e);
     set_global_flag(0x60e, 0); //first switch
@@ -322,6 +333,32 @@ void load_fast_basement() {
     set_global_flag(0x615, 0); //basement fight
     set_global_flag(0x614, 0); //hardened lava
     warp(0x16, 7, 0);
+}
+
+void load_basement_skip() {
+    set_partner(PARAKARRY);
+    warp(0x16, 0x15, 0);
+}
+
+void load_blind_basement() {
+    set_partner(PARAKARRY);
+    warp(0x16, 0, 0);
+}
+
+void load_fast_flood_room() {
+    set_partner(LAKILESTER);
+    pm_player.party.kooper.in_party = 1;
+    pm_player.party.lakilester.in_party = 1;
+    set_global_flag(0x632, 0); //key not collected
+    //TODO: for some reason there's this flag to put the spring back, but no flag to make the switch reappear
+    set_global_flag(0x633, 0); //spring still in wall
+    remove_key_item(0x01a); //castle key 2
+    warp(0x16, 0x31, 1);
+}
+
+void load_cannonless() {
+    set_partner(LAKILESTER);
+    warp(0x16, 0x2f, 0);
 }
 
 void load_trick(int8_t trick) {
@@ -375,6 +412,10 @@ void load_trick(int8_t trick) {
         case KOOPER_PUZZLE_SKIP:        load_kooper_puzzle_skip();          break;
 
         case FAST_BASEMENT:             load_fast_basement();               break;
+        case BASEMENT_SKIP:             load_basement_skip();               break;
+        case BLIND_BASEMENT:            load_blind_basement();              break;
+        case FAST_FLOOD_ROOM:           load_fast_flood_room();             break;
+        case CANNONLESS:                load_cannonless();                  break;
     }
 }
 
@@ -588,11 +629,29 @@ static void kooper_puzzle_skip_proc(struct menu_item *item, void *data) {
     load_kooper_puzzle_skip();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 static void fast_basement_proc(struct menu_item *item, void *data) {
     fp.saved_trick = FAST_BASEMENT;
     load_fast_basement();
+}
+
+static void basement_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BASEMENT_SKIP;
+    load_basement_skip();
+}
+
+static void blind_basement_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BLIND_BASEMENT;
+    load_blind_basement();
+}
+
+static void fast_flood_room_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FAST_FLOOD_ROOM;
+    load_fast_flood_room();
+}
+
+static void cannonless_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = CANNONLESS;
+    load_cannonless();
 }
 
 void create_tricks_menu(struct menu *menu)
@@ -697,6 +756,10 @@ void create_tricks_menu(struct menu *menu)
     page = &pages[8];
     menu_add_static(page, 0, y_tab++, "chapter 8", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "fast basement", fast_basement_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "basement skip", basement_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "blind basement", blind_basement_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "fast flood room", fast_flood_room_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "cannonless", cannonless_proc, NULL);
 
     menu_tab_goto(tab, 0);
     menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);
