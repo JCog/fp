@@ -10,6 +10,8 @@ const char *PARTNERS = "none\0""goombario\0""kooper\0""bombette\0"
 "twink\0";
 const char *RANK = "none\0""super\0""ultra\0";
 const char *SPELL_TYPE = "none\0""+3 ATK\0""+3 DEF\0""EXP x2\0""Coins x2\0";
+/* TODO: I hate this string array so much lmfao, if anyone knows a better way to do this, please lmk or submit a PR
+ * only thing I can think of is to move it to a separate file */
 const char *ITEM_LIST = "-\0""Jump\0""Spin Jump\0""Tornado Jump\0""Hammer\0""Super Hammer\0""Ultra Hammer\0"
 "Lucky Star\0""Map\0""Big Map\0""1st Degree Card\0""2nd Degree Card\0""3rd Degree Card\0""4th Degree Card\0""Diploma\0"
 "Ultra Stone\0""Fortress Key\0""Ruins Key\0""Pulse Stone\0""Castle Key 1\0""Palace Key\0""Lunar Stone\0"
@@ -461,7 +463,7 @@ struct menu *create_player_menu(void) {
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         y_value = 0;
         for (int j = 0; j < page_size; ++j) {
-            char buffer[4];
+            char buffer[5];
             int item_index = j + i * page_size;
             sprintf(buffer, "%02d:", item_index);
 

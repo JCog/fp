@@ -74,7 +74,7 @@ void fp_main(void){
     /* handle ace practice (should probably make toggleable at some point) */
     {
         if (pm_status.group_id == 0 && pm_status.room_id == 9) {
-            pm_player.unk_pre_transparency = 0x81e;
+            pm_player.unk_peach = 0x81e;
         }
         int last_timer = pm_ace_store.last_timer;
         if (last_timer != 0) {
@@ -301,7 +301,7 @@ void init(){
 
 
     int memory_value = 0;
-    int* pointer = (int*)0x807bfff8;
+    int *pointer = (int*)0x807bfff8;
     while (memory_value == 0) {
         pointer--;
         memory_value = *pointer;

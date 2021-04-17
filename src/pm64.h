@@ -239,7 +239,7 @@ typedef struct{
     int32_t         unk_flags;                  /* 0x0004 */
     uint16_t        idle_timer;                 /* 0x0008 */
     char            unk_0x0A[0x02];             /* 0x000A */
-    uint16_t        unk_pre_transparency;       /* 0x000C */
+    uint16_t        unk_peach;                  /* 0x000C */ /*has something to do with peach transforming in ch6*/
     uint16_t        transparency;               /* 0x000E */ /*0xFF00 when spinning*/
     uint16_t        flash_timer;                /* 0x0010 */ /*used when running away*/
     char            unk_0x12[0x02];             /* 0x0012 */
