@@ -11,7 +11,6 @@ static const char *labels[] =
     "star points",
     "star pieces",
     "peril",
-    "no encounter",
     "break free"
     
 };
@@ -67,12 +66,13 @@ struct menu *create_cheats_menu(void)
     /*build menu*/
     menu_add_static(&menu, 0, 1, "encounters:", 0xC0C0C0);
     menu_add_option(&menu, 12, 1, "normal\0""no encounters\0""defeat on contact\0""auto-win\0""auto-runaway\0", battle_proc, NULL);
-    menu_add_checkbox(&menu, 0, 2, quizmo_proc, NULL);
-    menu_add_static(&menu, 2, 2, "quizmo spawns", 0xC0C0C0);
-    for (int i = 0; i < CHEAT_MAX; ++i) {
+    int i;
+    for (i = 0; i < CHEAT_MAX; ++i) {
         menu_add_checkbox(&menu, 0, 3 + i, cheat_proc, (void*)i);
         menu_add_static(&menu, 2, 3 + i, labels[i], 0xC0C0C0);
     }
+    menu_add_checkbox(&menu, 0, 3 + i, quizmo_proc, NULL);
+    menu_add_static(&menu, 2, 3 + i, "quizmo spawns", 0xC0C0C0);
     
     return &menu;
 }

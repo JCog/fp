@@ -144,9 +144,6 @@ void fp_main(void){
         if(settings->cheats & (1 << CHEAT_PERIL)){
             pm_player.stats.hp = 1;
         }
-        if(settings->cheats & (1 << CHEAT_ENCOUNTER)){
-            pm_unk4.iframe_timer = 0xF;
-        }
         if(settings->cheats & (1 << CHEAT_BREAK)){
             int32_t third_byte_mask = 0xFFFF00FF;
             int32_t check_mask = 0x0000FF00;
