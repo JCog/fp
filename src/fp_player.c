@@ -82,15 +82,16 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int action_commands_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_player.stats.has_action_command = 1;
+        *p = 1;
     }
     else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_player.stats.has_action_command = 0;
+        *p = 0;
     }
     else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_player.stats.has_action_command);
+        menu_checkbox_set(item, *p);
     }
     return 0;
 }
@@ -268,7 +269,7 @@ static void tab_next_proc(struct menu_item *item, void *data)
 struct menu *create_player_menu(void) {
     static struct menu menu;
     static struct menu partners;
-    static struct menu stats;
+    static struct menu status;
     static struct menu items;
     static struct menu key_items;
     static struct menu badges;
@@ -277,7 +278,7 @@ struct menu *create_player_menu(void) {
 
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&stats, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&status, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -289,7 +290,7 @@ struct menu *create_player_menu(void) {
     menu.selector = menu_add_submenu(&menu, 0, y_value++, NULL, "return");
 
     /*build player menu*/
-    menu_add_submenu(&menu, 0, y_value++, &stats, "stats");
+    menu_add_submenu(&menu, 0, y_value++, &status, "status");
     menu_add_submenu(&menu, 0, y_value++, &partners, "partners");
     menu_add_submenu(&menu, 0, y_value++, &items, "items");
     menu_add_submenu(&menu, 0, y_value++, &key_items, "key items");
@@ -297,47 +298,53 @@ struct menu *create_player_menu(void) {
     menu_add_submenu(&menu, 0, y_value++, &merlee, "merlee");
     menu_add_submenu(&menu, 0, y_value++, &star_power, "star power");
 
-    /*build stats menu*/
+    /*build status menu*/
     const int STATS_X_0 = 0;
     const int STATS_X_1 = 16;
     y_value = 0;
     stats_t *pm_stats = &pm_player.stats;
 
-    stats.selector = menu_add_submenu(&stats, STATS_X_0, y_value++, NULL, "return");
+    status.selector = menu_add_submenu(&status, STATS_X_0, y_value++, NULL, "return");
 
-    menu_add_static(&stats, STATS_X_0, y_value, "boots", 0xC0C0C0);
-    menu_add_option(&stats, STATS_X_1, y_value++, "normal\0""super\0""ultra\0", boots_proc, NULL);
+    menu_add_static(&status, STATS_X_0, y_value, "story progress", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 16, 2, byte_mod_proc, &pm_unk3.story_progress);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "hammer", 0xC0C0C0);
-    menu_add_option(&stats, STATS_X_1, y_value++, "none\0""normal\0""super\0""ultra\0", hammer_proc, NULL);
+    menu_add_static(&status, STATS_X_0, y_value, "boots", 0xC0C0C0);
+    menu_add_option(&status, STATS_X_1, y_value++, "normal\0""super\0""ultra\0", boots_proc, NULL);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "action commands", 0xC0C0C0);
-    menu_add_checkbox(&stats, STATS_X_1, y_value++, action_commands_proc, NULL);
+    menu_add_static(&status, STATS_X_0, y_value, "hammer", 0xC0C0C0);
+    menu_add_option(&status, STATS_X_1, y_value++, "none\0""normal\0""super\0""ultra\0", hammer_proc, NULL);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "hp", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value, 10, 2, byte_mod_proc, &pm_stats->hp);
-    menu_add_static(&stats, STATS_X_1 + 2, y_value, "/", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1 + 3, y_value++, 10, 2, max_hp_proc, NULL);
+    menu_add_static(&status, STATS_X_0, y_value, "action commands", 0xC0C0C0);
+    menu_add_checkbox(&status, STATS_X_1, y_value++, checkbox_mod_proc, &pm_stats->has_action_command);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "fp", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value, 10, 2, byte_mod_proc, &pm_stats->fp);
-    menu_add_static(&stats, STATS_X_1 + 2, y_value, "/", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1 + 3, y_value++, 10, 2, max_fp_proc, NULL);
+    menu_add_static(&status, STATS_X_0, y_value, "peach", 0xC0C0C0);
+    menu_add_checkbox(&status, STATS_X_1, y_value++, checkbox_mod_proc, &pm_status.mario_peach);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "bp", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->bp);
+    menu_add_static(&status, STATS_X_0, y_value, "hp", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value, 10, 2, byte_mod_proc, &pm_stats->hp);
+    menu_add_static(&status, STATS_X_1 + 2, y_value, "/", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1 + 3, y_value++, 10, 2, max_hp_proc, NULL);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "level", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->level);
+    menu_add_static(&status, STATS_X_0, y_value, "fp", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value, 10, 2, byte_mod_proc, &pm_stats->fp);
+    menu_add_static(&status, STATS_X_1 + 2, y_value, "/", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1 + 3, y_value++, 10, 2, max_fp_proc, NULL);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "star points", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_points);
+    menu_add_static(&status, STATS_X_0, y_value, "bp", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->bp);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "star pieces", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_pieces);
+    menu_add_static(&status, STATS_X_0, y_value, "level", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->level);
 
-    menu_add_static(&stats, STATS_X_0, y_value, "coins", 0xC0C0C0);
-    menu_add_intinput(&stats, STATS_X_1, y_value++, 10, 3, halfword_mod_proc, &pm_stats->coins);
+    menu_add_static(&status, STATS_X_0, y_value, "star points", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_points);
+
+    menu_add_static(&status, STATS_X_0, y_value, "star pieces", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_pieces);
+
+    menu_add_static(&status, STATS_X_0, y_value, "coins", 0xC0C0C0);
+    menu_add_intinput(&status, STATS_X_1, y_value++, 10, 3, halfword_mod_proc, &pm_stats->coins);
 
     /*build partners menu*/
     const int PARTNERS_X_0 = 0;
@@ -490,7 +497,7 @@ struct menu *create_player_menu(void) {
     menu_add_intinput(&merlee, MERLEE_X_1, y_value++, 10, 2, byte_mod_proc, &pm_player.merlee.casts_remaining);
 
     menu_add_static(&merlee, MERLEE_X_0, y_value, "turns remaining", 0xC0C0C0);
-    menu_add_intinput(&merlee, MERLEE_X_1, y_value++, 10, 2, byte_mod_proc, &pm_player.merlee.turns_until_spell);
+    menu_add_intinput(&merlee, MERLEE_X_1, y_value++, 10, 3, byte_mod_proc, &pm_player.merlee.turns_until_spell);
 
     /*build star power menu*/
     const int STAR_POWER_X_0 = 0;
