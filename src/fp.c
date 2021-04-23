@@ -71,6 +71,19 @@ void fp_main(void){
         }
     }
 
+    /* show version on startup */
+    {
+        //this is a really jank way to do this, but it'll work for now
+        if (pm_player.animation != 0) {
+            fp.version_shown = 1;
+        }
+        if (!fp.version_shown) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
+            gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 0, "fp");
+            gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 1, "beta 0.1");
+        }
+    }
+
     /* handle ace practice (should probably make toggleable at some point) */
     {
         if (pm_status.group_id == 0 && pm_status.room_id == 9) {
@@ -235,6 +248,7 @@ void init(){
     /*init fp variables*/
     fp.menu_active = 0;
     fp.coord_active = 0;
+    fp.version_shown = 0;
     fp.saved_trick = -1;
 
     /*load default settings*/
