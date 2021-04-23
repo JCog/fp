@@ -126,9 +126,6 @@ void fp_main(void){
         if(settings->cheats & (1 << CHEAT_FP)){
             pm_player.stats.fp = pm_player.stats.max_fp;
         }
-        if(settings->cheats & (1 << CHEAT_BP)){
-            pm_player.stats.bp = 30;
-        }
         if(settings->cheats & (1 << CHEAT_COINS)){
             pm_player.stats.coins = 999;
         }

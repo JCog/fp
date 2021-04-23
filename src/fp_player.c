@@ -456,8 +456,8 @@ struct menu *create_player_menu(void) {
 
     /*build badges menu*/
     const int BADGES_ITEMS_X_0 = 0;
-    const int BADGES_ITEMS_X_1 = 3;
-    const int BADGES_ITEMS_X_2 = 7;
+    const int BADGES_ITEMS_X_1 = 4;
+    const int BADGES_ITEMS_X_2 = 8;
     y_value = 0;
 
     badges.selector = menu_add_submenu(&badges, BADGES_ITEMS_X_0, y_value++, NULL, "return");

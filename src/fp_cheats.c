@@ -5,7 +5,6 @@ static const char *labels[] =
 {
     "hp",
     "fp",
-    "bp",
     "coins",
     "star power",
     "star points",
