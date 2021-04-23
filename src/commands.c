@@ -62,17 +62,19 @@ void add_log(const char *fmt, ...){
 }
 
 void levitate_proc(){
-    pm_player.animation |= 3;
-    pm_player.y_speed = 11;
-    pm_player.y_snap = -0.75;
-    pm_player.frames_in_air = 1;
+    if (pm_status.mario_peach == 0) {
+        pm_player.animation |= 3;
+        pm_player.y_speed = 11;
+        pm_player.y_snap = -0.75;
+        pm_player.frames_in_air = 1;
+    }
 }
 
 void turbo_proc(){
     if(pm_player.run_speed == 4.0){
-        pm_player.run_speed = 32.0;
+        pm_player.run_speed = 24.0;
         add_log("turbo enabled");
-    } else if(pm_player.run_speed == 32.0){
+    } else if(pm_player.run_speed == 24.0){
         pm_player.run_speed = 4.0;
         add_log("turbo disabled");
     }
