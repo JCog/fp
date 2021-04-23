@@ -110,15 +110,19 @@ static int current_room_draw_proc(struct menu_item *item,
 }
 
 static void warp_proc(){
-	pm_status.group_id    = group;
-	pm_status.room_id     = room;
-	pm_status.entrance_id = entrance;
+    //would be nice to know why warping from this room crashes
+    if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
+        pm_status.group_id = group;
+        pm_status.room_id = room;
+        pm_status.entrance_id = entrance;
 
-	pm_unk2.room_change_state = 1;
+        pm_unk2.room_change_state = 1;
 
-	uint32_t val = 0x80035DFC;
-	pm_warp.room_change_ptr = val;
+        uint32_t val = 0x80035DFC;
+        pm_warp.room_change_ptr = val;
+    }
 
+    return;
 }
 
 struct menu *create_warps_menu(void)

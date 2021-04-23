@@ -15,14 +15,16 @@ void set_global_flag(int flag_index, _Bool value) {
 }
 
 void warp(int group, int room, int entrance) {
-    pm_status.group_id    = group;
-    pm_status.room_id     = room;
-    pm_status.entrance_id = entrance;
+    if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
+        pm_status.group_id = group;
+        pm_status.room_id = room;
+        pm_status.entrance_id = entrance;
 
-    pm_unk2.room_change_state = 1;
+        pm_unk2.room_change_state = 1;
 
-    uint32_t val = 0x80035DFC;
-    pm_warp.room_change_ptr = val;
+        uint32_t val = 0x80035DFC;
+        pm_warp.room_change_ptr = val;
+    }
 }
 
 void check_for_hammer() {
