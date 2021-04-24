@@ -208,6 +208,9 @@ void load_ch4_card_lzs() {
 }
 
 void load_bhs() {
+    if (pm_unk3.story_progress < 0x6 || pm_unk3.story_progress > 0xf2) {
+        set_story_progress(0xf1);
+    }
     set_global_flag(0x084, 0); //key collected
     set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
