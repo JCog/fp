@@ -129,6 +129,7 @@ void load_slow_go_early() {
     set_global_flag(0x37b, 1); //tutankoopa text
     set_global_flag(0x380, 1); //block gone
     set_global_flag(0x384, 1); //chest open
+    pm_player.stats.boots_upgrade = 1;
     warp(0xb, 8, 0);
 }
 
@@ -242,6 +243,12 @@ void load_lava_platform_cycle() {
     warp(0x12, 1, 0);
 }
 
+void load_ultra_hammer_skip() {
+    check_for_hammer();
+    set_story_progress(0x1a);
+    warp(0x12, 0x2, 0);
+}
+
 void load_lava_puzzle_skip() {
     check_for_hammer();
     set_story_progress(0x1a);
@@ -285,6 +292,16 @@ void load_peach_warp() {
     set_story_progress(0x33);
     set_partner(LAKILESTER);
     warp(0x12, 0xc, 1);
+}
+
+void load_sushie_peach_warp() {
+    check_for_hammer();
+    set_story_progress(0x33);
+    set_partner(BOMBETTE);
+    pm_player.party.bombette.in_party = 1;
+    pm_player.party.sushie.in_party = 1;
+    pm_player.stats.boots_upgrade = 1;
+    warp(0x12, 0x2, 2);
 }
 
 void load_ch6_card_lzs() {
@@ -337,12 +354,14 @@ void load_fast_basement() {
     set_global_flag(0x60f, 0); //second switch
     set_global_flag(0x615, 0); //basement fight
     set_global_flag(0x614, 0); //hardened lava
+    pm_player.stats.boots_upgrade = 2;
     warp(0x16, 7, 0);
 }
 
 void load_basement_skip() {
     set_partner(PARAKARRY);
-    warp(0x16, 0x15, 0);
+    set_global_flag(0x614, 1); //hardened lava
+    warp(0x16, 0x17, 2);
 }
 
 void load_blind_basement() {
@@ -399,6 +418,7 @@ void load_trick(int8_t trick) {
         case RAPH_SKIP:                 load_raph_skip();                   break;
         case PIRANHA_FIRST_STRIKE:      load_piranha_first_strike();        break;
         case LAVA_PLATFORM_CYCLE:       load_lava_platform_cycle();         break;
+        case ULTRA_HAMMER_SKIP:         load_ultra_hammer_skip();           break;
         case LAVA_PUZZLE_SKIP:          load_lava_puzzle_skip();            break;
         case FLARAKARRY:                load_flarakarry();                  break;
         case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
@@ -407,6 +427,7 @@ void load_trick(int8_t trick) {
         case EARLY_LAKI:                load_early_laki();                  break;
         case YELLOW_BERRY_SKIP:         load_yellow_berry_skip();           break;
         case PEACH_WARP:                load_peach_warp();                  break;
+        case SUSHIE_PEACH_WARP:         load_sushie_peach_warp();           break;
         case CH6_CARD_LZS:              load_ch6_card_lzs();                break;
 
         case CLIPPY_BOOTS:              load_clippy_boots();                break;
@@ -564,6 +585,11 @@ static void lava_platform_cycle_proc(struct menu_item *item, void *data) {
     load_lava_platform_cycle();
 }
 
+static void ultra_hammer_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ULTRA_HAMMER_SKIP;
+    load_ultra_hammer_skip();
+}
+
 static void lava_puzzle_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = LAVA_PUZZLE_SKIP;
     load_lava_puzzle_skip();
@@ -597,6 +623,11 @@ static void yellow_berry_skip_proc(struct menu_item *item, void *data) {
 static void peach_warp_proc(struct menu_item *item, void *data) {
     fp.saved_trick = PEACH_WARP;
     load_peach_warp();
+}
+
+static void sushie_peach_warp_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SUSHIE_PEACH_WARP;
+    load_sushie_peach_warp();
 }
 
 static void ch6_card_lzs_proc(struct menu_item *item, void *data) {
@@ -731,6 +762,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "raph/yoshi skip", raph_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "putrid piranha first strike", piranha_first_strike_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava platform cycle", lava_platform_cycle_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ultra hammer skip", ultra_hammer_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava puzzle skip", lava_puzzle_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "flarakarry", flarakarry_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava piranha skip/oob", lava_piranha_skip_proc, NULL);
@@ -743,6 +775,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "early laki", early_laki_proc, NULL);
     menu_add_button(page, 0, y_tab++, "yellow berry skip", yellow_berry_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "peach warp", peach_warp_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "sushie peach warp", sushie_peach_warp_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch6 card lzs", ch6_card_lzs_proc, NULL);
 
     /* chapter 7 */

@@ -515,11 +515,11 @@ struct group_info GROUPS[] =
             0x2,
             {
                 {
-                    "east",
+                    "west",
                     0x5
                 },
                 {
-                    "west",
+                    "east",
                     0x1
                 }
             }
