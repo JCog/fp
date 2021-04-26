@@ -15,7 +15,7 @@ void settings_load_default(void){
 
     d->bits.font_resource = RES_FONT_PRESSSTART2P;
     d->bits.drop_shadow = 1;
-    d->bits.input_display = 1;
+    d->bits.input_display = 0;
     d->bits.log = 1;
     d->menu_x = 16;
     d->menu_y = 60;

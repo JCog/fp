@@ -29,37 +29,37 @@ void fp_main(void){
     int cw = menu_get_cell_width(fp.main_menu, 1);
     int ch = menu_get_cell_height(fp.main_menu, 1);
 
-    ///*draw input display*/
-    //{   
-    //    uint16_t d_pad = pm_status.raw.buttons;
-    //    int8_t   d_x   = pm_status.control_x;
-    //    int8_t   d_y   = pm_status.control_y;
+    /*draw input display*/
+    if (settings->bits.input_display) {
+        uint16_t d_pad = pm_status.raw.buttons;
+        int8_t   d_x   = pm_status.control_x;
+        int8_t   d_y   = pm_status.control_y;
 
-    //    struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
-    //    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
-    //    gfx_printf(font, settings->input_display_x, settings->input_display_y,
-    //               "%4i %4i", d_x, d_y);
-    //    static const int buttons[] =
-    //    {
-    //      15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
-    //    };
-    //    for (int i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
-    //      int b = buttons[i];
-    //      if (!(d_pad & (1 << b)))
-    //        continue;
-    //      int x = (cw - texture->tile_width) / 2 + i * 10;
-    //      int y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-    //      struct gfx_sprite sprite =
-    //      {
-    //        texture, b,
-    //        settings->input_display_x + cw * 10 + x, settings->input_display_y + y,
-    //        1.f, 1.f,
-    //      };
-    //      gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b],
-    //                                                 alpha));
-    //      gfx_sprite_draw(&sprite);
-    //  }
-    //}
+        struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
+        gfx_printf(font, settings->input_display_x, settings->input_display_y,
+                   "%4i %4i", d_x, d_y);
+        static const int buttons[] =
+        {
+          15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
+        };
+        for (int i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
+          int b = buttons[i];
+          if (!(d_pad & (1 << b)))
+            continue;
+          int x = (cw - texture->tile_width) / 2 + i * 10;
+          int y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
+          struct gfx_sprite sprite =
+          {
+            texture, b,
+            settings->input_display_x + cw * 10 + x, settings->input_display_y + y,
+            1.f, 1.f,
+          };
+          gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b],
+                                                     alpha));
+          gfx_sprite_draw(&sprite);
+      }
+    }
 
     /* draw coordinates */
     {
