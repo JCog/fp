@@ -71,10 +71,10 @@ typedef struct{
     uint8_t         quizmo_debug;               /* 0x0075 */ /* 1 to force a quizmo spawn every time */
     char            unk_0x76[0x06];             /* 0x0076 */
     char            unk_0x7C[0x02];             /* 0x007C */
-    int8_t          mario_peach;                /* 0x007E */ /*0= mario, 1=peach*/
-    char            unk_0x7F[0x01];             /* 0x007F */
-    char            unk_0x80[0x04];             /* 0x0080 */
-    char            unk_0x84[0x02];             /* 0x0084 */
+    uint8_t         peach_flags;                /* 0x007E */ /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasUmbrella*/
+    int8_t          peach_disguise;             /* 0x007F */ /*1 = koopatrol, 2 = hammer bro, 3 = clubba */
+    uint8_t         peach_anim_idx;             /* 0x0080 */
+    char            unk_0x84[0x05];             /* 0x0081 */
     uint16_t        group_id;                   /* 0x0086 */
     uint16_t        group_id_copy;              /* 0x0088 */
     char            unk_0x8A[0x02];             /* 0x008A */
@@ -83,6 +83,20 @@ typedef struct{
     char            unk_0x90[0x08];             /* 0x0090 */
     xyz_t           player_position_copy;       /* 0x0098 */
     float           player_angle_copy;          /* 0x00A4 */
+    char            unk_A8[0x04];               /* 0x00A8 */
+    int8_t          load_menu_state;            /* 0x00AC */
+    int8_t          menu_counter;               /* 0x00AD */
+    int8_t          b_skip_intro;               /* 0x00AE */
+    char            unk_AF[0x07];               /* 0x00AF */
+    int16_t         boot_alpha;                 /* 0x00B6 */
+    int16_t         boot_blue;                  /* 0x00B8 */
+    int16_t         boot_green;                 /* 0x00BA */
+    int16_t         boot_red;                   /* 0x00BC */
+    char            unk_BE[0x6A];               /* 0x00BE */
+    xyz_t           player_trace_normal;        /* 0x0128 */
+    uint16_t        frame_counter;              /* 0x0134 */
+    char            unk_136[0x02];              /* 0x0136 */
+    int32_t         next_rng;                   /* 0x0138 */
 
 }status_ctxt_t;
 

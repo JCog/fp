@@ -62,7 +62,7 @@ void add_log(const char *fmt, ...){
 }
 
 void levitate_proc(){
-    if (pm_status.mario_peach == 0) {
+    if (pm_status.peach_flags == 0) {
         pm_player.animation |= 3;
         pm_player.y_speed = 11;
         pm_player.y_snap = -0.75;

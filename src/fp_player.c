@@ -300,7 +300,7 @@ struct menu *create_player_menu(void) {
     menu_add_checkbox(&status, STATS_X_1, y_value++, checkbox_mod_proc, &pm_stats->has_action_command);
 
     menu_add_static(&status, STATS_X_0, y_value, "peach", 0xC0C0C0);
-    menu_add_checkbox(&status, STATS_X_1, y_value++, checkbox_mod_proc, &pm_status.mario_peach);
+    menu_add_checkbox(&status, STATS_X_1, y_value++, checkbox_mod_proc, &pm_status.peach_flags);
 
     menu_add_static(&status, STATS_X_0, y_value, "hp", 0xC0C0C0);
     menu_add_intinput(&status, STATS_X_1, y_value, 10, 2, byte_mod_proc, &pm_stats->hp);
