@@ -145,9 +145,6 @@ void fp_main(void){
         if(settings->cheats & (1 << CHEAT_STAR_POWER)){
             pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
         }
-        if(settings->cheats & (1 << CHEAT_STAR_POINTS)){
-            pm_player.stats.star_points = 99;
-        }
         if(settings->cheats & (1 << CHEAT_STAR_PIECES)){
             pm_player.stats.star_pieces = 160;
         }

@@ -7,7 +7,6 @@ static const char *labels[] =
     "fp",
     "coins",
     "star power",
-    "star points",
     "star pieces",
     "peril",
     "break free"
