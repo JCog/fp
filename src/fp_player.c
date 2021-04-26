@@ -82,6 +82,17 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
+static int byte_option_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p)
+            menu_option_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        *p = menu_option_get(item);
+    return 0;
+}
+
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -514,6 +525,9 @@ struct menu *create_player_menu(void) {
 
     menu_add_static(&star_power, STAR_POWER_X_0, y_value, "partial bar", 0xC0C0C0);
     menu_add_intinput(&star_power, STAR_POWER_X_1, y_value++, 16, 2, star_power_partial_proc, &pm_player.star_power.partial_bars_filled);
+
+    menu_add_static(&star_power, STAR_POWER_X_0, y_value, "beam", 0xC0C0C0);
+    menu_add_option(&star_power, STAR_POWER_X_1, y_value++, "none\0""star beam\0""peach beam\0", byte_option_proc, &pm_player.star_power.beam_rank);
 
     return &menu;
 }

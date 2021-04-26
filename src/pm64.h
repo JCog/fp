@@ -233,7 +233,8 @@ typedef struct{
     char            unk_0x01[0x01];             /* 0x0001 */
     uint8_t         full_bars_filled;           /* 0x0002 */
     uint8_t         partial_bars_filled;        /* 0x0003 */
-                                                /* size: 0x0004 */
+    uint8_t         beam_rank;                  /* 0x0004 */ /*1 for star beam, 2 for peach beam*/
+                                                /* size: 0x0005 */
 }star_power_t;
 
 typedef struct{
