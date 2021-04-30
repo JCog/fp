@@ -2,6 +2,51 @@
 #include "menu.h"
 #include "settings.h"
 #include "commands.h"
+#include "resource.h"
+#include "fp.h"
+
+static uint16_t font_options[] = {
+    RES_FONT_FIPPS,
+    RES_FONT_NOTALOT35,
+    RES_FONT_ORIGAMIMOMMY,
+    RES_FONT_PCSENIOR,
+    RES_FONT_PIXELINTV,
+    RES_FONT_PRESSSTART2P,
+    RES_FONT_SMWTEXTNC,
+    RES_FONT_WERDNASRETURN,
+    RES_FONT_PIXELZIM,
+};
+
+static int font_proc(struct menu_item *item,
+                     enum menu_callback_reason reason,
+                     void *data)
+{
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (settings->bits.font_resource != font_options[menu_option_get(item)]) {
+            int n_font_options = sizeof(font_options) / sizeof(*font_options);
+            for (int i = 0; i < n_font_options; ++i) {
+                if (settings->bits.font_resource == font_options[i]) {
+                    menu_option_set(item, i);
+                    break;
+                }
+            }
+        }
+    }
+    else if (reason == MENU_CALLBACK_CHANGED) {
+        int font_resource = font_options[menu_option_get(item)];
+        settings->bits.font_resource = font_resource;
+        if (settings->bits.font_resource == RES_FONT_FIPPS)
+            gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
+        else
+            gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
+        struct gfx_font *font = resource_get(font_resource);
+        menu_set_font(fp.main_menu, font);
+        menu_set_cell_width(fp.main_menu, font->char_width + font->letter_spacing);
+        menu_set_cell_height(fp.main_menu, font->char_height + font->line_spacing);
+        menu_imitate(fp.global, fp.main_menu);
+    }
+    return 0;
+}
 
 static int input_display_proc(struct menu_item *item,
                               enum menu_callback_reason reason,
@@ -46,6 +91,12 @@ struct menu *create_settings_menu(void)
     /*build menu*/
     int y = 0;
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
+    /* appearance controls */
+    menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
+    menu_add_option(&menu, 16, y++, "fipps\0""notalot35\0" "origami mommy\0"
+                                  "pc senior\0""pixel intv\0""press start 2p\0"
+                                  "smw text nc\0""werdna's return\0""pixelzim\0",
+                    font_proc, NULL);
     menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
     menu_add_checkbox(&menu, 16, y++, input_display_proc, NULL);
     menu_add_submenu(&menu, 0, y++, &commands, "commands");

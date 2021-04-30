@@ -58,9 +58,49 @@ static void *rc_grc_font_generic(const char *grc_resource_name,
                          letter_spacing, line_spacing, baseline, median, x);
 }
 
+static void *rc_font_fipps(void)
+{
+    return rc_grc_font_generic("fipps", 10, 14, 33, -2, -5, 10, 3, 2);
+}
+
+static void *rc_font_notalot35(void)
+{
+    return rc_grc_font_generic("notalot35", 8, 9, 33, -1, -1, 7, 2, 2);
+}
+
+static void *rc_font_origamimommy(void)
+{
+    return rc_grc_font_generic("origamimommy", 8, 10, 33, -2, -2, 8, 1, 0);
+}
+
+static void *rc_font_pcsenior(void)
+{
+    return rc_grc_font_generic("pcsenior", 8, 8, 33, 0, 0, 7, 2, 0);
+}
+
+static void *rc_font_pixelintv(void)
+{
+    return rc_grc_font_generic("pixelintv", 8, 12, 33, 0, -4, 10, 5, 1);
+}
+
 static void *rc_font_pressstart2p(void)
 {
-  return rc_grc_font_generic("pressstart2p", 8, 8, 33, 0, 0, 7, 2, 0);
+    return rc_grc_font_generic("pressstart2p", 8, 8, 33, 0, 0, 7, 2, 0);
+}
+
+static void *rc_font_smwtextnc(void)
+{
+    return rc_grc_font_generic("smwtextnc", 12, 8, 33, -4, 0, 7, 2, 3);
+}
+
+static void *rc_font_werdnasreturn(void)
+{
+    return rc_grc_font_generic("werdnasreturn", 8, 12, 33, 0, -4, 11, 6, 1);
+}
+
+static void *rc_font_pixelzim(void)
+{
+    return rc_grc_font_generic("pixelzim", 3, 6, 33, 1, 0, 5, 3, 0);
 }
 
 static void *rc_icon_check(void)
@@ -119,7 +159,15 @@ static void rd_font_generic(void *data)
 /* resource management tables */
 static void *(*res_ctor[RES_MAX])(void) =
 {
+  rc_font_fipps,
+  rc_font_notalot35,
+  rc_font_origamimommy,
+  rc_font_pcsenior,
+  rc_font_pixelintv,
   rc_font_pressstart2p,
+  rc_font_smwtextnc,
+  rc_font_werdnasreturn,
+  rc_font_pixelzim,
   rc_icon_check,
   rc_icon_buttons,
   rc_icon_pause,
