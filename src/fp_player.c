@@ -237,6 +237,45 @@ static int star_power_partial_proc(struct menu_item *item, enum menu_callback_re
     return 0;
 }
 
+static int peach_or_mario_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        pm_status.peach_flags |= (1 << 0);
+    }
+    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        pm_status.peach_flags &= ~(1 << 0);
+    }
+    else if (reason == MENU_CALLBACK_THINK) {
+        menu_checkbox_set(item, pm_status.peach_flags & (1 << 0));
+    }
+    return 0;
+}
+
+static int peach_transformed_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        pm_status.peach_flags |= (1 << 1);
+    }
+    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        pm_status.peach_flags &= ~(1 << 1);
+    }
+    else if (reason == MENU_CALLBACK_THINK) {
+        menu_checkbox_set(item, pm_status.peach_flags & (1 << 1));
+    }
+    return 0;
+}
+
+static int peach_umbrella_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        pm_status.peach_flags |= (1 << 2);
+    }
+    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        pm_status.peach_flags &= ~(1 << 2);
+    }
+    else if (reason == MENU_CALLBACK_THINK) {
+        menu_checkbox_set(item, pm_status.peach_flags & (1 << 2));
+    }
+    return 0;
+}
+
 static void tab_prev_proc(struct menu_item *item, void *data)
 {
     menu_tab_previous(data);
@@ -254,8 +293,9 @@ struct menu *create_player_menu(void) {
     static struct menu items;
     static struct menu key_items;
     static struct menu badges;
-    static struct menu merlee;
     static struct menu star_power;
+    static struct menu peach;
+    static struct menu merlee;
 
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -264,8 +304,9 @@ struct menu *create_player_menu(void) {
     menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&star_power, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);;
+    menu_init(&peach, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&star_power, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     int y_value = 0;
     menu.selector = menu_add_submenu(&menu, 0, y_value++, NULL, "return");
@@ -277,6 +318,7 @@ struct menu *create_player_menu(void) {
     menu_add_submenu(&menu, 0, y_value++, &key_items, "key items");
     menu_add_submenu(&menu, 0, y_value++, &badges, "badges");
     menu_add_submenu(&menu, 0, y_value++, &star_power, "star power");
+    menu_add_submenu(&menu, 0, y_value++, &peach, "princess peach");
     menu_add_submenu(&menu, 0, y_value++, &merlee, "merlee");
 
     /*build status menu*/
@@ -297,9 +339,6 @@ struct menu *create_player_menu(void) {
 
     menu_add_static(&status, 0, y_value, "action commands", 0xC0C0C0);
     menu_add_checkbox(&status, STATS_X, y_value++, checkbox_mod_proc, &pm_stats->has_action_command);
-
-    menu_add_static(&status, 0, y_value, "peach", 0xC0C0C0);
-    menu_add_checkbox(&status, STATS_X, y_value++, checkbox_mod_proc, &pm_status.peach_flags);
 
     menu_add_static(&status, 0, y_value, "hp", 0xC0C0C0);
     menu_add_intinput(&status, STATS_X, y_value, 10, 2, byte_mod_proc, &pm_stats->hp);
@@ -476,6 +515,24 @@ struct menu *create_player_menu(void) {
 
     menu_add_static(&star_power, 0, y_value, "beam", 0xC0C0C0);
     menu_add_option(&star_power, STAR_POWER_X, y_value++, "none\0""star beam\0""peach beam\0", byte_optionmod_proc, &pm_player.star_power.beam_rank);
+
+    /*build peach menu*/
+    const int PEACH_X = 12;
+    y_value = 0;
+
+    peach.selector = menu_add_submenu(&peach, 0, y_value++, NULL, "return");
+
+    menu_add_static(&peach, 0, y_value, "peach", 0xC0C0C0);
+    menu_add_checkbox(&peach, PEACH_X, y_value++, peach_or_mario_proc, NULL);
+
+    menu_add_static(&peach, 0, y_value, "transformed", 0xC0C0C0);
+    menu_add_checkbox(&peach, PEACH_X, y_value++, peach_transformed_proc, NULL);
+
+    menu_add_static(&peach, 0, y_value, "umbrella", 0xC0C0C0);
+    menu_add_checkbox(&peach, PEACH_X, y_value++, peach_umbrella_proc, NULL);
+
+    menu_add_static(&peach, 0, y_value, "disguise", 0xC0C0C0);
+    menu_add_option(&peach, PEACH_X, y_value++, "none\0""koopatrol\0""hammer bro\0""clubba\0", byte_optionmod_proc, &pm_status.peach_disguise);
 
     /*build merlee menu*/
     const int MERLEE_X = 16;
