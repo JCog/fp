@@ -19,8 +19,18 @@ fp_ctxt_t fp = {
     .ready = 0, 
 };
 
-void fp_main(void){
+static void update_cpu_counter(void)
+{
+    static uint32_t count = 0;
+    unsigned int new_count;
+    __asm__ ("mfc0    %0, $9;" : "=r"(new_count));
+    fp.cpu_counter_freq = OS_CPU_COUNTER;
+    fp.cpu_counter += new_count - count;
+    count = new_count;
+}
 
+void fp_main(void){
+    update_cpu_counter();
     gfx_mode_init();
     input_update();
 
@@ -71,10 +81,70 @@ void fp_main(void){
         }
     }
 
+    /* draw and update timer */
+    int64_t timer_count = 0;
+    _Bool in_cutscene = pm_player.flags & 0x00002000;
+    switch (fp.timer.state) {
+        case 0:
+            fp.timer.prev_state = 0;
+            break;
+        case 1:
+            if (fp.timer.prev_cutscene_state && !in_cutscene) {
+                fp.timer.state = 2;
+                fp.timer.start = fp.cpu_counter;
+                if (fp.timer.logging) {
+                    add_log("timer started");
+                }
+            }
+            fp.timer.prev_state = 1;
+            break;
+        case 2:
+            if (!fp.timer.prev_cutscene_state && in_cutscene) {
+                fp.timer.cutscene_count++;
+                if (fp.timer.logging && fp.timer.cutscene_count != fp.timer.cutscene_target) {
+                    add_log("cutscene started");
+                }
+            }
+            if (fp.timer.cutscene_count == fp.timer.cutscene_target) {
+                fp.timer.state = 3;
+                fp.timer.end = fp.cpu_counter;
+                add_log("timer stopped");
+            }
+            timer_count = fp.cpu_counter - fp.timer.start;
+            fp.timer.prev_state = 2;
+            break;
+        case 3:
+            timer_count = fp.timer.end - fp.timer.start;
+            fp.timer.prev_state = 3;
+            break;
+    }
+    fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
+    if (fp.timer.show && !fp.menu_active && fp.timer.state > 0) {
+        int tenths = timer_count * 10 / fp.cpu_counter_freq;
+        int seconds = tenths / 10;
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        tenths %= 10;
+        seconds %= 60;
+        minutes %= 60;
+        int x = settings->timer_x;
+        int y = settings->timer_y;
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
+        if (hours > 0) {
+            gfx_printf(font, x, y, "%d:%02d:%02d.%d", hours, minutes, seconds, tenths);
+        }
+        else if (minutes > 0) {
+            gfx_printf(font, x, y, "%d:%02d.%d", minutes, seconds, tenths);
+        }
+        else {
+            gfx_printf(font, x, y, "%d.%d", seconds, tenths);
+        }
+    }
+
     /* show version on startup */
     {
         //this is a really jank way to do this, but it'll work for now
-        if (pm_player.animation != 0) {
+        if (pm_player.flags != 0) {
             fp.version_shown = 1;
         }
         if (!fp.version_shown) {
@@ -87,7 +157,7 @@ void fp_main(void){
     /* handle ace practice (should probably make toggleable at some point) */
     {
         if (pm_status.group_id == 0 && pm_status.room_id == 9) {
-            pm_player.unk_peach = 0x81e;
+            pm_player.peach_disguise = 0x81e;
         }
         int last_timer = pm_ace_store.last_timer;
         if (last_timer != 0) {
@@ -155,8 +225,8 @@ void fp_main(void){
             int32_t third_byte_mask = 0xFFFF00FF;
             int32_t check_mask = 0x0000FF00;
 
-            if((pm_player.animation & check_mask) == 0x2000){
-                pm_player.animation &= third_byte_mask;
+            if((pm_player.flags & check_mask) == 0x2000){
+                pm_player.flags &= third_byte_mask;
             }
         }
     }
@@ -247,6 +317,8 @@ void init(){
     fp.coord_active = 0;
     fp.version_shown = 0;
     fp.saved_trick = -1;
+    fp.timer.cutscene_target = 1;
+    fp.timer.state = 0;
 
     /*load default settings*/
     settings_load_default();

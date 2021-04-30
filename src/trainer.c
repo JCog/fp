@@ -102,7 +102,7 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "flags: ");
-    if (pm_player.unk_flags == 0x01000000) {
+    if (pm_player.anim_flags == 0x01000000) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
     }

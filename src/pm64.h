@@ -252,11 +252,11 @@ typedef struct{
 }star_power_t;
 
 typedef struct{
-    int32_t         animation;                  /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
-    int32_t         unk_flags;                  /* 0x0004 */
+    int32_t         flags;                      /* 0x0000 */ /*third byte related to cutscenes - write 0 to break free*/
+    int32_t         anim_flags;                 /* 0x0004 */
     uint16_t        idle_timer;                 /* 0x0008 */
     char            unk_0x0A[0x02];             /* 0x000A */
-    uint16_t        unk_peach;                  /* 0x000C */ /*has something to do with peach transforming in ch6*/
+    uint16_t        peach_disguise;             /* 0x000C */ /*has something to do with peach transforming in ch6*/
     uint16_t        transparency;               /* 0x000E */ /*0xFF00 when spinning*/
     uint16_t        flash_timer;                /* 0x0010 */ /*used when running away*/
     char            unk_0x12[0x02];             /* 0x0012 */
@@ -278,7 +278,7 @@ typedef struct{
     float           run_speed;                  /* 0x005C */ /*constant: 0x40800000 = 4.0*/
     char            unk_0x60[0x0C];             /* 0x0060 */
     float           jump_const;                 /* 0x006C */ /*used by jumping func to compare if jump_var_1 less than const*/
-    float           y_speed;                    /* 0x0070 */ /*related to rise/fall speeed*/ 
+    float           y_speed;                    /* 0x0070 */ /*related to rise/fall speed*/
     float           y_acceleration;             /* 0x0074 */ /*related to height cap*/
     float           y_jerk;                     /* 0x0078 */ /*related to height cap*/
     float           y_snap;                     /* 0x007C */ /*related to height cap*/
@@ -289,7 +289,13 @@ typedef struct{
     char            unk_0x94[0x10];             /* 0x0094 */
     int32_t         sprite_animation;           /* 0x00A4 */ /* 1st byte: back turned=01 | 4th byte: animations 00-32*/
     float           left_right;                 /* 0x00A8 */ /*0.0=left, 180.0=right*/
-    char            unk_0xAC[0x14];             /* 0x00AC */
+    char            unk_0xAC[0x04];             /* 0x00AC */
+    int16_t         collider_height;            /* 0x00B0 */
+    int16_t         collider_diameter;          /* 0x00B2 */
+    uint8_t         action_state;               /* 0x00B4 */
+    uint8_t         prev_action_state;          /* 0x00B5 */
+    int8_t          fall_state;                 /* 0x00B6 */ /*also used as sleep state in Peach idle action*/
+    char            unk_B7[0x09];               /* 0x00B7 */
     uint16_t        frames_in_air;              /* 0x00C0 */
     char            unk_0xC2[0x02];             /* 0x00C2 */
     char            unk_0xC4[0x02];             /* 0x00C4 */

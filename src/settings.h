@@ -56,6 +56,8 @@ struct settings_data{
     int16_t               coord_display_y;
     int16_t               log_x;
     int16_t               log_y;
+    int16_t               timer_x;
+    int16_t               timer_y;
     int16_t               watch_x[SETTINGS_WATCHES_MAX];
     int16_t               watch_y[SETTINGS_WATCHES_MAX];
     uint16_t              binds[SETTINGS_BIND_MAX];

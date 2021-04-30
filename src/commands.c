@@ -63,7 +63,7 @@ void add_log(const char *fmt, ...){
 
 void levitate_proc(){
     if (pm_status.peach_flags == 0) {
-        pm_player.animation |= 3;
+        pm_player.flags |= 3;
         pm_player.y_speed = 11;
         pm_player.y_snap = -0.75;
         pm_player.frames_in_air = 1;

@@ -25,6 +25,8 @@ void settings_load_default(void){
     d->coord_display_y = PM64_SCREEN_HEIGHT - 40;
     d->log_x = PM64_SCREEN_WIDTH - 20;
     d->log_y = PM64_SCREEN_HEIGHT - 33;
+    d->timer_x = 16;
+    d->timer_y = 68;
     d->n_watches = 0;
     d->cheats = 0;
     d->binds[COMMAND_MENU] = input_bind_make(2, BUTTON_R, BUTTON_D_UP);

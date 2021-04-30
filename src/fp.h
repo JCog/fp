@@ -11,8 +11,23 @@ struct log_entry{
     int                     age;
 };
 
+struct timer {
+    int64_t         start;
+    int64_t         end;
+    _Bool           show;
+    _Bool           logging;
+    _Bool           prev_cutscene_state;
+    uint8_t         state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
+    uint8_t         prev_state;
+    uint8_t         cutscene_target;
+    uint8_t         cutscene_count;
+};
+
 typedef struct{
     _Bool                   ready;
+    int64_t                 cpu_counter;
+    int32_t                 cpu_counter_freq;
+    struct timer            timer;
     uint16_t                cheats;
     struct menu             *main_menu;
     struct menu             *global;
