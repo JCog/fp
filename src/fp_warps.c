@@ -101,7 +101,7 @@ static int current_room_draw_proc(struct menu_item *item,
   int ch = menu_get_cell_height(item->owner, 1);
   int x = draw_params->x;
   int y = draw_params->y;
-  gfx_printf(font, x, y + ch * 0, "current room:");
+  gfx_printf(font, x, y + ch * 0, "current room");
   gfx_printf(font, x, y + ch * 1, "g: %s", GROUPS[pm_status.group_id].group_name);
   gfx_printf(font, x, y + ch * 2, "r: %s", GROUPS[pm_status.group_id].rooms[pm_status.room_id].room_name);
   gfx_printf(font, x, y + ch * 3, "e: %x", pm_status.entrance_id);

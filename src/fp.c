@@ -72,13 +72,11 @@ void fp_main(void){
     }
 
     /* draw coordinates */
-    {
-        if (fp.coord_active) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-            gfx_printf(font, settings->coord_display_x, settings->coord_display_y, "x: %.4f", pm_player.position.x);
-            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch, "z: %.4f", pm_player.position.z);
-            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "y: %.4f", pm_player.position.y);
-        }
+    if (fp.coord_active) {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+        gfx_printf(font, settings->coord_display_x, settings->coord_display_y, "x: %.4f", pm_player.position.x);
+        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch, "z: %.4f", pm_player.position.z);
+        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "y: %.4f", pm_player.position.y);
     }
 
     /* draw and update timer */
@@ -142,154 +140,140 @@ void fp_main(void){
     }
 
     /* show version on startup */
-    {
-        //this is a really jank way to do this, but it'll work for now
-        if (pm_player.flags != 0) {
-            fp.version_shown = 1;
-        }
-        if (!fp.version_shown) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-            gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 0, "fp");
-            gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 1, "beta 0.1");
-        }
+    //this is a really jank way to do this, but it'll work for now
+    if (pm_player.flags != 0) {
+        fp.version_shown = 1;
+    }
+    if (!fp.version_shown) {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
+        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 0, "fp");
+        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 1, "beta 0.1");
     }
 
     /* handle ace practice (should probably make toggleable at some point) */
-    {
-        if (pm_status.group_id == 0 && pm_status.room_id == 9) {
-            pm_player.peach_disguise = 0x81e;
+    if (pm_status.group_id == 0 && pm_status.room_id == 9) {
+        pm_player.peach_disguise = 0x81e;
+    }
+    int last_timer = pm_ace_store.last_timer;
+    if (last_timer != 0) {
+        if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
+            //will work
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
         }
-        int last_timer = pm_ace_store.last_timer;
-        if (last_timer != 0) {
-            if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
-                //will work
-                gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-            }
-            else {
-                //won't work
-                gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-            }
-            gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "0x%x", last_timer);
+        else {
+            //won't work
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
         }
-
+        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "0x%x", last_timer);
     }
     
     /* handle menu input */
-    {
-        if (fp.menu_active) {
-            if (input_bind_pressed_raw(COMMAND_MENU)){
-                hide_menu();
-            }
-            else if (input_bind_pressed(COMMAND_RETURN)){
-                menu_return(fp.main_menu);
-            }
-            else {
-                uint16_t pad_pressed = input_pressed();
-                if (pad_pressed & BUTTON_D_UP)
-                    menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
-                if (pad_pressed & BUTTON_D_DOWN)
-                    menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
-                if (pad_pressed & BUTTON_D_LEFT)
-                    menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
-                if (pad_pressed & BUTTON_D_RIGHT)
-                    menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
-                if (pad_pressed & BUTTON_L)
-                    menu_activate(fp.main_menu);
-          }
+    if (fp.menu_active) {
+        if (input_bind_pressed_raw(COMMAND_MENU)){
+            hide_menu();
         }
-        else if (input_bind_pressed_raw(COMMAND_MENU))
-            show_menu();
+        else if (input_bind_pressed(COMMAND_RETURN)){
+            menu_return(fp.main_menu);
+        }
+        else {
+            uint16_t pad_pressed = input_pressed();
+            if (pad_pressed & BUTTON_D_UP)
+                menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
+            if (pad_pressed & BUTTON_D_DOWN)
+                menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
+            if (pad_pressed & BUTTON_D_LEFT)
+                menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
+            if (pad_pressed & BUTTON_D_RIGHT)
+                menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
+            if (pad_pressed & BUTTON_L)
+                menu_activate(fp.main_menu);
+      }
     }
+    else if (input_bind_pressed_raw(COMMAND_MENU))
+        show_menu();
     
     /* activate cheats */
-    {
-        if(settings->cheats & (1 << CHEAT_HP)){
-            pm_player.stats.hp = pm_player.stats.max_hp;
-        }
-        if(settings->cheats & (1 << CHEAT_FP)){
-            pm_player.stats.fp = pm_player.stats.max_fp;
-        }
-        if(settings->cheats & (1 << CHEAT_COINS)){
-            pm_player.stats.coins = 999;
-        }
-        if(settings->cheats & (1 << CHEAT_STAR_POWER)){
-            pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
-        }
-        if(settings->cheats & (1 << CHEAT_STAR_PIECES)){
-            pm_player.stats.star_pieces = 160;
-        }
-        if(settings->cheats & (1 << CHEAT_PERIL)){
-            pm_player.stats.hp = 1;
-        }
-        if(settings->cheats & (1 << CHEAT_BREAK)){
-            int32_t third_byte_mask = 0xFFFF00FF;
-            int32_t check_mask = 0x0000FF00;
+    if(settings->cheats & (1 << CHEAT_HP)){
+        pm_player.stats.hp = pm_player.stats.max_hp;
+    }
+    if(settings->cheats & (1 << CHEAT_FP)){
+        pm_player.stats.fp = pm_player.stats.max_fp;
+    }
+    if(settings->cheats & (1 << CHEAT_COINS)){
+        pm_player.stats.coins = 999;
+    }
+    if(settings->cheats & (1 << CHEAT_STAR_POWER)){
+        pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
+        pm_player.star_power.partial_bars_filled = 0;
+    }
+    if(settings->cheats & (1 << CHEAT_STAR_PIECES)){
+        pm_player.stats.star_pieces = 160;
+    }
+    if(settings->cheats & (1 << CHEAT_PERIL)){
+        pm_player.stats.hp = 1;
+    }
+    if(settings->cheats & (1 << CHEAT_BREAK)){
+        int32_t third_byte_mask = 0xFFFF00FF;
+        int32_t check_mask = 0x0000FF00;
 
-            if((pm_player.flags & check_mask) == 0x2000){
-                pm_player.flags &= third_byte_mask;
-            }
+        if((pm_player.flags & check_mask) == 0x2000){
+            pm_player.flags &= third_byte_mask;
         }
     }
 
     /* handle command bindings */
-    {
-        for (int i = 0; i < COMMAND_MAX; ++i) {
-            _Bool active = 0;
-            switch (fp_commands[i].command_type) {
-                case COMMAND_HOLD:       active = input_bind_held(i);        break;
-                case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
-                case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
-            }
-            if (fp_commands[i].proc && active){
-                fp_commands[i].proc();
-            }
+    for (int i = 0; i < COMMAND_MAX; ++i) {
+        _Bool active = 0;
+        switch (fp_commands[i].command_type) {
+            case COMMAND_HOLD:       active = input_bind_held(i);        break;
+            case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
+            case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
+        }
+        if (fp_commands[i].proc && active){
+            fp_commands[i].proc();
         }
     }
 
     /* draw and animate menus */
-    {
-        while (fp.menu_active && menu_think(fp.main_menu))
-          ;
-        while (menu_think(fp.global))
-          ;
+    while (fp.menu_active && menu_think(fp.main_menu))
+      ;
+    while (menu_think(fp.global))
+      ;
 
-        if (fp.menu_active){
-          menu_draw(fp.main_menu);
-        }
-        menu_draw(fp.global);
+    if (fp.menu_active){
+      menu_draw(fp.main_menu);
     }
+    menu_draw(fp.global);
 
     /* draw log */
-    {
-        for (int i = SETTINGS_LOG_MAX - 1; i >= 0; --i) {
-            const int fade_begin = 20;
-            const int fade_duration = 20;
-            struct log_entry *ent = &fp.log[i];
-            uint8_t msg_alpha;
-            if (!ent->msg)
-                continue;
-            ++ent->age;
-            if (ent->age > (fade_begin + fade_duration)) {
-                free(ent->msg);
-                ent->msg = NULL;
-                continue;
-            }
-            else if (!settings->bits.log){
-                continue;
-            }
-            else if (ent->age > fade_begin){
-                msg_alpha = 0xFF - (ent->age - fade_begin) * 0xFF / fade_duration;
-            }
-            else{
-              msg_alpha = 0xFF;
-            }
-            msg_alpha = msg_alpha * alpha / 0xFF;
-            int msg_x = settings->log_x - cw * strlen(ent->msg);
-            int msg_y = settings->log_y - ch * i;
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(0xC0C0C0, msg_alpha));
-            gfx_printf(font, msg_x, msg_y, "%s", ent->msg);
+    for (int i = SETTINGS_LOG_MAX - 1; i >= 0; --i) {
+        const int fade_begin = 20;
+        const int fade_duration = 20;
+        struct log_entry *ent = &fp.log[i];
+        uint8_t msg_alpha;
+        if (!ent->msg)
+            continue;
+        ++ent->age;
+        if (ent->age > (fade_begin + fade_duration)) {
+            free(ent->msg);
+            ent->msg = NULL;
+            continue;
         }
-    }   
+        else if (!settings->bits.log){
+            continue;
+        }
+        else if (ent->age > fade_begin){
+            msg_alpha = 0xFF - (ent->age - fade_begin) * 0xFF / fade_duration;
+        }
+        else{
+          msg_alpha = 0xFF;
+        }
+        msg_alpha = msg_alpha * alpha / 0xFF;
+        int msg_x = settings->log_x - cw * strlen(ent->msg);
+        int msg_y = settings->log_y - ch * i;
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(0xC0C0C0, msg_alpha));
+        gfx_printf(font, msg_x, msg_y, "%s", ent->msg);
+    }
 
 
     gfx_flush();

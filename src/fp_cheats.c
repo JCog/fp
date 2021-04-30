@@ -62,8 +62,8 @@ struct menu *create_cheats_menu(void)
     menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
     
     /*build menu*/
-    menu_add_static(&menu, 0, 1, "encounters:", 0xC0C0C0);
-    menu_add_option(&menu, 12, 1, "normal\0""no encounters\0""defeat on contact\0""auto-win\0""auto-runaway\0", battle_proc, NULL);
+    menu_add_static(&menu, 0, 1, "encounters", 0xC0C0C0);
+    menu_add_option(&menu, 11, 1, "normal\0""no encounters\0""defeat on contact\0""auto-win\0""auto-runaway\0", battle_proc, NULL);
     int i;
     for (i = 0; i < CHEAT_MAX; ++i) {
         menu_add_checkbox(&menu, 0, 3 + i, cheat_proc, (void*)i);

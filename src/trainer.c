@@ -53,7 +53,6 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 
     
     int menuY = 0;
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
     gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
     gfx_printf(font, x, y + chHeight * menuY, "angle: ");
@@ -94,7 +93,6 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
         }
     }
 
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * 0, "effects: ");
     if (effect_count == 81) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));

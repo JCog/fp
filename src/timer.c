@@ -113,12 +113,12 @@ void create_timer_menu(struct menu *menu)
     menu_add_button(menu, 0, y_main, "start", start_proc, NULL);
     menu_add_button(menu, 6, y_main++, "reset", reset_proc, NULL);
     y_main++;
-    menu_add_static(menu, 0, y_main, "timer status:", 0xC0C0C0);
-    menu_add_static_custom(menu, 16, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
-    menu_add_static(menu, 0, y_main, "cutscene count:", 0xC0C0C0);
-    menu_add_intinput(menu, 16, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
-    menu_add_static(menu, 0, y_main, "show timer:", 0xC0C0C0);
-    menu_add_checkbox(menu, 16, y_main++, checkbox_mod_proc, &fp.timer.show);
-    menu_add_static(menu, 0, y_main, "timer logging:", 0xC0C0C0);
-    menu_add_checkbox(menu, 16, y_main++, checkbox_mod_proc, &fp.timer.logging);
+    menu_add_static(menu, 0, y_main, "timer status", 0xC0C0C0);
+    menu_add_static_custom(menu, 15, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
+    menu_add_static(menu, 0, y_main, "cutscene count", 0xC0C0C0);
+    menu_add_intinput(menu, 15, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
+    menu_add_static(menu, 0, y_main, "show timer", 0xC0C0C0);
+    menu_add_checkbox(menu, 15, y_main++, checkbox_mod_proc, &fp.timer.show);
+    menu_add_static(menu, 0, y_main, "timer logging", 0xC0C0C0);
+    menu_add_checkbox(menu, 15, y_main++, checkbox_mod_proc, &fp.timer.logging);
 }
