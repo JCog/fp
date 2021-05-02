@@ -47,14 +47,19 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     struct gfx_font *font = draw_params->font;
     int x = draw_params->x;
     int y = draw_params->y;
+    int chHeight = menu_get_cell_height(item->owner, 1);
 
     int64_t timer_count = 0;
+    int32_t lag_frames = 0;
     switch (fp.timer.state) {
         case 2:
             timer_count = fp.cpu_counter - fp.timer.start;
+            lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2
+                         - (pm_status.frame_counter - fp.timer.frame_start);
             break;
         case 3:
             timer_count = fp.timer.end - fp.timer.start;
+            lag_frames = (fp.timer.lag_end - fp.timer.lag_start) / 2 - (fp.timer.frame_end - fp.timer.frame_start);
             break;
     }
 
@@ -66,14 +71,15 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     seconds %= 60;
     minutes %= 60;
     if (hours > 0) {
-        gfx_printf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
+        gfx_printf(font, x, y, "timer %d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
     }
     else if (minutes > 0) {
-        gfx_printf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
+        gfx_printf(font, x, y, "timer %d:%02d.%02d", minutes, seconds, hundredths);
     }
     else {
-        gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
+        gfx_printf(font, x, y, "timer %d.%02d", seconds, hundredths);
     }
+    gfx_printf(font, x, y + chHeight, "lag   %d", lag_frames);
     return 1;
 }
 
@@ -110,6 +116,7 @@ void create_timer_menu(struct menu *menu)
 
     /*build menu*/
     menu_add_static_custom(menu, 0, y_main++, timer_draw_proc, NULL, 0xC0C0C0);
+    y_main++;
     menu_add_button(menu, 0, y_main, "start", start_proc, NULL);
     menu_add_button(menu, 6, y_main++, "reset", reset_proc, NULL);
     y_main++;

@@ -364,8 +364,13 @@ typedef struct{
     uint8_t         iframe_timer;           /* 0x0002 */
 }unk4_ctxt_t;
 
+typedef struct{
+    uint32_t vi_frames;
+}unk5_ctxt_t;
+
 /* Addresses */
 #define pm_status_addr         0x80074004
+#define pm_unk5_addr           0x80093B64
 #define pm_unk1_addr           0x8009A5A8
 #define pm_gfx_addr            0x8009A64C
 #define pm_unk2_addr           0x8009E6D0
@@ -383,6 +388,7 @@ typedef struct{
 
 /* Data */
 #define pm_status             (*(status_ctxt_t*)      pm_status_addr)
+#define pm_unk5               (*(unk5_ctxt_t*)        pm_unk5_addr)
 #define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)

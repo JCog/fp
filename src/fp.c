@@ -81,6 +81,7 @@ void fp_main(void){
 
     /* draw and update timer */
     int64_t timer_count = 0;
+    int32_t lag_frames = 0;
     _Bool in_cutscene = pm_player.flags & 0x00002000;
     switch (fp.timer.state) {
         case 0:
@@ -90,6 +91,8 @@ void fp_main(void){
             if (fp.timer.prev_cutscene_state && !in_cutscene) {
                 fp.timer.state = 2;
                 fp.timer.start = fp.cpu_counter;
+                fp.timer.lag_start = pm_unk5.vi_frames;
+                fp.timer.frame_start = pm_status.frame_counter;
                 if (fp.timer.logging) {
                     add_log("timer started");
                 }
@@ -106,13 +109,18 @@ void fp_main(void){
             if (fp.timer.cutscene_count == fp.timer.cutscene_target) {
                 fp.timer.state = 3;
                 fp.timer.end = fp.cpu_counter;
+                fp.timer.lag_end = pm_unk5.vi_frames;
+                fp.timer.frame_end = pm_status.frame_counter;
                 add_log("timer stopped");
             }
             timer_count = fp.cpu_counter - fp.timer.start;
+            lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2
+                - (pm_status.frame_counter - fp.timer.frame_start);
             fp.timer.prev_state = 2;
             break;
         case 3:
             timer_count = fp.timer.end - fp.timer.start;
+            lag_frames = (fp.timer.lag_end - fp.timer.lag_start) / 2 - (fp.timer.frame_end - fp.timer.frame_start);
             fp.timer.prev_state = 3;
             break;
     }
@@ -137,6 +145,7 @@ void fp_main(void){
         else {
             gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
         }
+        gfx_printf(font, x, y + ch, "%d", lag_frames);
     }
 
     /* show version on startup */

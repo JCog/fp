@@ -14,6 +14,10 @@ struct log_entry{
 struct timer {
     int64_t         start;
     int64_t         end;
+    uint32_t        lag_start;
+    uint32_t        lag_end;
+    uint16_t        frame_start;
+    uint16_t        frame_end;
     _Bool           show;
     _Bool           logging;
     _Bool           prev_cutscene_state;
