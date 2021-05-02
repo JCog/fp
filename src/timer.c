@@ -58,21 +58,21 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
             break;
     }
 
-    int tenths = timer_count * 10 / fp.cpu_counter_freq;
-    int seconds = tenths / 10;
+    int hundredths = timer_count * 100 / fp.cpu_counter_freq;
+    int seconds = hundredths / 100;
     int minutes = seconds / 60;
     int hours = minutes / 60;
-    tenths %= 10;
+    hundredths %= 100;
     seconds %= 60;
     minutes %= 60;
     if (hours > 0) {
-        gfx_printf(font, x, y, "%d:%02d:%02d.%d", hours, minutes, seconds, tenths);
+        gfx_printf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
     }
     else if (minutes > 0) {
-        gfx_printf(font, x, y, "%d:%02d.%d", minutes, seconds, tenths);
+        gfx_printf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
     }
     else {
-        gfx_printf(font, x, y, "%d.%d", seconds, tenths);
+        gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
     }
     return 1;
 }
