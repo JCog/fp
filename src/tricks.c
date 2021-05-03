@@ -102,6 +102,14 @@ void load_staircase_skip() {
     warp(7, 4, 0);
 }
 
+void load_pit() {
+    //TODO: figure out how defeated enemy flags work properly
+    uint8_t *enemies_defeated = (uint8_t*)0x800B10F3; //JP address for koopas in pit
+    *enemies_defeated = 0;
+    set_global_flag(0x29a, 0); //pit not cleared
+    warp(7,7,0);
+}
+
 void load_pie_jumps() {
     set_partner(KOOPER);
     warp(7, 3, 3);
@@ -393,6 +401,7 @@ void load_trick(int8_t trick) {
         case OOT_ACE:                   load_oot_ace();                     break;
 
         case STAIRCASE_SKIP:            load_staircase_skip();              break;
+        case PIT:                       load_pit();                         break;
         case PIE_JUMPS:                 load_pie_jumps();                   break;
         case LOG_SKIP:                  load_log_skip();                    break;
 
@@ -478,6 +487,11 @@ static void oot_ace_proc(struct menu_item *item, void *data) {
 static void staircase_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = STAIRCASE_SKIP;
     load_staircase_skip();
+}
+
+static void pit_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = PIT;
+    load_pit();
 }
 
 static void pie_jumps_proc(struct menu_item *item, void *data) {
@@ -721,6 +735,7 @@ void create_tricks_menu(struct menu *menu)
     page = &pages[1];
     menu_add_static(page, 0, y_tab++, "chapter 1", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "staircase skip", staircase_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "the pit", pit_proc, NULL);
     menu_add_button(page, 0, y_tab++, "pie jumps", pie_jumps_proc, NULL);
     menu_add_button(page, 0, y_tab++, "log skip", log_skip_proc, NULL);
 

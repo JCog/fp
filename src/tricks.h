@@ -6,6 +6,7 @@ enum tricks {
     RETRIGGER_PROLOGUE,
     OOT_ACE,
     STAIRCASE_SKIP,
+    PIT,
     PIE_JUMPS,
     LOG_SKIP,
     EARLY_SEED,
