@@ -333,9 +333,9 @@ void init(){
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_warps_menu(), "warps");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_cheats_menu(), "cheats");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
-    //menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
     //menu_add_submenu(fp.main_menu, 0, menu_index++, create_watches_menu(), "watches");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
 

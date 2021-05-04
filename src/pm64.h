@@ -13,6 +13,12 @@ typedef struct{
                                                 /* size: 0x000C */
 }xyz_t;
 
+typedef struct {
+    int16_t         x;
+    int16_t         y;
+    int16_t         z;
+}vec3s_t;
+
 typedef struct{
     int8_t          x_cardinal;                 /* 0x0000 */
     int8_t          y_cardinal;                 /* 0x0001 */
@@ -97,6 +103,22 @@ typedef struct{
     uint16_t        frame_counter;              /* 0x0134 */
     char            unk_136[0x02];              /* 0x0136 */
     int32_t         next_rng;                   /* 0x0138 */
+    int16_t         unk_13C;                    /* 0x013C */
+    char            unk_13E[0x0A];              /* 0x013E */
+    int16_t         enable_background;          /* 0x0148 */ /* (bit 2 is also used for something) */
+    int16_t         background_min_w;           /* 0x014A */
+    int16_t         background_min_h;           /* 0x014C */
+    int16_t         background_max_w;           /* 0x014E */
+    int16_t         background_max_h;           /* 0x0150 */
+    int16_t         background_x_offset;        /* 0x0152 */ /* used for parallax scroll */
+    void            *background_raster;         /* 0x0154 */
+    void            *background_palette;        /* 0x0158 */
+    int16_t         unk_15C;                    /* 0x015C */
+    uint16_t        unk_15E;                    /* 0x015E */
+    vec3s_t         saved_pos;                  /* 0x0160 */
+    uint8_t         save_slot;                  /* 0x0166 */
+    uint8_t         load_type;                  /* 0x0167 */ /* 0 = from map, 1 = from main menu */
+    int32_t         save_count;                 /* 0x0168 */
 
 }status_ctxt_t;
 
@@ -248,7 +270,8 @@ typedef struct{
     uint8_t         full_bars_filled;           /* 0x0002 */
     uint8_t         partial_bars_filled;        /* 0x0003 */
     uint8_t         beam_rank;                  /* 0x0004 */ /*1 for star beam, 2 for peach beam*/
-                                                /* size: 0x0005 */
+    char            unk_0x05[0x01];             /* 0x0005 */
+                                                /* size: 0x0006 */
 }star_power_t;
 
 typedef struct{
@@ -337,7 +360,6 @@ typedef struct{
     merlee_t        merlee;                     /* 0x0550 */
     star_power_t    star_power;                 /* 0x0556 */
 
-
 }player_ctxt_t;
 
 typedef struct{
@@ -369,6 +391,7 @@ typedef struct{
 }unk5_ctxt_t;
 
 /* Addresses */
+#define pm_LoadGame_addr       0x8002B290
 #define pm_status_addr         0x80074004
 #define pm_unk5_addr           0x80093B64
 #define pm_unk1_addr           0x8009A5A8
@@ -382,7 +405,9 @@ typedef struct{
 #define pm_hud_addr            0x8010F118
 #define pm_player_addr         0x8010F188
 #define pm_GameUpdate_addr     0x801181D4
+#define pm_PlaySfx_addr        0x8014ED64
 #define pm_warp_addr           0x80156740
+#define pm_SaveGame_addr       0x802DC150
 #define pm_ace_addr            0x807BFFFC
 #define pm_ace_store_addr      0x807D0000
 
@@ -404,9 +429,15 @@ typedef struct{
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 
 /*Function Prototypes*/
+typedef void (*pm_LoadGame_t) (uint8_t slot);
 typedef void (*pm_GameUpdate_t) ();
+typedef void (*pm_PlaySfx_t) (int32_t sound_id);
+typedef void (*pm_SaveGame_t) ();
 
 /*Functions*/
+#define pm_LoadGame           ((pm_LoadGame_t)    pm_LoadGame_addr)
 #define pm_GameUpdate         ((pm_GameUpdate_t)  pm_GameUpdate_addr)
+#define pm_PlaySfx            ((pm_PlaySfx_t)     pm_PlaySfx_addr)
+#define pm_SaveGame           ((pm_SaveGame_t)    pm_SaveGame_addr)
 
 #endif
