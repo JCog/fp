@@ -39,6 +39,8 @@ void settings_load_default(void){
     d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
     d->binds[COMMAND_COORDS] = input_bind_make(2, BUTTON_R, BUTTON_D_RIGHT);
     d->binds[COMMAND_TRICK] = input_bind_make(2, BUTTON_R, BUTTON_Z);
+    d->binds[COMMAND_SAVE_GAME] = input_bind_make(2, BUTTON_L, BUTTON_D_LEFT);
+    d->binds[COMMAND_LOAD_GAME] = input_bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
 }
 
 void apply_menu_settings(){

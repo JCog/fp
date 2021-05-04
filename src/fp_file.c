@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "settings.h"
 #include "fp.h"
+#include "commands.h"
 
 static void save_slot_dec_proc(struct menu_item *item, void *data)
 {
@@ -15,17 +16,11 @@ static void save_slot_inc_proc(struct menu_item *item, void *data)
 }
 
 static void save_proc() {
-    pm_SaveGame();
-    pm_PlaySfx(0x10);
-    add_log("saved to slot %d", pm_status.save_slot);
+    command_save_game_proc();
 }
 
 static void load_proc() {
-    pm_LoadGame(pm_status.save_slot);
-    pm_unk2.room_change_state = 1;
-    uint32_t val = 0x80035DFC;
-    pm_warp.room_change_ptr = val;
-    add_log("loaded from slot %d", pm_status.save_slot);
+    command_load_game_proc();
 }
 
 struct menu *create_file_menu(void)

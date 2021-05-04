@@ -12,14 +12,16 @@
 struct command fp_commands[COMMAND_MAX] = {
     {"show/hide menu",   COMMAND_PRESS_ONCE,  0,   NULL},
     {"return from menu", COMMAND_PRESS_ONCE,  0,   NULL},
-    {"levitate",         COMMAND_HOLD,        0,   levitate_proc},
-    {"turbo",            COMMAND_PRESS_ONCE,  0,   turbo_proc},
-    {"save position",    COMMAND_PRESS_ONCE,  0,   save_pos_proc},
-    {"load position",    COMMAND_PRESS_ONCE,  0,   load_pos_proc},
-    {"lzs",              COMMAND_PRESS_ONCE,  0,   lzs_proc},
-    {"reload room",      COMMAND_PRESS_ONCE,  0,   reload_proc},
-    {"show coordinates", COMMAND_PRESS_ONCE,  0,   coords_proc},
-    {"load trick",       COMMAND_PRESS_ONCE,  0,   trick_proc}
+    {"levitate",         COMMAND_HOLD,        0,   command_levitate_proc},
+    {"turbo",            COMMAND_PRESS_ONCE,  0,   command_turbo_proc},
+    {"save position",    COMMAND_PRESS_ONCE,  0,   command_save_pos_proc},
+    {"load position",    COMMAND_PRESS_ONCE,  0,   command_load_pos_proc},
+    {"lzs",              COMMAND_PRESS_ONCE,  0,   command_lzs_proc},
+    {"reload room",      COMMAND_PRESS_ONCE,  0,   command_reload_proc},
+    {"show coordinates", COMMAND_PRESS_ONCE,  0,   command_coords_proc},
+    {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
+    {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
+    {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc}
 };
 
 void show_menu(){
@@ -61,7 +63,7 @@ void add_log(const char *fmt, ...){
     ent->age = 0;
 }
 
-void levitate_proc(){
+void command_levitate_proc(){
     if (pm_status.peach_flags == 0) {
         pm_player.flags |= 3;
         pm_player.y_speed = 11;
@@ -70,7 +72,7 @@ void levitate_proc(){
     }
 }
 
-void turbo_proc(){
+void command_turbo_proc(){
     if(pm_player.run_speed == 4.0){
         pm_player.run_speed = 24.0;
         add_log("turbo enabled");
@@ -80,7 +82,7 @@ void turbo_proc(){
     }
 }
 
-void save_pos_proc(){
+void command_save_pos_proc(){
     fp.saved_x = pm_player.position.x;
     fp.saved_y = pm_player.position.y;
     fp.saved_z = pm_player.position.z;
@@ -89,7 +91,7 @@ void save_pos_proc(){
     add_log("position saved");
 }
 
-void load_pos_proc(){
+void command_load_pos_proc(){
     pm_player.position.x = fp.saved_x;
     pm_player.position.y = fp.saved_y;
     pm_player.position.z = fp.saved_z;
@@ -99,7 +101,7 @@ void load_pos_proc(){
     
 }
 
-void lzs_proc(){
+void command_lzs_proc(){
     if(pm_unk1.saveblock_freeze == 0){
         pm_unk1.saveblock_freeze = 1;
         add_log("lzs enabled");
@@ -110,16 +112,30 @@ void lzs_proc(){
 
 }
 
-void reload_proc(){
+void command_reload_proc(){
     pm_unk2.room_change_state = 1;
     uint32_t val = 0x80035DFC;
     pm_warp.room_change_ptr = val;
 }
 
-void coords_proc(){
+void command_coords_proc(){
     fp.coord_active = !fp.coord_active;
 }
 
-void trick_proc(){
+void command_trick_proc(){
     load_trick(fp.saved_trick);
+}
+
+void command_save_game_proc() {
+    pm_SaveGame();
+    pm_PlaySfx(0x10);
+    add_log("saved to slot %d", pm_status.save_slot);
+}
+
+void command_load_game_proc() {
+    pm_LoadGame(pm_status.save_slot);
+    pm_unk2.room_change_state = 1;
+    uint32_t val = 0x80035DFC;
+    pm_warp.room_change_ptr = val;
+    add_log("loaded from slot %d", pm_status.save_slot);
 }

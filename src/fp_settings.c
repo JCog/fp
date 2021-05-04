@@ -184,7 +184,7 @@ struct menu *create_settings_menu(void)
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         for (int j = 0; j < page_length; j++) {
             int n = i * page_length + j;
-            if (n >= COMMAND_MAX - 1) { //honestly not sure why the -1 is needed
+            if (n >= COMMAND_MAX) {
                 break;
             }
             if (fp_commands[n].proc) {

@@ -14,7 +14,8 @@ enum commands{
     COMMAND_RELOAD,
     COMMAND_COORDS,
     COMMAND_TRICK,
-    COMMAND_BREAK,
+    COMMAND_SAVE_GAME,
+    COMMAND_LOAD_GAME,
     COMMAND_MAX
 };
 
@@ -33,15 +34,17 @@ struct command {
 
 void show_menu();
 void hide_menu();
-void levitate_proc();
-void turbo_proc();
-void levitate_proc();
-void save_pos_proc();
-void load_pos_proc();
-void lzs_proc();
-void reload_proc();
-void coords_proc();
-void trick_proc();
+void command_levitate_proc();
+void command_turbo_proc();
+void command_levitate_proc();
+void command_save_pos_proc();
+void command_load_pos_proc();
+void command_lzs_proc();
+void command_reload_proc();
+void command_coords_proc();
+void command_trick_proc();
+void command_save_game_proc();
+void command_load_game_proc();
 
 extern struct command fp_commands[COMMAND_MAX];
 
