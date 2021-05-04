@@ -5,6 +5,8 @@
 #include "commands.h"
 #include "pm64.h"
 
+#define SETTINGS_SAVE_FILE_SIZE     0x1380
+#define SETTINGS_PROFILE_MAX        4
 #define SETTINGS_VERSION            0x0001
 
 #define SETTINGS_WATCHES_MAX        18
@@ -12,9 +14,6 @@
 #define SETTINGS_MEMFILE_MAX        10
 #define SETTINGS_BIND_MAX           COMMAND_MAX
 #define SETTINGS_LOG_MAX            4
-
-#define SETTINGS_LAG_FRAMES         0
-#define SETTINGS_LAG_SECONDS        1
 
 #define SETTINGS_BREAK_NORMAL       0
 #define SETTINGS_BREAK_AGGRESSIVE   1
@@ -62,12 +61,13 @@ struct settings_data{
     int16_t               watch_y[SETTINGS_WATCHES_MAX];
     uint16_t              binds[SETTINGS_BIND_MAX];
     struct watch_info     watch_info[SETTINGS_WATCHES_MAX];
-    uint8_t               teleport_slot;
     uint8_t               n_watches;
 };
 
 struct settings_header{
     uint16_t  version;
+    uint16_t  data_size;
+    uint16_t  data_checksum;
 };
 
 struct settings{

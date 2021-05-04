@@ -391,6 +391,8 @@ typedef struct{
 }unk5_ctxt_t;
 
 /* Addresses */
+#define pm_FioReadFlash_addr   0x8002B828
+#define pm_FioWriteFlash_addr  0x8002B908
 #define pm_LoadGame_addr       0x8002B290
 #define pm_status_addr         0x80074004
 #define pm_unk5_addr           0x80093B64
@@ -429,15 +431,19 @@ typedef struct{
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 
 /*Function Prototypes*/
+typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
+typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_LoadGame_t) (uint8_t slot);
 typedef void (*pm_GameUpdate_t) ();
 typedef void (*pm_PlaySfx_t) (int32_t sound_id);
 typedef void (*pm_SaveGame_t) ();
 
 /*Functions*/
-#define pm_LoadGame           ((pm_LoadGame_t)    pm_LoadGame_addr)
-#define pm_GameUpdate         ((pm_GameUpdate_t)  pm_GameUpdate_addr)
-#define pm_PlaySfx            ((pm_PlaySfx_t)     pm_PlaySfx_addr)
-#define pm_SaveGame           ((pm_SaveGame_t)    pm_SaveGame_addr)
+#define pm_FioReadFlash       ((pm_FioReadFlash_t)       pm_FioReadFlash_addr)
+#define pm_FioWriteFlash      ((pm_FioWriteFlash_t)      pm_FioWriteFlash_addr)
+#define pm_LoadGame           ((pm_LoadGame_t)           pm_LoadGame_addr)
+#define pm_GameUpdate         ((pm_GameUpdate_t)         pm_GameUpdate_addr)
+#define pm_PlaySfx            ((pm_PlaySfx_t)            pm_PlaySfx_addr)
+#define pm_SaveGame           ((pm_SaveGame_t)           pm_SaveGame_addr)
 
 #endif

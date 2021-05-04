@@ -30,6 +30,8 @@ struct timer {
 
 typedef struct{
     _Bool                   ready;
+    uint8_t                 profile;
+    _Bool                   settings_loaded;
     int64_t                 cpu_counter;
     int32_t                 cpu_counter_freq;
     struct timer            timer;

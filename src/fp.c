@@ -29,6 +29,12 @@ static void update_cpu_counter(void) {
 }
 
 void fp_main(void) {
+    if (!fp.settings_loaded) {
+        if (settings_load(fp.profile)) {
+            apply_menu_settings();
+        }
+        fp.settings_loaded = 1;
+    }
     update_cpu_counter();
     gfx_mode_init();
     input_update();
@@ -334,6 +340,7 @@ void init() {
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM,G_CC_MODULATEIA_PRIM));
 
     /*init fp variables*/
+    fp.profile = 0;
     fp.menu_active = 0;
     fp.coord_active = 0;
     fp.version_shown = 0;

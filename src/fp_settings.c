@@ -17,6 +17,18 @@ static uint16_t font_options[] = {
     RES_FONT_PIXELZIM,
 };
 
+static void profile_dec_proc(struct menu_item *item, void *data)
+{
+    fp.profile += SETTINGS_PROFILE_MAX - 1;
+    fp.profile %= SETTINGS_PROFILE_MAX;
+}
+
+static void profile_inc_proc(struct menu_item *item, void *data)
+{
+    fp.profile += 1;
+    fp.profile %= SETTINGS_PROFILE_MAX;
+}
+
 static int font_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (settings->bits.font_resource != font_options[menu_option_get(item)]) {
@@ -150,6 +162,23 @@ static void restore_settings_proc(struct menu_item *item, void *data)
     add_log("loaded defaults");
 }
 
+static void save_settings_proc(struct menu_item *item, void *data)
+{
+    settings_save(fp.profile);
+    add_log("saved profile %i", fp.profile);
+}
+
+static void load_settings_proc(struct menu_item *item, void *data)
+{
+    if (settings_load(fp.profile)) {
+        apply_menu_settings();
+        add_log("loaded profile %i", fp.profile);
+    }
+    else {
+        add_log("could not load");
+    }
+}
+
 struct menu *create_settings_menu(void)
 {
     static struct menu menu;
@@ -165,6 +194,10 @@ struct menu *create_settings_menu(void)
     int MENU_X = 16;
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
+    menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
+    menu_add_button(&menu, MENU_X, y, "-", profile_dec_proc, NULL);
+    menu_add_watch(&menu, MENU_X + 2, y, (uint32_t) & fp.profile, WATCH_TYPE_U8);
+    menu_add_button(&menu, MENU_X + 4, y++, "+", profile_inc_proc, NULL);
     menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
     menu_add_option(&menu, 16, y++, "fipps\0""notalot35\0" "origami mommy\0"
                                   "pc senior\0""pixel intv\0""press start 2p\0"
@@ -184,6 +217,8 @@ struct menu *create_settings_menu(void)
     menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);
     menu_add_submenu(&menu, 0, y++, &commands, "commands");
     /* settings commands */
+    menu_add_button(&menu, 0, y++, "save settings", save_settings_proc, NULL);
+    menu_add_button(&menu, 0, y++, "load settings", load_settings_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore defaults", restore_settings_proc, NULL);
 
     /* populate commands menu */

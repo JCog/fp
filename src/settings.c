@@ -1,16 +1,34 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include "input.h"
 #include "fp.h"
 #include "resource.h"
 #include "settings.h"
 
-static _Alignas(16)
+static _Alignas(128)
 struct settings       settings_store;
 struct settings_data *settings = &settings_store.data;
 
+static uint16_t settings_checksum_compute(struct settings *settings) {
+    uint16_t checksum = 0;
+    uint16_t *p = (void*)&settings->data;
+    uint16_t *e = p + sizeof(settings->data) / sizeof(*p);
+    while (p < e) {
+        checksum += *p++;
+    }
+    return checksum;
+}
+
+static _Bool settings_validate(struct settings *settings) {
+    return settings->header.version == SETTINGS_VERSION &&
+           settings->header.data_size == sizeof(settings->data) &&
+           settings->header.data_checksum == settings_checksum_compute(settings);
+}
+
 void settings_load_default(void){
     settings_store.header.version = SETTINGS_VERSION;
+    settings_store.header.data_size = sizeof(settings_store.data);
     struct settings_data *d = &settings_store.data;
 
     d->bits.font_resource = RES_FONT_PRESSSTART2P;
@@ -54,4 +72,34 @@ void apply_menu_settings(){
     menu_set_pyoffset(fp.main_menu, settings->menu_y);
     menu_imitate(fp.global, fp.main_menu);
     /*watchlist_fetch(gz.menu_watchlist);*/
+}
+
+void settings_save(int profile) {
+    uint16_t *checksum = &settings_store.header.data_checksum;
+    *checksum = settings_checksum_compute(&settings_store);
+
+    //read in save file in the same slot as the profile
+    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
+
+    //append settings data to the end and save to file
+    char *offset = start + SETTINGS_SAVE_FILE_SIZE;
+    memcpy(offset, &settings_store, sizeof(settings_store));
+    pm_FioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    free(start);
+}
+
+_Bool settings_load(int profile) {
+    //read in save data along with the settings data in the same slot as the profile
+    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+
+    struct settings *settings_temp = (struct settings*)(start + SETTINGS_SAVE_FILE_SIZE);
+    if (!settings_validate(settings_temp)) {
+        free(start);
+        return 0;
+    }
+    memcpy(&settings_store, settings_temp, sizeof(*settings_temp));
+    free(start);
+    return 1;
 }
