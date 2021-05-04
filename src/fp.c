@@ -126,7 +126,7 @@ void fp_main(void) {
                 fp.timer.start = fp.cpu_counter;
                 fp.timer.lag_start = pm_unk5.vi_frames;
                 fp.timer.frame_start = pm_status.frame_counter;
-                if (fp.timer.logging) {
+                if (settings->bits.timer_logging) {
                     add_log("timer started");
                 }
             }
@@ -135,7 +135,7 @@ void fp_main(void) {
         case 2:
             if (!fp.timer.prev_cutscene_state && in_cutscene) {
                 fp.timer.cutscene_count++;
-                if (fp.timer.logging && fp.timer.cutscene_count != fp.timer.cutscene_target) {
+                if (settings->bits.timer_logging && fp.timer.cutscene_count != fp.timer.cutscene_target) {
                     add_log("cutscene started");
                 }
             }
@@ -158,7 +158,7 @@ void fp_main(void) {
             break;
     }
     fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
-    if (fp.timer.moving || (fp.timer.show && !fp.menu_active && fp.timer.state > 0)) {
+    if (fp.timer.moving || (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
         int hundredths = timer_count * 100 / fp.cpu_counter_freq;
         int seconds = hundredths / 100;
         int minutes = seconds / 60;

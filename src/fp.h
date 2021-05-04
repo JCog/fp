@@ -18,8 +18,6 @@ struct timer {
     uint32_t        lag_end;
     uint16_t        frame_start;
     uint16_t        frame_end;
-    _Bool           show;
-    _Bool           logging;
     _Bool           prev_cutscene_state;
     uint8_t         state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
     uint8_t         prev_state;
@@ -32,6 +30,7 @@ typedef struct{
     _Bool                   ready;
     uint8_t                 profile;
     _Bool                   settings_loaded;
+    _Bool                   version_shown;
     int64_t                 cpu_counter;
     int32_t                 cpu_counter_freq;
     struct timer            timer;
@@ -40,7 +39,6 @@ typedef struct{
     struct menu             *global;
     _Bool                   menu_active;
     _Bool                   coord_active;
-    _Bool                   version_shown;
     struct log_entry        log[SETTINGS_LOG_MAX];
     float                   saved_x;
     float                   saved_y;

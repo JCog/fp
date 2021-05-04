@@ -13,17 +13,25 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        *p = 1;
-    }
-    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        *p = 0;
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, *p);
-    }
+static int show_timer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data)
+{
+    if (reason == MENU_CALLBACK_SWITCH_ON)
+        settings->bits.timer_show = 1;
+    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+        settings->bits.timer_show = 0;
+    else if (reason == MENU_CALLBACK_THINK)
+        menu_checkbox_set(item, settings->bits.timer_show);
+    return 0;
+}
+
+static int timer_logging_proc(struct menu_item *item, enum menu_callback_reason reason, void *data)
+{
+    if (reason == MENU_CALLBACK_SWITCH_ON)
+        settings->bits.timer_logging = 1;
+    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+        settings->bits.timer_logging = 0;
+    else if (reason == MENU_CALLBACK_THINK)
+        menu_checkbox_set(item, settings->bits.timer_logging);
     return 0;
 }
 
@@ -109,6 +117,7 @@ static int timer_status_draw_proc(struct menu_item *item, struct menu_draw_param
 void create_timer_menu(struct menu *menu)
 {
     int y_main = 0;
+    int MENU_X = 15;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -121,11 +130,11 @@ void create_timer_menu(struct menu *menu)
     menu_add_button(menu, 6, y_main++, "reset", reset_proc, NULL);
     y_main++;
     menu_add_static(menu, 0, y_main, "timer status", 0xC0C0C0);
-    menu_add_static_custom(menu, 15, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
+    menu_add_static_custom(menu, MENU_X, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
     menu_add_static(menu, 0, y_main, "cutscene count", 0xC0C0C0);
-    menu_add_intinput(menu, 15, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
+    menu_add_intinput(menu, MENU_X, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
     menu_add_static(menu, 0, y_main, "show timer", 0xC0C0C0);
-    menu_add_checkbox(menu, 15, y_main++, checkbox_mod_proc, &fp.timer.show);
+    menu_add_checkbox(menu, MENU_X, y_main++, show_timer_proc, NULL);
     menu_add_static(menu, 0, y_main, "timer logging", 0xC0C0C0);
-    menu_add_checkbox(menu, 15, y_main++, checkbox_mod_proc, &fp.timer.logging);
+    menu_add_checkbox(menu, MENU_X, y_main++, timer_logging_proc, NULL);
 }
