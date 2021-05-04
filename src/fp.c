@@ -34,6 +34,37 @@ void fp_main(void){
     gfx_mode_init();
     input_update();
 
+    /* handle emergency settings reset */
+    uint16_t pad_pressed = input_pressed();
+    if (pad_pressed) {
+        static const uint16_t input_list[] = {
+            BUTTON_D_UP,
+            BUTTON_D_UP,
+            BUTTON_D_DOWN,
+            BUTTON_D_DOWN,
+            BUTTON_D_LEFT,
+            BUTTON_D_RIGHT,
+            BUTTON_D_LEFT,
+            BUTTON_D_RIGHT,
+            BUTTON_B,
+            BUTTON_A,
+        };
+        static int input_pos = 0;
+        size_t input_list_length = sizeof(input_list) / sizeof(*input_list);
+        if (pad_pressed == input_list[input_pos]) {
+            ++input_pos;
+            if (input_pos == input_list_length) {
+                input_pos = 0;
+                settings_load_default();
+                apply_menu_settings();
+                add_log("default settings restored");
+            }
+        }
+        else {
+            input_pos = 0;
+        }
+    }
+
     struct gfx_font *font = menu_get_font(fp.main_menu, 1);
     uint8_t alpha = menu_get_alpha_i(fp.main_menu, 1);
     int cw = menu_get_cell_width(fp.main_menu, 1);
