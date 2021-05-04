@@ -16,6 +16,8 @@ enum commands{
     COMMAND_TRICK,
     COMMAND_SAVE_GAME,
     COMMAND_LOAD_GAME,
+    COMMAND_START_TIMER,
+    COMMAND_RESET_TIMER,
     COMMAND_MAX
 };
 
@@ -45,6 +47,8 @@ void command_coords_proc();
 void command_trick_proc();
 void command_save_game_proc();
 void command_load_game_proc();
+void command_start_timer_proc();
+void command_reset_timer_proc();
 
 extern struct command fp_commands[COMMAND_MAX];
 

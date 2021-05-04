@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "fp.h"
 #include "gfx.h"
+#include "commands.h"
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
@@ -36,18 +37,11 @@ static int timer_logging_proc(struct menu_item *item, enum menu_callback_reason 
 }
 
 static void start_proc() {
-    if (fp.timer.state == 0) {
-        fp.timer.state = 1;
-    }
-    else if (fp.timer.state == 3) {
-        fp.timer.state = 1;
-        fp.timer.cutscene_count = 0;
-    }
+    command_start_timer_proc();
 }
 
 static void reset_proc() {
-    fp.timer.state = 0;
-    fp.timer.cutscene_count = 0;
+    command_reset_timer_proc();
 }
 
 static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {

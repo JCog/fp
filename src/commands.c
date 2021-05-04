@@ -21,7 +21,9 @@ struct command fp_commands[COMMAND_MAX] = {
     {"show coordinates", COMMAND_PRESS_ONCE,  0,   command_coords_proc},
     {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
     {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
-    {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc}
+    {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc},
+    {"start timer",      COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
+    {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc}
 };
 
 void show_menu(){
@@ -130,6 +132,24 @@ void command_save_game_proc() {
     pm_SaveGame();
     pm_PlaySfx(0x10);
     add_log("saved to slot %d", pm_status.save_slot);
+}
+
+void command_start_timer_proc() {
+    if (fp.timer.state == 0) {
+        fp.timer.state = 1;
+        add_log("timer set to start");
+    }
+    else if (fp.timer.state == 3) {
+        fp.timer.state = 1;
+        fp.timer.cutscene_count = 0;
+        add_log("timer set to start");
+    }
+}
+
+void command_reset_timer_proc() {
+    fp.timer.state = 0;
+    fp.timer.cutscene_count = 0;
+    add_log("timer reset");
 }
 
 void command_load_game_proc() {

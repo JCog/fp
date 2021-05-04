@@ -158,7 +158,7 @@ void fp_main(void) {
             break;
     }
     fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
-    if (fp.timer.moving || (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
+    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) || (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
         int hundredths = timer_count * 100 / fp.cpu_counter_freq;
         int seconds = hundredths / 100;
         int minutes = seconds / 60;
