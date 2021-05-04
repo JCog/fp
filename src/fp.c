@@ -19,8 +19,7 @@ fp_ctxt_t fp = {
     .ready = 0, 
 };
 
-static void update_cpu_counter(void)
-{
+static void update_cpu_counter(void) {
     static uint32_t count = 0;
     unsigned int new_count;
     __asm__ ("mfc0    %0, $9;" : "=r"(new_count));
@@ -29,7 +28,7 @@ static void update_cpu_counter(void)
     count = new_count;
 }
 
-void fp_main(void){
+void fp_main(void) {
     update_cpu_counter();
     gfx_mode_init();
     input_update();
@@ -78,26 +77,23 @@ void fp_main(void){
 
         struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
-        gfx_printf(font, settings->input_display_x, settings->input_display_y,
-                   "%4i %4i", d_x, d_y);
-        static const int buttons[] =
-        {
+        gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
+        static const int buttons[] = {
           15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
         };
         for (int i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
           int b = buttons[i];
-          if (!(d_pad & (1 << b)))
-            continue;
+          if (!(d_pad & (1 << b))) {
+              continue;
+          }
           int x = (cw - texture->tile_width) / 2 + i * 10;
           int y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-          struct gfx_sprite sprite =
-          {
+          struct gfx_sprite sprite = {
             texture, b,
             settings->input_display_x + cw * 10 + x, settings->input_display_y + y,
             1.f, 1.f,
           };
-          gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b],
-                                                     alpha));
+          gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], alpha));
           gfx_sprite_draw(&sprite);
       }
     }
@@ -209,10 +205,10 @@ void fp_main(void){
     
     /* handle menu input */
     if (fp.menu_active) {
-        if (input_bind_pressed_raw(COMMAND_MENU)){
+        if (input_bind_pressed_raw(COMMAND_MENU)) {
             hide_menu();
         }
-        else if (input_bind_pressed(COMMAND_RETURN)){
+        else if (input_bind_pressed(COMMAND_RETURN)) {
             menu_return(fp.main_menu);
         }
         else {
@@ -233,30 +229,30 @@ void fp_main(void){
         show_menu();
     
     /* activate cheats */
-    if(settings->cheats & (1 << CHEAT_HP)){
+    if(settings->cheats & (1 << CHEAT_HP)) {
         pm_player.stats.hp = pm_player.stats.max_hp;
     }
-    if(settings->cheats & (1 << CHEAT_FP)){
+    if(settings->cheats & (1 << CHEAT_FP)) {
         pm_player.stats.fp = pm_player.stats.max_fp;
     }
-    if(settings->cheats & (1 << CHEAT_COINS)){
+    if(settings->cheats & (1 << CHEAT_COINS)) {
         pm_player.stats.coins = 999;
     }
-    if(settings->cheats & (1 << CHEAT_STAR_POWER)){
+    if(settings->cheats & (1 << CHEAT_STAR_POWER)) {
         pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
         pm_player.star_power.partial_bars_filled = 0;
     }
-    if(settings->cheats & (1 << CHEAT_STAR_PIECES)){
+    if(settings->cheats & (1 << CHEAT_STAR_PIECES)) {
         pm_player.stats.star_pieces = 160;
     }
-    if(settings->cheats & (1 << CHEAT_PERIL)){
+    if(settings->cheats & (1 << CHEAT_PERIL)) {
         pm_player.stats.hp = 1;
     }
-    if(settings->cheats & (1 << CHEAT_BREAK)){
+    if(settings->cheats & (1 << CHEAT_BREAK)) {
         int32_t third_byte_mask = 0xFFFF00FF;
         int32_t check_mask = 0x0000FF00;
 
-        if((pm_player.flags & check_mask) == 0x2000){
+        if((pm_player.flags & check_mask) == 0x2000) {
             pm_player.flags &= third_byte_mask;
         }
     }
@@ -269,7 +265,7 @@ void fp_main(void){
             case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
             case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
         }
-        if (fp_commands[i].proc && active){
+        if (fp_commands[i].proc && active) {
             fp_commands[i].proc();
         }
     }
@@ -280,7 +276,7 @@ void fp_main(void){
     while (menu_think(fp.global))
       ;
 
-    if (fp.menu_active){
+    if (fp.menu_active) {
       menu_draw(fp.main_menu);
     }
     menu_draw(fp.global);
@@ -291,21 +287,22 @@ void fp_main(void){
         const int fade_duration = 20;
         struct log_entry *ent = &fp.log[i];
         uint8_t msg_alpha;
-        if (!ent->msg)
+        if (!ent->msg) {
             continue;
+        }
         ++ent->age;
         if (ent->age > (fade_begin + fade_duration)) {
             free(ent->msg);
             ent->msg = NULL;
             continue;
         }
-        else if (!settings->bits.log){
+        else if (!settings->bits.log) {
             continue;
         }
-        else if (ent->age > fade_begin){
+        else if (ent->age > fade_begin) {
             msg_alpha = 0xFF - (ent->age - fade_begin) * 0xFF / fade_duration;
         }
-        else{
+        else {
           msg_alpha = 0xFF;
         }
         msg_alpha = msg_alpha * alpha / 0xFF;
@@ -319,16 +316,16 @@ void fp_main(void){
     gfx_flush();
 }
 
-static void main_return_proc(struct menu_item *item, void *data){
+static void main_return_proc(struct menu_item *item, void *data) {
     hide_menu();
 }
 
-void gamestate_main(){
+void gamestate_main() {
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
 
 }
 
-void init(){
+void init() {
     clear_bss();
     do_global_ctors();
 
@@ -443,10 +440,10 @@ static void init_stack(void (*func)(void)) {
 
 
 /* fp entry point - init stack, update game, and call main function */
-ENTRY void _start(void){
+ENTRY void _start(void) {
 
     init_gp();
-    if(!fp.ready){
+    if(!fp.ready) {
         init_stack(init);
     }
     gamestate_main();
