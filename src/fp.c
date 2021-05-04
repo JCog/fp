@@ -189,7 +189,7 @@ void fp_main(void) {
     if (!fp.version_shown) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 0, "fp");
-        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 1, "beta 0.2");
+        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 20 + ch * 1, "beta 0.3");
     }
 
     /* handle ace practice (should probably make toggleable at some point) */
