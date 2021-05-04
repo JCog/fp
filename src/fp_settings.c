@@ -85,6 +85,16 @@ static int menu_position_proc(struct menu_item *item, enum menu_callback_reason 
     return r;
 }
 
+static int timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.timer.moving = 1;
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.timer.moving = 0;
+    }
+    return generic_position_proc(item, reason, &settings->timer_x);
+}
+
 static int input_display_proc(struct menu_item *item,
                               enum menu_callback_reason reason,
                               void *data)
@@ -152,6 +162,7 @@ struct menu *create_settings_menu(void)
 
     /*build menu*/
     int y = 0;
+    int MENU_X = 16;
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
     menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
@@ -160,15 +171,17 @@ struct menu *create_settings_menu(void)
                                   "smw text nc\0""werdna's return\0""pixelzim\0",
                     font_proc, NULL);
     menu_add_static(&menu, 0, y, "drop shadow", 0xC0C0C0);
-    menu_add_checkbox(&menu, 16, y++, drop_shadow_proc, NULL);
+    menu_add_checkbox(&menu, MENU_X, y++, drop_shadow_proc, NULL);
     menu_add_static(&menu, 0, y, "menu position", 0xC0C0C0);
-    menu_add_positioning(&menu, 16, y++, menu_position_proc, NULL);
+    menu_add_positioning(&menu, MENU_X, y++, menu_position_proc, NULL);
+    menu_add_static(&menu, 0, y, "timer position", 0xC0C0C0);
+    menu_add_positioning(&menu, MENU_X, y++, timer_position_proc, NULL);
     menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
-    menu_add_checkbox(&menu, 16, y, input_display_proc, NULL);
-    menu_add_positioning(&menu, 18, y++, generic_position_proc, &settings->input_display_x);
+    menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
+    menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);
     menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
-    menu_add_checkbox(&menu, 16, y, log_proc, NULL);
-    menu_add_positioning(&menu, 18, y++, log_position_proc, NULL);
+    menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
+    menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);
     menu_add_submenu(&menu, 0, y++, &commands, "commands");
     /* settings commands */
     menu_add_button(&menu, 0, y++, "restore defaults", restore_settings_proc, NULL);

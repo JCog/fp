@@ -25,6 +25,7 @@ struct timer {
     uint8_t         prev_state;
     uint8_t         cutscene_target;
     uint8_t         cutscene_count;
+    _Bool           moving;
 };
 
 typedef struct{
