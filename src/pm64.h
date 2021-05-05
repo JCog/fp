@@ -75,24 +75,32 @@ typedef struct{
     int8_t          controller_plugged;         /* 0x0073 */ /*needs to be 1 otherwise "no controller" */
     uint8_t         battle_debug;               /* 0x0074 */ /* 0=normal, 1=enemies can't interact, 2=defeat enemies on contact, 3=auto-defeat enemies in battle, 4=auto run away */
     uint8_t         quizmo_debug;               /* 0x0075 */ /* 1 to force a quizmo spawn every time */
-    char            unk_0x76[0x06];             /* 0x0076 */
-    char            unk_0x7C[0x02];             /* 0x007C */
+    int8_t          unk_0x76;                   /* 0x0076 */
+    char            unk_0x77;                   /* 0x0077 */
+    int8_t          disable_scripts;            /* 0x0078 */
+    char            unk_0x79;                   /* 0x0079 */
+    int8_t          music_enabled;              /* 0x007A */
+    char            unk_0x7B;                   /* 0x007B */
+    int8_t          unk_0x7C;                   /* 0x007C */
+    int8_t          unk_0x7D;                   /* 0x007D */
     uint8_t         peach_flags;                /* 0x007E */ /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasUmbrella*/
     int8_t          peach_disguise;             /* 0x007F */ /*1 = koopatrol, 2 = hammer bro, 3 = clubba */
     uint8_t         peach_anim_idx;             /* 0x0080 */
     char            unk_0x84[0x05];             /* 0x0081 */
     uint16_t        group_id;                   /* 0x0086 */
-    uint16_t        group_id_copy;              /* 0x0088 */
-    char            unk_0x8A[0x02];             /* 0x008A */
+    uint16_t        group_id_copy;              /* 0x0088 */ /* used for calculating did_area_change */
+    int16_t         did_area_change;            /* 0x008A */
     uint16_t        room_id;                    /* 0x008C */
     uint16_t        entrance_id;                /* 0x008E */
-    char            unk_0x90[0x08];             /* 0x0090 */
+    uint16_t        unk_0x90;                   /* 0x0090 */
+    uint16_t        unk_0x92;                   /* 0x0092 */
+    float           loading_zone_tangent;       /* 0x0094 */
     xyz_t           player_position_copy;       /* 0x0098 */
     float           player_angle_copy;          /* 0x00A4 */
     char            unk_A8[0x04];               /* 0x00A8 */
     int8_t          load_menu_state;            /* 0x00AC */
     int8_t          menu_counter;               /* 0x00AD */
-    int8_t          b_skip_intro;               /* 0x00AE */
+    int8_t          skip_intro;                 /* 0x00AE */
     char            unk_AF[0x07];               /* 0x00AF */
     int16_t         boot_alpha;                 /* 0x00B6 */
     int16_t         boot_blue;                  /* 0x00B8 */
@@ -152,7 +160,7 @@ typedef struct{
 }flags_ctxt_t;
 
 typedef struct{
-    uint8_t        story_progress;             /* 0x0000 */
+    int8_t          story_progress;             /* 0x0000 */
 }unk3_ctxt_t;
 
 typedef struct{

@@ -369,8 +369,8 @@ void init() {
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_cheats_menu(), "cheats");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
     //menu_add_submenu(fp.main_menu, 0, menu_index++, create_watches_menu(), "watches");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
 
@@ -380,6 +380,9 @@ void init() {
 
     /*get menu appearance*/
     apply_menu_settings();
+
+    /* skip intro on boot */
+    pm_status.skip_intro = 1;
 
     /* setup oot ace trainer */
     pm_ace_store.last_timer = 0;

@@ -328,9 +328,6 @@ struct menu *create_player_menu(void) {
 
     status.selector = menu_add_submenu(&status, 0, y_value++, NULL, "return");
 
-    menu_add_static(&status, 0, y_value, "story progress", 0xC0C0C0);
-    menu_add_intinput(&status, STATS_X, y_value++, 16, 2, byte_mod_proc, &pm_unk3.story_progress);
-
     menu_add_static(&status, 0, y_value, "boots", 0xC0C0C0);
     menu_add_option(&status, STATS_X, y_value++, "normal\0""super\0""ultra\0", byte_optionmod_proc, &pm_player.stats.boots_upgrade);
 
