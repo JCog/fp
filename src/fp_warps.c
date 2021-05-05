@@ -112,6 +112,7 @@ static int current_room_draw_proc(struct menu_item *item,
 static void warp_proc(){
     //would be nice to know why warping from this room crashes
     if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
+        pm_PlayAmbientSounds(-1, 0);
         pm_status.group_id = group;
         pm_status.room_id = room;
         pm_status.entrance_id = entrance;

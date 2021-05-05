@@ -16,6 +16,7 @@ void set_global_flag(int flag_index, _Bool value) {
 
 void warp(int group, int room, int entrance) {
     if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
+        pm_PlayAmbientSounds(-1, 0);
         pm_status.group_id = group;
         pm_status.room_id = room;
         pm_status.entrance_id = entrance;
