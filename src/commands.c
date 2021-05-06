@@ -26,26 +26,26 @@ struct command fp_commands[COMMAND_MAX] = {
     {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc}
 };
 
-void show_menu(){
+void show_menu() {
     menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
     fp.menu_active = 1;
     input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
     input_reservation_set(1);
 }
 
-void hide_menu(){
+void hide_menu() {
     menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
     fp.menu_active = 0;
     input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
     input_reservation_set(0);
 }
 
-void add_log(const char *fmt, ...){
+void add_log(const char *fmt, ...) {
     struct log_entry *ent = &fp.log[SETTINGS_LOG_MAX - 1];
-    if (ent->msg){
+    if (ent->msg) {
         free(ent->msg);
     }
-    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i){
+    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
         fp.log[i] = fp.log[i - 1];
     }
       
@@ -56,7 +56,7 @@ void add_log(const char *fmt, ...){
 
     ent = &fp.log[0];
     ent->msg = malloc(l + 1);
-    if (!ent->msg){
+    if (!ent->msg) {
         return;
     }
     va_start(va, fmt);
@@ -65,7 +65,7 @@ void add_log(const char *fmt, ...){
     ent->age = 0;
 }
 
-void command_levitate_proc(){
+void command_levitate_proc() {
     if (pm_status.peach_flags == 0) {
         pm_player.flags |= 3;
         pm_player.y_speed = 11;
@@ -74,17 +74,18 @@ void command_levitate_proc(){
     }
 }
 
-void command_turbo_proc(){
-    if(pm_player.run_speed == 4.0){
+void command_turbo_proc() {
+    if(pm_player.run_speed == 4.0) {
         pm_player.run_speed = 24.0;
         add_log("turbo enabled");
-    } else if(pm_player.run_speed == 24.0){
+    }
+    else if(pm_player.run_speed == 24.0) {
         pm_player.run_speed = 4.0;
         add_log("turbo disabled");
     }
 }
 
-void command_save_pos_proc(){
+void command_save_pos_proc() {
     fp.saved_x = pm_player.position.x;
     fp.saved_y = pm_player.position.y;
     fp.saved_z = pm_player.position.z;
@@ -93,38 +94,37 @@ void command_save_pos_proc(){
     add_log("position saved");
 }
 
-void command_load_pos_proc(){
+void command_load_pos_proc() {
     pm_player.position.x = fp.saved_x;
     pm_player.position.y = fp.saved_y;
     pm_player.position.z = fp.saved_z;
     pm_player.facing_angle = fp.saved_facing_angle;
     pm_player.movement_angle = fp.saved_movement_angle;
     add_log("position loaded");
-    
 }
 
-void command_lzs_proc(){
-    if(pm_unk1.saveblock_freeze == 0){
+void command_lzs_proc() {
+    if(pm_unk1.saveblock_freeze == 0) {
         pm_unk1.saveblock_freeze = 1;
         add_log("lzs enabled");
-    } else if(pm_unk1.saveblock_freeze == 1){
+    } else if(pm_unk1.saveblock_freeze == 1) {
         pm_unk1.saveblock_freeze = 0;
         add_log("lzs disabled");
     }
-
 }
 
-void command_reload_proc(){
+void command_reload_proc() {
+    pm_status.loading_zone_tangent = 0;
     pm_unk2.room_change_state = 1;
     uint32_t val = 0x80035DFC;
     pm_warp.room_change_ptr = val;
 }
 
-void command_coords_proc(){
+void command_coords_proc() {
     fp.coord_active = !fp.coord_active;
 }
 
-void command_trick_proc(){
+void command_trick_proc() {
     load_trick(fp.saved_trick);
 }
 
@@ -154,6 +154,7 @@ void command_reset_timer_proc() {
 
 void command_load_game_proc() {
     pm_LoadGame(pm_status.save_slot);
+    pm_status.loading_zone_tangent = 0;
     pm_unk2.room_change_state = 1;
     uint32_t val = 0x80035DFC;
     pm_warp.room_change_ptr = val;

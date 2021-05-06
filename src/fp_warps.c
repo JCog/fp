@@ -13,7 +13,8 @@ static uint16_t entrance;
 static void group_prev_proc(struct menu_item *item, void *data) {
     if (group == 0) {
         group = GROUP_COUNT - 1;
-    } else {
+    }
+    else {
         group--;
     }
 
@@ -23,7 +24,8 @@ static void group_prev_proc(struct menu_item *item, void *data) {
 static void group_next_proc(struct menu_item *item, void *data) {
     if (group == GROUP_COUNT - 1) {
         group = 0;
-    } else {
+    }
+    else {
         group++;
     }
 
@@ -33,7 +35,8 @@ static void group_next_proc(struct menu_item *item, void *data) {
 static void room_prev_proc(struct menu_item *item, void *data) {
     if (room == 0) {
         room = GROUPS[group].room_count - 1;
-    } else {
+    }
+    else {
         room--;
     }
 
@@ -43,7 +46,8 @@ static void room_prev_proc(struct menu_item *item, void *data) {
 static void room_next_proc(struct menu_item *item, void *data) {
     if (room == GROUPS[group].room_count - 1) {
         room = 0;
-    } else {
+    }
+    else {
         room++;
     }
 
@@ -53,7 +57,8 @@ static void room_next_proc(struct menu_item *item, void *data) {
 static void entrance_prev_proc(struct menu_item *item, void *data) {
     if (entrance == 0) {
         entrance = GROUPS[group].rooms[room].entrance_count - 1;
-    } else {
+    }
+    else {
         entrance--;
     }
 
@@ -63,7 +68,8 @@ static void entrance_prev_proc(struct menu_item *item, void *data) {
 static void entrance_next_proc(struct menu_item *item, void *data) {
     if (entrance == GROUPS[group].rooms[room].entrance_count - 1) {
         entrance = 0;
-    } else {
+    }
+    else {
         entrance++;
     }
 
@@ -92,9 +98,7 @@ static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
     return 1;
 }
 
-static int current_room_draw_proc(struct menu_item *item,
-                               struct menu_draw_params *draw_params)
-{
+static int current_room_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
   gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color,
                                              draw_params->alpha));
   struct gfx_font *font = draw_params->font;
@@ -109,10 +113,11 @@ static int current_room_draw_proc(struct menu_item *item,
   return 1;
 }
 
-static void warp_proc(){
+static void warp_proc() {
     //would be nice to know why warping from this room crashes
     if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
         pm_PlayAmbientSounds(-1, 0);
+        pm_status.loading_zone_tangent = 0;
         pm_status.group_id = group;
         pm_status.room_id = room;
         pm_status.entrance_id = entrance;
@@ -126,8 +131,7 @@ static void warp_proc(){
     return;
 }
 
-struct menu *create_warps_menu(void)
-{
+struct menu *create_warps_menu(void) {
     static struct menu menu;
     
     /* initialize menu */
