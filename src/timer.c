@@ -81,7 +81,7 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     else {
         gfx_printf(font, x, y, "timer %d.%02d", seconds, hundredths);
     }
-    gfx_printf(font, x, y + chHeight, "lag   %d", lag_frames);
+    gfx_printf(font, x, y + chHeight, "lag   %d", lag_frames >= 0 ? lag_frames : 0);
     return 1;
 }
 

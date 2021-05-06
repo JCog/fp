@@ -178,7 +178,7 @@ void fp_main(void) {
         else {
             gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
         }
-        gfx_printf(font, x, y + ch, "%d", lag_frames);
+        gfx_printf(font, x, y + ch, "%d", lag_frames >= 0 ? lag_frames : 0);
     }
 
     /* show version on startup */

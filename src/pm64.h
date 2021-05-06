@@ -414,7 +414,7 @@ typedef struct{
 #define pm_overworld_addr             0x8010ED70
 #define pm_hud_addr                   0x8010F118
 #define pm_player_addr                0x8010F188
-#define pm_GameUpdate_addr            0x801181D4
+#define pm_GameUpdate_addr            0x801181D4 //80112FC4 on US
 #define pm_PlayAmbientSounds_addr     0x8014C418
 #define pm_PlaySfx_addr               0x8014ED64
 #define pm_warp_addr                  0x80156740
