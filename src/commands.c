@@ -75,13 +75,13 @@ void command_levitate_proc() {
 }
 
 void command_turbo_proc() {
-    if(pm_player.run_speed == 4.0) {
-        pm_player.run_speed = 24.0;
-        add_log("turbo enabled");
-    }
-    else if(pm_player.run_speed == 24.0) {
-        pm_player.run_speed = 4.0;
+    if (fp.turbo) {
+        fp.turbo = 0;
         add_log("turbo disabled");
+    }
+    else {
+        fp.turbo = 1;
+        add_log("turbo enabled");
     }
 }
 

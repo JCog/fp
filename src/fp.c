@@ -235,32 +235,40 @@ void fp_main(void) {
         show_menu();
     
     /* activate cheats */
-    if(settings->cheats & (1 << CHEAT_HP)) {
+    if (settings->cheats & (1 << CHEAT_HP)) {
         pm_player.stats.hp = pm_player.stats.max_hp;
     }
-    if(settings->cheats & (1 << CHEAT_FP)) {
+    if (settings->cheats & (1 << CHEAT_FP)) {
         pm_player.stats.fp = pm_player.stats.max_fp;
     }
-    if(settings->cheats & (1 << CHEAT_COINS)) {
+    if (settings->cheats & (1 << CHEAT_COINS)) {
         pm_player.stats.coins = 999;
     }
-    if(settings->cheats & (1 << CHEAT_STAR_POWER)) {
+    if (settings->cheats & (1 << CHEAT_STAR_POWER)) {
         pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
         pm_player.star_power.partial_bars_filled = 0;
     }
-    if(settings->cheats & (1 << CHEAT_STAR_PIECES)) {
+    if (settings->cheats & (1 << CHEAT_STAR_PIECES)) {
         pm_player.stats.star_pieces = 160;
     }
-    if(settings->cheats & (1 << CHEAT_PERIL)) {
+    if (settings->cheats & (1 << CHEAT_PERIL)) {
         pm_player.stats.hp = 1;
     }
-    if(settings->cheats & (1 << CHEAT_BREAK)) {
+    if (settings->cheats & (1 << CHEAT_BREAK)) {
         int32_t third_byte_mask = 0xFFFF00FF;
         int32_t check_mask = 0x0000FF00;
 
-        if((pm_player.flags & check_mask) == 0x2000) {
+        if ((pm_player.flags & check_mask) == 0x2000) {
             pm_player.flags &= third_byte_mask;
         }
+    }
+
+    /* update turbo */
+    if (fp.turbo) {
+        pm_player.run_speed = 24.0;
+    }
+    else {
+        pm_player.run_speed = 4.0;
     }
 
     /* handle command bindings */

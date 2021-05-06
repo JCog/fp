@@ -47,7 +47,7 @@ typedef struct{
     float                   saved_movement_angle;
     int8_t                  saved_trick;
     int8_t                  ace_frame_window;
-    
+    _Bool                   turbo;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
