@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "pm64.h"
 #include "warp_info.h"
+#include "fp.h"
 
 static uint16_t group;
 static uint16_t room;
@@ -114,21 +115,7 @@ static int current_room_draw_proc(struct menu_item *item, struct menu_draw_param
 }
 
 static void warp_proc() {
-    //would be nice to know why warping from this room crashes
-    if (!(pm_status.group_id == 0 && pm_status.room_id == 0xe)) {
-        pm_PlayAmbientSounds(-1, 0);
-        pm_status.loading_zone_tangent = 0;
-        pm_status.group_id = group;
-        pm_status.room_id = room;
-        pm_status.entrance_id = entrance;
-
-        pm_unk2.room_change_state = 1;
-
-        uint32_t val = 0x80035DFC;
-        pm_warp.room_change_ptr = val;
-    }
-
-    return;
+    fp_warp(group, room, entrance);
 }
 
 struct menu *create_warps_menu(void) {

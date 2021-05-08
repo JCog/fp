@@ -65,6 +65,31 @@ void add_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
+void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
+    //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to warp properly
+    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
+        add_log("can't warp with menu open");
+        return;
+    }
+    //would be nice to know why warping from this room crashes
+    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
+        add_log("can't warp from here");
+        return;
+    }
+    pm_PlayAmbientSounds(-1, 0);
+    pm_status.loading_zone_tangent = 0;
+    pm_status.group_id = group;
+    pm_status.room_id = room;
+    pm_status.entrance_id = entrance;
+
+    pm_unk2.room_change_state = 1;
+
+    uint32_t val = 0x80035DFC;
+    pm_warp.room_change_ptr = val;
+
+    return;
+}
+
 void command_levitate_proc() {
     if (pm_status.peach_flags == 0) {
         pm_player.flags |= 3;
@@ -114,10 +139,7 @@ void command_lzs_proc() {
 }
 
 void command_reload_proc() {
-    pm_status.loading_zone_tangent = 0;
-    pm_unk2.room_change_state = 1;
-    uint32_t val = 0x80035DFC;
-    pm_warp.room_change_ptr = val;
+    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
 }
 
 void command_coords_proc() {
@@ -153,10 +175,15 @@ void command_reset_timer_proc() {
 }
 
 void command_load_game_proc() {
+    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
+        add_log("can't load with menu open");
+        return;
+    }
+    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
+        add_log("can't load from here");
+        return;
+    }
     pm_LoadGame(pm_status.save_slot);
-    pm_status.loading_zone_tangent = 0;
-    pm_unk2.room_change_state = 1;
-    uint32_t val = 0x80035DFC;
-    pm_warp.room_change_ptr = val;
+    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
     add_log("loaded from slot %d", pm_status.save_slot);
 }

@@ -69,7 +69,7 @@ typedef struct{
     int16_t         held_timer;                 /* 0x0060 */ /*FFFF when nothing held, when hold_timer hits 0 it will cycle between 0 and 3*/
     char            unk_0x62[0x02];             /* 0x0062 */ 
     char            unk_0x64[0xC];              /* 0x0064 */
-    int8_t          actor_related;              /* 0x0070 */ /*some actors dissapear when value is changed*/
+    int8_t          is_battle;                  /* 0x0070 */
     int8_t          demo_flag;                  /* 0x0071 */ /*1 for demo. 0 in normal gameplay freezes mario*/
     int8_t          demo_scene;                 /* 0x0072 */ /*0-0x12 for each demo scene*/
     int8_t          controller_plugged;         /* 0x0073 */ /*needs to be 1 otherwise "no controller" */
@@ -398,6 +398,11 @@ typedef struct{
     uint32_t vi_frames;
 }unk5_ctxt_t;
 
+typedef struct {
+    char            unk_0x00[0x03];         /* 0x0000 */
+    uint8_t         menu_open;              /* 0x0003 */ /* seems to always be non-zero when a menu is open in battle */
+}unk6_ctxt_t;
+
 /* Addresses */
 #define pm_FioReadFlash_addr          0x8002B828
 #define pm_FioWriteFlash_addr         0x8002B908
@@ -407,6 +412,7 @@ typedef struct{
 #define pm_unk1_addr                  0x8009A5A8
 #define pm_gfx_addr                   0x8009A64C
 #define pm_unk2_addr                  0x8009E6D0
+#define pm_unk6_addr                  0x800AC198
 #define pm_unk4_addr                  0x800B0EF8
 #define pm_effects_addr               0x800B4378
 #define pm_flags_addr                 0x800DBC50
@@ -428,6 +434,7 @@ typedef struct{
 #define pm_unk1               (*(unk1_ctxt_t*)        pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
+#define pm_unk6               (*(unk6_ctxt_t*)        pm_unk6_addr)
 #define pm_unk4               (*(unk4_ctxt_t*)        pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)     pm_effects_addr)
 #define pm_flags              (*(flags_ctxt_t*)       pm_flags_addr)
