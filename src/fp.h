@@ -52,7 +52,7 @@ typedef struct{
 
 extern fp_ctxt_t fp;
 
-void add_log(const char *fmt, ...);
+void fp_log(const char *fmt, ...);
 void fp_warp(uint16_t group, uint16_t room, uint16_t entrance);
 
 struct menu *create_warps_menu();

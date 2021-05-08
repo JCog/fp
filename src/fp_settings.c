@@ -134,7 +134,7 @@ static int log_proc(struct menu_item *item, enum menu_callback_reason reason, vo
 }
 
 static int log_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    add_log("test log message!");
+    fp_log("test log message!");
     return generic_position_proc(item, reason, &settings->log_x);
 }
 
@@ -159,23 +159,23 @@ static void restore_settings_proc(struct menu_item *item, void *data)
 {
     settings_load_default();
     apply_menu_settings();
-    add_log("loaded defaults");
+    fp_log("loaded defaults");
 }
 
 static void save_settings_proc(struct menu_item *item, void *data)
 {
     settings_save(fp.profile);
-    add_log("saved profile %i", fp.profile);
+    fp_log("saved profile %i", fp.profile);
 }
 
 static void load_settings_proc(struct menu_item *item, void *data)
 {
     if (settings_load(fp.profile)) {
         apply_menu_settings();
-        add_log("loaded profile %i", fp.profile);
+        fp_log("loaded profile %i", fp.profile);
     }
     else {
-        add_log("could not load");
+        fp_log("could not load");
     }
 }
 

@@ -62,7 +62,7 @@ void fp_main(void) {
                 input_pos = 0;
                 settings_load_default();
                 apply_menu_settings();
-                add_log("default settings restored");
+                fp_log("default settings restored");
             }
         }
         else {
@@ -127,7 +127,7 @@ void fp_main(void) {
                 fp.timer.lag_start = pm_unk5.vi_frames;
                 fp.timer.frame_start = pm_status.frame_counter;
                 if (settings->bits.timer_logging) {
-                    add_log("timer started");
+                    fp_log("timer started");
                 }
             }
             fp.timer.prev_state = 1;
@@ -136,7 +136,7 @@ void fp_main(void) {
             if (!fp.timer.prev_cutscene_state && in_cutscene) {
                 fp.timer.cutscene_count++;
                 if (settings->bits.timer_logging && fp.timer.cutscene_count != fp.timer.cutscene_target) {
-                    add_log("cutscene started");
+                    fp_log("cutscene started");
                 }
             }
             if (fp.timer.cutscene_count == fp.timer.cutscene_target) {
@@ -144,7 +144,7 @@ void fp_main(void) {
                 fp.timer.end = fp.cpu_counter;
                 fp.timer.lag_end = pm_unk5.vi_frames;
                 fp.timer.frame_end = pm_status.frame_counter;
-                add_log("timer stopped");
+                fp_log("timer stopped");
             }
             timer_count = fp.cpu_counter - fp.timer.start;
             lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2

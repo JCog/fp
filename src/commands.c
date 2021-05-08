@@ -40,7 +40,7 @@ void hide_menu() {
     input_reservation_set(0);
 }
 
-void add_log(const char *fmt, ...) {
+void fp_log(const char *fmt, ...) {
     struct log_entry *ent = &fp.log[SETTINGS_LOG_MAX - 1];
     if (ent->msg) {
         free(ent->msg);
@@ -68,12 +68,12 @@ void add_log(const char *fmt, ...) {
 void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to warp properly
     if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        add_log("can't warp with menu open");
+        fp_log("can't warp with menu open");
         return;
     }
     //would be nice to know why warping from this room crashes
     if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        add_log("can't warp from here");
+        fp_log("can't warp from here");
         return;
     }
     pm_PlayAmbientSounds(-1, 0);
@@ -102,11 +102,11 @@ void command_levitate_proc() {
 void command_turbo_proc() {
     if (fp.turbo) {
         fp.turbo = 0;
-        add_log("turbo disabled");
+        fp_log("turbo disabled");
     }
     else {
         fp.turbo = 1;
-        add_log("turbo enabled");
+        fp_log("turbo enabled");
     }
 }
 
@@ -116,7 +116,7 @@ void command_save_pos_proc() {
     fp.saved_z = pm_player.position.z;
     fp.saved_facing_angle = pm_player.facing_angle;
     fp.saved_movement_angle = pm_player.movement_angle;
-    add_log("position saved");
+    fp_log("position saved");
 }
 
 void command_load_pos_proc() {
@@ -125,16 +125,16 @@ void command_load_pos_proc() {
     pm_player.position.z = fp.saved_z;
     pm_player.facing_angle = fp.saved_facing_angle;
     pm_player.movement_angle = fp.saved_movement_angle;
-    add_log("position loaded");
+    fp_log("position loaded");
 }
 
 void command_lzs_proc() {
     if(pm_unk1.saveblock_freeze == 0) {
         pm_unk1.saveblock_freeze = 1;
-        add_log("lzs enabled");
+        fp_log("lzs enabled");
     } else if(pm_unk1.saveblock_freeze == 1) {
         pm_unk1.saveblock_freeze = 0;
-        add_log("lzs disabled");
+        fp_log("lzs disabled");
     }
 }
 
@@ -153,37 +153,37 @@ void command_trick_proc() {
 void command_save_game_proc() {
     pm_SaveGame();
     pm_PlaySfx(0x10);
-    add_log("saved to slot %d", pm_status.save_slot);
+    fp_log("saved to slot %d", pm_status.save_slot);
 }
 
 void command_start_timer_proc() {
     if (fp.timer.state == 0) {
         fp.timer.state = 1;
-        add_log("timer set to start");
+        fp_log("timer set to start");
     }
     else if (fp.timer.state == 3) {
         fp.timer.state = 1;
         fp.timer.cutscene_count = 0;
-        add_log("timer set to start");
+        fp_log("timer set to start");
     }
 }
 
 void command_reset_timer_proc() {
     fp.timer.state = 0;
     fp.timer.cutscene_count = 0;
-    add_log("timer reset");
+    fp_log("timer reset");
 }
 
 void command_load_game_proc() {
     if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        add_log("can't load with menu open");
+        fp_log("can't load with menu open");
         return;
     }
     if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        add_log("can't load from here");
+        fp_log("can't load from here");
         return;
     }
     pm_LoadGame(pm_status.save_slot);
     fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
-    add_log("loaded from slot %d", pm_status.save_slot);
+    fp_log("loaded from slot %d", pm_status.save_slot);
 }
