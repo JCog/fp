@@ -251,6 +251,12 @@ void load_lava_puzzle_skip() {
     fp_warp(0x12, 5, 0);
 }
 
+void load_ultra_hammer_early() {
+    set_global_flag(0x522, 0); //block not destroyed
+    set_global_flag(0x523, 0); //chest closed
+    fp_warp(0x12, 6, 0);
+}
+
 void load_flarakarry() {
     set_story_progress(0x1e);
     set_partner(PARAKARRY);
@@ -416,6 +422,7 @@ void load_trick(int8_t trick) {
         case LAVA_PLATFORM_CYCLE:       load_lava_platform_cycle();         break;
         case ULTRA_HAMMER_SKIP:         load_ultra_hammer_skip();           break;
         case LAVA_PUZZLE_SKIP:          load_lava_puzzle_skip();            break;
+        case ULTRA_HAMMER_EARLY:        load_ultra_hammer_early();          break;
         case FLARAKARRY:                load_flarakarry();                  break;
         case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
         case CH5_CARD_LZS:              load_ch5_card_lzs();                break;
@@ -596,6 +603,11 @@ static void lava_puzzle_skip_proc(struct menu_item *item, void *data) {
     load_lava_puzzle_skip();
 }
 
+static void ultra_hammer_early_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ULTRA_HAMMER_EARLY;
+    load_ultra_hammer_early();
+}
+
 static void flarakarry_proc(struct menu_item *item, void *data) {
     fp.saved_trick = FLARAKARRY;
     load_flarakarry();
@@ -766,6 +778,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "lava platform cycle", lava_platform_cycle_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ultra hammer skip", ultra_hammer_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava puzzle skip", lava_puzzle_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "ultra hammer early", ultra_hammer_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "flarakarry", flarakarry_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava piranha skip/oob", lava_piranha_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch5 card lzs", ch5_card_lzs_proc, NULL);
