@@ -68,7 +68,7 @@ struct menu *create_file_menu(void)
     menu_add_button(&menu, 5, y++, "load", load_proc, NULL);
     y++;
     menu_add_static(&menu, 0, y, "story progress", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y++, -10, 4, byte_mod_proc, &pm_unk3.story_progress);
+    menu_add_intinput(&menu, MENU_X, y++, 16, 2, byte_mod_proc, &pm_unk3.story_progress);
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
     
