@@ -105,7 +105,7 @@ void load_pie_jumps() {
 void load_log_skip() {
     check_for_hammer();
     set_story_progress(0xae);
-    fp_warp(1, 2, 3);
+    fp_warp(1, 2, 1);
 }
 
 void load_early_seed() {
@@ -203,14 +203,24 @@ void load_ch4_card_lzs() {
     fp_warp(0x10, 0xe, 0);
 }
 
-void load_bhs() {
+void load_bhs_top() {
     if (pm_unk3.story_progress < 0x6 || pm_unk3.story_progress > 0xf2) {
         set_story_progress(0xf1);
     }
     set_global_flag(0x084, 0); //key collected
     set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
-    fp_warp(1, 3, 0);
+    fp_warp(1, 3, 2);
+}
+
+void load_bhs_bottom() {
+    if (pm_unk3.story_progress < 0x6 || pm_unk3.story_progress > 0xf2) {
+        set_story_progress(0xf1);
+    }
+    set_global_flag(0x084, 0); //key collected
+    set_global_flag(0x083, 1); //lock opened
+    remove_key_item(0x6b); //odd key
+    fp_warp(1, 3, 3);
 }
 
 void load_early_whale_slow_music() {
@@ -292,7 +302,7 @@ void load_peach_warp() {
     check_for_hammer();
     set_story_progress(0x33);
     set_partner(LAKILESTER);
-    fp_warp(0x12, 0xc, 1);
+    fp_warp(0x12, 0xc, 0);
 }
 
 void load_sushie_peach_warp() {
@@ -349,7 +359,7 @@ void load_kooper_puzzle_skip() {
     fp_warp(0x15, 0xf, 0);
 }
 
-void load_fast_basement() {
+void load_fast_basement_first() {
     set_story_progress(0x5e);
     set_global_flag(0x60e, 0); //first switch
     set_global_flag(0x60f, 0); //second switch
@@ -357,6 +367,16 @@ void load_fast_basement() {
     set_global_flag(0x614, 0); //hardened lava
     pm_player.stats.boots_upgrade = 2;
     fp_warp(0x16, 7, 0);
+}
+
+void load_fast_basement_second() {
+    set_story_progress(0x5e);
+    set_global_flag(0x60e, 0); //first switch
+    set_global_flag(0x60f, 0); //second switch
+    set_global_flag(0x615, 0); //basement fight
+    set_global_flag(0x614, 0); //hardened lava
+    pm_player.stats.boots_upgrade = 2;
+    fp_warp(0x16, 8, 0);
 }
 
 void load_basement_skip() {
@@ -415,7 +435,8 @@ void load_trick(int8_t trick) {
         case FRYING_PAN_WALL_CLIP:      load_frying_pan_wall_clip();        break;
         case CH4_CARD_LZS:              load_ch4_card_lzs();                break;
 
-        case BHS:                       load_bhs();                         break;
+        case BHS_TOP:                   load_bhs_top();                     break;
+        case BHS_BOTTOM:                load_bhs_bottom();                  break;
         case EARLY_WHALE_SLOW_MUSIC:    load_early_whale_slow_music();      break;
         case RAPH_SKIP:                 load_raph_skip();                   break;
         case PIRANHA_FIRST_STRIKE:      load_piranha_first_strike();        break;
@@ -440,7 +461,8 @@ void load_trick(int8_t trick) {
         case MIRROR_CLIP:               load_mirror_clip();                 break;
         case KOOPER_PUZZLE_SKIP:        load_kooper_puzzle_skip();          break;
 
-        case FAST_BASEMENT:             load_fast_basement();               break;
+        case FAST_BASEMENT_FIRST:       load_fast_basement_first();         break;
+        case FAST_BASEMENT_SECOND:      load_fast_basement_second();        break;
         case BASEMENT_SKIP:             load_basement_skip();               break;
         case BLIND_BASEMENT:            load_blind_basement();              break;
         case FAST_FLOOD_ROOM:           load_fast_flood_room();             break;
@@ -568,9 +590,14 @@ static void ch4_card_lzs_proc(struct menu_item *item, void *data) {
     load_ch4_card_lzs();
 }
 
-static void bhs_proc(struct menu_item *item, void *data) {
-    fp.saved_trick = BHS;
-    load_bhs();
+static void bhs_top_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BHS_TOP;
+    load_bhs_top();
+}
+
+static void bhs_bottom_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BHS_BOTTOM;
+    load_bhs_bottom();
 }
 
 static void early_whale_slow_music_proc(struct menu_item *item, void *data) {
@@ -678,9 +705,14 @@ static void kooper_puzzle_skip_proc(struct menu_item *item, void *data) {
     load_kooper_puzzle_skip();
 }
 
-static void fast_basement_proc(struct menu_item *item, void *data) {
-    fp.saved_trick = FAST_BASEMENT;
-    load_fast_basement();
+static void fast_basement_first_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FAST_BASEMENT_FIRST;
+    load_fast_basement_first();
+}
+
+static void fast_basement_second_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = FAST_BASEMENT_SECOND;
+    load_fast_basement_second();
 }
 
 static void basement_skip_proc(struct menu_item *item, void *data) {
@@ -771,7 +803,8 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[5];
     menu_add_static(page, 0, y_tab++, "chapter 5", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "blue house skip", bhs_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "blue house skip (top)", bhs_top_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "blue house skip (bottom)", bhs_bottom_proc, NULL);
     menu_add_button(page, 0, y_tab++, "early whale (slow music)", early_whale_slow_music_proc, NULL);
     menu_add_button(page, 0, y_tab++, "raph/yoshi skip", raph_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "putrid piranha first strike", piranha_first_strike_proc, NULL);
@@ -808,7 +841,8 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[8];
     menu_add_static(page, 0, y_tab++, "chapter 8", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "fast basement", fast_basement_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "fast basement (first room)", fast_basement_first_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "fast basement (second room)", fast_basement_second_proc, NULL);
     menu_add_button(page, 0, y_tab++, "basement skip", basement_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "blind basement", blind_basement_proc, NULL);
     menu_add_button(page, 0, y_tab++, "fast flood room", fast_flood_room_proc, NULL);
