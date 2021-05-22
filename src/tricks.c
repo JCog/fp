@@ -108,6 +108,10 @@ void load_log_skip() {
     fp_warp(1, 2, 1);
 }
 
+void load_rock_climb() {
+    fp_warp(8, 1, 0);
+}
+
 void load_early_seed() {
     check_for_hammer();
     set_partner(KOOPER);
@@ -118,6 +122,11 @@ void load_early_seed() {
 void load_buzzar_skip() {
     pm_player.stats.current_partner = 4;
     fp_warp(8, 4, 0);
+}
+
+void load_outpost_jump() {
+    set_story_progress(0xc0);
+    fp_warp(9, 1, 0);
 }
 
 void load_slow_go_early() {
@@ -196,6 +205,12 @@ void load_frying_pan_wall_clip() {
     set_partner(PARAKARRY);
     set_global_flag(0x474, 1); //fuzzy spawn cutscene
     fp_warp(0x10, 6, 0);
+}
+
+void load_gourmet_guy_skip() {
+    check_for_hammer();
+    set_story_progress(0xfb);
+    fp_warp(0x10, 5, 0);
 }
 
 void load_ch4_card_lzs() {
@@ -418,8 +433,10 @@ void load_trick(int8_t trick) {
         case PIE_JUMPS:                 load_pie_jumps();                   break;
         case LOG_SKIP:                  load_log_skip();                    break;
 
+        case ROCK_CLIMB:                load_rock_climb();                  break;
         case EARLY_SEED:                load_early_seed();                  break;
         case BUZZAR_SKIP:               load_buzzar_skip();                 break;
+        case OUTPOST_JUMP:              load_outpost_jump();                break;
         case SLOW_GO_EARLY:             load_slow_go_early();               break;
         case CH2_CARD_LZS:              load_ch2_card_lzs();                break;
 
@@ -433,6 +450,7 @@ void load_trick(int8_t trick) {
         case EARLY_TRAIN:               load_early_train();                 break;
         case EARLY_WHALE_FAST_MUSIC:    load_early_whale_fast_music();      break;
         case FRYING_PAN_WALL_CLIP:      load_frying_pan_wall_clip();        break;
+        case GOURMET_GUY_SKIP:          load_gourmet_guy_skip();            break;
         case CH4_CARD_LZS:              load_ch4_card_lzs();                break;
 
         case BHS_TOP:                   load_bhs_top();                     break;
@@ -520,6 +538,11 @@ static void log_skip_proc(struct menu_item *item, void *data) {
     load_log_skip();
 }
 
+static void rock_climb_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ROCK_CLIMB;
+    load_rock_climb();
+}
+
 static void early_seed_proc(struct menu_item *item, void *data) {
     fp.saved_trick = EARLY_SEED;
     load_early_seed();
@@ -528,6 +551,11 @@ static void early_seed_proc(struct menu_item *item, void *data) {
 static void buzzar_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = BUZZAR_SKIP;
     load_buzzar_skip();
+}
+
+static void outpost_jump_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = OUTPOST_JUMP;
+    load_outpost_jump();
 }
 
 static void slow_go_early_proc(struct menu_item *item, void *data) {
@@ -583,6 +611,11 @@ static void early_whale_fast_music_proc(struct menu_item *item, void *data) {
 static void frying_pan_wall_clip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = FRYING_PAN_WALL_CLIP;
     load_frying_pan_wall_clip();
+}
+
+static void gourmet_guy_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = GOURMET_GUY_SKIP;
+    load_gourmet_guy_skip();
 }
 
 static void ch4_card_lzs_proc(struct menu_item *item, void *data) {
@@ -774,8 +807,10 @@ void create_tricks_menu(struct menu *menu)
     y_tab = 0;
     page = &pages[2];
     menu_add_static(page, 0, y_tab++, "chapter 2", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "rock climb", rock_climb_proc, NULL);
     menu_add_button(page, 0, y_tab++, "early seed", early_seed_proc, NULL);
     menu_add_button(page, 0, y_tab++, "buzzar skip", buzzar_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "outpost jump", outpost_jump_proc, NULL);
     menu_add_button(page, 0, y_tab++, "slow go early", slow_go_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch2 card lzs", ch2_card_lzs_proc, NULL);
 
@@ -797,6 +832,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "early train", early_train_proc, NULL);
     menu_add_button(page, 0, y_tab++, "early whale (fast music)", early_whale_fast_music_proc, NULL);
     menu_add_button(page, 0, y_tab++, "frying pan wall clip", frying_pan_wall_clip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "gourmet guy skip", gourmet_guy_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch4 card lzs", ch4_card_lzs_proc, NULL);
 
     /* chapter 5 */
