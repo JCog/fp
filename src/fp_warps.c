@@ -92,8 +92,8 @@ static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
         entrance = 0;
     }
 
-    gfx_printf(font, x, y + ch * 0, "%s", GROUPS[group].group_name);
-    gfx_printf(font, x, y + ch * 3, "%s", GROUPS[group].rooms[room].room_name);
+    gfx_printf(font, x, y + ch * 0, "%x %s", group, GROUPS[group].group_name);
+    gfx_printf(font, x, y + ch * 3, "%x %s", room, GROUPS[group].rooms[room].room_name);
     gfx_printf(font, x, y + ch * 6, "%d/%d", entrance, GROUPS[group].rooms[room].entrance_count);
 
     return 1;
@@ -107,8 +107,8 @@ static int current_room_draw_proc(struct menu_item *item, struct menu_draw_param
   int x = draw_params->x;
   int y = draw_params->y;
   gfx_printf(font, x, y + ch * 0, "current room");
-  gfx_printf(font, x, y + ch * 1, "g: %s", GROUPS[pm_status.group_id].group_name);
-  gfx_printf(font, x, y + ch * 2, "r: %s", GROUPS[pm_status.group_id].rooms[pm_status.room_id].room_name);
+  gfx_printf(font, x, y + ch * 1, "g: %x %s", pm_status.group_id, GROUPS[pm_status.group_id].group_name);
+  gfx_printf(font, x, y + ch * 2, "r: %x %s", pm_status.room_id, GROUPS[pm_status.group_id].rooms[pm_status.room_id].room_name);
   gfx_printf(font, x, y + ch * 3, "e: %x", pm_status.entrance_id);
 
   return 1;
