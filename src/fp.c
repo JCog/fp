@@ -178,7 +178,7 @@ void fp_main(void) {
         else {
             gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
         }
-        gfx_printf(font, x, y + ch, "%d", lag_frames >= 0 ? lag_frames : 0);
+        gfx_printf(font, x, y + ch, "%d", lag_frames);
     }
 
     /* show version on startup */
@@ -336,7 +336,6 @@ static void main_return_proc(struct menu_item *item, void *data) {
 
 void gamestate_main() {
     pm_GameUpdate(); /* displaced function call - advances 1 game frame*/
-
 }
 
 void init() {
@@ -436,7 +435,6 @@ void init() {
 
     /*ready*/
     fp.ready = 1;
-
 }
 
 // Initilizes and uses new stack instead of using graph threads stack. 
