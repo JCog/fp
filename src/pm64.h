@@ -404,29 +404,30 @@ typedef struct {
 }unk6_ctxt_t;
 
 /* Addresses */
-#define pm_FioReadFlash_addr          0x8002B828
-#define pm_FioWriteFlash_addr         0x8002B908
-#define pm_LoadGame_addr              0x8002B290
-#define pm_status_addr                0x80074004
-#define pm_unk5_addr                  0x80093B64
-#define pm_unk1_addr                  0x8009A5A8
-#define pm_gfx_addr                   0x8009A64C
-#define pm_unk2_addr                  0x8009E6D0
-#define pm_unk6_addr                  0x800AC198
-#define pm_unk4_addr                  0x800B0EF8
-#define pm_effects_addr               0x800B4378
-#define pm_flags_addr                 0x800DBC50
-#define pm_unk3_addr                  0x800DBD50
-#define pm_overworld_addr             0x8010ED70
-#define pm_hud_addr                   0x8010F118
-#define pm_player_addr                0x8010F188
-#define pm_GameUpdate_addr            0x801181D4 //80112FC4 on US
-#define pm_PlayAmbientSounds_addr     0x8014C418
-#define pm_PlaySfx_addr               0x8014ED64
-#define pm_warp_addr                  0x80156740
-#define pm_SaveGame_addr              0x802DC150
-#define pm_ace_addr                   0x807BFFFC
-#define pm_ace_store_addr             0x807D0000
+#define pm_FioValidateFileChecksum_addr     0x8002B0B8
+#define pm_FioReadFlash_addr                0x8002B828
+#define pm_FioWriteFlash_addr               0x8002B908
+#define pm_LoadGame_addr                    0x8002B290
+#define pm_status_addr                      0x80074004
+#define pm_unk5_addr                        0x80093B64
+#define pm_unk1_addr                        0x8009A5A8
+#define pm_gfx_addr                         0x8009A64C
+#define pm_unk2_addr                        0x8009E6D0
+#define pm_unk6_addr                        0x800AC198
+#define pm_unk4_addr                        0x800B0EF8
+#define pm_effects_addr                     0x800B4378
+#define pm_flags_addr                       0x800DBC50
+#define pm_unk3_addr                        0x800DBD50
+#define pm_overworld_addr                   0x8010ED70
+#define pm_hud_addr                         0x8010F118
+#define pm_player_addr                      0x8010F188
+#define pm_GameUpdate_addr                  0x801181D4 //80112FC4 on US
+#define pm_PlayAmbientSounds_addr           0x8014C418
+#define pm_PlaySfx_addr                     0x8014ED64
+#define pm_warp_addr                        0x80156740
+#define pm_SaveGame_addr                    0x802DC150
+#define pm_ace_addr                         0x807BFFFC
+#define pm_ace_store_addr                   0x807D0000
 
 /* Data */
 #define pm_status             (*(status_ctxt_t*)      pm_status_addr)
@@ -447,6 +448,7 @@ typedef struct {
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 
 /*Function Prototypes*/
+typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
 typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_LoadGame_t) (uint8_t slot);
@@ -456,12 +458,13 @@ typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
 
 /*Functions*/
-#define pm_FioReadFlash       ((pm_FioReadFlash_t)       pm_FioReadFlash_addr)
-#define pm_FioWriteFlash      ((pm_FioWriteFlash_t)      pm_FioWriteFlash_addr)
-#define pm_LoadGame           ((pm_LoadGame_t)           pm_LoadGame_addr)
-#define pm_GameUpdate         ((pm_GameUpdate_t)         pm_GameUpdate_addr)
-#define pm_PlaySfx            ((pm_PlaySfx_t)            pm_PlaySfx_addr)
-#define pm_PlayAmbientSounds  ((pm_PlayAmbientSounds_t)  pm_PlayAmbientSounds_addr)
-#define pm_SaveGame           ((pm_SaveGame_t)           pm_SaveGame_addr)
+#define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
+#define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
+#define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
+#define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)
+#define pm_GameUpdate               ((pm_GameUpdate_t)               pm_GameUpdate_addr)
+#define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
+#define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
+#define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
 
 #endif

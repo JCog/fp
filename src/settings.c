@@ -92,16 +92,31 @@ void settings_save(int profile) {
 }
 
 _Bool settings_load(int profile) {
-    //read in save data along with the settings data in the same slot as the profile
-    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
-    pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    if (!save_file_exists(profile)) {
+        return 0;
+    }
 
-    struct settings *settings_temp = (struct settings*)(start + SETTINGS_SAVE_FILE_SIZE);
+    //read in save data along with the settings data in the same slot as the profile
+    char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    pm_FioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+
+    struct settings *settings_temp = (struct settings*)(file + SETTINGS_SAVE_FILE_SIZE);
     if (!settings_validate(settings_temp)) {
-        free(start);
+        free(file);
         return 0;
     }
     memcpy(&settings_store, settings_temp, sizeof(*settings_temp));
-    free(start);
+    free(file);
     return 1;
+}
+
+_Bool save_file_exists(int index) {
+    char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
+    pm_FioReadFlash(index, file, SETTINGS_SAVE_FILE_SIZE);
+    if (pm_FioValidateFileChecksum(file)) {
+        free(file);
+        return 1;
+    }
+    free(file);
+    return 0;
 }
