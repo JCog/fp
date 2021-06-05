@@ -4,16 +4,6 @@
 #include "tricks.h"
 #include "settings.h"
 
-void set_global_flag(int flag_index, _Bool value) {
-    int word_index = flag_index / 32;
-    int bit = flag_index % 32;
-    uint32_t *p = pm_flags.global_flags;
-    if (value)
-        p[word_index] |= (1 << bit);
-    else
-        p[word_index] &= ~(1 << bit);
-}
-
 void check_for_hammer() {
     if (pm_player.stats.hammer_upgrade > 2) {
         pm_player.stats.hammer_upgrade = 0;
@@ -22,10 +12,6 @@ void check_for_hammer() {
 
 void set_partner(int partner) {
     pm_player.stats.current_partner = partner;
-}
-
-void set_story_progress(int story_progress) {
-    pm_unk3.story_progress = story_progress;
 }
 
 void remove_key_item(int item_id) {
@@ -37,20 +23,20 @@ void remove_key_item(int item_id) {
 }
 
 void load_jr_skip() {
-    set_story_progress(0x88);
+    fp_set_story_progress(0x88);
     fp_warp(0, 3, 0);
 }
 
 void load_black_toad_skip() {
     check_for_hammer();
-    set_story_progress(0x99);
+    fp_set_story_progress(0x99);
     fp_warp(1, 2, 2);
 }
 
 void load_retrigger_prologue() {
     check_for_hammer();
-    set_story_progress(0x9c);
-    set_global_flag(0x01e, 0); //dolly not collected
+    fp_set_story_progress(0x9c);
+    fp_set_global_flag(0x01e, 0); //dolly not collected
     for (int i = 0; i < 32; i++) {
         if (pm_player.key_items[i] == 0) {
             pm_player.key_items[i] = 0x1c; //weight
@@ -61,7 +47,7 @@ void load_retrigger_prologue() {
 }
 
 void load_oot_ace() {
-    set_story_progress(0x90);
+    fp_set_story_progress(0x90);
     pm_player.stats.hammer_upgrade = 0;
     set_partner(GOOMBARIO);
     pm_player.party.goombario.in_party = 1;
@@ -85,7 +71,7 @@ void load_oot_ace() {
 }
 
 void load_staircase_skip() {
-    set_story_progress(0xa8);
+    fp_set_story_progress(0xa8);
     fp_warp(7, 4, 0);
 }
 
@@ -93,7 +79,7 @@ void load_pit() {
     //TODO: figure out how defeated enemy flags work properly
     uint8_t *enemies_defeated = (uint8_t*)0x800B10F3; //JP address for koopas in pit
     *enemies_defeated = 0;
-    set_global_flag(0x29a, 0); //pit not cleared
+    fp_set_global_flag(0x29a, 0); //pit not cleared
     fp_warp(7,7,0);
 }
 
@@ -104,7 +90,7 @@ void load_pie_jumps() {
 
 void load_log_skip() {
     check_for_hammer();
-    set_story_progress(0xae);
+    fp_set_story_progress(0xae);
     fp_warp(1, 2, 1);
 }
 
@@ -125,204 +111,204 @@ void load_buzzar_skip() {
 }
 
 void load_outpost_jump() {
-    set_story_progress(0xc0);
+    fp_set_story_progress(0xc0);
     fp_warp(9, 1, 0);
 }
 
 void load_slow_go_early() {
-    set_global_flag(0x37b, 1); //tutankoopa text
-    set_global_flag(0x380, 1); //block gone
-    set_global_flag(0x384, 1); //chest open
+    fp_set_global_flag(0x37b, 1); //tutankoopa text
+    fp_set_global_flag(0x380, 1); //block gone
+    fp_set_global_flag(0x384, 1); //chest open
     pm_player.stats.boots_upgrade = 1;
     fp_warp(0xb, 8, 0);
 }
 
 void load_ch2_card_lzs() {
     //TODO: make this not crash when loading after failed attempt
-    set_story_progress(0xc8);
-    set_global_flag(0x37d, 1); //tutankoopa text in previous room
+    fp_set_story_progress(0xc8);
+    fp_set_global_flag(0x37d, 1); //tutankoopa text in previous room
     fp_warp(0xb, 0xe, 0);
 }
 
 void load_record_skip() {
     check_for_hammer();
-    set_story_progress(0xd5);
+    fp_set_story_progress(0xd5);
     set_partner(BOMBETTE);
     remove_key_item(0x1c);
     fp_warp(0xd, 6, 0);
 }
 void load_bow_skip() {
-    set_story_progress(0xd9);
+    fp_set_story_progress(0xd9);
     fp_warp(0xc, 0xa, 1);
 }
 
 void load_stanley_save() {
     check_for_hammer();
-    set_story_progress(0xde);
+    fp_set_story_progress(0xde);
     set_partner(PARAKARRY);
     fp_warp(0xe, 3, 0);
 }
 
 void load_yakkey_trick_shot() {
-    set_story_progress(0xe0);
-    set_global_flag(0x42f, 0); //yakkey chest
+    fp_set_story_progress(0xe0);
+    fp_set_global_flag(0x42f, 0); //yakkey chest
     remove_key_item(0x1f); //mystical key
     fp_warp(0xf, 0x12, 0);
 }
 
 void load_quick_escape() {
     //TODO: figure out how to get tubba to appear
-    set_story_progress(0xe4);
+    fp_set_story_progress(0xe4);
     set_partner(PARAKARRY);
     fp_warp(0xf, 1, 4);
 }
 
 void load_ch3_card_lzs() {
-    set_story_progress(0xf0);
+    fp_set_story_progress(0xf0);
     fp_warp(0xe, 4, 1);
 }
 
 void load_early_train() {
     check_for_hammer();
-    set_story_progress(0xb7);
+    fp_set_story_progress(0xb7);
     set_partner(PARAKARRY);
-    set_global_flag(0x12f, 0); //snowman doll
-    set_global_flag(0x130, 0); //volt shroom
-    set_global_flag(0x121, 0); //toy train
-    set_global_flag(0x131, 0); //dizzy dial
+    fp_set_global_flag(0x12f, 0); //snowman doll
+    fp_set_global_flag(0x130, 0); //volt shroom
+    fp_set_global_flag(0x121, 0); //toy train
+    fp_set_global_flag(0x131, 0); //dizzy dial
     remove_key_item(0x21); //toy train
     fp_warp(1, 5, 0);
 }
 
 void load_early_whale_fast_music() {
     check_for_hammer();
-    set_story_progress(0x04);
+    fp_set_story_progress(0x04);
     fp_warp(1, 5, 1);
 }
 
 void load_frying_pan_wall_clip() {
     check_for_hammer();
     set_partner(PARAKARRY);
-    set_global_flag(0x474, 1); //fuzzy spawn cutscene
+    fp_set_global_flag(0x474, 1); //fuzzy spawn cutscene
     fp_warp(0x10, 6, 0);
 }
 
 void load_gourmet_guy_skip() {
     check_for_hammer();
-    set_story_progress(0xfb);
+    fp_set_story_progress(0xfb);
     fp_warp(0x10, 5, 0);
 }
 
 void load_ch4_card_lzs() {
-    set_story_progress(0x04);
+    fp_set_story_progress(0x04);
     fp_warp(0x10, 0xe, 0);
 }
 
 void load_bhs_top() {
     if (pm_unk3.story_progress < 0x6 || pm_unk3.story_progress > 0xf2) {
-        set_story_progress(0xf1);
+        fp_set_story_progress(0xf1);
     }
-    set_global_flag(0x084, 0); //key collected
-    set_global_flag(0x083, 1); //lock opened
+    fp_set_global_flag(0x084, 0); //key collected
+    fp_set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
     fp_warp(1, 3, 2);
 }
 
 void load_bhs_bottom() {
     if (pm_unk3.story_progress < 0x6 || pm_unk3.story_progress > 0xf2) {
-        set_story_progress(0xf1);
+        fp_set_story_progress(0xf1);
     }
-    set_global_flag(0x084, 0); //key collected
-    set_global_flag(0x083, 1); //lock opened
+    fp_set_global_flag(0x084, 0); //key collected
+    fp_set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
     fp_warp(1, 3, 3);
 }
 
 void load_early_whale_slow_music() {
     check_for_hammer();
-    set_story_progress(0x0d);
+    fp_set_story_progress(0x0d);
     fp_warp(1, 5, 1);
 }
 
 void load_raph_skip() {
-    set_story_progress(0x0f);
+    fp_set_story_progress(0x0f);
     set_partner(PARAKARRY);
     fp_warp(0x11, 0x14, 0);
 }
 
 void load_piranha_first_strike() {
-    set_story_progress(0x0f);
+    fp_set_story_progress(0x0f);
     set_partner(BOMBETTE);
-    set_global_flag(0x4f8, 0); //yellow yoshi text
-    set_global_flag(0x4cf, 0); //yellow yoshi saved
+    fp_set_global_flag(0x4f8, 0); //yellow yoshi text
+    fp_set_global_flag(0x4cf, 0); //yellow yoshi saved
     fp_warp(0x11, 7, 0);
 }
 
 void load_lava_platform_cycle() {
-    set_story_progress(0x19);
+    fp_set_story_progress(0x19);
     fp_warp(0x12, 1, 0);
 }
 
 void load_ultra_hammer_skip() {
     check_for_hammer();
-    set_story_progress(0x1a);
+    fp_set_story_progress(0x1a);
     fp_warp(0x12, 0x2, 0);
 }
 
 void load_lava_puzzle_skip() {
     check_for_hammer();
-    set_story_progress(0x1a);
+    fp_set_story_progress(0x1a);
     set_partner(PARAKARRY);
     fp_warp(0x12, 5, 0);
 }
 
 void load_ultra_hammer_early() {
-    set_global_flag(0x522, 0); //block not destroyed
-    set_global_flag(0x523, 0); //chest closed
+    fp_set_global_flag(0x522, 0); //block not destroyed
+    fp_set_global_flag(0x523, 0); //chest closed
     fp_warp(0x12, 6, 0);
 }
 
 void load_flarakarry() {
-    set_story_progress(0x1e);
+    fp_set_story_progress(0x1e);
     set_partner(PARAKARRY);
     fp_warp(0x12, 0xb, 0);
 }
 
 void load_lava_piranha_skip() {
     check_for_hammer();
-    set_story_progress(0x22);
-    set_global_flag(0x52f, 1); //talked to kolorado
+    fp_set_story_progress(0x22);
+    fp_set_global_flag(0x52f, 1); //talked to kolorado
     fp_warp(0x12, 0xd, 0);
 }
 
 void load_ch5_card_lzs() {
-    set_story_progress(0x23);
+    fp_set_story_progress(0x23);
     fp_warp(0x12, 0xd, 1);
 }
 
 void load_early_laki() {
     check_for_hammer();
-    set_story_progress(0x2b);
+    fp_set_story_progress(0x2b);
     fp_warp(0x13, 0, 1);
 }
 
 void load_yellow_berry_skip() {
     check_for_hammer();
-    set_story_progress(0x2d);
-    set_global_flag(0x554, 0); //yellow flower gate
+    fp_set_story_progress(0x2d);
+    fp_set_global_flag(0x554, 0); //yellow flower gate
     fp_warp(0x13, 0, 6);
 }
 
 void load_peach_warp() {
     check_for_hammer();
-    set_story_progress(0x33);
+    fp_set_story_progress(0x33);
     set_partner(LAKILESTER);
     fp_warp(0x12, 0xc, 0);
 }
 
 void load_sushie_peach_warp() {
     check_for_hammer();
-    set_story_progress(0x33);
+    fp_set_story_progress(0x33);
     set_partner(BOMBETTE);
     pm_player.party.bombette.in_party = 1;
     pm_player.party.sushie.in_party = 1;
@@ -331,13 +317,13 @@ void load_sushie_peach_warp() {
 }
 
 void load_ch6_card_lzs() {
-    set_story_progress(0x38);
+    fp_set_story_progress(0x38);
     fp_warp(0x13, 0xf, 0);
 }
 
 void load_clippy_boots() {
-    set_global_flag(0x18d, 1); //super block broken
-    set_global_flag(0x18e, 0); //ultra block unbroken
+    fp_set_global_flag(0x18d, 1); //super block broken
+    fp_set_global_flag(0x18e, 0); //ultra block unbroken
     set_partner(LAKILESTER);
     pm_player.party.sushie.in_party = 1;
     pm_player.party.lakilester.in_party = 1;
@@ -346,57 +332,57 @@ void load_clippy_boots() {
 
 void load_murder_solved_early() {
     set_partner(LAKILESTER);
-    set_story_progress(0x3e);
+    fp_set_story_progress(0x3e);
     fp_warp(0x14, 0xa, 0);
 }
 
 void load_sushie_glitch() {
     set_partner(SUSHIE);
-    set_story_progress(0x43);
+    fp_set_story_progress(0x43);
     fp_warp(0x14, 0xa, 0);
 }
 
 void load_ice_staircase_skip() {
     set_partner(LAKILESTER);
-    set_story_progress(0x4b);
+    fp_set_story_progress(0x4b);
     fp_warp(0x14, 9, 0);
 }
 
 void load_mirror_clip() {
     set_partner(LAKILESTER);
-    set_story_progress(0x4e);
+    fp_set_story_progress(0x4e);
     fp_warp(0x15, 1, 1);
 }
 
 void load_kooper_puzzle_skip() {
     set_partner(KOOPER);
-    set_story_progress(0x51);
+    fp_set_story_progress(0x51);
     fp_warp(0x15, 0xf, 0);
 }
 
 void load_fast_basement_first() {
-    set_story_progress(0x5e);
-    set_global_flag(0x60e, 0); //first switch
-    set_global_flag(0x60f, 0); //second switch
-    set_global_flag(0x615, 0); //basement fight
-    set_global_flag(0x614, 0); //hardened lava
+    fp_set_story_progress(0x5e);
+    fp_set_global_flag(0x60e, 0); //first switch
+    fp_set_global_flag(0x60f, 0); //second switch
+    fp_set_global_flag(0x615, 0); //basement fight
+    fp_set_global_flag(0x614, 0); //hardened lava
     pm_player.stats.boots_upgrade = 2;
     fp_warp(0x16, 7, 0);
 }
 
 void load_fast_basement_second() {
-    set_story_progress(0x5e);
-    set_global_flag(0x60e, 0); //first switch
-    set_global_flag(0x60f, 0); //second switch
-    set_global_flag(0x615, 0); //basement fight
-    set_global_flag(0x614, 0); //hardened lava
+    fp_set_story_progress(0x5e);
+    fp_set_global_flag(0x60e, 0); //first switch
+    fp_set_global_flag(0x60f, 0); //second switch
+    fp_set_global_flag(0x615, 0); //basement fight
+    fp_set_global_flag(0x614, 0); //hardened lava
     pm_player.stats.boots_upgrade = 2;
     fp_warp(0x16, 8, 0);
 }
 
 void load_basement_skip() {
     set_partner(PARAKARRY);
-    set_global_flag(0x614, 1); //hardened lava
+    fp_set_global_flag(0x614, 1); //hardened lava
     fp_warp(0x16, 0x17, 2);
 }
 
@@ -409,9 +395,9 @@ void load_fast_flood_room() {
     set_partner(LAKILESTER);
     pm_player.party.kooper.in_party = 1;
     pm_player.party.lakilester.in_party = 1;
-    set_global_flag(0x632, 0); //key not collected
+    fp_set_global_flag(0x632, 0); //key not collected
     //TODO: for some reason there's this flag to put the spring back, but no flag to make the switch reappear
-    set_global_flag(0x633, 0); //spring still in wall
+    fp_set_global_flag(0x633, 0); //spring still in wall
     remove_key_item(0x01a); //castle key 2
     fp_warp(0x16, 0x31, 1);
 }
