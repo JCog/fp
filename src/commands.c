@@ -108,6 +108,16 @@ void fp_set_global_byte(int byte_index,  int8_t value) {
     pm_flags.global_bytes[byte_index] = value;
 }
 
+void fp_set_area_flag(int flag_index, _Bool value) {
+    int word_index = flag_index / 32;
+    int bit = flag_index % 32;
+    uint32_t *p = pm_flags.area_flags;
+    if (value)
+        p[word_index] |= (1 << bit);
+    else
+        p[word_index] &= ~(1 << bit);
+}
+
 void command_levitate_proc() {
     if (pm_status.peach_flags == 0) {
         pm_player.flags |= 3;

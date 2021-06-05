@@ -57,6 +57,7 @@ void fp_warp(uint16_t group, uint16_t room, uint16_t entrance);
 void fp_set_story_progress(int story_progress);
 void fp_set_global_flag(int flag_index, _Bool value);
 void fp_set_global_byte(int byte_index,  int8_t value);
+void fp_set_area_flag(int flag_index, _Bool value);
 
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();

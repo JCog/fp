@@ -242,6 +242,7 @@ void flag_menu_create(struct menu *menu)
     vector_init(&records, sizeof(struct flag_record));
     vector_init(&events, sizeof(struct flag_event));
     add_record(4, 64, &pm_flags.global_flags, "global flags");
+    add_record(4, 8, &pm_flags.area_flags, "area flags");
     /* initialize menus */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
