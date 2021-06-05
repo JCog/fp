@@ -9,7 +9,8 @@ static const char *labels[] =
     "star power",
     "star pieces",
     "peril",
-    "break free"
+    "break free",
+    "auto mash"
     
 };
 

@@ -414,6 +414,10 @@ typedef struct {
     uint32_t        turns_since_heal;       /* 0x0018 */
 }bowser_ctxt_t;
 
+typedef struct {
+    uint16_t        mash_bar;               /* 0x0000 */ /* ranges from 0 to 10,000 */
+}unk7_ctxt_t;
+
 /* Addresses */
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_FioReadFlash_addr                0x8002B828
@@ -436,6 +440,7 @@ typedef struct {
 #define pm_PlayAmbientSounds_addr           0x8014C418
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_warp_addr                        0x80156740
+#define pm_unk7_addr                        0x8029FF14
 #define pm_SaveGame_addr                    0x802DC150
 #define pm_bowser_addr                      0x803DE378
 #define pm_ace_addr                         0x807BFFFC
@@ -456,6 +461,7 @@ typedef struct {
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
 #define pm_warp               (*(warp_ctxt_t*)        pm_warp_addr)
+#define pm_unk7               (*(unk7_ctxt_t*)        pm_unk7_addr)
 #define pm_bowser             (*(bowser_ctxt_t*)      pm_bowser_addr)
 #define pm_ace                (*(ace_ctxt_t*)         pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)

@@ -298,6 +298,9 @@ void fp_main(void) {
             pm_player.flags &= third_byte_mask;
         }
     }
+    if (settings->cheats & (1 << CHEAT_AUTO_MASH)) {
+        pm_unk7.mash_bar = 10000;
+    }
 
     /* update turbo */
     if (fp.turbo) {

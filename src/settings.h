@@ -26,6 +26,7 @@ enum cheats {
     CHEAT_STAR_PIECES,
     CHEAT_PERIL,
     CHEAT_BREAK,
+    CHEAT_AUTO_MASH,
     CHEAT_MAX
 };
 
