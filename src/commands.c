@@ -90,6 +90,20 @@ void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     return;
 }
 
+void fp_set_story_progress(int story_progress) {
+    pm_unk3.story_progress = story_progress;
+}
+
+void fp_set_global_flag(int flag_index, _Bool value) {
+    int word_index = flag_index / 32;
+    int bit = flag_index % 32;
+    uint32_t *p = pm_flags.global_flags;
+    if (value)
+        p[word_index] |= (1 << bit);
+    else
+        p[word_index] &= ~(1 << bit);
+}
+
 void command_levitate_proc() {
     if (pm_status.peach_flags == 0) {
         pm_player.flags |= 3;
