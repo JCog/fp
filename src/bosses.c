@@ -89,8 +89,8 @@ static void jr_shiver_snowfield_proc(struct menu_item *item, void *data) {
 }
 
 static void jr_bowsers_castle_proc(struct menu_item *item, void *data) {
-    //TODO: this fight probably uses a group flag, so figure those out
     fp_set_story_progress(0x5f);
+    fp_set_global_byte(0x12c, 0);
     fp_warp(0x16, 0x1c, 0x0);
 }
 
@@ -162,14 +162,59 @@ static void kent_c_koopa_proc(struct menu_item *item, void *data) {
 }
 
 static void anti_guys_unit_proc(struct menu_item *item, void *data) {
-    //TODO: group flag
     fp_set_story_progress(0x5f);
+    fp_set_global_byte(0x12b, 0);
     fp_warp(0x16, 0x1b, 0x0);
 }
 
 static void chan_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x451, 0); //anti guy not defeated
-    fp_warp(0x1, 0x1, 0x1);
+    fp_set_global_byte(0x1C, 0);
+    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+        fp_log("dojo set to chan");
+    }
+    else {
+        fp_warp(0x1, 0x1, 0x1);
+    }
+}
+
+static void lee_proc(struct menu_item *item, void *data) {
+    fp_set_global_byte(0x1C, 1);
+    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+        fp_log("dojo set to lee");
+    }
+    else {
+        fp_warp(0x1, 0x1, 0x1);
+    }
+}
+
+static void master1_proc(struct menu_item *item, void *data) {
+    fp_set_global_byte(0x1C, 2);
+    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+        fp_log("dojo set to master 1");
+    }
+    else {
+        fp_warp(0x1, 0x1, 0x1);
+    }
+}
+
+static void master2_proc(struct menu_item *item, void *data) {
+    fp_set_global_byte(0x1C, 3);
+    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+        fp_log("dojo set to master 2");
+    }
+    else {
+        fp_warp(0x1, 0x1, 0x1);
+    }
+}
+
+static void master3_proc(struct menu_item *item, void *data) {
+    fp_set_global_byte(0x1C, 4);
+    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+        fp_log("dojo set to master 3");
+    }
+    else {
+        fp_warp(0x1, 0x1, 0x1);
+    }
 }
 
 static void tab_prev_proc(struct menu_item *item, void *data) {
@@ -189,7 +234,7 @@ void create_bosses_menu(struct menu *menu)
     menu->selector = menu_add_submenu(menu, 0, y_main++, NULL, "return");
 
 
-    int page_count = 5;
+    int page_count = 6;
     struct menu *pages = malloc(sizeof(*pages) * page_count);
     struct menu_item *tab = menu_add_tab(menu, 0, y_main++, pages, page_count);
     for (int i = 0; i < page_count; ++i) {
@@ -253,14 +298,14 @@ void create_bosses_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "anti guys unit", anti_guys_unit_proc, NULL);
 
     /* dojo */
-//    y_tab = 0;
-//    page = &pages[5];
-//    menu_add_static(page, 0, y_tab++, "dojo", 0xC0C0C0);
-//    menu_add_button(page, 0, y_tab++, "chan", chan_proc, NULL);
-//    menu_add_button(page, 0, y_tab++, "lee", lee_proc, NULL);
-//    menu_add_button(page, 0, y_tab++, "master 1", master1_proc, NULL);
-//    menu_add_button(page, 0, y_tab++, "master 2", master2_proc, NULL);
-//    menu_add_button(page, 0, y_tab++, "master 3", master3_proc, NULL);
+    y_tab = 0;
+    page = &pages[5];
+    menu_add_static(page, 0, y_tab++, "dojo", 0xC0C0C0);
+    menu_add_button(page, 0, y_tab++, "chan", chan_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "lee", lee_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "master 1", master1_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "master 2", master2_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "master 3", master3_proc, NULL);
 
     menu_tab_goto(tab, 0);
     menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);

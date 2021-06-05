@@ -157,6 +157,7 @@ typedef struct{
 
 typedef struct{
     uint32_t        global_flags[64];           /* 0x0000 */
+    int8_t          global_bytes[512];          /* 0x0100 */
 }flags_ctxt_t;
 
 typedef struct{
