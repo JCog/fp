@@ -2,6 +2,17 @@
 #include "menu.h"
 #include "fp.h"
 
+static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_intinput_get(item) != *p)
+            menu_intinput_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_CHANGED)
+        *p = menu_intinput_get(item);
+    return 0;
+}
+
 static void bowser_hallway_proc(struct menu_item *item, void *data) {
     fp_set_story_progress(0x5f);
     fp_set_global_flag(0x1fa, 0); //hallway not defeated
@@ -15,7 +26,6 @@ static void bowser_phase1_proc(struct menu_item *item, void *data) {
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
-    //TODO: add hp selector
     fp_set_story_progress(0x5f);
     fp_warp(0x4, 0x13, 0x1);
 }
@@ -249,6 +259,8 @@ void create_bosses_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "hallway", bowser_hallway_proc, NULL);
     menu_add_button(page, 0, y_tab++, "final phase 1", bowser_phase1_proc, NULL);
     menu_add_button(page, 0, y_tab++, "final phase 2", bowser_phase2_proc, NULL);
+    menu_add_static(page, 0, y_tab, "phase 2 hp:", 0xC0C0C0);
+    menu_add_intinput(page, 12, y_tab++, 10, 2, byte_mod_proc, &pm_flags.global_bytes[0x18a]);
 
     /* chapter bosses */
     y_tab = 0;
