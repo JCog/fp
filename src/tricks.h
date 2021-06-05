@@ -54,7 +54,8 @@ enum tricks {
     BASEMENT_SKIP,
     BLIND_BASEMENT,
     FAST_FLOOD_ROOM,
-    CANNONLESS
+    CANNONLESS,
+    LUIGI_SKIP
 };
 
 enum partners {

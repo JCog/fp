@@ -408,6 +408,12 @@ void load_cannonless() {
     fp_warp(0x16, 0x2f, 0);
 }
 
+void load_luigi_skip() {
+    set_partner(NONE);
+    fp_set_story_progress(0x60);
+    fp_warp(0x0, 0xb, 0x3);
+}
+
 void load_trick(int8_t trick) {
     switch (trick) {
         case JR_SKIP:                   load_jr_skip();                     break;
@@ -472,6 +478,7 @@ void load_trick(int8_t trick) {
         case BLIND_BASEMENT:            load_blind_basement();              break;
         case FAST_FLOOD_ROOM:           load_fast_flood_room();             break;
         case CANNONLESS:                load_cannonless();                  break;
+        case LUIGI_SKIP:                load_luigi_skip();                  break;
     }
 }
 
@@ -755,6 +762,11 @@ static void cannonless_proc(struct menu_item *item, void *data) {
     load_cannonless();
 }
 
+static void luigi_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LUIGI_SKIP;
+    load_luigi_skip();
+}
+
 void create_tricks_menu(struct menu *menu)
 {
     int y_main = 0;
@@ -870,6 +882,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "blind basement", blind_basement_proc, NULL);
     menu_add_button(page, 0, y_tab++, "fast flood room", fast_flood_room_proc, NULL);
     menu_add_button(page, 0, y_tab++, "cannonless", cannonless_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "luigi skip", luigi_skip_proc, NULL);
 
     menu_tab_goto(tab, 0);
     menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);
