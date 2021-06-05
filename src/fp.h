@@ -48,6 +48,8 @@ typedef struct{
     int8_t                  saved_trick;
     int8_t                  ace_frame_window;
     _Bool                   turbo;
+    _Bool                   bowser_blocks_enabled;
+    int8_t                  bowser_block;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

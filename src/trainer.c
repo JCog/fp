@@ -5,6 +5,31 @@
 #include "gfx.h"
 #include "fp.h"
 
+static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        *p = 1;
+    }
+    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        *p = 0;
+    }
+    else if (reason == MENU_CALLBACK_THINK) {
+        menu_checkbox_set(item, *p);
+    }
+    return 0;
+}
+
+static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p)
+            menu_option_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        *p = menu_option_get(item);
+    return 0;
+}
+
 static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
@@ -115,18 +140,29 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 
 void create_trainer_menu(struct menu *menu)
 {
+    static struct menu bowserMenu;
     static struct menu issMenu;
     static struct menu aceMenu;
     
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    menu_add_submenu(menu, 0, 1, &issMenu, "ice staircase skip");
-    menu_add_submenu(menu, 0, 2, &aceMenu, "oot ace");
+    menu_add_submenu(menu, 0, 1, &bowserMenu, "bowser blocks");
+    menu_add_submenu(menu, 0, 2, &issMenu, "ice staircase skip");
+    menu_add_submenu(menu, 0, 3, &aceMenu, "oot ace");
+
+    /*build bowser menu*/
+    int y_value = 0;
+    bowserMenu.selector = menu_add_submenu(&bowserMenu, 0, y_value++, NULL, "return");
+    menu_add_static(&bowserMenu, 0, y_value, "enabled", 0xC0C0C0);
+    menu_add_checkbox(&bowserMenu, 8, y_value++, checkbox_mod_proc, &fp.bowser_blocks_enabled);
+    menu_add_static(&bowserMenu, 0, y_value, "attack", 0xC0C0C0);
+    menu_add_option(&bowserMenu, 8, y_value++, "fire\0""butt stomp\0""claw\0""wave\0""lightning\0", byte_optionmod_proc, &fp.bowser_block);
 
     /*build iss menu*/
     issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");

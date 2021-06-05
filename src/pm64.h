@@ -392,8 +392,7 @@ typedef struct{
 }ace_store_ctxt_t;
 
 typedef struct{
-    char            unk_0x00[0x02];         /* 0x0000 */
-    uint8_t         iframe_timer;           /* 0x0002 */
+    uint32_t        rng;
 }unk4_ctxt_t;
 
 typedef struct{
@@ -405,18 +404,28 @@ typedef struct {
     uint8_t         menu_open;              /* 0x0003 */ /* seems to always be non-zero when a menu is open in battle */
 }unk6_ctxt_t;
 
+typedef struct {
+    uint32_t        turn;                   /* 0x0000 */
+    char            unk_0x04[4];            /* 0x0004 */
+    uint32_t        turns_since_wave;       /* 0x0008 */
+    uint32_t        turns_since_shield;     /* 0x000C */
+    uint32_t        turns_since_claw;       /* 0x0010 */
+    uint32_t        turns_since_stomp;      /* 0x0014 */
+    uint32_t        turns_since_heal;       /* 0x0018 */
+}bowser_ctxt_t;
+
 /* Addresses */
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
 #define pm_LoadGame_addr                    0x8002B290
 #define pm_status_addr                      0x80074004
+#define pm_unk4_addr                        0x800743F0
 #define pm_unk5_addr                        0x80093B64
 #define pm_unk1_addr                        0x8009A5A8
 #define pm_gfx_addr                         0x8009A64C
 #define pm_unk2_addr                        0x8009E6D0
 #define pm_unk6_addr                        0x800AC198
-#define pm_unk4_addr                        0x800B0EF8
 #define pm_effects_addr                     0x800B4378
 #define pm_flags_addr                       0x800DBC50
 #define pm_unk3_addr                        0x800DBD50
@@ -428,6 +437,7 @@ typedef struct {
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_warp_addr                        0x80156740
 #define pm_SaveGame_addr                    0x802DC150
+#define pm_bowser_addr                      0x803DE378
 #define pm_ace_addr                         0x807BFFFC
 #define pm_ace_store_addr                   0x807D0000
 
@@ -446,6 +456,7 @@ typedef struct {
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
 #define pm_warp               (*(warp_ctxt_t*)        pm_warp_addr)
+#define pm_bowser             (*(bowser_ctxt_t*)      pm_bowser_addr)
 #define pm_ace                (*(ace_ctxt_t*)         pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 
