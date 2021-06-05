@@ -1,5 +1,5 @@
 PACKAGE    ?= $(NAME)
-URL        ?= github.com/fig02/fp-plus
+URL        ?= github.com/jcog/fp
 CC          = mips64-gcc
 LD          = mips64-g++
 AS          = mips64-gcc

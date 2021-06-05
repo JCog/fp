@@ -78,7 +78,7 @@ With all programs installed, we are now ready to actually build the practice rom
 First clone this project to your location of choice. I personally keep it on the windows side because that is where I do all my editing and emulator testing. I just use WSL to build.  
 ```cd /mnt/e/<path to fp destination>```  
 replace the 'e' with 'c' if you'd like to use your C drive:  
-```git clone https://github.com/fig02/fp.git```  
+```git clone https://github.com/jcog/fp.git```  
 
 Then back in windows, create a folder in the fp project called "rom".  Place a totally legally obtained Mario Story (J) ROM in this folder and rename it to "base-j.z64".  
 Back in WSL, run the following:  
