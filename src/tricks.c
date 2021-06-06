@@ -115,6 +115,19 @@ void load_outpost_jump() {
     fp_warp(9, 1, 0);
 }
 
+void load_spike_shield_early() {
+    fp_set_global_flag(0x694, 0); //spike shield
+    fp_set_area_flag(0x4, 0); //coffin 1
+    fp_set_area_flag(0x5, 0); //coffin 2
+    fp_set_area_flag(0x6, 0); //coffin 3
+    for (int i = 0; i < 128; i++) {
+        if (pm_player.badges[i] == 0xe5) { //spike shield
+            pm_player.badges[i] = 0;
+        }
+    }
+    fp_warp(0xb, 0x1, 0x0);
+}
+
 void load_slow_go_early() {
     fp_set_global_flag(0x37b, 1); //tutankoopa text
     fp_set_global_flag(0x380, 1); //block gone
@@ -436,6 +449,7 @@ void load_trick(int8_t trick) {
         case EARLY_SEED:                load_early_seed();                  break;
         case BUZZAR_SKIP:               load_buzzar_skip();                 break;
         case OUTPOST_JUMP:              load_outpost_jump();                break;
+        case SPIKE_SHIELD_EARLY:        load_spike_shield_early();          break;
         case SLOW_GO_EARLY:             load_slow_go_early();               break;
         case CH2_CARD_LZS:              load_ch2_card_lzs();                break;
 
@@ -557,6 +571,11 @@ static void buzzar_skip_proc(struct menu_item *item, void *data) {
 static void outpost_jump_proc(struct menu_item *item, void *data) {
     fp.saved_trick = OUTPOST_JUMP;
     load_outpost_jump();
+}
+
+static void spike_shield_early_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SPIKE_SHIELD_EARLY;
+    load_spike_shield_early();
 }
 
 static void slow_go_early_proc(struct menu_item *item, void *data) {
@@ -822,6 +841,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "early seed", early_seed_proc, NULL);
     menu_add_button(page, 0, y_tab++, "buzzar skip", buzzar_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "outpost jump", outpost_jump_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "spike shield early", spike_shield_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "slow go early", slow_go_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch2 card lzs", ch2_card_lzs_proc, NULL);
 

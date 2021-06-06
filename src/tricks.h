@@ -13,6 +13,7 @@ enum tricks {
     EARLY_SEED,
     BUZZAR_SKIP,
     OUTPOST_JUMP,
+    SPIKE_SHIELD_EARLY,
     SLOW_GO_EARLY,
     CH2_CARD_LZS,
     RECORD_SKIP,
