@@ -91,4 +91,3 @@ A breif explanation of what the make commands do:
 ```clean```: erases the bin and obj folders from the previous build.  
 ```all```: builds the obj and binary files to be appeneded to the rom. Also runs armips to patch the rom with the asm to dma the payload to ram at run time.     
 ```crc```: uses glanks lua tool called gru to update the rom crc. Since armips will dynamically allocate space for the binary depending on its size, the dma instructions change on each build so the crc needs to update accordingly.  
-
