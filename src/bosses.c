@@ -259,6 +259,7 @@ void create_bosses_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "hallway", bowser_hallway_proc, NULL);
     menu_add_button(page, 0, y_tab++, "final phase 1", bowser_phase1_proc, NULL);
     menu_add_button(page, 0, y_tab++, "final phase 2", bowser_phase2_proc, NULL);
+    y_tab++;
     menu_add_static(page, 0, y_tab, "phase 2 hp:", 0xC0C0C0);
     menu_add_intinput(page, 12, y_tab++, 10, 2, byte_mod_proc, &pm_flags.global_bytes[0x18a]);
 

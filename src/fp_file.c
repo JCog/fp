@@ -63,7 +63,7 @@ struct menu *create_file_menu(void)
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
     menu_add_button(&menu, 11, y, "-", save_slot_dec_proc, NULL);
     menu_add_watch(&menu, 13, y, (uint32_t)&pm_status.save_slot, WATCH_TYPE_U8);
-    menu_add_button(&menu, 17, y++, "+", save_slot_inc_proc, NULL);
+    menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     menu_add_button(&menu, 0, y, "save", save_proc, NULL);
     menu_add_button(&menu, 5, y++, "load", load_proc, NULL);
     y++;
