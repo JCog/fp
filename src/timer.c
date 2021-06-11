@@ -14,6 +14,17 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
+static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p)
+            menu_option_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        *p = menu_option_get(item);
+    return 0;
+}
+
 static int show_timer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data)
 {
     if (reason == MENU_CALLBACK_SWITCH_ON)
@@ -73,15 +84,15 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     seconds %= 60;
     minutes %= 60;
     if (hours > 0) {
-        gfx_printf(font, x, y, "timer %d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
+        gfx_printf(font, x, y, "timer  %d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
     }
     else if (minutes > 0) {
-        gfx_printf(font, x, y, "timer %d:%02d.%02d", minutes, seconds, hundredths);
+        gfx_printf(font, x, y, "timer  %d:%02d.%02d", minutes, seconds, hundredths);
     }
     else {
-        gfx_printf(font, x, y, "timer %d.%02d", seconds, hundredths);
+        gfx_printf(font, x, y, "timer  %d.%02d", seconds, hundredths);
     }
-    gfx_printf(font, x, y + chHeight, "lag   %d", lag_frames >= 0 ? lag_frames : 0);
+    gfx_printf(font, x, y + chHeight, "lag    %d", lag_frames >= 0 ? lag_frames : 0);
     return 1;
 }
 
@@ -118,13 +129,15 @@ void create_timer_menu(struct menu *menu)
     menu->selector = menu_add_submenu(menu, 0, y_main++, NULL, "return");
 
     /*build menu*/
+    menu_add_static(menu, 0, y_main, "status", 0xC0C0C0);
+    menu_add_static_custom(menu, 7, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
     menu_add_static_custom(menu, 0, y_main++, timer_draw_proc, NULL, 0xC0C0C0);
     y_main++;
-    menu_add_button(menu, 0, y_main, "start", start_proc, NULL);
-    menu_add_button(menu, 6, y_main++, "reset", reset_proc, NULL);
+    menu_add_button(menu, 0, y_main, "start/stop", start_proc, NULL);
+    menu_add_button(menu, 11, y_main++, "reset", reset_proc, NULL);
     y_main++;
-    menu_add_static(menu, 0, y_main, "timer status", 0xC0C0C0);
-    menu_add_static_custom(menu, MENU_X, y_main++, timer_status_draw_proc, NULL, 0xC0C0C0);
+    menu_add_static(menu, 0, y_main, "timer mode", 0xC0C0C0);
+    menu_add_option(menu, MENU_X, y_main++, "automatic\0""manual\0", byte_optionmod_proc, &fp.timer.mode);
     menu_add_static(menu, 0, y_main, "cutscene count", 0xC0C0C0);
     menu_add_intinput(menu, MENU_X, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
     menu_add_static(menu, 0, y_main, "show timer", 0xC0C0C0);

@@ -22,7 +22,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
     {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
     {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc},
-    {"start timer",      COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
+    {"start/stop timer",      COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
     {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc}
 };
 
@@ -187,12 +187,19 @@ void command_save_game_proc() {
 void command_start_timer_proc() {
     if (fp.timer.state == 0) {
         fp.timer.state = 1;
-        fp_log("timer set to start");
+        if (fp.timer.mode == 0) {
+            fp_log("timer set to start");
+        }
+    }
+    else if (fp.timer.state == 2 && fp.timer.mode == 1) {
+        fp.timer.cutscene_count = fp.timer.cutscene_target;
     }
     else if (fp.timer.state == 3) {
         fp.timer.state = 1;
         fp.timer.cutscene_count = 0;
-        fp_log("timer set to start");
+        if (fp.timer.mode == 0) {
+            fp_log("timer set to start");
+        }
     }
 }
 

@@ -147,7 +147,7 @@ void load_record_skip() {
     check_for_hammer();
     fp_set_story_progress(0xd5);
     set_partner(BOMBETTE);
-    remove_key_item(0x1c);
+    remove_key_item(0x1c); //weight
     fp_warp(0xd, 6, 0);
 }
 void load_bow_skip() {

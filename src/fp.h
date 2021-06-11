@@ -19,6 +19,7 @@ struct timer {
     uint16_t        frame_start;
     uint16_t        frame_end;
     _Bool           prev_cutscene_state;
+    uint8_t         mode; /* 0 = auto, 1 = manual; */
     uint8_t         state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
     uint8_t         prev_state;
     uint8_t         cutscene_target;
