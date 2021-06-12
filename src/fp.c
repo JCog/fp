@@ -29,15 +29,16 @@ static void update_cpu_counter(void) {
 }
 
 void fp_main(void) {
+    update_cpu_counter();
+    gfx_mode_init();
+    input_update();
+
     if (!fp.settings_loaded) {
-        if (settings_load(fp.profile)) {
+        if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
             apply_menu_settings();
         }
         fp.settings_loaded = 1;
     }
-    update_cpu_counter();
-    gfx_mode_init();
-    input_update();
 
     /* handle emergency settings reset */
     uint16_t pad_pressed = input_pressed();

@@ -385,6 +385,33 @@ struct menu *create_player_menu(void) {
     const int PARTNERS_X_2 = 13;
     y_value = 0;
 
+    partner_t *partner_list[] = {
+        &pm_player.party.goombario,
+        &pm_player.party.kooper,
+        &pm_player.party.bombette,
+        &pm_player.party.parakarry,
+        &pm_player.party.bow,
+        &pm_player.party.watt,
+        &pm_player.party.sushie,
+        &pm_player.party.lakilester,
+        &pm_player.party.goompa,
+        &pm_player.party.goombaria,
+        &pm_player.party.twink
+    };
+
+    static const char *partner_names[] = {
+        "goombario",
+        "kooper",
+        "bombette",
+        "parakarry",
+        "bow",
+        "watt",
+        "sushie",
+        "lakilester",
+        "goompa",
+        "goombaria",
+        "twink"
+    };
 
     partners.selector = menu_add_submenu(&partners, 0, y_value++, NULL, "return");
 
@@ -394,51 +421,17 @@ struct menu *create_player_menu(void) {
     y_value++;
     menu_add_static(&partners, PARTNERS_X_2, y_value++, "rank", 0xC0C0C0);
 
-    menu_add_static(&partners, 0, y_value, "goombario", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.goombario);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.goombario);
-
-    menu_add_static(&partners, 0, y_value, "kooper", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.kooper);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.kooper);
-
-    menu_add_static(&partners, 0, y_value, "bombette", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.bombette);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.bombette);
-
-    menu_add_static(&partners, 0, y_value, "parakarry", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.parakarry);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.parakarry);
-
-    menu_add_static(&partners, 0, y_value, "bow", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.bow);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.bow);
-
-    menu_add_static(&partners, 0, y_value, "watt", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.watt);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.watt);
-
-    menu_add_static(&partners, 0, y_value, "sushie", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.sushie);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.sushie);
-
-    menu_add_static(&partners, 0, y_value, "lakilester", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.lakilester);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.lakilester);
-
+    for (int i = 0; i < 8; i++) {
+        menu_add_static(&partners, 0, y_value, partner_names[i], 0xC0C0C0);
+        menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, partner_list[i]);
+        menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, partner_list[i]);
+    }
     y_value++;
-
-    menu_add_static(&partners, 0, y_value, "goompa", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.goompa);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.goompa);
-
-    menu_add_static(&partners, 0, y_value, "goombaria", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.goombaria);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.goombaria);
-
-    menu_add_static(&partners, 0, y_value, "twink", 0xC0C0C0);
-    menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, &pm_player.party.twink);
-    menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.twink);
+    for (int i = 8; i < 11; i++) {
+        menu_add_static(&partners, 0, y_value, partner_names[i], 0xC0C0C0);
+        menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, partner_list[i]);
+        menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, partner_list[i]);
+    }
 
     /*build items menu*/
     y_value = 0;
