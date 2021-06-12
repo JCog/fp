@@ -476,13 +476,13 @@ struct menu *create_player_menu(void) {
 
             menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
             if (item_index != 0) {
-                menu_add_button_icon(page, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.key_items[item_index]);
+                menu_add_button_icon(page, 4, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.key_items[item_index]);
             }
             if (item_index != 31) {
-                menu_add_button_icon(page, 4, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.key_items[item_index]);
+                menu_add_button_icon(page, 5, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.key_items[item_index]);
             }
-            menu_add_intinput(page, 6, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
-            menu_add_option(page, 10, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.key_items[item_index]);
+            menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
+            menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.key_items[item_index]);
         }
     }
     menu_tab_goto(key_items_tab, 0);
