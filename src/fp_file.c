@@ -35,6 +35,17 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
+static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    int16_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_intinput_get(item) != *p)
+            menu_intinput_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_CHANGED)
+        *p = menu_intinput_get(item);
+    return 0;
+}
+
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -105,7 +116,7 @@ struct menu *create_file_menu(void)
 
     /*build menu*/
     int y = 0;
-    int MENU_X = 16;
+    int MENU_X = 17;
 
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
@@ -121,6 +132,9 @@ struct menu *create_file_menu(void)
     y++;
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
+    menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
+    menu_add_intinput(&menu, MENU_X, y, 10, 2, halfword_mod_proc, &pm_flags.global_bytes[0x161]);
+
     
     return &menu;
 }

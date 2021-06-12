@@ -369,6 +369,32 @@ typedef struct{
     uint16_t        equipped_badges[64];        /* 0x04D0 */
     merlee_t        merlee;                     /* 0x0550 */
     star_power_t    star_power;                 /* 0x0556 */
+    int16_t         other_hits_taken;           /* 0x055C */
+    int16_t         unk_55E;                    /* 0x055E */
+    int16_t         hits_taken;                 /* 0x0560 */
+    int16_t         hits_blocked;               /* 0x0562 */
+    int16_t         player_first_strikes;       /* 0x0564 */
+    int16_t         enemy_first_strikes;        /* 0x0566 */
+    int16_t         power_bounces;              /* 0x0568 */
+    int16_t         battle_count;               /* 0x056A */
+    int16_t         unk_56C[4];                 /* 0x056C */
+    int32_t         unk_574[2];                 /* 0x0574 */
+    uint32_t        total_coins_earned;         /* 0x057C */
+    int16_t         idle_frame_counter;         /* 0x0580 */ /* frames with no inputs, overflows every ~36 minutes of idling */
+    char            unk_582[2];                 /* 0x0582 */
+    uint32_t        frame_counter;              /* 0x0584 */ /* increases by 2 per frame */
+    int16_t         quizzes_answered;           /* 0x0588 */
+    int16_t         quizzes_correct;            /* 0x058A */
+    int32_t         unk_590[24];                /* 0x058C */
+    int32_t         trade_event_start_time;     /* 0x05EC */
+    int32_t         unk_5EC;                    /* 0x05F0 */
+    int16_t         star_pieces_collected;      /* 0x05F4 */
+    int16_t         jump_game_plays;            /* 0x05F6 */
+    int32_t         jump_game_total;            /* 0x05F8 */ /* all-time winnings, max = 99999 */
+    int16_t         jump_game_record;           /* 0x05FC */
+    int16_t         smash_game_plays;           /* 0x05FE */
+    int32_t         smash_game_total;           /* 0x0600 */ /* all-time winnings, max = 99999 */
+    int16_t         smash_game_record;          /* 0x0604 */
 
 }player_ctxt_t;
 
