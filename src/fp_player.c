@@ -276,6 +276,24 @@ static int peach_umbrella_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
+static void item_up_proc(struct menu_item *item, void *data) {
+    uint16_t* start_item = (uint16_t*)data;
+    uint16_t* up_item = start_item - 1;
+
+    uint16_t temp_item = *up_item;
+    *up_item = *start_item;
+    *start_item = temp_item;
+}
+
+static void item_down_proc(struct menu_item *item, void *data) {
+    uint16_t* start_item = (uint16_t*)data;
+    uint16_t* down_item = start_item + 1;
+
+    uint16_t temp_item = *down_item;
+    *down_item = *start_item;
+    *start_item = temp_item;
+}
+
 static void tab_prev_proc(struct menu_item *item, void *data)
 {
     menu_tab_previous(data);
@@ -423,24 +441,29 @@ struct menu *create_player_menu(void) {
     menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, &pm_player.party.twink);
 
     /*build items menu*/
-    const int ITEMS_X_1 = 3;
-    const int ITEMS_X_2 = 7;
     y_value = 0;
 
     items.selector = menu_add_submenu(&items, 0, y_value++, NULL, "return");
 
     int i;
+    struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
     for (i = 0; i < 10; i++) {
-        char buffer[3];
+        char buffer[4];
         sprintf(buffer, "%d:", i);
         menu_add_static(&items, 0, y_value, buffer, 0xC0C0C0);
-        menu_add_intinput(&items, ITEMS_X_1, y_value, 16, 3, item_int_proc, &pm_player.items[i]);
-        menu_add_option(&items, ITEMS_X_2, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.items[i]);
+        if (i != 0) {
+            menu_add_button_icon(&items, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.items[i]);
+        }
+        if (i != 9) {
+            menu_add_button_icon(&items, 4, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.items[i]);
+        }
+        menu_add_intinput(&items, 6, y_value, 16, 3, item_int_proc, &pm_player.items[i]);
+        menu_add_option(&items, 10, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.items[i]);
     }
 
+    menu_add_static(&items, 0, 18, "normal item range: 0x80 - 0xdf", 0xC0C0C0);
+
     /*build key items menu*/
-    const int KEY_ITEMS_X_1 = 3;
-    const int KEY_ITEMS_X_2 = 7;
     y_value = 0;
 
     key_items.selector = menu_add_submenu(&key_items, 0, y_value++, NULL, "return");
@@ -459,17 +482,23 @@ struct menu *create_player_menu(void) {
             sprintf(buffer, "%02d:", item_index);
 
             menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
-            menu_add_intinput(page, KEY_ITEMS_X_1, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
-            menu_add_option(page, KEY_ITEMS_X_2, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.key_items[item_index]);
+            if (item_index != 0) {
+                menu_add_button_icon(page, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.key_items[item_index]);
+            }
+            if (item_index != 31) {
+                menu_add_button_icon(page, 4, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.key_items[item_index]);
+            }
+            menu_add_intinput(page, 6, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
+            menu_add_option(page, 10, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.key_items[item_index]);
         }
     }
     menu_tab_goto(key_items_tab, 0);
     menu_add_button(&key_items, 8, 0, "<", tab_prev_proc, key_items_tab);
     menu_add_button(&key_items, 10, 0, ">", tab_next_proc, key_items_tab);
 
+    menu_add_static(&key_items, 0, 18, "key item range: 0x7 - 0x7f", 0xC0C0C0);
+
     /*build badges menu*/
-    const int BADGES_ITEMS_X_1 = 4;
-    const int BADGES_ITEMS_X_2 = 8;
     y_value = 0;
 
     badges.selector = menu_add_submenu(&badges, 0, y_value++, NULL, "return");
@@ -487,13 +516,21 @@ struct menu *create_player_menu(void) {
             sprintf(buffer, "%02d:", item_index);
 
             menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
-            menu_add_intinput(page, BADGES_ITEMS_X_1, y_value, 16, 3, item_int_proc, &pm_player.badges[item_index]);
-            menu_add_option(page, BADGES_ITEMS_X_2, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.badges[item_index]);
+            if (item_index != 0) {
+                menu_add_button_icon(page, 4, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.badges[item_index]);
+            }
+            if (item_index != 127) {
+                menu_add_button_icon(page, 5, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.badges[item_index]);
+            }
+            menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.badges[item_index]);
+            menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.badges[item_index]);
         }
     }
     menu_tab_goto(badge_tab, 0);
     menu_add_button(&badges, 8, 0, "<", tab_prev_proc, badge_tab);
     menu_add_button(&badges, 10, 0, ">", tab_next_proc, badge_tab);
+
+    menu_add_static(&badges, 0, 18, "badge range: 0xe0 - 0x154", 0xC0C0C0);
 
     /*build star power menu*/
     const int STAR_POWER_X = 19;
