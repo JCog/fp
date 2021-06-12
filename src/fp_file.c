@@ -101,7 +101,7 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
         sprintf(buffer, "- invalid");
     }
     else {
-        sprintf(buffer, "- chapter %x (%d/%d)", chapter, chapter_progress, chapter_max);
+        sprintf(buffer, "- chapter %d (%d/%d)", chapter, chapter_progress, chapter_max);
     }
     gfx_printf(font, x, y, buffer);
     return 1;
