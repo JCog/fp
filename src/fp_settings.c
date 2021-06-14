@@ -17,14 +17,12 @@ static uint16_t font_options[] = {
     RES_FONT_PIXELZIM,
 };
 
-static void profile_dec_proc(struct menu_item *item, void *data)
-{
+static void profile_dec_proc(struct menu_item *item, void *data) {
     fp.profile += SETTINGS_PROFILE_MAX - 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
 }
 
-static void profile_inc_proc(struct menu_item *item, void *data)
-{
+static void profile_inc_proc(struct menu_item *item, void *data) {
     fp.profile += 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
 }
@@ -107,16 +105,26 @@ static int timer_position_proc(struct menu_item *item, enum menu_callback_reason
     return generic_position_proc(item, reason, &settings->timer_x);
 }
 
-static int input_display_proc(struct menu_item *item,
-                              enum menu_callback_reason reason,
-                              void *data)
-{
-    if (reason == MENU_CALLBACK_SWITCH_ON)
+static int coord_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.coord_moving = 1;
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.coord_moving = 0;
+    }
+    return generic_position_proc(item, reason, &settings->coord_display_x);
+}
+
+static int input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.input_display = 1;
-    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+    }
+    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.input_display = 0;
-    else if (reason == MENU_CALLBACK_THINK)
+    }
+    else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.input_display);
+    }
     return 0;
 }
 
@@ -138,38 +146,33 @@ static int log_position_proc(struct menu_item *item, enum menu_callback_reason r
     return generic_position_proc(item, reason, &settings->log_x);
 }
 
-static void activate_command_proc(struct menu_item *item, void *data)
-{
+static void activate_command_proc(struct menu_item *item, void *data) {
     int command_index = (int)data;
-    if (fp_commands[command_index].proc)
+    if (fp_commands[command_index].proc) {
         fp_commands[command_index].proc();
+    }
 }
 
-static void tab_prev_proc(struct menu_item *item, void *data)
-{
+static void tab_prev_proc(struct menu_item *item, void *data) {
     menu_tab_previous(data);
 }
 
-static void tab_next_proc(struct menu_item *item, void *data)
-{
+static void tab_next_proc(struct menu_item *item, void *data) {
     menu_tab_next(data);
 }
 
-static void restore_settings_proc(struct menu_item *item, void *data)
-{
+static void restore_settings_proc(struct menu_item *item, void *data) {
     settings_load_default();
     apply_menu_settings();
     fp_log("loaded defaults");
 }
 
-static void save_settings_proc(struct menu_item *item, void *data)
-{
+static void save_settings_proc(struct menu_item *item, void *data) {
     settings_save(fp.profile);
     fp_log("saved profile %i", fp.profile);
 }
 
-static void load_settings_proc(struct menu_item *item, void *data)
-{
+static void load_settings_proc(struct menu_item *item, void *data) {
     if (settings_load(fp.profile)) {
         apply_menu_settings();
         fp_log("loaded profile %i", fp.profile);
@@ -179,8 +182,7 @@ static void load_settings_proc(struct menu_item *item, void *data)
     }
 }
 
-struct menu *create_settings_menu(void)
-{
+struct menu *create_settings_menu(void) {
     static struct menu menu;
     static struct menu commands;
     
@@ -209,6 +211,8 @@ struct menu *create_settings_menu(void)
     menu_add_positioning(&menu, MENU_X, y++, menu_position_proc, NULL);
     menu_add_static(&menu, 0, y, "timer position", 0xC0C0C0);
     menu_add_positioning(&menu, MENU_X, y++, timer_position_proc, NULL);
+    menu_add_static(&menu, 0, y, "coords position", 0xC0C0C0);
+    menu_add_positioning(&menu, MENU_X, y++, coord_position_proc, NULL);
     menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);

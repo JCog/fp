@@ -35,6 +35,10 @@ void settings_load_default(void){
     d->bits.drop_shadow = 1;
     d->bits.input_display = 0;
     d->bits.log = 1;
+    d->bits.timer_logging = 0;
+    d->bits.timer_show = 0;
+    d->bits.battle_debug = 0;
+    d->bits.quizmo_debug = 0;
     d->menu_x = 16;
     d->menu_y = 60;
     d->input_display_x = 16;
@@ -74,6 +78,8 @@ void apply_menu_settings(){
     menu_set_pyoffset(fp.main_menu, settings->menu_y);
     menu_imitate(fp.global, fp.main_menu);
     /*watchlist_fetch(gz.menu_watchlist);*/
+    pm_status.battle_debug = settings->bits.battle_debug;
+    pm_status.quizmo_debug = settings->bits.quizmo_debug;
 }
 
 void settings_save(int profile) {

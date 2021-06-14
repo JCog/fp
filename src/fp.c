@@ -106,7 +106,7 @@ void fp_main(void) {
     }
 
     /* draw coordinates */
-    if (fp.coord_active) {
+    if (fp.coord_active || fp.coord_moving) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
         gfx_printf(font, settings->coord_display_x, settings->coord_display_y, "x: %.4f", pm_player.position.x);
         gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch, "z: %.4f", pm_player.position.z);

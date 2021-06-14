@@ -16,20 +16,25 @@ static const char *labels[] =
 
 static int battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != pm_status.battle_debug)
+        if (menu_option_get(item) != pm_status.battle_debug) {
             menu_option_set(item, pm_status.battle_debug);
+        }
     }
-    else if (reason == MENU_CALLBACK_DEACTIVATE)
+    else if (reason == MENU_CALLBACK_DEACTIVATE) {
         pm_status.battle_debug = menu_option_get(item);
+        settings->bits.battle_debug = pm_status.battle_debug;
+    }
     return 0;
 }
 
 static int quizmo_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.quizmo_debug = 1;
+        settings->bits.quizmo_debug = 1;
     }
     else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         pm_status.quizmo_debug = 0;
+        settings->bits.quizmo_debug = 0;
     }
     else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, pm_status.quizmo_debug);

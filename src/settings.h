@@ -50,6 +50,8 @@ struct settings_bits{
     uint32_t log               : 1;
     uint32_t timer_show        : 1;
     uint32_t timer_logging     : 1;
+    uint32_t battle_debug      : 3;
+    uint32_t quizmo_debug      : 1;
 };
 
 struct settings_data{
