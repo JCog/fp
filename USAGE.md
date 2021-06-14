@@ -36,7 +36,7 @@ The main interface for interacting with fp is the utility menu, which can be acc
 #### 2.1.1 Locations
 The **locations** menu provides a list of every room in the game and allows you to warp directly to them. There are three different values for this:
 
-- **group**: Rooms grouped together by location, such as Toad Town, Dry Dry Dessert, Flower Fields, etc.
+- **group**: Rooms grouped together by location, such as Toad Town, Dry Dry Desert, Flower Fields, etc.
 - **room**: The specific map in the selected group, typically accessed by a loading zone
 - **entrance**: Where the room will be accessed from. This is mostly for selecting a loading zone, but certain entrances are also used to start cutscenes. The general rule of thumb is that earlier entrances are for loading zones and later entrances are for cutscenes.
 
