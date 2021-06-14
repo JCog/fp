@@ -573,7 +573,7 @@ struct group_info GROUPS[] =
                     0x4
                 },
                 {
-                    "(4,1) twister to (5,0)",
+                    "(4,1) tweester to (5,0)",
                     0x5
                 },
                 {
@@ -597,7 +597,7 @@ struct group_info GROUPS[] =
                     0x4
                 },
                 {
-                    "(3,2) twister to (4,1)",
+                    "(3,2) tweester to (4,1)",
                     0x4
                 },
                 {
@@ -625,7 +625,7 @@ struct group_info GROUPS[] =
                     0x5
                 },
                 {
-                    "(3,3) twister to (4,2)",
+                    "(3,3) tweester to (4,2)",
                     0x4
                 },
                 {
@@ -645,7 +645,7 @@ struct group_info GROUPS[] =
                     0x4
                 },
                 {
-                    "(1,4) twister to (2,3)",
+                    "(1,4) tweester to (2,3)",
                     0x4
                 },
                 {
@@ -685,7 +685,7 @@ struct group_info GROUPS[] =
                     0x4
                 },
                 {
-                    "(4,5) twister to (5,4)",
+                    "(4,5) tweester to (5,4)",
                     0x4
                 },
                 {
