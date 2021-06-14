@@ -133,7 +133,7 @@ struct menu *create_file_menu(void)
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
     menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y, 10, 2, halfword_mod_proc, &pm_flags.global_bytes[0x161]);
+    menu_add_intinput(&menu, MENU_X, y, 10, 2, halfword_mod_proc, &pm_save_data.global_bytes[0x161]);
 
     
     return &menu;

@@ -151,12 +151,6 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ uint32_t global_flags[64];
-    /* 0x0100 */ int8_t global_bytes[512];
-    uint32_t area_flags[8];
-}flags_ctxt_t;
-
-typedef struct{
     /* 0x0000 */ int8_t story_progress;
 }unk3_ctxt_t;
 
@@ -383,7 +377,76 @@ typedef struct{
     /* 0x05FE */ int16_t smash_game_plays;
     /* 0x0600 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
     /* 0x0604 */ int16_t smash_game_record;
+    /* 0x0606 */ char unk_606[2];
 }player_ctxt_t;
+
+typedef struct {
+    /* 0x000 */ stats_t stats;
+    /* 0x014 */ char unk_14[8];
+    /* 0x01C */ party_t party;
+    /* 0x074 */ uint16_t key_items[32];
+    /* 0x0B4 */ uint16_t badges[128];
+    /* 0x1B4 */ uint16_t items[10];
+    /* 0x1C8 */ uint16_t storage[32];
+    /* 0x208 */ uint16_t equipped_badges[64];
+    /* 0x288 */ merlee_t merlee;
+    /* 0x28E */ star_power_t star_power;
+    /* 0x294 */ int16_t other_hits_taken;
+    /* 0x296 */ int16_t unk_296;
+    /* 0x298 */ int16_t hits_taken;
+    /* 0x29A */ int16_t hits_blocked;
+    /* 0x29C */ int16_t player_first_strikes;
+    /* 0x29E */ int16_t enemy_first_strikes;
+    /* 0x2A0 */ int16_t power_bounces;
+    /* 0x2A2 */ int16_t battle_count;
+    /* 0x2A4 */ int16_t unk_2A4[4];
+    /* 0x2AC */ int32_t unk_2AC[2];
+    /* 0x2B4 */ uint32_t total_coins_earned;
+    /* 0x2B8 */ int16_t idle_frame_counter; /* frames with no inputs, overflows every ~36 minutes of idling */
+    /* 0x2BA */ char unk_2BA[2];
+    /* 0x2BC */ uint32_t frame_counter; /* increases by 2 per frame */
+    /* 0x2C0 */ int16_t quizzes_answered;
+    /* 0x2C2 */ int16_t quizzes_correct;
+    /* 0x2C4 */ int32_t unk_2C4[24];
+    /* 0x324 */ int32_t trade_event_start_time;
+    /* 0x328 */ int32_t unk_328;
+    /* 0x32C */ int16_t star_pieces_collected;
+    /* 0x32E */ int16_t jump_game_plays;
+    /* 0x330 */ int32_t jump_game_total; /* all-time winnings, max = 99999 */
+    /* 0x334 */ int16_t jump_game_record;
+    /* 0x336 */ int16_t smash_game_plays;
+    /* 0x338 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
+    /* 0x33C */ int16_t smash_game_record;
+    /* 0x33E */ char unk_606[2];
+}player_data_t; // size: 0x340
+
+typedef struct {
+    /* 0x0000 */ char magic_string[16]; /* "Mario Story 006" */
+    /* 0x0010 */ int8_t padding[32]; /* always zero */
+    /* 0x0030 */ int32_t crc1;
+    /* 0x0034 */ int32_t crc2;
+    /* 0x0038 */ int32_t save_slot;
+    /* 0x003C */ int32_t save_count;
+    /* 0x0040 */ player_data_t player_data;
+    /* 0x0380 */ char unk_380[0xE8];
+    /* 0x0468 */ int16_t group_id;
+    /* 0x046A */ int16_t room_id;
+    /* 0x046C */ int16_t entrance_id;
+    /* 0x046E */ char unk_46E[2];
+    /* 0x0470 */ uint32_t enemy_defeat_flags[600];
+    /* 0x0DD0 */ uint32_t unk_DD0[120];
+    /* 0x0FB0 */ uint32_t global_flags[64];
+    /* 0x10B0 */ int8_t global_bytes[512];
+    /* 0x12B0 */ uint32_t area_flags[8];
+    /* 0x12D0 */ int8_t area_bytes[16];
+    /* 0x12E0 */ char unk_12E0[6];
+    /* 0x12E6 */ vec3s_t position;
+    /* 0x12EC */ int32_t unk_12EC;
+    /* 0x12F0 */ int8_t unk_12F0[12]; /* player name starts at 4th char */
+    /* 0x12FC */ int32_t unk_12FC;
+    /* 0x1300 */ int32_t unk_1300;
+    /* 0x1304 */ char unk_1304[0x7C];
+}save_data_ctxt_t;
 
 typedef struct{
     /* 0x0000 */ char unk_0x00[0x08];
@@ -430,6 +493,10 @@ typedef struct {
     /* 0x0000 */ uint16_t mash_bar; /* ranges from 0 to 10,000 */
 }unk7_ctxt_t;
 
+typedef struct {
+    /* 0x0000 */ uint32_t enemy_defeat_flags[600];
+}enemy_flags_ctxt_t;
+
 /* Addresses */
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_FioReadFlash_addr                0x8002B828
@@ -442,8 +509,9 @@ typedef struct {
 #define pm_gfx_addr                         0x8009A64C
 #define pm_unk2_addr                        0x8009E6D0
 #define pm_unk6_addr                        0x800AC198
+#define pm_enemy_flags_addr                 0x800B0FA0
 #define pm_effects_addr                     0x800B4378
-#define pm_flags_addr                       0x800DBC50
+#define pm_save_data_addr                   0x800DACA0
 #define pm_unk3_addr                        0x800DBD50
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
@@ -465,9 +533,10 @@ typedef struct {
 #define pm_gfx                (*(gfx_ctxt_t*)         pm_gfx_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)        pm_unk2_addr)
 #define pm_unk6               (*(unk6_ctxt_t*)        pm_unk6_addr)
+#define pm_enemy_flags        (*(enemy_flags_ctxt_t*) pm_enemy_flags_addr)
 #define pm_unk4               (*(unk4_ctxt_t*)        pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)     pm_effects_addr)
-#define pm_flags              (*(flags_ctxt_t*)       pm_flags_addr)
+#define pm_save_data          (*(save_data_ctxt_t*)   pm_save_data_addr)
 #define pm_unk3               (*(unk3_ctxt_t*)        pm_unk3_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)

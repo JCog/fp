@@ -76,9 +76,9 @@ void load_staircase_skip() {
 }
 
 void load_pit() {
-    //TODO: figure out how defeated enemy flags work properly
-    uint8_t *enemies_defeated = (uint8_t*)0x800B10F3; //JP address for koopas in pit
-    *enemies_defeated = 0;
+    fp_set_enemy_defeat_flag(0x0a80, 0);
+    fp_set_enemy_defeat_flag(0x0a81, 0);
+    fp_set_enemy_defeat_flag(0x0a82, 0);
     fp_set_global_flag(0x29a, 0); //pit not cleared
     fp_warp(7,7,0);
 }
