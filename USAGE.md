@@ -11,12 +11,10 @@
   - [2.3 Player](#23-player)
     - [2.3.1 Status](#231-status)
     - [2.3.2 Partners](#232-partners)
-    - [2.3.3 Items](#233-items)
-    - [2.3.4 Key Items](#234-key-items)
-    - [2.3.5 Badges](#235-badges)
-    - [2.3.6 Star Power](#236-star-power)
-    - [2.3.7 Princess Peach](#237-princess-peach)
-    - [2.3.8 Merlee](#238-merlee)
+    - [2.3.3 Items and Badges](#233-items-and-badges)
+    - [2.3.4 Star Power](#234-star-power)
+    - [2.3.5 Princess Peach](#235-princess-peach)
+    - [2.3.6 Merlee](#236-merlee)
   - [2.4 File](#24-file)
   - [2.5 Practice](#25-practice)
     - [2.5.1 Tricks](#251-tricks)
@@ -43,7 +41,7 @@ The **locations** menu provides a list of every room in the game and allows you 
 After selecting a group, room, and entrance, selecting `warp` will immediately warp you to your selected destination. This works even if you are in battle. Do note though that there are certain states where attempting to warp would cause a crash, such as when a menu is open, so generally fp will disallow you from doing this with a warning message.
 
 #### 2.1.2 Bosses
-The **bosses** menu provides a list of every major, minor, and optional boss in the game. By selecting a boss, you will warp to the room that the boss is located in, and you story progress and any necessary flags will be set to allow you to fight the boss, regarless of your current state.
+The **bosses** menu provides a list of every major, minor, and optional boss in the game. By selecting a boss, you will warp to the room that the boss is located in, and your story progress and any necessary flags will be set to allow you to fight the boss, regardless of your current state.
 
 Also note that when warping directly to Bowser's second phase, because the game normally carries Bowser's HP over from the first phase, a menu to select his starting HP is provided.
 
@@ -75,38 +73,28 @@ This menu allows toggling the builtin cheats on and off. The following cheats ar
 The **status** menu allows you to change things about Mario's status, such as your boots and hammer, hp and fp, etc. Note that for action commands, having the Lucky Star in your inventory does nothing. Simply marking the checkbox is sufficient.
 
 #### 2.3.2 Partners
-The **partners** menu allows you control your active partner, which partners are in your party, and the rank of each partner.
+The **partners** menu allows you to control your active partner, which partners are in your party, and the rank of each partner.
 
 *Warning*: Although Goompa and Goombaria are in the game as available partners, their behavior is very buggy since they were never obtainable in the final game.
 
-#### 2.3.3 Items
-The **items** menu lets you edit your regular item inventory. Items can be selected either by ID or by name.
+#### 2.3.3 Items and Badges
+The **items**, **stored items**, **key items**, and **badges** menus let you edit your item and badge inventories. Items can be selected either by ID or by name. Arrows can be used to rearrange items.
 
-*Warning*: The game makes no distinction between normal items, key items, badges, or icons. If anything other than normal items are placed here, it could cause buggy behavior.
+*Warning*: The game makes no distinction between normal items, key items, badges, or icons. If anything is placed in a menu it can't normally go, it can cause buggy behavior.
 
-#### 2.3.4 Key Items
-The **key items** menu lets you edit your key item inventory. Key items can be selected either by ID or by name.
-
-*Warning*: The game makes no distinction between normal items, key items, badges, or icons. If anything other than key items are placed here, it could cause buggy behavior.
-
-#### 2.3.5 Badges
-The **badges** menu lets you edit your badge inventory. Badges can be selected either by ID or by name.
-
-*Warning*: The game makes no distinction between normal items, key items, badges, or icons. If anything other than badges are placed here, it could cause buggy behavior.
-
-#### 2.3.6 Star Power
+#### 2.3.4 Star Power
 The **star power** menu allows you to edit how many Star Spirits have been saved, how full the star power meter is, and what beam upgrade you have is. `star spirits saved` determines both which star spirits are available in battle and your max star power. `partial bar` increases in increments of 0x20 and has 8 different levels.
 
 *Warning*: 7 is the max `star spirits saved` that can be obtained in game. Setting this to anything higher can cause buggy behavior.
 
 *Warning*: `beam` can never be anything other than **none** in the base game until all 7 Star Spirits have been saved. Setting it to anything else with fewer than 7 Star Spirits can cause buggy behavior.
 
-#### 2.3.7 Princess Peach
-The **princess peach** menu allows you to control whether or not you're controlling Peach instead of Mario, if Peach is transformed into a disguise, whether or not she can use the Sneaky Parasol, and what enemy her disguise is of.
+#### 2.3.5 Princess Peach
+The **princess peach** menu allows you to control whether you're controlling Peach instead of Mario, if Peach is transformed into a disguise, whether she can use the Sneaky Parasol, and what enemy her disguise is of.
 
 *Warning*: Swapping to Peach or Mario in instances where they're not typically able to be can cause buggy behavior.
 
-#### 2.3.8 Merlee
+#### 2.3.6 Merlee
 The **merlee** menu allows you to set what Merlee's next spell will be, how many more times she can cast a spell, and how many more battle turns are left until she casts her next spell.
 
 ### 2.4 File
@@ -114,7 +102,7 @@ The **save slot** option lets you change which of the four save slots the game w
 
 Your `story progress` is the main byte that determines how far you've progressed in the story. See [this](https://pastebin.com/tYtE2xbm) for a list of what each value corresponds to.
 
-Disabling `music` turns off all in-game music.
+Disabling `music` disables all in-game music. `quizzes answered` determines how many of Chuck Quizmo's questions have been answered successfully. This byte determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. Pressing `restore enemies` sets all overworld enemies to an undefeated state. Pressing `restore letters` resets all flags related to collecting letters in the overworld.
 
 ### 2.5 Practice
 
@@ -181,7 +169,7 @@ The following commands are available:
     it's opened. *Default: `R + L`*
 -   **return from menu:** Returns to the previous menu, as if the *return*
     button was pressed. *Default: `R + D-Left`*
--   **levitate**: Makes Mario fly into the the air. *Default: `D-Up`*
+-   **levitate**: Makes Mario fly into the air. *Default: `D-Up`*
 -   **turbo**: Increases Mario's running speed. *Default: `D-Down`*
 -   **save position**: Saves Mario's current position and orientation. *Default: `D-Left`*
 -   **load position**: Loads Mario's saved position and orientation. *Default: `D-Right`*
