@@ -4,14 +4,12 @@
 #include "fp.h"
 #include "commands.h"
 
-static void save_slot_dec_proc(struct menu_item *item, void *data)
-{
+static void save_slot_dec_proc(struct menu_item *item, void *data) {
     pm_status.save_slot += 3;
     pm_status.save_slot %= 4;
 }
 
-static void save_slot_inc_proc(struct menu_item *item, void *data)
-{
+static void save_slot_inc_proc(struct menu_item *item, void *data) {
     pm_status.save_slot += 1;
     pm_status.save_slot %= 4;
 }
@@ -107,6 +105,26 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     return 1;
 }
 
+static void restore_enemies_proc(struct menu_item *item, void *data) {
+    for (int i = 0; i < 600; i++){
+        pm_enemy_flags.enemy_defeat_flags[i] = 0;
+    }
+}
+
+static void restore_letters_proc(struct menu_item *item, void *data) {
+    fp_set_global_flag(0x2c1, 0);
+    fp_set_global_flag(0x2c2, 0);
+    fp_set_global_flag(0x2c3, 0);
+    fp_set_global_flag(0x2f5, 0);
+    fp_set_global_flag(0x340, 0);
+    fp_set_global_flag(0x341, 0);
+    fp_set_global_flag(0x4c6, 0);
+    fp_set_global_flag(0x4cb, 0);
+    fp_set_global_flag(0x56d, 0);
+    fp_set_global_flag(0x5a6, 0);
+    fp_set_global_flag(0x5a9, 0);
+}
+
 struct menu *create_file_menu(void)
 {
     static struct menu menu;
@@ -133,7 +151,9 @@ struct menu *create_file_menu(void)
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
     menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y, 10, 2, halfword_mod_proc, &pm_save_data.global_bytes[0x161]);
+    menu_add_intinput(&menu, MENU_X, y++, 10, 2, halfword_mod_proc, &pm_save_data.global_bytes[0x161]);
+    menu_add_button(&menu, 0, y++, "restore enemies", restore_enemies_proc, NULL);
+    menu_add_button(&menu, 0, y++, "restore letters", restore_letters_proc, NULL);
 
     
     return &menu;
