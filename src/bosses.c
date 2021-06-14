@@ -21,12 +21,14 @@ static void bowser_hallway_proc(struct menu_item *item, void *data) {
 
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
     fp_set_story_progress(0x5f);
+    fp_set_global_flag(0x1fc, 0); //bridge not broken
     fp_set_global_flag(0x1fe, 1); //skip camera zoom in
     fp_warp(0x4, 0x13, 0x0);
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
     fp_set_story_progress(0x5f);
+    fp_set_global_flag(0x1fc, 1); //bridge broken
     fp_warp(0x4, 0x13, 0x1);
 }
 
