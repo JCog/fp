@@ -151,7 +151,7 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ int8_t story_progress;
+    /* 0x0000 */ uint8_t story_progress;
 }unk3_ctxt_t;
 
 typedef struct{
@@ -483,7 +483,7 @@ typedef struct {
     /* 0x0000 */ uint32_t turn;
     /* 0x0004 */ char unk_0x04[4];
     /* 0x0008 */ uint32_t turns_since_wave;
-    /* 0x000C */ uint32_t turns_since_shield;
+    /* 0x000C */ uint32_t turns_since_beam;
     /* 0x0010 */ uint32_t turns_since_claw;
     /* 0x0014 */ uint32_t turns_since_stomp;
     /* 0x0018 */ uint32_t turns_since_heal;
@@ -522,7 +522,8 @@ typedef struct {
 #define pm_warp_addr                        0x80156740
 #define pm_unk7_addr                        0x8029FF14
 #define pm_SaveGame_addr                    0x802DC150
-#define pm_bowser_addr                      0x803DE378
+#define pm_final_bowser_addr                0x803DE378
+#define pm_hallway_bowser_addr              0x803DE678
 #define pm_ace_addr                         0x807BFFFC
 #define pm_ace_store_addr                   0x807D0000
 
@@ -543,7 +544,8 @@ typedef struct {
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
 #define pm_warp               (*(warp_ctxt_t*)        pm_warp_addr)
 #define pm_unk7               (*(unk7_ctxt_t*)        pm_unk7_addr)
-#define pm_bowser             (*(bowser_ctxt_t*)      pm_bowser_addr)
+#define pm_final_bowser       (*(bowser_ctxt_t*)      pm_final_bowser_addr)
+#define pm_hallway_bowser     (*(bowser_ctxt_t*)      pm_hallway_bowser_addr)
 #define pm_ace                (*(ace_ctxt_t*)         pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 

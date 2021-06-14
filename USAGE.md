@@ -114,7 +114,7 @@ To reload the most recently loaded trick, press `R + Z`. This button combo can a
 #### 2.5.2 Trainers
 The **trainers** menu contains various different helpful menus and information screens to help with practicing and learning the game. The following trainers are available:
 
-- **bowser blocks**: When enabled, causes Bowser to only attack using the specified move. Currently only works on Final Bowser.
+- **bowser blocks**: When enabled, causes Bowser to only attack using the specified move. Works with both Hallway and Final Bowser, though note that setting lightning will make Hallway Bowser wave since he doesn't have a lightning attack.
 - **ice staircase skip**: Used to help line up in the proper position to perform the Ice Staircase Skip trick. `position` can be either **good**, **inconsistent**, or **bad**, depending on whether using Lakilester's ability will always, sometimes, or never clip properly.
 - **oot ace**: Helps with performing arbitrary code execution aided by The Legend of Zelda: Ocarina of Time. `effects` shows the number of active particle effects. `flags` displays whether the animation flags located before the idle timer in Mario's player struct will cause a premature crash. `frame window` displays how big the frame window for stopping the idle timer and getting a successful jump to code stored on the expansion pak is. It will most likely always be 1 unless Ocarina of Time is used to zero out the expansion pak beforehand. Pressing `practice payload` will make it so that upon a successful jump to the expansion pak, the value of the idle timer will be displayed in the bottom-left of the screen. Pressing `oot instruction` will place the same ASM instruction on the expansion pak that doing the proper OoT setup would.
 
