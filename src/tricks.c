@@ -249,6 +249,13 @@ void load_early_fuzzipede() {
     fp_warp(0x3, 0x1, 0x0);
 }
 
+void load_raph_skip_kolorado() {
+    fp_set_story_progress(0x0c);
+    fp_set_enemy_defeat_flag(0x1e04, 0);
+    set_partner(PARAKARRY);
+    fp_warp(0x11, 0x14, 0);
+}
+
 void load_raph_skip() {
     fp_set_story_progress(0x0f);
     set_partner(PARAKARRY);
@@ -470,6 +477,7 @@ void load_trick(int8_t trick) {
         case BHS_BOTTOM:                load_bhs_bottom();                  break;
         case EARLY_WHALE_SLOW_MUSIC:    load_early_whale_slow_music();      break;
         case EARLY_FUZZIPEDE:           load_early_fuzzipede();             break;
+        case RAPH_SKIP_KOLORADO:        load_raph_skip_kolorado();          break;
         case RAPH_SKIP:                 load_raph_skip();                   break;
         case PIRANHA_FIRST_STRIKE:      load_piranha_first_strike();        break;
         case LAVA_PLATFORM_CYCLE:       load_lava_platform_cycle();         break;
@@ -661,6 +669,11 @@ static void early_whale_slow_music_proc(struct menu_item *item, void *data) {
 static void early_fuzzipede(struct menu_item *item, void *data) {
     fp.saved_trick = EARLY_FUZZIPEDE;
     load_early_fuzzipede();
+}
+
+static void raph_skip_kolorado_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = RAPH_SKIP_KOLORADO;
+    load_raph_skip_kolorado();
 }
 
 static void raph_skip_proc(struct menu_item *item, void *data) {
@@ -874,7 +887,8 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "blue house skip (bottom)", bhs_bottom_proc, NULL);
     menu_add_button(page, 0, y_tab++, "early whale (slow music)", early_whale_slow_music_proc, NULL);
     menu_add_button(page, 0, y_tab++, "early fuzzipede", early_fuzzipede, NULL);
-    menu_add_button(page, 0, y_tab++, "raph/yoshi skip", raph_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "raph/yoshi skip (with kolorado)", raph_skip_kolorado_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "raph/yoshi skip (no kolorado)", raph_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "putrid piranha first strike", piranha_first_strike_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava platform cycle", lava_platform_cycle_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ultra hammer skip", ultra_hammer_skip_proc, NULL);
