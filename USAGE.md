@@ -197,3 +197,4 @@ There are a few known issues with fp without an easy fix:
 
 -   Attempting to warp when a Super Block menu is open will cause a crash. All known ways to prevent this also prevent warping in other valid states.
 -   At least one save file (even an empty one) must exist for profile saving/loading to work.
+-   When using the automatic timer, riding Laki or Sushie counts as one long cutscene. This means things that would normally increment the cutscene counter, such as going through a loading zone, no longer will.
