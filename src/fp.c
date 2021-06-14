@@ -432,29 +432,8 @@ void init() {
     /* skip intro on boot */
     pm_status.skip_intro = 1;
 
-    /* setup oot ace trainer */
+    /* calculate frame window for OoT ACE */
     pm_ace_store.last_timer = 0;
-    pm_ace.instructions[0] = 0x3C188010;  // LUI t8, 0x8010
-    pm_ace.instructions[1] = 0x3718F190;  // ORI t8, t8, 0xf190
-    pm_ace.instructions[2] = 0x8F090000;  // LW  t1, 0x0000(t8)
-    pm_ace.instructions[3] = 0x3C18807D;  // LUI t8, 0x807D
-    pm_ace.instructions[4] = 0xAF090000;  // SW  t1, 0x0000(t8)
-    //
-    pm_ace.instructions[5] = 0x3C088006;  // LUI t0, 0x8006
-    pm_ace.instructions[6] = 0xAD00A1C0;  // SW r0, 0xA1C0 (t0) - patch remove all effects
-    pm_ace.instructions[7] = 0x0C016864;  // JAL 0x8005A190 - remove all effects
-    pm_ace.instructions[8] = 0x00000000;  // NOP
-    pm_ace.instructions[9] = 0x3C088006;  // LUI t0, 0x8006
-    pm_ace.instructions[10] = 0x3C093042; // LUI t1, 0x3042
-    pm_ace.instructions[11] = 0x35290004; // ORI t1, t1, 0x0004
-    pm_ace.instructions[12] = 0xAD09A1C0; // SW t1, 0xA1C0 (t0) - fix effects function we patched
-    pm_ace.instructions[13] = 0x8FBF0070; // LW ra, 0x0070 (sp)
-    pm_ace.instructions[14] = 0x8FB10068; // LW s1, 0x0068 (sp)
-    pm_ace.instructions[15] = 0x8FB00064; // LW s0, 0x0064 (sp)
-    pm_ace.instructions[16] = 0x0800F50C; // J 0x8003D430
-    pm_ace.instructions[17] = 0x27BDFF98; // ADDIU sp, sp, -0x68
-
-
     int memory_value = 0;
     int *pointer = (int*)0x807bfff8;
     while (memory_value == 0) {
