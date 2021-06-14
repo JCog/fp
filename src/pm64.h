@@ -347,7 +347,7 @@ typedef struct{
     /* 0x033C */ uint16_t key_items[32];
     /* 0x037C */ uint16_t badges[128];
     /* 0x047C */ uint16_t items[10];
-    /* 0x0490 */ uint16_t storage[32];
+    /* 0x0490 */ uint16_t stored_items[32];
     /* 0x04D0 */ uint16_t equipped_badges[64];
     /* 0x0550 */ merlee_t merlee;
     /* 0x0556 */ star_power_t star_power;
