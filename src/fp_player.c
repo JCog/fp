@@ -263,7 +263,7 @@ static int peach_transformed_proc(struct menu_item *item, enum menu_callback_rea
     return 0;
 }
 
-static int peach_umbrella_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static int peach_parasol_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.peach_flags |= (1 << 2);
     }
@@ -629,8 +629,8 @@ struct menu *create_player_menu(void) {
         menu_add_static(&peach, 0, y_value, "transformed", 0xC0C0C0);
         menu_add_checkbox(&peach, PEACH_X, y_value++, peach_transformed_proc, NULL);
 
-        menu_add_static(&peach, 0, y_value, "umbrella", 0xC0C0C0);
-        menu_add_checkbox(&peach, PEACH_X, y_value++, peach_umbrella_proc, NULL);
+        menu_add_static(&peach, 0, y_value, "parasol", 0xC0C0C0);
+        menu_add_checkbox(&peach, PEACH_X, y_value++, peach_parasol_proc, NULL);
 
         menu_add_static(&peach, 0, y_value, "disguise", 0xC0C0C0);
         menu_add_option(&peach, PEACH_X, y_value++, "none\0""koopatrol\0""hammer bro\0""clubba\0", byte_optionmod_proc,

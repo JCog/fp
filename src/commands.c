@@ -120,7 +120,7 @@ void fp_set_global_byte(int byte_index,  int8_t value) {
 }
 
 void command_levitate_proc() {
-    if (pm_status.peach_flags == 0) {
+    if (!(pm_status.peach_flags & (1 << 0))) {
         pm_player.flags |= 3;
         pm_player.y_speed = 11;
         pm_player.y_snap = -0.75;

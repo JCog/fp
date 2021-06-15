@@ -81,7 +81,7 @@ typedef struct{
     /* 0x007B */ char unk_0x7B;
     /* 0x007C */ int8_t unk_0x7C;
     /* 0x007D */ int8_t unk_0x7D;
-    /* 0x007E */ uint8_t peach_flags; /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasUmbrella*/
+    /* 0x007E */ uint8_t peach_flags; /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasParasol*/
     /* 0x007F */ int8_t peach_disguise; /*1 = koopatrol, 2 = hammer bro, 3 = clubba */
     /* 0x0080 */ uint8_t peach_anim_idx;
     /* 0x0081 */ char unk_0x84[0x05];
