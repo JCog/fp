@@ -170,8 +170,8 @@ void load_yakkey_trick_shot() {
 }
 
 void load_quick_escape() {
-    //TODO: figure out how to get tubba to appear
     fp_set_story_progress(0xe4);
+    fp_set_global_byte(0xCB, 0x1); //controls the room id that tubba is in
     set_partner(PARAKARRY);
     fp_warp(0xf, 1, 4);
 }
