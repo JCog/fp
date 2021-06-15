@@ -1,5 +1,5 @@
-#ifndef FP_WARP_INFO_H
-#define FP_WARP_INFO_H
+#ifndef WARP_INFO_H
+#define WARP_INFO_H
 
 #define GROUP_COUNT 0x1c
 

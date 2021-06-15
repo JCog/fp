@@ -1,6 +1,5 @@
-#ifndef _FP_H
-#define _FP_H
-
+#ifndef FP_H
+#define FP_H
 #include <stdint.h>
 #include <vector/vector.h>
 #include "pm64.h"
@@ -66,7 +65,6 @@ void fp_set_global_byte(int byte_index,  int8_t value);
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();
 struct menu *create_player_menu();
-struct menu *create_progression_menu();
 struct menu *create_file_menu();
 struct menu *create_watches_menu();
 struct menu *create_practice_menu();

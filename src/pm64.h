@@ -1,5 +1,5 @@
-#ifndef _PM64_H
-#define _PM64_H
+#ifndef PM64_H
+#define PM64_H
 #include <n64.h>
 #include <stdint.h>
 

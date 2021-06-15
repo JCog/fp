@@ -1,3 +1,5 @@
+#ifndef TRICKS_H
+#define TRICKS_H
 #include "menu.h"
 
 enum tricks {
@@ -78,3 +80,5 @@ enum partners {
 
 void create_tricks_menu(struct menu *menu);
 void load_trick(int8_t trick);
+
+#endif
