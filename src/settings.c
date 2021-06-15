@@ -65,6 +65,7 @@ void settings_load_default(void){
     d->binds[COMMAND_LOAD_GAME] = input_bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
     d->binds[COMMAND_START_TIMER] = input_bind_make(0);
     d->binds[COMMAND_RESET_TIMER] = input_bind_make(0);
+    d->binds[COMMAND_SHOW_HIDE_TIMER] = input_bind_make(0);
 }
 
 void apply_menu_settings(){

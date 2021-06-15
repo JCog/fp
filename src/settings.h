@@ -7,7 +7,7 @@
 
 #define SETTINGS_SAVE_FILE_SIZE     0x1380
 #define SETTINGS_PROFILE_MAX        4
-#define SETTINGS_VERSION            0x0002
+#define SETTINGS_VERSION            0x0003
 
 #define SETTINGS_WATCHES_MAX        18
 #define SETTINGS_ROOMS_MAX          10

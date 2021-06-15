@@ -22,8 +22,9 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
     {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
     {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc},
-    {"start/stop timer",      COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
-    {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc}
+    {"start/stop timer", COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
+    {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc},
+    {"show/hide timer",  COMMAND_PRESS_ONCE,  0,   command_show_hide_timer_proc}
 };
 
 void show_menu() {
@@ -97,10 +98,12 @@ void fp_set_story_progress(int story_progress) {
 void set_flag(uint32_t *flags, int flag_index, _Bool value) {
     int word_index = flag_index / 32;
     int bit = flag_index % 32;
-    if (value)
+    if (value) {
         flags[word_index] |= (1 << bit);
-    else
+    }
+    else {
         flags[word_index] &= ~(1 << bit);
+    }
 }
 
 void fp_set_global_flag(int flag_index, _Bool value) {
@@ -158,12 +161,13 @@ void command_load_pos_proc() {
 }
 
 void command_lzs_proc() {
-    if(pm_unk1.saveblock_freeze == 0) {
+    if (pm_unk1.saveblock_freeze == 0) {
         pm_unk1.saveblock_freeze = 1;
-        fp_log("lzs enabled");
-    } else if(pm_unk1.saveblock_freeze == 1) {
+        fp_log("easy lzs enabled");
+    }
+    else if (pm_unk1.saveblock_freeze == 1) {
         pm_unk1.saveblock_freeze = 0;
-        fp_log("lzs disabled");
+        fp_log("easy lzs disabled");
     }
 }
 
@@ -208,6 +212,10 @@ void command_reset_timer_proc() {
     fp.timer.state = 0;
     fp.timer.cutscene_count = 0;
     fp_log("timer reset");
+}
+
+void command_show_hide_timer_proc() {
+    settings->bits.timer_show = !settings->bits.timer_show;
 }
 
 void command_load_game_proc() {

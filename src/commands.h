@@ -3,7 +3,7 @@
 
 #include "pm64.h"
 
-enum commands{
+enum commands {
     COMMAND_MENU,
     COMMAND_RETURN,
     COMMAND_LEVITATE,
@@ -18,10 +18,11 @@ enum commands{
     COMMAND_LOAD_GAME,
     COMMAND_START_TIMER,
     COMMAND_RESET_TIMER,
+    COMMAND_SHOW_HIDE_TIMER,
     COMMAND_MAX
 };
 
-enum activation_type{
+enum activation_type {
     COMMAND_HOLD,
     COMMAND_PRESS,
     COMMAND_PRESS_ONCE
@@ -49,6 +50,7 @@ void command_save_game_proc();
 void command_load_game_proc();
 void command_start_timer_proc();
 void command_reset_timer_proc();
+void command_show_hide_timer_proc();
 
 extern struct command fp_commands[COMMAND_MAX];
 
