@@ -64,7 +64,6 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     int x = draw_params->x;
     int y = draw_params->y;
 
-    int8_t progress = pm_unk3.story_progress;
     int8_t chapter_starts[] = {
         -128,
         -98,
@@ -81,11 +80,11 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     int8_t chapter_progress = 0;
     int8_t chapter_max = 0;
     for (int i = 1; i < 10; i++) {
-        if (progress >= chapter_starts[i]) {
+        if (STORY_PROGRESS >= chapter_starts[i]) {
             chapter++;
         }
         else {
-            chapter_progress = progress - chapter_starts[chapter];
+            chapter_progress = STORY_PROGRESS - chapter_starts[chapter];
             chapter_max = chapter_starts[chapter + 1] - chapter_starts[chapter];
             break;
         }
@@ -145,7 +144,7 @@ struct menu *create_file_menu(void)
     menu_add_button(&menu, 5, y++, "load", load_proc, NULL);
     y++;
     menu_add_static(&menu, 0, y, "story progress", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y++, 16, 2, byte_mod_proc, &pm_unk3.story_progress);
+    menu_add_intinput(&menu, MENU_X, y++, 16, 2, byte_mod_proc, &STORY_PROGRESS);
     menu_add_static_custom(&menu, 1, y++, story_progress_draw_proc, NULL, 0xC0C0C0);
     y++;
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);

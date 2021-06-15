@@ -14,125 +14,125 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static void bowser_hallway_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x5f);
+    STORY_PROGRESS = 0x5f;
     fp_set_global_flag(0x1fa, 0); //hallway not defeated
     fp_warp(0x4, 0x7, 0x0);
 }
 
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x5f);
+    STORY_PROGRESS = 0x5f;
     fp_set_global_flag(0x1fc, 0); //bridge not broken
     fp_set_global_flag(0x1fe, 1); //skip camera zoom in
     fp_warp(0x4, 0x13, 0x0);
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x5f);
+    STORY_PROGRESS = 0x5f;
     fp_set_global_flag(0x1fc, 1); //bridge broken
     fp_warp(0x4, 0x13, 0x1);
 }
 
 static void goomba_king_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x8f);
+    STORY_PROGRESS = 0x8f;
     fp_set_global_flag(0x02d, 1); //skip cutscene
     fp_warp(0x0, 0x9, 0x0);
 }
 
 static void koopa_bros_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xb1);
+    STORY_PROGRESS = 0xb1;
     fp_warp(0x7, 0xa, 0x0);
 }
 
 static void tutankoopa_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xc7);
+    STORY_PROGRESS = 0xc7;
     fp_warp(0xb, 0xe, 0x0);
 }
 
 static void tubba_blubba_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xef);
+    STORY_PROGRESS = 0xef;
     fp_warp(0xe, 0x4, 0x0);
 }
 
 static void general_guy_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x03);
+    STORY_PROGRESS = 0x03;
     fp_warp(0x10, 0xe, 0x0);
 }
 
 static void lava_piranha_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x22);
+    STORY_PROGRESS = 0x22;
     fp_warp(0x12, 0xd, 0x1);
 }
 
 static void huff_n_puff_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x37);
+    STORY_PROGRESS = 0x37;
     fp_warp(0x13, 0xf, 0x0);
 }
 
 static void crystal_king_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x55);
+    STORY_PROGRESS = 0x55;
     fp_warp(0x15, 0x17, 0x0);
 }
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x89);
+    STORY_PROGRESS = 0x89;
     fp_warp(0x0, 0x3, 0x0);
 }
 
 static void jr_pleasant_path_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xb5);
+    STORY_PROGRESS = 0xb5;
     fp_warp(0x6, 0x4, 0x1);
 }
 
 static void jr_forever_forest_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xf3);
+    STORY_PROGRESS = 0xf3;
     fp_set_global_flag(0x39f, 0); //jr not defeated
     fp_warp(0xc, 0x6, 0x3);
 }
 
 static void jr_toad_town_port_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x27);
+    STORY_PROGRESS = 0x27;
     fp_set_global_flag(0x4c2, 0); //jr not defeated
     fp_warp(0x1, 0x6, 0x1);
 }
 
 static void jr_shiver_snowfield_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x43);
+    STORY_PROGRESS = 0x43;
     fp_warp(0x14, 0x2, 0x0);
 }
 
 static void jr_bowsers_castle_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x5f);
+    STORY_PROGRESS = 0x5f;
     fp_set_global_byte(0x12c, 0);
     fp_warp(0x16, 0x1c, 0x0);
 }
 
 static void goomba_bros_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x8e);
+    STORY_PROGRESS = 0x8e;
     fp_warp(0x0, 0x6, 0x0);
 }
 
 static void tubbas_heart_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0xe9);
+    STORY_PROGRESS = 0xe9;
     fp_warp(0xe, 0x8, 0x0);
 }
 
 static void lantern_ghost_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x00);
+    STORY_PROGRESS = 0x00;
     fp_warp(0x10, 0xb, 0x0);
 }
 
 static void fuzzipede_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x09);
+    STORY_PROGRESS = 0x09;
     fp_warp(0x3, 0x1, 0x0);
 }
 
 static void lakilester_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x32);
+    STORY_PROGRESS = 0x32;
     fp_warp(0x13, 0x8, 0x1);
 }
 
 static void monstar_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x44);
+    STORY_PROGRESS = 0x44;
     fp_warp(0x14, 0x4, 0x0);
 }
 
@@ -168,13 +168,13 @@ static void anti_guy_proc(struct menu_item *item, void *data) {
 }
 
 static void kent_c_koopa_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x29);
+    STORY_PROGRESS = 0x29;
     fp_set_global_flag(0x262, 0); //kent not defeated
     fp_warp(0x6, 0x4, 0x0);
 }
 
 static void anti_guys_unit_proc(struct menu_item *item, void *data) {
-    fp_set_story_progress(0x5f);
+    STORY_PROGRESS = 0x5f;
     fp_set_global_byte(0x12b, 0);
     fp_warp(0x16, 0x1b, 0x0);
 }

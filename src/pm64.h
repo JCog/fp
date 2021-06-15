@@ -151,10 +151,6 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ uint8_t story_progress;
-}unk3_ctxt_t;
-
-typedef struct{
     /* 0x0000 */ char unk_0x00[0x03];
     /* 0x0003 */ uint8_t partner_ability;
     /* 0x0004 */ int16_t control_x_overworld;
@@ -512,7 +508,6 @@ typedef struct {
 #define pm_enemy_flags_addr                 0x800B0FA0
 #define pm_effects_addr                     0x800B4378
 #define pm_save_data_addr                   0x800DACA0
-#define pm_unk3_addr                        0x800DBD50
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
 #define pm_player_addr                      0x8010F188
@@ -538,7 +533,6 @@ typedef struct {
 #define pm_unk4               (*(unk4_ctxt_t*)        pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)     pm_effects_addr)
 #define pm_save_data          (*(save_data_ctxt_t*)   pm_save_data_addr)
-#define pm_unk3               (*(unk3_ctxt_t*)        pm_unk3_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
@@ -568,5 +562,8 @@ typedef void (*pm_SaveGame_t) ();
 #define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
 #define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
 #define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
+
+/*Convenience Values*/
+#define STORY_PROGRESS pm_save_data.global_bytes[0]
 
 #endif

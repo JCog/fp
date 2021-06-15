@@ -91,10 +91,6 @@ void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     return;
 }
 
-void fp_set_story_progress(int story_progress) {
-    pm_unk3.story_progress = story_progress;
-}
-
 void set_flag(uint32_t *flags, int flag_index, _Bool value) {
     int word_index = flag_index / 32;
     int bit = flag_index % 32;
