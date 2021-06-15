@@ -28,15 +28,14 @@ struct timer {
 
 typedef struct{
     _Bool                   ready;
+    struct menu             *main_menu;
+    struct menu             *global;
     uint8_t                 profile;
     _Bool                   settings_loaded;
     _Bool                   version_shown;
     int64_t                 cpu_counter;
     int32_t                 cpu_counter_freq;
     struct timer            timer;
-    uint16_t                cheats;
-    struct menu             *main_menu;
-    struct menu             *global;
     _Bool                   menu_active;
     _Bool                   coord_active;
     _Bool                   coord_moving;

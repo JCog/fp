@@ -399,12 +399,37 @@ void init() {
 
     /*init fp variables*/
     fp.profile = 0;
+    fp.settings_loaded = 0;
+    fp.version_shown = 0;
+    fp.cpu_counter = 0;
+    fp.cpu_counter_freq = 0;
+    fp.timer.start = 0;
+    fp.timer.end = 0;
+    fp.timer.lag_start = 0;
+    fp.timer.lag_end = 0;
+    fp.timer.frame_start = 0;
+    fp.timer.frame_end = 0;
+    fp.timer.prev_cutscene_state = 0;
+    fp.timer.mode = 0;
+    fp.timer.state = 0;
+    fp.timer.prev_state = 0;
+    fp.timer.cutscene_target = 1;
+    fp.timer.cutscene_count = 0;
+    fp.timer.moving = 0;
     fp.menu_active = 0;
     fp.coord_active = 0;
-    fp.version_shown = 0;
+    fp.coord_moving = 0;
+    for (int i = 0; i < SETTINGS_LOG_MAX; i++) {
+        fp.log[i].msg = NULL;
+    }
+    fp.saved_x = 0;
+    fp.saved_y = 0;
+    fp.saved_z = 0;
+    fp.saved_facing_angle = 0;
     fp.saved_trick = -1;
-    fp.timer.cutscene_target = 1;
-    fp.timer.state = 0;
+    fp.turbo = 0;
+    fp.bowser_blocks_enabled = 0;
+    fp.bowser_block = 0;
 
     /*load default settings*/
     settings_load_default();
@@ -467,7 +492,7 @@ void init() {
     fp.ready = 1;
 }
 
-// Initilizes and uses new stack instead of using graph threads stack. 
+// Initializes and uses new stack instead of using graph threads stack.
 static void init_stack(void (*func)(void)) {
     static _Alignas(8) __attribute__((section(".stack"))) 
     char stack[0x2000];
