@@ -5,19 +5,19 @@
 #include "settings.h"
 
 void check_for_hammer() {
-    if (pm_player.stats.hammer_upgrade > 2) {
-        pm_player.stats.hammer_upgrade = 0;
+    if (pm_player.player_data.hammer_upgrade > 2) {
+        pm_player.player_data.hammer_upgrade = 0;
     }
 }
 
 void set_partner(int partner) {
-    pm_player.stats.current_partner = partner;
+    pm_player.player_data.current_partner = partner;
 }
 
 void remove_key_item(int item_id) {
     for (int i = 0; i < 32; i++) {
-        if (pm_player.key_items[i] == item_id) {
-            pm_player.key_items[i] = 0;
+        if (pm_player.player_data.key_items[i] == item_id) {
+            pm_player.player_data.key_items[i] = 0;
         }
     }
 }
@@ -38,8 +38,8 @@ void load_retrigger_prologue() {
     STORY_PROGRESS = 0x9c;
     fp_set_global_flag(0x01e, 0); //dolly not collected
     for (int i = 0; i < 32; i++) {
-        if (pm_player.key_items[i] == 0) {
-            pm_player.key_items[i] = 0x1c; //weight
+        if (pm_player.player_data.key_items[i] == 0) {
+            pm_player.player_data.key_items[i] = 0x1c; //weight
         }
     }
     set_partner(KOOPER);
@@ -48,24 +48,24 @@ void load_retrigger_prologue() {
 
 void load_oot_ace() {
     STORY_PROGRESS = 0x90;
-    pm_player.stats.hammer_upgrade = 0;
+    pm_player.player_data.hammer_upgrade = 0;
     set_partner(GOOMBARIO);
-    pm_player.party.goombario.in_party = 1;
-    pm_player.party.kooper.in_party = 0;
-    pm_player.party.bombette.in_party = 0;
-    pm_player.party.parakarry.in_party = 0;
-    pm_player.party.bow.in_party = 0;
-    pm_player.party.watt.in_party = 0;
-    pm_player.party.sushie.in_party = 0;
-    pm_player.party.lakilester.in_party = 0;
+    pm_player.player_data.party.goombario.in_party = 1;
+    pm_player.player_data.party.kooper.in_party = 0;
+    pm_player.player_data.party.bombette.in_party = 0;
+    pm_player.player_data.party.parakarry.in_party = 0;
+    pm_player.player_data.party.bow.in_party = 0;
+    pm_player.player_data.party.watt.in_party = 0;
+    pm_player.player_data.party.sushie.in_party = 0;
+    pm_player.player_data.party.lakilester.in_party = 0;
     int i;
     for (i = 0; i < 9; i++) {
-        pm_player.items[i] = 0;
+        pm_player.player_data.items[i] = 0;
     }
-    pm_player.items[9] = 0x93; //whacka's bump
-    pm_player.stats.star_points = 50;
-    pm_player.stats.hp = pm_player.stats.max_hp;
-    pm_player.stats.fp = pm_player.stats.max_fp;
+    pm_player.player_data.items[9] = 0x93; //whacka's bump
+    pm_player.player_data.star_points = 50;
+    pm_player.player_data.hp = pm_player.player_data.max_hp;
+    pm_player.player_data.fp = pm_player.player_data.max_fp;
     pm_ace_store.last_timer = 0;
     fp_warp(0, 9, 0);
 }
@@ -106,7 +106,7 @@ void load_early_seed() {
 }
 
 void load_buzzar_skip() {
-    pm_player.stats.current_partner = 4;
+    pm_player.player_data.current_partner = 4;
     fp_warp(8, 4, 0);
 }
 
@@ -121,8 +121,8 @@ void load_spike_shield_early() {
     fp_set_area_flag(0x5, 0); //coffin 2
     fp_set_area_flag(0x6, 0); //coffin 3
     for (int i = 0; i < 128; i++) {
-        if (pm_player.badges[i] == 0xe5) { //spike shield
-            pm_player.badges[i] = 0;
+        if (pm_player.player_data.badges[i] == 0xe5) { //spike shield
+            pm_player.player_data.badges[i] = 0;
         }
     }
     fp_warp(0xb, 0x1, 0x0);
@@ -132,7 +132,7 @@ void load_slow_go_early() {
     fp_set_global_flag(0x37b, 1); //tutankoopa text
     fp_set_global_flag(0x380, 1); //block gone
     fp_set_global_flag(0x384, 1); //chest open
-    pm_player.stats.boots_upgrade = 1;
+    pm_player.player_data.boots_upgrade = 1;
     fp_warp(0xb, 8, 0);
 }
 
@@ -339,9 +339,9 @@ void load_sushie_peach_warp() {
     check_for_hammer();
     STORY_PROGRESS = 0x33;
     set_partner(BOMBETTE);
-    pm_player.party.bombette.in_party = 1;
-    pm_player.party.sushie.in_party = 1;
-    pm_player.stats.boots_upgrade = 1;
+    pm_player.player_data.party.bombette.in_party = 1;
+    pm_player.player_data.party.sushie.in_party = 1;
+    pm_player.player_data.boots_upgrade = 1;
     fp_warp(0x12, 0x2, 2);
 }
 
@@ -354,8 +354,8 @@ void load_clippy_boots() {
     fp_set_global_flag(0x18d, 1); //super block broken
     fp_set_global_flag(0x18e, 0); //ultra block unbroken
     set_partner(LAKILESTER);
-    pm_player.party.sushie.in_party = 1;
-    pm_player.party.lakilester.in_party = 1;
+    pm_player.player_data.party.sushie.in_party = 1;
+    pm_player.player_data.party.lakilester.in_party = 1;
     fp_warp(2, 0x13, 0);
 }
 
@@ -395,7 +395,7 @@ void load_fast_basement_first() {
     fp_set_global_flag(0x60f, 0); //second switch
     fp_set_global_flag(0x615, 0); //basement fight
     fp_set_global_flag(0x614, 0); //hardened lava
-    pm_player.stats.boots_upgrade = 2;
+    pm_player.player_data.boots_upgrade = 2;
     fp_warp(0x16, 7, 0);
 }
 
@@ -405,7 +405,7 @@ void load_fast_basement_second() {
     fp_set_global_flag(0x60f, 0); //second switch
     fp_set_global_flag(0x615, 0); //basement fight
     fp_set_global_flag(0x614, 0); //hardened lava
-    pm_player.stats.boots_upgrade = 2;
+    pm_player.player_data.boots_upgrade = 2;
     fp_warp(0x16, 8, 0);
 }
 
@@ -422,8 +422,8 @@ void load_blind_basement() {
 
 void load_fast_flood_room() {
     set_partner(LAKILESTER);
-    pm_player.party.kooper.in_party = 1;
-    pm_player.party.lakilester.in_party = 1;
+    pm_player.player_data.party.kooper.in_party = 1;
+    pm_player.player_data.party.lakilester.in_party = 1;
     fp_set_global_flag(0x632, 0); //key not collected
     fp_set_global_flag(0x633, 0); //spring still in wall
     fp_set_global_byte(0x129, 0); //water level 0

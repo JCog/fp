@@ -203,28 +203,6 @@ typedef struct{
     /* 0x00058 */ char unk_0x58[0x18];
 }hud_ctxt_t; // size: 0x00070
 
-typedef struct{
-    /* 0x0000 */ uint8_t boots_upgrade; /*start: 8010F450*/
-    /* 0x0001 */ uint8_t hammer_upgrade;
-    /* 0x0002 */ uint8_t hp;
-    /* 0x0003 */ uint8_t max_hp;
-    /* 0x0004 */ uint8_t menu_max_hp; /*gets copied to max_hp when unpausing */
-    /* 0x0005 */ uint8_t fp;
-    /* 0x0006 */ uint8_t max_fp;
-    /* 0x0007 */ uint8_t menu_max_fp; /*gets copied to max_hp when unpausing */
-    /* 0x0008 */ uint8_t bp;
-    /* 0x0009 */ uint8_t level;
-    /* 0x000A */ uint8_t has_action_command;
-    /* 0x000B */ char unk_0x0B[0x01];
-    /* 0x000C */ int16_t coins;
-    /* 0x000E */ uint8_t fortress_keys;
-    /* 0x000F */ uint8_t star_pieces;
-    /* 0x0010 */ uint8_t star_points;
-    /* 0x0011 */ char unk_0x11[0x01];
-    /* 0x0012 */ uint8_t current_partner; /*0x00 - 0x0B*/
-    /* 0x0013 */ char unk_0x13[0x01];
-}stats_t; // size: 0x0014
-
 typedef struct {
     /* 0x00000 */ uint8_t in_party;
     /* 0x00001 */ uint8_t upgrade;
@@ -261,6 +239,64 @@ typedef struct{
     /* 0x0004 */ uint8_t beam_rank; /*1 for star beam, 2 for peach beam*/
     /* 0x0005 */ char unk_0x05[0x01];
 }star_power_t; // size: 0x0006
+
+typedef struct {
+    /* 0x000 */ uint8_t boots_upgrade; /*start: 8010F450*/
+    /* 0x001 */ uint8_t hammer_upgrade;
+    /* 0x002 */ uint8_t hp;
+    /* 0x003 */ uint8_t max_hp;
+    /* 0x004 */ uint8_t menu_max_hp; /*gets copied to max_hp when unpausing */
+    /* 0x005 */ uint8_t fp;
+    /* 0x006 */ uint8_t max_fp;
+    /* 0x007 */ uint8_t menu_max_fp; /*gets copied to max_hp when unpausing */
+    /* 0x008 */ uint8_t bp;
+    /* 0x009 */ uint8_t level;
+    /* 0x00A */ uint8_t has_action_command;
+    /* 0x00B */ char unk_0x0B[0x01];
+    /* 0x00C */ int16_t coins;
+    /* 0x00E */ uint8_t fortress_keys;
+    /* 0x00F */ uint8_t star_pieces;
+    /* 0x010 */ uint8_t star_points;
+    /* 0x011 */ char unk_0x11[0x01];
+    /* 0x012 */ uint8_t current_partner; /*0x00 - 0x0B*/
+    /* 0x013 */ char unk_0x13[0x01];
+    /* 0x014 */ char unk_14[8];
+    /* 0x01C */ party_t party;
+    /* 0x074 */ uint16_t key_items[32];
+    /* 0x0B4 */ uint16_t badges[128];
+    /* 0x1B4 */ uint16_t items[10];
+    /* 0x1C8 */ uint16_t stored_items[32];
+    /* 0x208 */ uint16_t equipped_badges[64];
+    /* 0x288 */ merlee_t merlee;
+    /* 0x28E */ star_power_t star_power;
+    /* 0x294 */ int16_t other_hits_taken;
+    /* 0x296 */ int16_t unk_296;
+    /* 0x298 */ int16_t hits_taken;
+    /* 0x29A */ int16_t hits_blocked;
+    /* 0x29C */ int16_t player_first_strikes;
+    /* 0x29E */ int16_t enemy_first_strikes;
+    /* 0x2A0 */ int16_t power_bounces;
+    /* 0x2A2 */ int16_t battle_count;
+    /* 0x2A4 */ int16_t unk_2A4[4];
+    /* 0x2AC */ int32_t unk_2AC[2];
+    /* 0x2B4 */ uint32_t total_coins_earned;
+    /* 0x2B8 */ int16_t idle_frame_counter; /* frames with no inputs, overflows every ~36 minutes of idling */
+    /* 0x2BA */ char unk_2BA[2];
+    /* 0x2BC */ uint32_t frame_counter; /* increases by 2 per frame */
+    /* 0x2C0 */ int16_t quizzes_answered;
+    /* 0x2C2 */ int16_t quizzes_correct;
+    /* 0x2C4 */ int32_t unk_2C4[24];
+    /* 0x324 */ int32_t trade_event_start_time;
+    /* 0x328 */ int32_t unk_328;
+    /* 0x32C */ int16_t star_pieces_collected;
+    /* 0x32E */ int16_t jump_game_plays;
+    /* 0x330 */ int32_t jump_game_total; /* all-time winnings, max = 99999 */
+    /* 0x334 */ int16_t jump_game_record;
+    /* 0x336 */ int16_t smash_game_plays;
+    /* 0x338 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
+    /* 0x33C */ int16_t smash_game_record;
+    /* 0x33E */ char unk_606[2];
+}player_data_t; // size: 0x340
 
 typedef struct{
     /* 0x0000 */ int32_t flags; /*third byte related to cutscenes - write 0 to break free*/
@@ -337,84 +373,8 @@ typedef struct{
     /* 0x02B5 */ uint8_t spin_duration;
     /* 0x02B6 */ char unk_0x228[0x02];
     /* 0x02B8 */ char unk_0x2B8[0x10];
-    /* 0x02C8 */ stats_t stats;
-    /* 0x02DC */ char unk_0x14[0x08];
-    /* 0x02E4 */ party_t party;
-    /* 0x033C */ uint16_t key_items[32];
-    /* 0x037C */ uint16_t badges[128];
-    /* 0x047C */ uint16_t items[10];
-    /* 0x0490 */ uint16_t stored_items[32];
-    /* 0x04D0 */ uint16_t equipped_badges[64];
-    /* 0x0550 */ merlee_t merlee;
-    /* 0x0556 */ star_power_t star_power;
-    /* 0x055C */ int16_t other_hits_taken;
-    /* 0x055E */ int16_t unk_55E;
-    /* 0x0560 */ int16_t hits_taken;
-    /* 0x0562 */ int16_t hits_blocked;
-    /* 0x0564 */ int16_t player_first_strikes;
-    /* 0x0566 */ int16_t enemy_first_strikes;
-    /* 0x0568 */ int16_t power_bounces;
-    /* 0x056A */ int16_t battle_count;
-    /* 0x056C */ int16_t unk_56C[4];
-    /* 0x0574 */ int32_t unk_574[2];
-    /* 0x057C */ uint32_t total_coins_earned;
-    /* 0x0580 */ int16_t idle_frame_counter; /* frames with no inputs, overflows every ~36 minutes of idling */
-    /* 0x0582 */ char unk_582[2];
-    /* 0x0584 */ uint32_t frame_counter; /* increases by 2 per frame */
-    /* 0x0588 */ int16_t quizzes_answered;
-    /* 0x058A */ int16_t quizzes_correct;
-    /* 0x058C */ int32_t unk_590[24];
-    /* 0x05EC */ int32_t trade_event_start_time;
-    /* 0x05F0 */ int32_t unk_5EC;
-    /* 0x05F4 */ int16_t star_pieces_collected;
-    /* 0x05F6 */ int16_t jump_game_plays;
-    /* 0x05F8 */ int32_t jump_game_total; /* all-time winnings, max = 99999 */
-    /* 0x05FC */ int16_t jump_game_record;
-    /* 0x05FE */ int16_t smash_game_plays;
-    /* 0x0600 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
-    /* 0x0604 */ int16_t smash_game_record;
-    /* 0x0606 */ char unk_606[2];
+    /* 0x02C8 */ player_data_t player_data;
 }player_ctxt_t;
-
-typedef struct {
-    /* 0x000 */ stats_t stats;
-    /* 0x014 */ char unk_14[8];
-    /* 0x01C */ party_t party;
-    /* 0x074 */ uint16_t key_items[32];
-    /* 0x0B4 */ uint16_t badges[128];
-    /* 0x1B4 */ uint16_t items[10];
-    /* 0x1C8 */ uint16_t storage[32];
-    /* 0x208 */ uint16_t equipped_badges[64];
-    /* 0x288 */ merlee_t merlee;
-    /* 0x28E */ star_power_t star_power;
-    /* 0x294 */ int16_t other_hits_taken;
-    /* 0x296 */ int16_t unk_296;
-    /* 0x298 */ int16_t hits_taken;
-    /* 0x29A */ int16_t hits_blocked;
-    /* 0x29C */ int16_t player_first_strikes;
-    /* 0x29E */ int16_t enemy_first_strikes;
-    /* 0x2A0 */ int16_t power_bounces;
-    /* 0x2A2 */ int16_t battle_count;
-    /* 0x2A4 */ int16_t unk_2A4[4];
-    /* 0x2AC */ int32_t unk_2AC[2];
-    /* 0x2B4 */ uint32_t total_coins_earned;
-    /* 0x2B8 */ int16_t idle_frame_counter; /* frames with no inputs, overflows every ~36 minutes of idling */
-    /* 0x2BA */ char unk_2BA[2];
-    /* 0x2BC */ uint32_t frame_counter; /* increases by 2 per frame */
-    /* 0x2C0 */ int16_t quizzes_answered;
-    /* 0x2C2 */ int16_t quizzes_correct;
-    /* 0x2C4 */ int32_t unk_2C4[24];
-    /* 0x324 */ int32_t trade_event_start_time;
-    /* 0x328 */ int32_t unk_328;
-    /* 0x32C */ int16_t star_pieces_collected;
-    /* 0x32E */ int16_t jump_game_plays;
-    /* 0x330 */ int32_t jump_game_total; /* all-time winnings, max = 99999 */
-    /* 0x334 */ int16_t jump_game_record;
-    /* 0x336 */ int16_t smash_game_plays;
-    /* 0x338 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
-    /* 0x33C */ int16_t smash_game_record;
-    /* 0x33E */ char unk_606[2];
-}player_data_t; // size: 0x340
 
 typedef struct {
     /* 0x0000 */ char magic_string[16]; /* "Mario Story 006" */

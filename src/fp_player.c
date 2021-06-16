@@ -121,24 +121,24 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
 
 static int max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.stats.max_hp)
-            menu_intinput_set(item, pm_player.stats.max_hp);
+        if (menu_intinput_get(item) != pm_player.player_data.max_hp)
+            menu_intinput_set(item, pm_player.player_data.max_hp);
     }
     else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_player.stats.max_hp = menu_intinput_get(item);
-        pm_player.stats.menu_max_hp = menu_intinput_get(item);
+        pm_player.player_data.max_hp = menu_intinput_get(item);
+        pm_player.player_data.menu_max_hp = menu_intinput_get(item);
     }
     return 0;
 }
 
 static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.stats.max_fp)
-            menu_intinput_set(item, pm_player.stats.max_fp);
+        if (menu_intinput_get(item) != pm_player.player_data.max_fp)
+            menu_intinput_set(item, pm_player.player_data.max_fp);
     }
     else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_player.stats.max_fp = menu_intinput_get(item);
-        pm_player.stats.menu_max_fp = menu_intinput_get(item);
+        pm_player.player_data.max_fp = menu_intinput_get(item);
+        pm_player.player_data.menu_max_fp = menu_intinput_get(item);
     }
     return 0;
 }
@@ -146,11 +146,11 @@ static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason,
 static int hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t menu_hammer = menu_option_get(item) - 1;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_hammer != pm_player.stats.hammer_upgrade)
-            menu_option_set(item, (uint8_t)pm_player.stats.hammer_upgrade + 1);
+        if (menu_hammer != pm_player.player_data.hammer_upgrade)
+            menu_option_set(item, (uint8_t)pm_player.player_data.hammer_upgrade + 1);
     }
     else if (reason == MENU_CALLBACK_DEACTIVATE)
-        pm_player.stats.hammer_upgrade = (uint8_t)menu_option_get(item) - 1;
+        pm_player.player_data.hammer_upgrade = (uint8_t)menu_option_get(item) - 1;
     return 0;
 }
 
@@ -201,14 +201,14 @@ static int star_power_full_proc(struct menu_item *item, enum menu_callback_reaso
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p)
             menu_intinput_set(item, *p);
-        if (pm_player.star_power.full_bars_filled >= pm_player.star_power.star_spirits_saved) {
-            menu_intinput_set(item, pm_player.star_power.star_spirits_saved);
-            *p = pm_player.star_power.star_spirits_saved;
+        if (pm_player.player_data.star_power.full_bars_filled >= pm_player.player_data.star_power.star_spirits_saved) {
+            menu_intinput_set(item, pm_player.player_data.star_power.star_spirits_saved);
+            *p = pm_player.player_data.star_power.star_spirits_saved;
         }
     }
     else if (reason == MENU_CALLBACK_CHANGED) {
-        if (menu_intinput_get(item) > pm_player.star_power.star_spirits_saved) {
-            *p = pm_player.star_power.star_spirits_saved;
+        if (menu_intinput_get(item) > pm_player.player_data.star_power.star_spirits_saved) {
+            *p = pm_player.player_data.star_power.star_spirits_saved;
         }
         else {
             *p = menu_intinput_get(item);
@@ -222,13 +222,13 @@ static int star_power_partial_proc(struct menu_item *item, enum menu_callback_re
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p)
             menu_intinput_set(item, *p);
-        if (pm_player.star_power.full_bars_filled >= pm_player.star_power.star_spirits_saved) {
+        if (pm_player.player_data.star_power.full_bars_filled >= pm_player.player_data.star_power.star_spirits_saved) {
             menu_intinput_set(item, 0);
             *p = 0;
         }
     }
     else if (reason == MENU_CALLBACK_CHANGED) {
-        if (pm_player.star_power.full_bars_filled > 6) {
+        if (pm_player.player_data.star_power.full_bars_filled > 6) {
             *p = 0;
         }
         else {
@@ -349,44 +349,43 @@ struct menu *create_player_menu(void) {
         /*build status menu*/
         const int STATS_X = 16;
         int y_value = 0;
-        stats_t *pm_stats = &pm_player.stats;
 
         status.selector = menu_add_submenu(&status, 0, y_value++, NULL, "return");
 
         menu_add_static(&status, 0, y_value, "boots", 0xC0C0C0);
         menu_add_option(&status, STATS_X, y_value++, "normal\0""super\0""ultra\0", byte_optionmod_proc,
-                        &pm_player.stats.boots_upgrade);
+                        &pm_player.player_data.boots_upgrade);
 
         menu_add_static(&status, 0, y_value, "hammer", 0xC0C0C0);
         menu_add_option(&status, STATS_X, y_value++, "none\0""normal\0""super\0""ultra\0", hammer_proc, NULL);
 
         menu_add_static(&status, 0, y_value, "action commands", 0xC0C0C0);
-        menu_add_checkbox(&status, STATS_X, y_value++, checkbox_mod_proc, &pm_stats->has_action_command);
+        menu_add_checkbox(&status, STATS_X, y_value++, checkbox_mod_proc, &pm_player.player_data.has_action_command);
 
         menu_add_static(&status, 0, y_value, "hp", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value, 10, 2, byte_mod_proc, &pm_stats->hp);
+        menu_add_intinput(&status, STATS_X, y_value, 10, 2, byte_mod_proc, &pm_player.player_data.hp);
         menu_add_static(&status, STATS_X + 2, y_value, "/", 0xC0C0C0);
         menu_add_intinput(&status, STATS_X + 3, y_value++, 10, 2, max_hp_proc, NULL);
 
         menu_add_static(&status, 0, y_value, "fp", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value, 10, 2, byte_mod_proc, &pm_stats->fp);
+        menu_add_intinput(&status, STATS_X, y_value, 10, 2, byte_mod_proc, &pm_player.player_data.fp);
         menu_add_static(&status, STATS_X + 2, y_value, "/", 0xC0C0C0);
         menu_add_intinput(&status, STATS_X + 3, y_value++, 10, 2, max_fp_proc, NULL);
 
         menu_add_static(&status, 0, y_value, "bp", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_stats->bp);
+        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.bp);
 
         menu_add_static(&status, 0, y_value, "level", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_stats->level);
+        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.level);
 
         menu_add_static(&status, 0, y_value, "star points", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_points);
+        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.star_points);
 
         menu_add_static(&status, 0, y_value, "star pieces", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_stats->star_pieces);
+        menu_add_intinput(&status, STATS_X, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.star_pieces);
 
         menu_add_static(&status, 0, y_value, "coins", 0xC0C0C0);
-        menu_add_intinput(&status, STATS_X, y_value++, 10, 3, halfword_mod_proc, &pm_stats->coins);
+        menu_add_intinput(&status, STATS_X, y_value++, 10, 3, halfword_mod_proc, &pm_player.player_data.coins);
     }
 
     {
@@ -396,17 +395,17 @@ struct menu *create_player_menu(void) {
         int y_value = 0;
 
         partner_t *partner_list[] = {
-            &pm_player.party.goombario,
-            &pm_player.party.kooper,
-            &pm_player.party.bombette,
-            &pm_player.party.parakarry,
-            &pm_player.party.bow,
-            &pm_player.party.watt,
-            &pm_player.party.sushie,
-            &pm_player.party.lakilester,
-            &pm_player.party.goompa,
-            &pm_player.party.goombaria,
-            &pm_player.party.twink
+            &pm_player.player_data.party.goombario,
+            &pm_player.player_data.party.kooper,
+            &pm_player.player_data.party.bombette,
+            &pm_player.player_data.party.parakarry,
+            &pm_player.player_data.party.bow,
+            &pm_player.player_data.party.watt,
+            &pm_player.player_data.party.sushie,
+            &pm_player.player_data.party.lakilester,
+            &pm_player.player_data.party.goompa,
+            &pm_player.player_data.party.goombaria,
+            &pm_player.player_data.party.twink
         };
 
         static const char *partner_names[] = {
@@ -427,7 +426,7 @@ struct menu *create_player_menu(void) {
 
         menu_add_static(&partners, 0, y_value, "active", 0xC0C0C0);
         menu_add_option(&partners, PARTNERS_X_2, y_value++, PARTNERS, byte_optionmod_proc,
-                        &pm_player.stats.current_partner);
+                        &pm_player.player_data.current_partner);
 
         y_value++;
         menu_add_static(&partners, PARTNERS_X_2, y_value++, "rank", 0xC0C0C0);
@@ -458,13 +457,13 @@ struct menu *create_player_menu(void) {
             sprintf(buffer, "%d:", i);
             menu_add_static(&items, 0, y_value, buffer, 0xC0C0C0);
             if (i != 0) {
-                menu_add_button_icon(&items, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.items[i]);
+                menu_add_button_icon(&items, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc, &pm_player.player_data.items[i]);
             }
             if (i != 9) {
-                menu_add_button_icon(&items, 4, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.items[i]);
+                menu_add_button_icon(&items, 4, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc, &pm_player.player_data.items[i]);
             }
-            menu_add_intinput(&items, 6, y_value, 16, 3, item_int_proc, &pm_player.items[i]);
-            menu_add_option(&items, 10, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.items[i]);
+            menu_add_intinput(&items, 6, y_value, 16, 3, item_int_proc, &pm_player.player_data.items[i]);
+            menu_add_option(&items, 10, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.player_data.items[i]);
         }
 
         menu_add_static(&items, 0, 18, "normal item range: 0x80 - 0xdf", 0xC0C0C0);
@@ -494,15 +493,15 @@ struct menu *create_player_menu(void) {
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
                     menu_add_button_icon(page, 4, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc,
-                                         &pm_player.stored_items[item_index]);
+                                         &pm_player.player_data.stored_items[item_index]);
                 }
                 if (item_index != 31) {
                     menu_add_button_icon(page, 5, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc,
-                                         &pm_player.stored_items[item_index]);
+                                         &pm_player.player_data.stored_items[item_index]);
                 }
-                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.stored_items[item_index]);
+                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.player_data.stored_items[item_index]);
                 menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc,
-                                &pm_player.stored_items[item_index]);
+                                &pm_player.player_data.stored_items[item_index]);
             }
         }
         menu_tab_goto(stored_items_tab, 0);
@@ -535,15 +534,15 @@ struct menu *create_player_menu(void) {
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
                     menu_add_button_icon(page, 4, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc,
-                                         &pm_player.key_items[item_index]);
+                                         &pm_player.player_data.key_items[item_index]);
                 }
                 if (item_index != 31) {
                     menu_add_button_icon(page, 5, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc,
-                                         &pm_player.key_items[item_index]);
+                                         &pm_player.player_data.key_items[item_index]);
                 }
-                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.key_items[item_index]);
+                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.player_data.key_items[item_index]);
                 menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc,
-                                &pm_player.key_items[item_index]);
+                                &pm_player.player_data.key_items[item_index]);
             }
         }
         menu_tab_goto(key_items_tab, 0);
@@ -576,14 +575,14 @@ struct menu *create_player_menu(void) {
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
                     menu_add_button_icon(page, 4, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc,
-                                         &pm_player.badges[item_index]);
+                                         &pm_player.player_data.badges[item_index]);
                 }
                 if (item_index != 127) {
                     menu_add_button_icon(page, 5, y_value, t_arrow, 1, 0xFFFFFF, item_down_proc,
-                                         &pm_player.badges[item_index]);
+                                         &pm_player.player_data.badges[item_index]);
                 }
-                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.badges[item_index]);
-                menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.badges[item_index]);
+                menu_add_intinput(page, 7, y_value, 16, 3, item_int_proc, &pm_player.player_data.badges[item_index]);
+                menu_add_option(page, 11, y_value++, ITEM_LIST, halfword_optionmod_proc, &pm_player.player_data.badges[item_index]);
             }
         }
         menu_tab_goto(badge_tab, 0);
@@ -602,19 +601,19 @@ struct menu *create_player_menu(void) {
 
         menu_add_static(&star_power, 0, y_value, "star spirits saved", 0xC0C0C0);
         menu_add_intinput(&star_power, STAR_POWER_X, y_value++, 10, 1, byte_mod_proc,
-                          &pm_player.star_power.star_spirits_saved);
+                          &pm_player.player_data.star_power.star_spirits_saved);
 
         menu_add_static(&star_power, 0, y_value, "bars full", 0xC0C0C0);
         menu_add_intinput(&star_power, STAR_POWER_X, y_value++, 10, 1, star_power_full_proc,
-                          &pm_player.star_power.full_bars_filled);
+                          &pm_player.player_data.star_power.full_bars_filled);
 
         menu_add_static(&star_power, 0, y_value, "partial bar", 0xC0C0C0);
         menu_add_intinput(&star_power, STAR_POWER_X, y_value++, 16, 2, star_power_partial_proc,
-                          &pm_player.star_power.partial_bars_filled);
+                          &pm_player.player_data.star_power.partial_bars_filled);
 
         menu_add_static(&star_power, 0, y_value, "beam", 0xC0C0C0);
         menu_add_option(&star_power, STAR_POWER_X, y_value++, "none\0""star beam\0""peach beam\0", byte_optionmod_proc,
-                        &pm_player.star_power.beam_rank);
+                        &pm_player.player_data.star_power.beam_rank);
     }
 
     {
@@ -646,13 +645,13 @@ struct menu *create_player_menu(void) {
         merlee.selector = menu_add_submenu(&merlee, 0, y_value++, NULL, "return");
 
         menu_add_static(&merlee, 0, y_value, "spell type", 0xC0C0C0);
-        menu_add_option(&merlee, MERLEE_X, y_value++, SPELL_TYPE, byte_optionmod_proc, &pm_player.merlee.spell_type);
+        menu_add_option(&merlee, MERLEE_X, y_value++, SPELL_TYPE, byte_optionmod_proc, &pm_player.player_data.merlee.spell_type);
 
         menu_add_static(&merlee, 0, y_value, "casts remaining", 0xC0C0C0);
-        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 2, byte_mod_proc, &pm_player.merlee.casts_remaining);
+        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.merlee.casts_remaining);
 
         menu_add_static(&merlee, 0, y_value, "turns remaining", 0xC0C0C0);
-        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 3, byte_mod_proc, &pm_player.merlee.turns_until_spell);
+        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 3, byte_mod_proc, &pm_player.player_data.merlee.turns_until_spell);
 
         return &menu;
     }

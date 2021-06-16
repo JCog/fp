@@ -284,23 +284,23 @@ void fp_main(void) {
     
     /* activate cheats */
     if (settings->cheats & (1 << CHEAT_HP)) {
-        pm_player.stats.hp = pm_player.stats.max_hp;
+        pm_player.player_data.hp = pm_player.player_data.max_hp;
     }
     if (settings->cheats & (1 << CHEAT_FP)) {
-        pm_player.stats.fp = pm_player.stats.max_fp;
+        pm_player.player_data.fp = pm_player.player_data.max_fp;
     }
     if (settings->cheats & (1 << CHEAT_COINS)) {
-        pm_player.stats.coins = 999;
+        pm_player.player_data.coins = 999;
     }
     if (settings->cheats & (1 << CHEAT_STAR_POWER)) {
-        pm_player.star_power.full_bars_filled = pm_player.star_power.star_spirits_saved;
-        pm_player.star_power.partial_bars_filled = 0;
+        pm_player.player_data.star_power.full_bars_filled = pm_player.player_data.star_power.star_spirits_saved;
+        pm_player.player_data.star_power.partial_bars_filled = 0;
     }
     if (settings->cheats & (1 << CHEAT_STAR_PIECES)) {
-        pm_player.stats.star_pieces = 160;
+        pm_player.player_data.star_pieces = 160;
     }
     if (settings->cheats & (1 << CHEAT_PERIL)) {
-        pm_player.stats.hp = 1;
+        pm_player.player_data.hp = 1;
     }
     if (settings->cheats & (1 << CHEAT_BREAK)) {
         int32_t third_byte_mask = 0xFFFF00FF;
