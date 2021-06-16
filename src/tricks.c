@@ -146,6 +146,7 @@ void load_ch2_card_lzs() {
 void load_record_skip() {
     check_for_hammer();
     STORY_PROGRESS = 0xd5;
+    fp_set_global_flag(0x3d2, 0); //close chest
     set_partner(BOMBETTE);
     remove_key_item(0x1c); //weight
     fp_warp(0xd, 6, 0);
