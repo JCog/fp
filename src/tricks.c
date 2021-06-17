@@ -429,7 +429,7 @@ void load_fast_flood_room() {
     fp_set_global_byte(0x129, 0); //water level 0
     fp_set_area_flag(0x8, 0); //blue switch not pressed
     remove_key_item(0x01a); //castle key 2
-    fp_warp(0x16, 0x31, 1);
+    fp_warp(0x16, 0x31, 0);
 }
 
 void load_cannonless() {
