@@ -119,7 +119,7 @@ The **trainers** menu contains various different helpful menus and information s
 - **oot ace**: Helps with performing arbitrary code execution aided by The Legend of Zelda: Ocarina of Time. `effects` shows the number of active particle effects. `flags` displays whether the animation flags located before the idle timer in Mario's player struct will cause a premature crash. `frame window` displays how big the frame window for stopping the idle timer and getting a successful jump to code stored on the expansion pak is. It will most likely always be 1 unless Ocarina of Time is used to zero out the expansion pak beforehand. Pressing `practice payload` will make it so that upon a successful jump to the expansion pak, the value of the idle timer will be displayed in the bottom-left of the screen. Pressing `oot instruction` will place the same ASM instruction on the expansion pak that doing the proper OoT setup would.
 
 #### 2.5.3 Timer
-The **timer** menu provides a real-time timer that is unaffected by lag. It also displays 30 fps lag frames by taking half of the game's vertical interrupt counter and subtracting the number of game frames that have passed. Note that lag frames can decrease due to the game speeding up to account for lag.
+The **timer** menu provides a real-time timer that is unaffected by lag. Separately, it also displays 30 fps lag frames by taking half of the game's vertical interrupt counter and subtracting the number of game frames that have passed. Note that lag frames can decrease due to the game speeding up to account for lag.
 
 The timer has two modes, **automatic** and **manual**.
 
@@ -175,12 +175,14 @@ The following commands are available:
 -   **load position**: Loads Mario's saved position and orientation. *Default: `D-Right`*
 -   **lzs**: Allows Mario to walk into loading zones and store them without taking them. If a menu is then opened and closed after moving somewhere else, Mario will then take the loading zone as though Loading Zone Storage jumps had been performed. *Default: `R + D-Left`*
 -   **reload room**: Reloads the current room with the last known entrance value. Also works when in battle. *Default: `R + D-Down`*
+-   **reload last warp**: Reloads the last room warped to through the **locations** or **favorite rooms** menus. *Default: `unbound`*
 -   **show coordinates**: Displays your `x`, `y`, and `z` coordinates on screen.
 -   **load trick**: Reloads the last trick selected from the **tricks** menu. *Default: `R + Z`*
 -   **save game**: Saves the game to the current save slot as though a save block had been used. *Default: `L + D-Left`*
 -   **load game**: Loads the save file from the selected save slot, similar to loading a file from the file select screen. *Default: `L + D-Right`*
 -   **start/stop timer**: Sets the timer to start after the next cutscene or starts/stops the timer, depending on the timer mode. *Default: `unbound`*
 -   **reset timer**: Sets the timer back to 0 and reverts it to an inactive state. *Default: `unbound`*
+-   **show/hide timer**: Toggles whether the timer is showing when it's active. *Default: `unbound`*
 
 
 **_Warning:_** Unbinding the *show/hide menu* or *return from menu* commands,

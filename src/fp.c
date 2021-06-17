@@ -426,6 +426,9 @@ void init() {
     fp.saved_y = 0;
     fp.saved_z = 0;
     fp.saved_facing_angle = 0;
+    fp.saved_group = 0x1c;
+    fp.saved_room = 0;
+    fp.saved_entrance = 0;
     fp.saved_trick = -1;
     fp.turbo = 0;
     fp.bowser_blocks_enabled = 0;

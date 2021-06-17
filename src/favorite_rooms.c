@@ -27,7 +27,11 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 
 static void warp_proc(struct menu_item *item, void *data) {
     struct fav_room_info *p = data;
-    fp_warp(p->group, p->room, p->entrance);
+    if (fp_warp(p->group, p->room, p->entrance)) {
+        fp.saved_group = p->group;
+        fp.saved_room = p->room;
+        fp.saved_entrance = p->entrance;
+    }
 }
 
 static void current_proc(struct menu_item *item, void *data) {

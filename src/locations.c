@@ -115,7 +115,11 @@ static int current_room_draw_proc(struct menu_item *item, struct menu_draw_param
 }
 
 static void warp_proc() {
-    fp_warp(group, room, entrance);
+    if (fp_warp(group, room, entrance)) {
+        fp.saved_group = group;
+        fp.saved_room = room;
+        fp.saved_entrance = entrance;
+    }
 }
 
 void create_locations_menu(struct menu *menu) {

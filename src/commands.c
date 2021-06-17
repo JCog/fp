@@ -18,6 +18,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load position",    COMMAND_PRESS_ONCE,  0,   command_load_pos_proc},
     {"lzs",              COMMAND_PRESS_ONCE,  0,   command_lzs_proc},
     {"reload room",      COMMAND_PRESS_ONCE,  0,   command_reload_proc},
+    {"reload last warp", COMMAND_PRESS_ONCE,  0,   command_reload_last_warp_proc},
     {"show coordinates", COMMAND_PRESS_ONCE,  0,   command_coords_proc},
     {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
     {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
@@ -66,16 +67,16 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
+_Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to warp properly
     if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
         fp_log("can't warp with menu open");
-        return;
+        return 0;
     }
     //would be nice to know why warping from this room crashes
     if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
         fp_log("can't warp from here");
-        return;
+        return 0;
     }
     pm_PlayAmbientSounds(-1, 0);
     pm_status.loading_zone_tangent = 0;
@@ -88,7 +89,7 @@ void fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     uint32_t val = 0x80035DFC;
     pm_warp.room_change_ptr = val;
 
-    return;
+    return 1;
 }
 
 void set_flag(uint32_t *flags, int flag_index, _Bool value) {
@@ -169,6 +170,12 @@ void command_lzs_proc() {
 
 void command_reload_proc() {
     fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+}
+
+void command_reload_last_warp_proc() {
+    if (fp.saved_group != 0x1c) {
+        fp_warp(fp.saved_group, fp.saved_room, fp.saved_entrance);
+    }
 }
 
 void command_coords_proc() {
