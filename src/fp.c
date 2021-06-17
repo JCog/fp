@@ -190,7 +190,7 @@ void fp_main(void) {
     if (!fp.version_shown) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 0, "fp");
-        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, "beta 0.6-DEV");
+        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, "rc-1");
         gfx_printf(font, PM64_SCREEN_WIDTH - cw * 21, PM64_SCREEN_HEIGHT - 35 + ch * 1, "github.com/jcog/fp");
     }
 

@@ -421,6 +421,7 @@ void load_blind_basement() {
 }
 
 void load_fast_flood_room() {
+    pm_player.player_data.boots_upgrade = 2;
     set_partner(LAKILESTER);
     pm_player.player_data.party.kooper.in_party = 1;
     pm_player.player_data.party.lakilester.in_party = 1;
