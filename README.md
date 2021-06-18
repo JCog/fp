@@ -17,3 +17,10 @@ For bugs, be sure to include all necessary steps to reproduce the bug, and descr
 
 # Contributing
 Contributions are welcome! If you want to fix a bug or implement a feature yourself, feel free to make a development fork. Before you start working on a feature, you may first want to [submit an issue](https://github.com/JCog/fp/issues) where you describe the feature you want to add, to be sure that such a feature would be accepted. There's no canonical style guide for this project, but you should adhere to the style used in the rest of the code. Code that doesn't meet the current quality standard will be rejected. When your code is ready, [send a pull request](https://github.com/JCog/fp/pulls). Your code will be reviewed, and possibly merged with the master branch.
+
+# Thanks
+First and foremost, this project wouldn't be possible without [glank](https://github.com/glankk) and the Ocarina of Time practice ROM, [gz](https://github.com/glankk/gz). The same toolchain is used for fp, and many parts of the code are lifted straight from gz.
+
+Second, a big thank you goes to [fig02](https://github.com/fig02) and [krimtonz](https://github.com/krimtonz). Fig was the one to initially setup the fp repo and get the project started, and krim was instrumental in getting the project working in the first place.
+
+Finally, there are the [contributors](https://github.com/JCog/fp/graphs/contributors) here. Thank you for all your hard work making fp as good and useful as possible.
