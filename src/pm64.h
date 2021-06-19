@@ -410,6 +410,342 @@ typedef struct{
     /* 0x000C */ char unk_0x0C[0x0C];
 }warp_ctxt_t; // size: 0x0018
 
+typedef struct {
+    /* 0x00 */ int32_t  flags;
+    /* 0x04 */ char unk_04;
+    /* 0x05 */ uint8_t  type;
+    /* 0x06 */ uint8_t  level;
+    /* 0x07 */ uint8_t  max_hp;
+    /* 0x08 */ int16_t  part_count;
+    /* 0x0A */ char unk_0A[2];
+    /* 0x0C */ void **parts_data;
+    /* 0x10 */ void *script;
+    /* 0x14 */ int32_t *status_table;
+    /* 0x18 */ uint8_t  escape_chance;
+    /* 0x19 */ uint8_t  air_lift_chance;
+    /* 0x1A */ uint8_t  spook_chance;
+    /* 0x1B */ uint8_t  base_status_chance;
+    /* 0x1C */ uint8_t  up_and_away_chance;
+    /* 0x1D */ uint8_t  spin_smash_req;
+    /* 0x1E */ uint8_t  power_bounce_chance;
+    /* 0x1F */ uint8_t  coin_reward;
+    /* 0x20 */ int8_t size_x;
+    /* 0x20 */ int8_t size_y;
+    /* 0x22 */ int8_t hp_bar_offset_x;
+    /* 0x23 */ int8_t hp_bar_offset_y;
+    /* 0x24 */ int8_t status_icon_offset_x;
+    /* 0x25 */ int8_t status_icon_offset_y;
+    /* 0x26 */ int8_t status_message_offset_x;
+    /* 0x27 */ int8_t status_message_offset_y;
+} actor_desc_t; // size = 0x28
+
+typedef struct {
+    /* 0x00 */ xyz_t current_pos;
+    /* 0x0C */ xyz_t goal_pos;
+    /* 0x18 */ xyz_t unk_18;
+    /* 0x24 */ char unk_24[24];
+    /* 0x3C */ float acceleration;
+    /* 0x40 */ float speed;
+    /* 0x44 */ float velocity;
+    /* 0x48 */ float angle;
+    /* 0x4C */ float distance;
+} actor_movement_t; // size = 0x50;
+
+typedef struct {
+    /* 0x00 */ xyz_t current_pos;
+    /* 0x0C */ xyz_t goal_pos;
+    /* 0x18 */ xyz_t unk_18;
+    /* 0x24 */ char unk_24[24];
+    /* 0x3C */ float acceleration;
+    /* 0x40 */ float speed;
+    /* 0x44 */ float velocity;
+    /* 0x48 */ float angle;
+    /* 0x4C */ float distance;
+    /* 0x50 */ float bounce_divisor;
+    /* 0x54 */ char unk_54[0x4];
+    /* 0x58 */ int32_t  anim_jump_rise;
+    /* 0x5C */ int32_t  anim_jump_fall;
+    /* 0x60 */ int32_t  anim_jump_land;
+} actor_movement_walk_t; // size = 0x64;
+
+typedef struct {
+    /* 0x00 */ int16_t actor_id;
+    /* 0x02 */ int16_t part_id; /* sometimes loaded as byte from 0x3 */
+    /* 0x04 */ int16_t pos[3];
+    /* 0x0A */ char unk_0A[7];
+    /* 0x11 */ uint8_t home_col; /* from xpos --> 0-3 */
+    /* 0x12 */ uint8_t home_row; /* from ypos --> 0-3 */
+    /* 0x13 */ uint8_t layer; /* from zpos? --> 0-1 */
+} selectable_target_t; // size = 0x14
+
+typedef struct {
+    /* 0x000 */ int32_t flags;
+    /* 0x004 */ char unk_04[4];
+    /* 0x008 */ actor_desc_t* static_actor_data;
+    /* 0x00C */ actor_movement_walk_t walk;
+    /* 0x070 */ int16_t move_time;
+    /* 0x072 */ int16_t move_arc_amplitude;
+    /* 0x074 */ char unk_74[3];
+    /* 0x077 */ uint8_t jump_part_index;
+    /* 0x078 */ char unk_78[16];
+    /* 0x088 */ int32_t var_table[16];
+    /* 0x0C8 */ actor_movement_t fly;
+    /* 0x118 */ float fly_elapsed;
+    /* 0x11C */ char unk_11C[4];
+    /* 0x120 */ int16_t fly_time;
+    /* 0x122 */ int16_t fly_arc_amplitude;
+    /* 0x124 */ char unk_124[17];
+    /* 0x135 */ uint8_t foot_step_counter;
+    /* 0x136 */ uint8_t actor_type;
+    /* 0x137 */ char unk_137;
+    /* 0x138 */ xyz_t home_pos;
+    /* 0x144 */ xyz_t current_pos;
+    /* 0x150 */ int16_t head_offset_x;
+    /* 0x152 */ int16_t head_offset_y;
+    /* 0x154 */ int16_t head_offset_z;
+    /* 0x156 */ int16_t health_bar_position_x;
+    /* 0x158 */ int16_t health_bar_position_y;
+    /* 0x15A */ int16_t health_bar_position_z;
+    /* 0x15C */ xyz_t rotation;
+    /* 0x168 */ int16_t rotation_pivot_offset_x;
+    /* 0x16A */ int16_t rotation_pivot_offset_y;
+    /* 0x16C */ int16_t rotation_pivot_offset_z;
+    /* 0x16E */ char unk_16E[2];
+    /* 0x170 */ xyz_t scale;
+    /* 0x17C */ xyz_t scale_modifier; /* multiplies normal scale factors componentwise */
+    /* 0x188 */ float scaling_factor;
+    /* 0x18C */ float yaw;
+    /* 0x190 */ uint8_t size_x;
+    /* 0x191 */ uint8_t size_y;
+    /* 0x192 */ int16_t actor_id;
+    /* 0x194 */ int8_t unk_194;
+    /* 0x195 */ int8_t unk_195;
+    /* 0x196 */ int8_t unk_196;
+    /* 0x197 */ int8_t unk_197;
+    /* 0x198 */ int8_t unk_198;
+    /* 0x199 */ int8_t unk_199;
+    /* 0x19A */ int8_t unk_19A;
+    /* 0x19B */ char unk_19B[1];
+    /* 0x19C */ int32_t actor_type_data1[6]; /* 4 = jump sound */
+    /* 0x1B4 */ int16_t actor_type_data1b[2];
+    /* 0x1B8 */ int8_t current_hp;
+    /* 0x1B9 */ int8_t max_hp;
+    /* 0x1BA */ char unk_1BA[2];
+    /* 0x1BC */ uint8_t hp_fraction; /* used to render HP bar */
+    /* 0x1BD */ char unk_1BD[3];
+    /* 0x1C0 */ void *idle_script_source;
+    /* 0x1C4 */ void *take_turn_script_source;
+    /* 0x1C8 */ void *on_hit_script_source;
+    /* 0x1CC */ void *on_turn_chance_script_source;
+    /* 0x1D0 */ void *idle_script;
+    /* 0x1D4 */ void *take_turn_script;
+    /* 0x1D8 */ void *on_hit_script;
+    /* 0x1DC */ void *on_turn_change_script;
+    /* 0x1E0 */ int32_t idle_script_id;
+    /* 0x1E4 */ int32_t take_turn_id;
+    /* 0x1E8 */ int32_t on_hit_id;
+    /* 0x1EC */ int32_t on_turn_change_id;
+    /* 0x1F0 */ int8_t last_event_type;
+    /* 0x1F1 */ uint8_t turn_priority;
+    /* 0x1F2 */ uint8_t enemy_index; /* actorID = this | 200 */
+    /* 0x1F3 */ uint8_t num_parts;
+    /* 0x1F4 */ void *parts_table;
+    /* 0x1F8 */ int16_t last_damage_taken;
+    /* 0x1FA */ int16_t hp_change_counter;
+    /* 0x1FC */ int16_t damage_counter;
+    /* 0x1FE */ char unk_1FE[2];
+    /* 0x200 */ int32_t** unk_200; // Probably a struct but not sure what yet
+    /* 0x204 */ char unk_204[3];
+    /* 0x207 */ uint8_t extra_coin_bonus;
+    /* 0x208 */ int8_t unk_208;
+    /* 0x209 */ char unk_209[3];
+    /* 0x20C */ uint32_t* status_table;
+    /* 0x210 */ int8_t debuff;
+    /* 0x211 */ int8_t debuff_duration;
+    /* 0x212 */ int8_t static_status; /* 0B = yes */
+    /* 0x213 */ int8_t static_duration;
+    /* 0x214 */ int8_t stone_status; /* 0C = yes */
+    /* 0x215 */ int8_t stone_duration;
+    /* 0x216 */ int8_t ko_status; /* 0D = yes */
+    /* 0x217 */ int8_t ko_duration;
+    /* 0x218 */ int8_t trans_status; /* 0E = yes */
+    /* 0x219 */ int8_t trans_duration;
+    /* 0x21A */ char unk_21A[2];
+    /* 0x21C */ uint8_t status;
+    /* 0x21D */ char unk_21D[3];
+    /* 0x220 */ int8_t is_glowing;
+    /* 0x221 */ uint8_t attack_boost;
+    /* 0x222 */ int8_t defense_boost;
+    /* 0x223 */ uint8_t chill_out_amount; /* attack reduction */
+    /* 0x224 */ uint8_t chill_out_turns;
+    /* 0x225 */ char unk_225[7];
+    /* 0x22C */ selectable_target_t target_data[24];
+    /* 0x40C */ int8_t target_list_length;
+    /* 0x40D */ int8_t target_index_list[24]; /* into targetData */
+    /* 0x425 */ int8_t selected_target_index; /* into target index list */
+    /* 0x426 */ int8_t target_part_index;
+    /* 0x427 */ char unk_427;
+    /* 0x428 */ int16_t target_actor_id;
+    /* 0x42A */ char unk_42A[2];
+    /* 0x42C */ void *shadow; /* might be shadow ID */
+    /* 0x430 */ float shadow_scale; /* = actor size / 24.0 */
+    /* 0x434 */ int16_t render_mode; /* initially 0xD, set to 0x22 if any part is transparent */
+    /* 0x436 */ int16_t unk_436;
+    /* 0x438 */ int32_t x[2]; /* ??? see FUN_80253974 */
+    /* 0x440 */ void *ptr_defuff_icon;
+} actor_t; // size = 0x444
+
+typedef struct BattleStatus {
+    /* 0x000 */ int32_t flags1;
+    /* 0x004 */ int32_t flags2;
+    /* 0x008 */ int32_t var_table[16];
+    /* 0x048 */ uint8_t current_submenu;
+    /* 0x049 */ char unk_49[3];
+    /* 0x04C */ int8_t unk_4C;
+    /* 0x04D */ int8_t unk_4D;
+    /* 0x04E */ int8_t unk_4E;
+    /* 0x04F */ int8_t unk_4F;
+    /* 0x050 */ int8_t unk_50;
+    /* 0x051 */ int8_t unk_51;
+    /* 0x052 */ int8_t unk_52;
+    /* 0x053 */ int8_t strats_last_cursor_pos;
+    /* 0x054 */ char unk_54[8];
+    /* 0x05C */ int8_t unk_5C;
+    /* 0x05D */ int8_t unk_5D;
+    /* 0x05E */ char unk_5E[4];
+    /* 0x062 */ int8_t unk_62;
+    /* 0x063 */ int8_t unk_63;
+    /* 0x064 */ char unk_64[12];
+    /* 0x070 */ int16_t unk_70;
+    /* 0x072 */ char unk_72[2];
+    /* 0x074 */ int32_t unk_74;
+    /* 0x078 */ uint8_t total_star_points;
+    /* 0x079 */ uint8_t pending_star_points; /* how many to add */
+    /* 0x07A */ uint8_t increment_star_point_delay; /* related to star points, set to 0x28 when they are dropped */
+    /* 0x07B */ uint8_t damage_taken;
+    /* 0x07C */ uint8_t change_partner_allowed;
+    /* 0x07D */ char unk_7D[4];
+    /* 0x081 */ int8_t action_success;
+    /* 0x082 */ char unk_82;
+    /* 0x083 */ int8_t unk_83;
+    /* 0x084 */ int8_t unk_84;
+    /* 0x085 */ int8_t unk_85;
+    /* 0x086 */ int8_t unk_86;
+    /* 0x087 */ int8_t block_result; /* 0 = fail, 1 = success, -1 = mashed */
+    /* 0x088 */ uint8_t item_uses_left; /* set to 2 for doublke dip, 3 for triple */
+    /* 0x089 */ uint8_t hp_drain_count;
+    /* 0x08A */ char unk_8A;
+    /* 0x08B */ uint8_t hustle_turns; /* numTurns from hustle drink, normally 0 */
+    /* 0x08C */ char unk_8C;
+    /* 0x08D */ int8_t unk_8D;
+    /* 0x08E */ uint8_t initial_enemy_count; /* used for SP award bonus */
+    /* 0x08F */ char unk_8F[3];
+    /* 0x092 */ int8_t unk_92;
+    /* 0x093 */ char unk_93;
+    /* 0x094 */ int8_t unk_94;
+    /* 0x095 */ char unk_95;
+    /* 0x096 */ int8_t hammer_charge;
+    /* 0x097 */ int8_t jump_charge;
+    /* 0x098 */ char unk_98;
+    /* 0x099 */ uint8_t danger_flags; /* 1 = danger, 2 = peril */
+    /* 0x09A */ int8_t outta_sight_active;
+    /* 0x09B */ int8_t turbo_charge_turns_left;
+    /* 0x09C */ uint8_t turbo_charge_amount; /* unused? */
+    /* 0x09D */ int8_t water_block_turns_left;
+    /* 0x09E */ uint8_t water_block_amount; /* unused? */
+    /* 0x09F */ char unk_9F;
+    /* 0x0A0 */ int32_t* unk_A0;
+    /* 0x0A4 */ int8_t cloud_nine_turns_left;
+    /* 0x0A5 */ uint8_t cloud_nine_dodge_chance; /* = 50% */
+    /* 0x0A6 */ char unk_A6[2];
+    /* 0x0A8 */ int32_t cloud_nine_effect;
+    /* 0x0AC */ char unk_AC[2];
+    /* 0x0AE */ uint8_t hammer_loss_turns;
+    /* 0x0AF */ uint8_t jump_loss_turns;
+    /* 0x0B0 */ uint8_t item_loss_turns;
+    /* 0x0B1 */ char unk_B1[3];
+    /* 0x0B4 */ void *pre_update_callback;
+    /* 0x0B8 */ char unk_B8[4];
+    /* 0x0BC */ void *control_script; /* control handed over to this when changing partners */
+    /* 0x0C0 */ int32_t control_script_id;
+    /* 0x0C4 */ void *cam_movement_script;
+    /* 0x0C8 */ int32_t cam_movement_script_id;
+    /* 0x0CC */ char unk_CC[12];
+    /* 0x0D8 */ actor_t *player_actor;
+    /* 0x0DC */ actor_t *partner_actor;
+    /* 0x0E0 */ actor_t *enemy_actors[24];
+    /* 0x140 */ int16_t enemy_ids[24];
+    /* 0x170 */ char unk_170;
+    /* 0x171 */ uint8_t num_enemy_actors;
+    /* 0x172 */ char unk_172[6];
+    /* 0x178 */ int8_t move_category;
+    /* 0x179 */ char unk_179;
+    /* 0x17A */ int16_t selected_item_id;
+    /* 0x17C */ int16_t selected_move_id;
+    /* 0x17E */ int16_t current_attack_damage;
+    /* 0x180 */ int16_t last_attack_damage;
+    /* 0x182 */ char unk_182[2];
+    /* 0x184 */ int32_t current_target_list_flags; /* set when creating a target list, also obtain from the flags field of moves */
+    /* 0x188 */ int32_t current_attack_element;
+    /* 0x18C */ int32_t current_attack_event_suppression;
+    /* 0x190 */ int32_t current_attack_status;
+    /* 0x194 */ uint8_t status_chance;
+    /* 0x195 */ uint8_t status_duration;
+    /* 0x196 */ char unk_196;
+    /* 0x197 */ uint8_t target_home_index; /* some sort of home idnex used for target list construction */
+    /* 0x198 */ uint8_t power_bounce_counter;
+    /* 0x199 */ int8_t was_status_inflicted; /* during last attack */
+    /* 0x19A */ uint8_t unk_19A;
+    /* 0x19B */ char unk_19B[5];
+    /* 0x1A0 */ int16_t current_target_id; /* selected? */
+    /* 0x1A2 */ uint8_t current_target_part; /* selected? */
+    /* 0x1A3 */ char unk_1A3;
+    /* 0x1A4 */ int16_t current_target_id2;
+    /* 0x1A6 */ uint8_t current_target_part2;
+    /* 0x1A7 */ int8_t battle_phase;
+    /* 0x1A8 */ int16_t attacker_actor_id;
+    /* 0x1AA */ char unk_1AA[4];
+    /* 0x1AE */ int16_t submenu_icons[24]; /* icon IDs */
+    /* 0x1DE */ uint8_t submenu_moves[24]; /* move IDs */
+    /* 0x1F6 */ uint8_t submenu_enabled[24];
+    /* 0x20E */ uint8_t submenu_move_count;
+    /* 0x20F */ char unk_20F;
+    /* 0x210 */ int32_t current_buttons_down;
+    /* 0x214 */ int32_t current_buttons_pressed;
+    /* 0x218 */ int32_t current_buttons_held;
+    /* 0x21C */ int32_t stick_x;
+    /* 0x220 */ int32_t stick_y;
+    /* 0x224 */ int32_t input_bitmask;
+    /* 0x228 */ int32_t dpad_x; /* 0-360 */
+    /* 0x22C */ int32_t dpad_y; /* 0-60 */
+    /* 0x230 */ int32_t hold_input_buffer[64];
+    /* 0x330 */ int32_t push_input_buffer[64];
+    /* 0x430 */ uint8_t hold_input_buffer_pos;
+    /* 0x431 */ uint8_t input_buffer_pos;
+    /* 0x432 */ int8_t unk_432;
+    /* 0x433 */ char unk_433;
+    /* 0x434 */ int32_t unk_434;
+    /* 0x438 */ void *foreground_model_data;
+    /* 0x43C */ void *unk_43C;
+    /* 0x440 */ uint8_t tattle_flags[27];
+    /* 0x45B */ char unk_45B[5];
+    /* 0x460 */ int32_t unk_460;
+    /* 0x464 */ int32_t unk_464;
+    /* 0x468 */ char unk_468[4];
+    /* 0x46C */ int32_t battle_state; /* 0 = load assets, 1 = create actors, 4 = start scripts, 7 & 8 = unk */
+    /* 0x470 */ int32_t unk_470;
+    /* 0x474 */ int32_t unk_474;
+    /* 0x478 */ int8_t unk_478;
+    /* 0x479 */ char unk_479;
+    /* 0x47A */ uint8_t current_battle_section;
+    /* 0x47B */ uint8_t unk_47B;
+    /* 0x47C */ int32_t unk_47C;
+    /* 0x480 */ int32_t unk_480;
+    /* 0x484 */ int32_t unk_484;
+    /* 0x488 */ int32_t unk_488;
+    /* 0x48C */ void *unk_48C;
+} battle_status_ctxt_t; // size = 0x490
+
 typedef struct{
     uint32_t effects[96];
 }effects_ctxt_t;
@@ -436,16 +772,6 @@ typedef struct {
 }unk6_ctxt_t;
 
 typedef struct {
-    /* 0x0000 */ uint32_t turn;
-    /* 0x0004 */ char unk_0x04[4];
-    /* 0x0008 */ uint32_t turns_since_wave;
-    /* 0x000C */ uint32_t turns_since_beam;
-    /* 0x0010 */ uint32_t turns_since_claw;
-    /* 0x0014 */ uint32_t turns_since_stomp;
-    /* 0x0018 */ uint32_t turns_since_heal;
-}bowser_ctxt_t;
-
-typedef struct {
     /* 0x0000 */ uint16_t mash_bar; /* ranges from 0 to 10,000 */
 }unk7_ctxt_t;
 
@@ -468,6 +794,7 @@ typedef struct {
 #define pm_enemy_flags_addr                 0x800B0FA0
 #define pm_effects_addr                     0x800B4378
 #define pm_save_data_addr                   0x800DACA0
+#define pm_battle_status_addr               0x800DC050
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
 #define pm_player_addr                      0x8010F188
@@ -477,8 +804,6 @@ typedef struct {
 #define pm_warp_addr                        0x80156740
 #define pm_unk7_addr                        0x8029FF14
 #define pm_SaveGame_addr                    0x802DC150
-#define pm_final_bowser_addr                0x803DE378
-#define pm_hallway_bowser_addr              0x803DE678
 #define pm_ace_addr                         0x807BFFFC
 #define pm_ace_store_addr                   0x807D0000
 
@@ -493,13 +818,12 @@ typedef struct {
 #define pm_unk4               (*(unk4_ctxt_t*)        pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)     pm_effects_addr)
 #define pm_save_data          (*(save_data_ctxt_t*)   pm_save_data_addr)
+#define pm_battle_status      (*(battle_status_ctxt_t*) pm_battle_status_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)   pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)         pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)      pm_player_addr)
 #define pm_warp               (*(warp_ctxt_t*)        pm_warp_addr)
 #define pm_unk7               (*(unk7_ctxt_t*)        pm_unk7_addr)
-#define pm_final_bowser       (*(bowser_ctxt_t*)      pm_final_bowser_addr)
-#define pm_hallway_bowser     (*(bowser_ctxt_t*)      pm_hallway_bowser_addr)
 #define pm_ace                (*(ace_ctxt_t*)         pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)   pm_ace_store_addr)
 

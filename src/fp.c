@@ -190,8 +190,8 @@ void fp_main(void) {
     if (!fp.version_shown) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 0, "fp");
-        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, "rc-1");
-        gfx_printf(font, PM64_SCREEN_WIDTH - cw * 21, PM64_SCREEN_HEIGHT - 35 + ch * 1, "github.com/jcog/fp");
+        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_VERSION);
+        gfx_printf(font, PM64_SCREEN_WIDTH - cw * 21, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_URL);
     }
 
     /* handle ace practice (should probably make toggleable at some point) */
@@ -214,45 +214,51 @@ void fp_main(void) {
     /* handle bowser block trainer */
     //this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
     if (fp.bowser_blocks_enabled && pm_status.is_battle) {
-        bowser_ctxt_t *bowser = NULL;
         uint8_t story_progress = STORY_PROGRESS;
-        if (pm_status.group_id == 0x4 && pm_status.room_id == 0x7 && story_progress != 0x80) {
-            bowser = &pm_hallway_bowser;
-        }
-        else if (pm_status.group_id == 0x4 && pm_status.room_id == 0x13) {
-            bowser = &pm_final_bowser;
-        }
-        if (bowser != NULL) {
-            bowser->turns_since_heal = 0;
-            bowser->turns_since_beam = 0;
-            switch (fp.bowser_block) {
-                case 0: //fire
-                    bowser->turn = 0;
-                    bowser->turns_since_claw = 0;
-                    bowser->turns_since_stomp = 0;
-                    break;
-                case 1: //butt stomp
-                    bowser->turn = 0;
-                    bowser->turns_since_claw = 0;
-                    bowser->turns_since_stomp = 1;
-                    pm_unk4.rng = 0xD0D7A964;
-                    break;
-                case 2: //claw
-                    bowser->turn = 0;
-                    bowser->turns_since_stomp = 0;
-                    bowser->turns_since_claw = 1;
-                    pm_unk4.rng = 0x298A8154;
-                    break;
-                case 3: //wave
-                    bowser->turn = 4;
-                    bowser->turns_since_wave = 6;
-                    pm_unk4.rng = 0x298A8154;
-                    break;
-                case 4: //lightning, still gives wave for hallway bowser
-                    bowser->turn = 4;
-                    bowser->turns_since_wave = 6;
-                    pm_unk4.rng = 0xD0D7A964;
-                    break;
+        if (pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) && story_progress != 0x80 && !(pm_status.peach_flags & (1 << 0))) {
+            actor_t *bowser = pm_battle_status.enemy_actors[0];
+            if (bowser != NULL) {
+                int32_t *turn = &bowser->var_table[0];
+                int32_t *turns_since_wave = &bowser->var_table[2];
+                int32_t *turns_since_beam = &bowser->var_table[3];
+                int32_t *turns_since_claw = &bowser->var_table[4];
+                int32_t *turns_since_stomp = &bowser->var_table[5];
+                int32_t *turns_since_heal = &bowser->var_table[6];
+
+                *turns_since_heal = 0;
+                *turns_since_beam = 0;
+                switch (fp.bowser_block) {
+                    case 0: //fire
+                        *turn = 3;
+                        *turns_since_claw = 0;
+                        *turns_since_stomp = 0;
+                        *turns_since_wave = 0;
+                        break;
+                    case 1: //butt stomp
+                        *turn = 3;
+                        *turns_since_claw = 0;
+                        *turns_since_stomp = 1;
+                        *turns_since_wave = 0;
+                        pm_unk4.rng = 0x03D49DFF;
+                        break;
+                    case 2: //claw
+                        *turn = 3;
+                        *turns_since_stomp = 0;
+                        *turns_since_claw = 1;
+                        *turns_since_wave = 0;
+                        pm_unk4.rng = 0x9CB89EDA;
+                        break;
+                    case 3: //wave
+                        *turn = 4;
+                        *turns_since_wave = 6;
+                        pm_unk4.rng = 0x77090261;
+                        break;
+                    case 4: //lightning, still gives wave for hallway bowser
+                        *turn = 4;
+                        *turns_since_wave = 6;
+                        pm_unk4.rng = 0x72A5DCE5;
+                        break;
+                }
             }
         }
     }

@@ -5,6 +5,9 @@
 #include "pm64.h"
 #include "settings.h"
 
+#define FP_VERSION      "rc 2-DEV"
+#define FP_URL          "github.com/jcog/fp"
+
 struct log_entry{  
     char                   *msg;
     int                     age;
