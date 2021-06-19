@@ -163,6 +163,13 @@ void load_stanley_save() {
     fp_warp(0xe, 3, 0);
 }
 
+void load_bowless_spike_room() {
+    set_partner(PARAKARRY);
+    fp_set_global_flag(0x421, 0); //close chest
+    remove_key_item(0x13); //castle key 1
+    fp_warp(0xf, 0xc, 0);
+}
+
 void load_yakkey_trick_shot() {
     STORY_PROGRESS = 0xe0;
     fp_set_global_flag(0x42f, 0); //yakkey chest
@@ -396,6 +403,7 @@ void load_fast_basement_first() {
     fp_set_global_flag(0x615, 0); //basement fight
     fp_set_global_flag(0x614, 0); //hardened lava
     pm_player.player_data.boots_upgrade = 2;
+    set_partner(PARAKARRY);
     fp_warp(0x16, 7, 0);
 }
 
@@ -406,6 +414,7 @@ void load_fast_basement_second() {
     fp_set_global_flag(0x615, 0); //basement fight
     fp_set_global_flag(0x614, 0); //hardened lava
     pm_player.player_data.boots_upgrade = 2;
+    set_partner(PARAKARRY);
     fp_warp(0x16, 8, 0);
 }
 
@@ -467,6 +476,7 @@ void load_trick(int8_t trick) {
         case RECORD_SKIP:               load_record_skip();                 break;
         case BOW_SKIP:                  load_bow_skip();                    break;
         case STANLEY_SAVE:              load_stanley_save();                break;
+        case BOWLESS_SPIKE_ROOM:        load_bowless_spike_room();          break;
         case YAKKEY_TRICK_SHOT:         load_yakkey_trick_shot();           break;
         case QUICK_ESCAPE:              load_quick_escape();                break;
         case CH3_CARD_LZS:              load_ch3_card_lzs();                break;
@@ -613,6 +623,11 @@ static void bow_skip_proc(struct menu_item *item, void *data) {
 static void stanley_save_proc(struct menu_item *item, void *data) {
     fp.saved_trick = STANLEY_SAVE;
     load_stanley_save();
+}
+
+static void bowless_spike_room_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = BOWLESS_SPIKE_ROOM;
+    load_bowless_spike_room();
 }
 
 static void yakkey_trick_shot_proc(struct menu_item *item, void *data) {
@@ -869,6 +884,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "record skip", record_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "bow skip", bow_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "stanley save", stanley_save_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "bowless spike room", bowless_spike_room_proc, NULL);
     menu_add_button(page, 0, y_tab++, "yakkey trick shot", yakkey_trick_shot_proc, NULL);
     menu_add_button(page, 0, y_tab++, "quick escape", quick_escape_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch3 card lzs", ch3_card_lzs_proc, NULL);
