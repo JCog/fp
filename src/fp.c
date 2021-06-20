@@ -260,6 +260,13 @@ void fp_main(void) {
                         break;
                 }
             }
+            if (pm_battle_status.partner_actor != NULL) {
+                //if partner is KO'd by wave, never let it last more than one turn so you can keep practicing the block
+                if (pm_battle_status.partner_actor->ko_duration > 1) {
+                    pm_battle_status.partner_actor->ko_duration = 1;
+                    pm_battle_status.partner_actor->ptr_defuff_icon->ptr_property_list[15] = 1;
+                }
+            }
         }
     }
     

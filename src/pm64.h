@@ -411,6 +411,36 @@ typedef struct{
 }warp_ctxt_t; // size: 0x0018
 
 typedef struct {
+    /* 0x00 */ int32_t flags;
+    /* 0x04 */ int32_t* read_pos;
+    /* 0x08 */ int32_t* start_read_pos;
+    /* 0x0C */ int32_t* ptr_property_list;
+    /* 0x10 */ int32_t* image_addr;
+    /* 0x14 */ int32_t* palette_addr;
+    /* 0x18 */ int32_t mem_offset;
+    /* 0x1C */ int32_t* hud_transform;
+    /* 0x20 */ float unk_20;
+    /* 0x24 */ float unk_24;
+    /* 0x28 */ float unk_img_scale[2];
+    /* 0x30 */ float uniform_scale;
+    /* 0x34 */ float width_scale_f; /* X.10 fmt (divide by 1024.0 to get float) */
+    /* 0x38 */ float height_scale_f; /* X.10 fmt (divide by 1024.0 to get float) */
+    /* 0x3C */ int16_t render_pos_x;
+    /* 0x3E */ int16_t render_pos_y;
+    /* 0x40 */ uint8_t screen_pos_offset[2];
+    /* 0x42 */ uint8_t world_pos_offset[3];
+    /* 0x45 */ int8_t draw_size_preset;
+    /* 0x46 */ int8_t tile_size_preset;
+    /* 0x47 */ uint8_t update_timer;
+    /* 0x48 */ uint8_t size_x; /* screen size? */
+    /* 0x49 */ uint8_t size_y; /* screen size? */
+    /* 0x4A */ uint8_t opacity;
+    /* 0x4B */ int8_t tint[3];
+    /* 0x4E */ int8_t custom_image_size[2];
+    /* 0x40 */ int8_t custom_draw_size[2];
+} hud_element_t; // size = 0x54
+
+typedef struct {
     /* 0x00 */ int32_t  flags;
     /* 0x04 */ char unk_04;
     /* 0x05 */ uint8_t  type;
@@ -592,10 +622,10 @@ typedef struct {
     /* 0x434 */ int16_t render_mode; /* initially 0xD, set to 0x22 if any part is transparent */
     /* 0x436 */ int16_t unk_436;
     /* 0x438 */ int32_t x[2]; /* ??? see FUN_80253974 */
-    /* 0x440 */ void *ptr_defuff_icon;
+    /* 0x440 */ hud_element_t *ptr_defuff_icon;
 } actor_t; // size = 0x444
 
-typedef struct BattleStatus {
+typedef struct {
     /* 0x000 */ int32_t flags1;
     /* 0x004 */ int32_t flags2;
     /* 0x008 */ int32_t var_table[16];
