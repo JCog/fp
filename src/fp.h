@@ -5,7 +5,7 @@
 #include "pm64.h"
 #include "settings.h"
 
-#define FP_VERSION      "rc 2"
+#define FP_VERSION      "rc 3-DEV"
 #define FP_URL          "github.com/jcog/fp"
 
 struct log_entry{  

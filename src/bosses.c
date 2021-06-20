@@ -75,6 +75,10 @@ static void crystal_king_proc(struct menu_item *item, void *data) {
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = 0x89;
+    uint8_t *partner = &pm_player.player_data.current_partner;
+    if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { //flying partners cause a softlock
+        *partner = 1; //goombario
+    }
     fp_warp(0x0, 0x3, 0x0);
 }
 
