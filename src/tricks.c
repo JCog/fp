@@ -335,6 +335,11 @@ void load_yellow_berry_skip() {
     fp_warp(0x13, 0, 6);
 }
 
+void load_sun_tower_skip() {
+    STORY_PROGRESS = 0x31;
+    fp_warp(0x13, 0xa, 0);
+}
+
 void load_peach_warp() {
     check_for_hammer();
     STORY_PROGRESS = 0x33;
@@ -504,6 +509,7 @@ void load_trick(int8_t trick) {
 
         case EARLY_LAKI:                load_early_laki();                  break;
         case YELLOW_BERRY_SKIP:         load_yellow_berry_skip();           break;
+        case SUN_TOWER_SKIP:            load_sun_tower_skip();              break;
         case PEACH_WARP:                load_peach_warp();                  break;
         case SUSHIE_PEACH_WARP:         load_sushie_peach_warp();           break;
         case CH6_CARD_LZS:              load_ch6_card_lzs();                break;
@@ -750,6 +756,11 @@ static void yellow_berry_skip_proc(struct menu_item *item, void *data) {
     load_yellow_berry_skip();
 }
 
+static void sun_tower_skip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SUN_TOWER_SKIP;
+    load_sun_tower_skip();
+}
+
 static void peach_warp_proc(struct menu_item *item, void *data) {
     fp.saved_trick = PEACH_WARP;
     load_peach_warp();
@@ -924,6 +935,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_static(page, 0, y_tab++, "chapter 6", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "early laki", early_laki_proc, NULL);
     menu_add_button(page, 0, y_tab++, "yellow berry skip", yellow_berry_skip_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "sun tower skip", sun_tower_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "peach warp", peach_warp_proc, NULL);
     menu_add_button(page, 0, y_tab++, "sushie peach warp", sushie_peach_warp_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch6 card lzs", ch6_card_lzs_proc, NULL);

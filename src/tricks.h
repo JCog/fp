@@ -46,6 +46,7 @@ enum tricks {
     CH5_CARD_LZS,
     EARLY_LAKI,
     YELLOW_BERRY_SKIP,
+    SUN_TOWER_SKIP,
     PEACH_WARP,
     SUSHIE_PEACH_WARP,
     CH6_CARD_LZS,
