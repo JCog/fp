@@ -226,22 +226,23 @@ void load_ch4_card_lzs() {
 }
 
 void load_bhs_top() {
-    uint8_t story_progress = STORY_PROGRESS;
-    if (story_progress < 0x6 || story_progress > 0xf2) {
+    if (STORY_PROGRESS > -14 && STORY_PROGRESS < 6) { //chapter 4 fast music
         STORY_PROGRESS = 0xf1;
     }
-    fp_set_global_flag(0x084, 0); //key collected
+    else if (STORY_PROGRESS < -76) { //logs
+        STORY_PROGRESS = 0xb4;
+    }
+    fp_set_global_flag(0x084, 0); //odd key collected
     fp_set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
     fp_warp(1, 3, 2);
 }
 
 void load_bhs_bottom() {
-    uint8_t story_progress = STORY_PROGRESS;
-    if (story_progress < 0x6 || story_progress > 0xf2) {
+    if (STORY_PROGRESS > -14 && STORY_PROGRESS < 6) { //chapter 4 fast music
         STORY_PROGRESS = 0xf1;
     }
-    fp_set_global_flag(0x084, 0); //key collected
+    fp_set_global_flag(0x084, 0); //odd key collected
     fp_set_global_flag(0x083, 1); //lock opened
     remove_key_item(0x6b); //odd key
     fp_warp(1, 3, 3);
