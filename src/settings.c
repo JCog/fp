@@ -99,9 +99,22 @@ void settings_save(int profile) {
     free(start);
 }
 
+_Bool _save_file_exists() {
+    char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
+    for (int i = 0; i < 8; i++) {
+        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
+        if (pm_FioValidateFileChecksum(file)) {
+            free(file);
+            return 1;
+        }
+    }
+    free(file);
+    return 0;
+}
+
 _Bool settings_load(int profile) {
     //unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for now
-    if (!save_file_exists()) {
+    if (!_save_file_exists()) {
         return 0;
     }
 
@@ -117,17 +130,4 @@ _Bool settings_load(int profile) {
     memcpy(&settings_store, settings_temp, sizeof(*settings_temp));
     free(file);
     return 1;
-}
-
-_Bool save_file_exists() {
-    char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
-    for (int i = 0; i < 4; i++) {
-        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
-        if (pm_FioValidateFileChecksum(file)) {
-            free(file);
-            return 1;
-        }
-    }
-    free(file);
-    return 0;
 }

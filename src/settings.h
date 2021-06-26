@@ -92,7 +92,6 @@ void  settings_load_default();
 void  apply_menu_settings();
 void  settings_save(int profile);
 _Bool settings_load(int profile);
-_Bool save_file_exists();
 
 extern struct settings_data *settings;
 

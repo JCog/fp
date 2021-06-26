@@ -221,6 +221,19 @@ void command_show_hide_timer_proc() {
     settings->bits.timer_show = !settings->bits.timer_show;
 }
 
+int _save_not_empty(int slot) {
+    save_data_ctxt_t *file = malloc(SETTINGS_SAVE_FILE_SIZE);
+    for (int i = 0; i < 8; i++) {
+        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
+        if (pm_FioValidateFileChecksum(file) && file->save_slot == slot) {
+            free(file);
+            return 1;
+        }
+    }
+    free(file);
+    return 0;
+}
+
 void command_load_game_proc() {
     if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
         fp_log("can't load with menu open");
@@ -230,7 +243,12 @@ void command_load_game_proc() {
         fp_log("can't load from here");
         return;
     }
-    pm_LoadGame(pm_status.save_slot);
-    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
-    fp_log("loaded from slot %d", pm_status.save_slot);
+    if (_save_not_empty(pm_status.save_slot)) {
+        pm_LoadGame(pm_status.save_slot);
+        fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+        fp_log("loaded from slot %d", pm_status.save_slot);
+    }
+    else {
+        fp_log("no file in slot %d", pm_status.save_slot);
+    }
 }
