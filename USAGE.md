@@ -102,7 +102,7 @@ The **save slot** option lets you change which of the four save slots the game w
 
 Your `story progress` is the main byte that determines how far you've progressed in the story. See [this](https://pastebin.com/tYtE2xbm) for a list of what each value corresponds to.
 
-Disabling `music` disables all in-game music. `quizzes answered` determines how many of Chuck Quizmo's questions have been answered successfully. This byte determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. Pressing `restore enemies` sets all overworld enemies to an undefeated state. Pressing `restore letters` resets all flags related to collecting letters in the overworld.
+Disabling `music` disables all in-game music. `quizzes answered` determines how many of Chuck Quizmo's questions have been answered successfully. This byte determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. The three `peach item` options determine what Kammy Koopa will spawn in Shy Guy's Toybox. Pressing `restore enemies` sets all overworld enemies to an undefeated state. Pressing `restore letters` resets all flags related to collecting letters in the overworld.
 
 ### 2.5 Practice
 

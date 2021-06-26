@@ -23,4 +23,6 @@ First and foremost, this project wouldn't be possible without [glank](https://gi
 
 Second, a big thank you goes to [fig02](https://github.com/fig02) and [krimtonz](https://github.com/krimtonz). Fig was the one to initially setup the fp repo and get the project started, and krim was instrumental in getting the project working in the first place.
 
+The work that the [Paper Mario decompilation](https://github.com/pmret/papermario) team has put in has also been incredibly useful. Many of the features in fp would have either been much harder, or even downright impossible to get working without the insight into Paper Mario's code that decomp has provided.
+
 Finally, there are the [contributors](https://github.com/JCog/fp/graphs/contributors) here. Thank you for all your hard work making fp as good and useful as possible.
