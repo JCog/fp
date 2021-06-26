@@ -33,6 +33,17 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
+static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p)
+            menu_option_set(item, *p);
+    }
+    else if (reason == MENU_CALLBACK_DEACTIVATE)
+        *p = menu_option_get(item);
+    return 0;
+}
+
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -140,6 +151,12 @@ struct menu *create_file_menu(void)
     menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
     menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
     menu_add_intinput(&menu, MENU_X, y++, 10, 2, byte_mod_proc, &pm_save_data.global_bytes[0x161]);
+    menu_add_static(&menu, 0, y, "peach item 1", 0xC0C0C0);
+    menu_add_option(&menu, MENU_X, y++, "goomba\0""clubba\0""mushroom\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xD8]);
+    menu_add_static(&menu, 0, y, "peach item 2", 0xC0C0C0);
+    menu_add_option(&menu, MENU_X, y++, "fuzzy\0""hammer bros.\0""thunder rage\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xD9]);
+    menu_add_static(&menu, 0, y, "peach item 3", 0xC0C0C0);
+    menu_add_option(&menu, MENU_X, y++, "pokey\0""koopatrol\0""super soda\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xDA]);
     menu_add_button(&menu, 0, y++, "restore enemies", restore_enemies_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore letters", restore_letters_proc, NULL);
 
