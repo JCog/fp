@@ -2,7 +2,7 @@
 This is practice tool for Paper Mario 64 intended for use on N64 with an Everdrive. It's also known informally as "the practice rom".
 
 # Download
-Once out of beta, the latest releases will be found on the [releases page](https://github.com/jcog/fp/releases). For now, you must build from source.
+The latest release and installation instructions can be found on the [releases page](https://github.com/jcog/fp/releases).
 
 # Usage
 See the [user manual](https://github.com/JCog/fp/blob/master/USAGE.md) for information on how to use fp.
