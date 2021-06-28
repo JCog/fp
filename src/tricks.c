@@ -85,6 +85,9 @@ void load_pit() {
 
 void load_pie_jumps() {
     set_partner(KOOPER);
+    if (STORY_PROGRESS < -88) {
+        STORY_PROGRESS = 0xa8;
+    }
     fp_warp(7, 3, 3);
 }
 
