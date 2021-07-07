@@ -6,10 +6,10 @@
 #include "fp.h"
 
 //extern void setACEHook1(void);
-extern void setACEHook2(void);
 
 char messageForASM[] = "Success";
 
+extern void setACEHook(void);
 
 int getMatrixTotal(void) {
     int matrixCount = 0;
