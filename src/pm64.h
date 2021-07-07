@@ -776,8 +776,14 @@ typedef struct {
     /* 0x48C */ void *unk_48C;
 } battle_status_ctxt_t; // size = 0x490
 
-typedef struct{
-    uint32_t effects[96];
+typedef struct {
+    /* 0x00 */ int32_t flags;
+    /* 0x04 */ int32_t effectIndex;
+    /* 0x08 */ int32_t matrixTotal;
+} EffectInstance; //sizeof 0x20
+
+typedef struct {
+    EffectInstance* effects[96];
 }effects_ctxt_t;
 
 typedef struct{
@@ -814,6 +820,7 @@ typedef struct {
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
 #define pm_LoadGame_addr                    0x8002B290
+#define pm_remove_effect_addr               0x8005A100
 #define pm_status_addr                      0x80074004
 #define pm_unk4_addr                        0x800743F0
 #define pm_unk5_addr                        0x80093B64
@@ -858,6 +865,7 @@ typedef struct {
 #define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
 
 /*Function Prototypes*/
+typedef void (*pm_remove_effect_t) (EffectInstance* effect);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
 typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
@@ -869,6 +877,7 @@ typedef void (*pm_SaveGame_t) ();
 
 /*Functions*/
 #define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
+#define pm_remove_effect            ((pm_remove_effect_t)              pm_remove_effect_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
 #define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)

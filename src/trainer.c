@@ -5,6 +5,70 @@
 #include "gfx.h"
 #include "fp.h"
 
+//extern void setACEHook1(void);
+extern void setACEHook2(void);
+
+char messageForASM[] = "Success";
+
+
+int getMatrixTotal(void) {
+    int matrixCount = 0;
+    effects_ctxt_t* effectTable = (effects_ctxt_t*) pm_effects_addr;
+
+    for (int i = 0; i < 0x60; i++) {
+        if (effectTable->effects[i] != NULL) {
+            matrixCount += effectTable->effects[i]->matrixTotal;
+        }
+    }
+    return matrixCount;
+}
+
+void clearAllEffectsManual(int matrixCount) {
+    int var = 0;
+    effects_ctxt_t* effectTable = (effects_ctxt_t*) pm_effects_addr;
+    if (matrixCount == 0x214) {
+        var = 1;
+        fp_log ("Successful ACE, jump prevented");
+
+    }
+    if (matrixCount > 0x214) { //matrix limit reached, destroy all effects
+        var = 1;
+        fp_log ("Matrix overflow, crash prevented");
+    }
+
+    if (var == 1) {
+        for (int i = 0; i < 0x60; i++) {
+            if (effectTable->effects[i] != NULL) {
+                pm_remove_effect(effectTable->effects[i]);
+            }
+        }
+    }
+}
+
+asm(".set noreorder;"
+    "tempFunctionTesting:;"
+        "JAL getMatrixTotal;"
+        "NOP;"
+        "JAL clearAllEffectsManual;"
+        "DADDU $a0, $v0, $zero;"
+        "LUI $s1, 0x800B;"
+        "ADDIU $s1, $s1, 0x4378;"
+        "J 0x80059A7C;"
+        "NOP;"
+    "jumpInstructionTempFunctionTesting:;"
+        "J tempFunctionTesting;"
+);
+
+asm(".set noreorder;"
+    "setACEHook:;"
+    "LA $t0, 0x80059A74;" //where to hook
+    "LA $t1, jumpInstructionTempFunctionTesting;"
+    "LW $t1, 0x0000 ($t1);"
+    "SW $zero, 0x0004 ($t0);"
+    "JR $ra;"
+    "SW $t1, 0x0000 ($t0);"
+);
+
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -139,33 +203,18 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 }
 
 static void ace_practice_payload_proc(struct menu_item *item, void *data) {
-    pm_ace.instructions[0] = 0x3C188010;  // LUI t8, 0x8010
-    pm_ace.instructions[1] = 0x3718F190;  // ORI t8, t8, 0xf190
-    pm_ace.instructions[2] = 0x8F090000;  // LW  t1, 0x0000(t8)
-    pm_ace.instructions[3] = 0x3C18807D;  // LUI t8, 0x807D
-    pm_ace.instructions[4] = 0xAF090000;  // SW  t1, 0x0000(t8)
-    //
-    pm_ace.instructions[5] = 0x3C088006;  // LUI t0, 0x8006
-    pm_ace.instructions[6] = 0xAD00A1C0;  // SW r0, 0xA1C0 (t0) - patch remove all effects
-    pm_ace.instructions[7] = 0x0C016864;  // JAL 0x8005A190 - remove all effects
-    pm_ace.instructions[8] = 0x00000000;  // NOP
-    pm_ace.instructions[9] = 0x3C088006;  // LUI t0, 0x8006
-    pm_ace.instructions[10] = 0x3C093042; // LUI t1, 0x3042
-    pm_ace.instructions[11] = 0x35290004; // ORI t1, t1, 0x0004
-    pm_ace.instructions[12] = 0xAD09A1C0; // SW t1, 0xA1C0 (t0) - fix effects function we patched
-    pm_ace.instructions[13] = 0x8FBF0070; // LW ra, 0x0070 (sp)
-    pm_ace.instructions[14] = 0x8FB10068; // LW s1, 0x0068 (sp)
-    pm_ace.instructions[15] = 0x8FB00064; // LW s0, 0x0064 (sp)
-    pm_ace.instructions[16] = 0x0800F50C; // J 0x8003D430
-    pm_ace.instructions[17] = 0x27BDFF98; // ADDIU sp, sp, -0x68
+    setACEHook();
     fp_log("practice payload placed");
 }
 
 static void ace_oot_instr_proc(struct menu_item *item, void *data) {
-    for (int i = 0; i < 18; i++) {
-        pm_ace.instructions[i] = 0;
-    }
-    pm_ace.instructions[2] = 0x0801DE67;
+    //write jump to jp file names to addr 0x807C0000
+   __asm__(
+       "LA $t0, 0x807C0000;"
+       "LA $t1, 0x0801DE67;"
+       "JR $ra;"
+       "SW $t1, 0x0000 ($t0);"
+    );
     fp_log("oot instruction placed");
 }
 
