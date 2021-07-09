@@ -211,9 +211,9 @@ static void ace_practice_payload_proc(struct menu_item *item, void *data) {
 static void ace_oot_instr_proc(struct menu_item *item, void *data) {
     //write jump to jp file names to addr 0x807C0000
    __asm__(
-       //"LA $t0, 0x807C0000;"
-       //"LA $t1, 0x0801DE67;"
-       //"JR $ra;"
+       "LA $t0, 0x807C0000;"
+       "LA $t1, 0x0801DE67;"
+       "JR $ra;"
        "SW $t1, 0x0000 ($t0);"
     );
     fp_log("oot instruction placed");
