@@ -269,6 +269,33 @@ void fp_main(void) {
             }
         }
     }
+
+    /* handle lzs jump trainer */
+    if (fp.lzs_trainer_enabled && pm_status.pressed.a) {
+        if ((fp.prev_control_x || fp.prev_control_y) && !fp.initial_lzs_jump) {
+            fp_log("not neutral");
+        }
+        else if (pm_player.action_state == 0xa) {
+            fp_log("jump 1 frame early");
+        }
+        else if (pm_player.action_state == 0x8) {
+            fp_log("jump >= 2 frames early");
+        }
+        else if (pm_player.action_state == 0x3 && pm_unk2.room_change_state == 0x0) {
+            fp_log("jump 1 frame late");
+        }
+        else if (pm_player.action_state == 0x1 || pm_player.action_state == 0x2) {
+            fp_log("jump >= 2 frames late");
+        }
+        fp.initial_lzs_jump = 0;
+    }
+
+    fp.prev_control_x = pm_status.control_x;
+    fp.prev_control_y = pm_status.control_y;
+
+    if (pm_unk2.room_change_state == 0x0) {
+        fp.initial_lzs_jump = 1;
+    }
     
     /* handle menu input */
     if (fp.menu_active) {
@@ -446,6 +473,7 @@ void init() {
     fp.turbo = 0;
     fp.bowser_blocks_enabled = 0;
     fp.bowser_block = 0;
+    fp.initial_lzs_jump = 1;
 
     /*load default settings*/
     settings_load_default();

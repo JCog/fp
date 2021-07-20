@@ -428,6 +428,7 @@ void load_fast_basement_second() {
 }
 
 void load_basement_skip() {
+    pm_player.player_data.boots_upgrade = 2;
     set_partner(PARAKARRY);
     fp_set_global_flag(0x614, 1); //hardened lava
     fp_warp(0x16, 0x17, 2);

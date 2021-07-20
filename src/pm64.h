@@ -151,7 +151,8 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ char unk_0x00[0x03];
+    /* 0x0000 */ uint8_t enable_partner_ability;
+    /* 0x0001 */ char unk_0x01[0x02];
     /* 0x0003 */ uint8_t partner_ability;
     /* 0x0004 */ int16_t control_x_overworld;
     /* 0x0006 */ int16_t control_y_overworld;
