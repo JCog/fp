@@ -4,7 +4,7 @@
 .create "rom/fp.z64", 0
 .incbin "rom/base-j.z64"
 
-.definelabel PAYLOAD_ROM, 0x1C7F210
+.definelabel PAYLOAD_ROM, 0x2800000
 .definelabel PAYLOAD_RAM, 0x80400000
 .definelabel FP_RAM,      PAYLOAD_RAM + 0x40
 .definelabel DMA_FUNC,    0x800296FC
