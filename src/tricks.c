@@ -557,7 +557,7 @@ void load_trick(int8_t trick) {
         case LAVA_PUZZLE_SKIP:          load_lava_puzzle_skip();            break;
         case ULTRA_HAMMER_EARLY:        load_ultra_hammer_early();          break;
         case FLARAKARRY:                load_flarakarry();                  break;
-        case HEART_BLOCK_OVERLAP:       load_heart_block_overlap();
+        case HEART_BLOCK_OVERLAP:       load_heart_block_overlap();         break;
         case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
         case CH5_CARD_LZS:              load_ch5_card_lzs();                break;
 
