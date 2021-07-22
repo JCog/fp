@@ -4,6 +4,34 @@
 #include "tricks.h"
 #include "settings.h"
 
+int equip_badge (int16_t badgeID) {
+    for (int i = 0; i < 64; i++) {
+        if (pm_player.player_data.equipped_badges[i] == 0) {
+            pm_player.player_data.equipped_badges[i] = badgeID;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int find_badge (int16_t badgeID) { //return 0 if badgeID not found, badgeID returned if found
+    for (int i = 0; i < 128; i++) {
+        if (pm_player.player_data.badges[i] == badgeID) {
+            return badgeID;
+        }
+    }
+    return 0;
+}
+
+int find_equipped_badge (int16_t badgeID) { //return 0 if badgeID not found, badgeID returned if found
+    for (int i = 0; i < 64; i++) {
+        if (pm_player.player_data.equipped_badges[i] == badgeID) {
+            return badgeID;
+        }
+    }
+    return 0;
+}
+
 void check_for_hammer() {
     if (pm_player.player_data.hammer_upgrade > 2) {
         pm_player.player_data.hammer_upgrade = 0;
@@ -314,6 +342,27 @@ void load_flarakarry() {
     fp_warp(0x12, 0xb, 0);
 }
 
+void load_heart_block_overlap() {
+    STORY_PROGRESS = 0x20;
+    int16_t speedySpin = 0x011F;
+    int16_t badgeInventory = 0;
+    int16_t badgeEquipped = 0;
+
+    badgeInventory = find_badge(speedySpin);
+    badgeEquipped = find_equipped_badge(speedySpin);
+
+    if (badgeInventory == 0) {
+        pm_add_badge(speedySpin); //speedy spin
+        equip_badge(speedySpin);
+    } else {
+        if (badgeEquipped == 0) {
+            equip_badge(speedySpin);
+        }
+    }
+
+    fp_warp(0x12, 0xC, 0);
+}
+
 void load_lava_piranha_skip() {
     check_for_hammer();
     STORY_PROGRESS = 0x22;
@@ -508,6 +557,7 @@ void load_trick(int8_t trick) {
         case LAVA_PUZZLE_SKIP:          load_lava_puzzle_skip();            break;
         case ULTRA_HAMMER_EARLY:        load_ultra_hammer_early();          break;
         case FLARAKARRY:                load_flarakarry();                  break;
+        case HEART_BLOCK_OVERLAP:       load_heart_block_overlap();         break;
         case LAVA_PIRANHA_SKIP:         load_lava_piranha_skip();           break;
         case CH5_CARD_LZS:              load_ch5_card_lzs();                break;
 
@@ -740,6 +790,11 @@ static void flarakarry_proc(struct menu_item *item, void *data) {
     load_flarakarry();
 }
 
+static void heart_block_overlap_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = HEART_BLOCK_OVERLAP;
+    load_heart_block_overlap();
+}
+
 static void lava_piranha_skip_proc(struct menu_item *item, void *data) {
     fp.saved_trick = LAVA_PIRANHA_SKIP;
     load_lava_piranha_skip();
@@ -930,6 +985,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "lava puzzle skip", lava_puzzle_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ultra hammer early", ultra_hammer_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "flarakarry", flarakarry_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "heart block overlap", heart_block_overlap_proc, NULL);
     menu_add_button(page, 0, y_tab++, "lava piranha skip/oob", lava_piranha_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch5 card lzs", ch5_card_lzs_proc, NULL);
 

@@ -4,7 +4,7 @@
 .create "rom/fp.z64", 0
 .incbin "rom/base-j.z64"
 
-.definelabel PAYLOAD_ROM, 0x02800000
+.definelabel PAYLOAD_ROM, 0x2800000
 .definelabel PAYLOAD_RAM, 0x80400000
 .definelabel FP_RAM,      PAYLOAD_RAM + 0x40
 .definelabel DMA_FUNC,    0x800296FC
@@ -16,7 +16,7 @@
 
 ;hook into early boot function, load payload
 .org 0x8004AA2C ;rom 0x00025E2C
-	lui   a0, hi(PAYLOAD_ROM)     ;payload rom: 0x02800000
+	li   a0, (PAYLOAD_ROM)     ;payload rom: 0x2800000
 	li    a1, (END - PAYLOAD_RAM + PAYLOAD_ROM) ;payload end
 	lui   a2, hi(PAYLOAD_RAM)     ;payload ram: 0x80400000
 	jal   DMA_FUNC                ;dma
@@ -43,6 +43,7 @@ init:
 	lui   a2, 0x8005
 	addiu a2, a2, 0xAAB8
 	lui   v0, 0x800A
+	SW v0, 0x0010 (sp)
 	jr    ra
 	nop
 
