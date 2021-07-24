@@ -272,28 +272,50 @@ void fp_main(void) {
 
     /* handle lzs jump trainer */
     if (fp.lzs_trainer_enabled && pm_status.pressed.a) {
-        if ((fp.prev_control_x || fp.prev_control_y) && !fp.initial_lzs_jump) {
-            fp_log("not neutral");
-        }
-        else if (pm_player.action_state == 0xa) {
-            fp_log("jump 1 frame early");
-        }
-        else if (pm_player.action_state == 0x8) {
-            fp_log("jump >= 2 frames early");
-        }
-        else if (pm_player.action_state == 0x3 && pm_unk2.room_change_state == 0x0) {
-            fp_log("jump 1 frame late");
-        }
-        else if (pm_player.action_state == 0x1 || pm_player.action_state == 0x2) {
-            fp_log("jump >= 2 frames late");
+        if (!fp.initial_lzs_jump) {
+            if (fp.prev_prev_action_state == 0x8 && pm_player.action_state == 0x3 && pm_unk2.room_change_state == 0x0) {
+                fp_log("not neutral");
+            }
+            else if (pm_player.prev_action_state == 0x8) {
+                fp_log("jump 1 frame early");
+                if (pm_player.action_state == 0x2) {
+                    fp_log("not neutral");
+                }
+            }
+            else if (pm_player.prev_action_state == 0x3) {
+                fp_log("jump >= 2 frames early");
+                if ((pm_status.pressed.x_cardinal || pm_status.pressed.y_cardinal || fp.prev_control_x || fp.prev_control_y) != 0x0) {
+                    fp_log("not neutral");
+                }
+            }
+            else if (fp.prev_prev_action_state == 0xa && pm_player.action_state == 0x3) {
+                fp_log("jump 1 frame late");
+            }
+            else if (fp.prev_prev_action_state == 0x8 && (pm_player.action_state == 0x2 || pm_player.action_state == 0x1)) {
+                fp_log("jump 1 frame late");
+                fp_log("not neutral");
+            }
+            else if (fp.prev_prev_action_state == 0xa && (pm_player.action_state == 0x2 || pm_player.action_state == 0x1)) {
+                fp_log("jump 2 frames late");
+                if ((pm_status.pressed.x_cardinal || pm_status.pressed.y_cardinal) != 0) {
+                    fp_log("not neutral");
+                }
+            }
+            else if (fp.prev_prev_action_state == 0x2 || fp.prev_prev_action_state == 0x1) {
+                fp_log("jump 2 frames late");
+                fp_log("not neutral");
+            }
+            else if (fp.prev_prev_action_state == 0x0) {
+                fp_log("jump > 2 frames late");
+            }
         }
         fp.initial_lzs_jump = 0;
     }
+    fp.prev_control_x = pm_status.pressed.x_cardinal;
+    fp.prev_control_y = pm_status.pressed.y_cardinal;
+    fp.prev_prev_action_state = pm_player.prev_action_state;
 
-    fp.prev_control_x = pm_status.control_x;
-    fp.prev_control_y = pm_status.control_y;
-
-    if (pm_unk2.room_change_state == 0x0) {
+    if (pm_unk2.room_change_state == 0x1) {
         fp.initial_lzs_jump = 1;
     }
     
@@ -474,6 +496,7 @@ void init() {
     fp.bowser_blocks_enabled = 0;
     fp.bowser_block = 0;
     fp.initial_lzs_jump = 1;
+    fp.prev_prev_action_state = 0;
 
     /*load default settings*/
     settings_load_default();

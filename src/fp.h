@@ -60,6 +60,7 @@ typedef struct{
     int8_t                  prev_control_x;
     int8_t                  prev_control_y;
     _Bool                   initial_lzs_jump;
+    uint8_t                 prev_prev_action_state;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
