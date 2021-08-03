@@ -57,10 +57,12 @@ typedef struct{
     _Bool                   bowser_blocks_enabled;
     int8_t                  bowser_block;
     _Bool                   lzs_trainer_enabled;
-    int8_t                  prev_control_x;
-    int8_t                  prev_control_y;
-    _Bool                   initial_lzs_jump;
+    int8_t                  prev_pressed_y;
     uint8_t                 prev_prev_action_state;
+    _Bool                   lz_stored;
+    _Bool                   player_landed;
+    uint16_t                frames_since_land;
+    
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

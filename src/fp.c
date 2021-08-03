@@ -270,55 +270,96 @@ void fp_main(void) {
         }
     }
 
-    /* handle lzs jump trainer */
-    if (fp.lzs_trainer_enabled && pm_status.pressed.a) {
-        if (!fp.initial_lzs_jump) {
-            if (fp.prev_prev_action_state == 0x8 && pm_player.action_state == 0x3 && pm_unk2.room_change_state == 0x0) {
-                fp_log("not neutral");
-            }
-            else if (pm_player.prev_action_state == 0x8) {
-                fp_log("jump 1 frame early");
-                if (pm_player.action_state == 0x2) {
-                    fp_log("not neutral");
+    /* detect if loading zone is stored */
+    /* TODO: Yes this function looks awful. If a cleaner way to detect stored loading zones is found or decomped,
+       please submit a PR or let an fp dev know */
+    uint32_t* event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
+    uint32_t event_space = *event_spc_ptr;
+    uint32_t event_count = pm_curr_script_lst.script_list_count;
+
+    for (int event_priority = 0; event_priority < event_count; event_priority++) {
+        uint32_t* event_id_ptr = (event_spc_ptr + 2 + event_priority);
+        uint32_t event_id = *event_id_ptr;
+        uint32_t* event_ptr_ptr = (uint32_t*)(event_space + (4 * event_id));
+        uint32_t* event_ptr = (uint32_t*)*event_ptr_ptr;
+        if (event_ptr) {
+            uint32_t* callback_ptr = (uint32_t*)*(event_ptr + 2);
+            if (callback_ptr) {
+                uint32_t callback_function = *(callback_ptr + 0x5);
+                if (callback_function == 0x802CA400) {
+                    fp.lz_stored = 1;
                 }
-            }
-            else if (pm_player.prev_action_state == 0x3) {
-                fp_log("jump >= 2 frames early");
-                if ((pm_status.pressed.x_cardinal || pm_status.pressed.y_cardinal || fp.prev_control_x || fp.prev_control_y) != 0x0) {
-                    fp_log("not neutral");
-                }
-            }
-            else if (fp.prev_prev_action_state == 0xa && pm_player.action_state == 0x3) {
-                fp_log("jump 1 frame late");
-            }
-            else if (fp.prev_prev_action_state == 0x8 && (pm_player.action_state == 0x2 || pm_player.action_state == 0x1)) {
-                fp_log("jump 1 frame late");
-                fp_log("not neutral");
-            }
-            else if (fp.prev_prev_action_state == 0xa && (pm_player.action_state == 0x2 || pm_player.action_state == 0x1)) {
-                fp_log("jump 2 frames late");
-                if ((pm_status.pressed.x_cardinal || pm_status.pressed.y_cardinal) != 0) {
-                    fp_log("not neutral");
-                }
-            }
-            else if (fp.prev_prev_action_state == 0x2 || fp.prev_prev_action_state == 0x1) {
-                fp_log("jump 2 frames late");
-                fp_log("not neutral");
-            }
-            else if (fp.prev_prev_action_state == 0x0) {
-                fp_log("jump > 2 frames late");
             }
         }
-        fp.initial_lzs_jump = 0;
     }
-    fp.prev_control_x = pm_status.pressed.x_cardinal;
-    fp.prev_control_y = pm_status.pressed.y_cardinal;
+
+    /* Count frames since mario landed */
+    if (pm_player.action_state == ACTION_STATE_LAND) {
+        fp.player_landed = 1;
+    }
+    if (fp.player_landed) {
+        fp.frames_since_land++;
+    }
+    else {
+        fp.frames_since_land = 0;
+    }
+    if (pm_player.action_state == ACTION_STATE_JUMP) {
+        fp.player_landed = 0;
+    }
+
+    /* handle lzs jump trainer */
+    if (fp.lzs_trainer_enabled && fp.lz_stored && pm_status.pressed.a) {
+        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP && pm_unk2.room_change_state == 0) {
+            fp_log("control early");
+        }
+        else if (pm_player.prev_action_state == ACTION_STATE_FALLING) {
+            fp_log("jump 1 frame early");
+            if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
+                fp_log("control early");
+            }
+        }
+        else if (pm_player.prev_action_state == ACTION_STATE_JUMP) {
+            fp_log("jump >= 2 frames early");
+            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+                fp_log("control early");
+            }
+        }
+        else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_unk2.room_change_state == 0) {
+            fp_log("jump 1 frame late");
+            fp_log("control early");
+        }
+        else if (fp.frames_since_land == 3) {
+            fp_log("jump 1 frame late");
+            if (pm_status.pressed.y_cardinal) {
+                fp_log("control late");
+            }
+        }
+        else if (fp.frames_since_land == 4) {
+            fp_log("jump 2 frames late");
+            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+                fp_log("control late");
+            }
+        }
+        else if (fp.frames_since_land == 0 && (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
+            fp_log("jump >= 2 frames late");
+            fp_log("control early");
+        }
+        else if (fp.frames_since_land >= 5 && pm_unk2.room_change_state == 0) {
+            fp_log("jump > 2 frames late");
+            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+                fp_log("control late");
+            }
+        }
+    }
+    fp.prev_pressed_y = pm_status.pressed.y_cardinal;
     fp.prev_prev_action_state = pm_player.prev_action_state;
 
     if (pm_unk2.room_change_state == 0x1) {
-        fp.initial_lzs_jump = 1;
+        fp.lz_stored = 0;
+        fp.player_landed = 0;
+        fp.frames_since_land = 0;
     }
-    
+
     /* handle menu input */
     if (fp.menu_active) {
         if (input_bind_pressed_raw(COMMAND_MENU)) {
@@ -495,8 +536,10 @@ void init() {
     fp.turbo = 0;
     fp.bowser_blocks_enabled = 0;
     fp.bowser_block = 0;
-    fp.initial_lzs_jump = 1;
     fp.prev_prev_action_state = 0;
+    fp.lz_stored = 0;
+    fp.player_landed = 0;
+    fp.frames_since_land = 0;
 
     /*load default settings*/
     settings_load_default();
