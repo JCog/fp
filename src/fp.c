@@ -312,7 +312,7 @@ void fp_main(void) {
         if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP && pm_unk2.room_change_state == 0) {
             fp_log("control early");
         }
-        else if (pm_player.prev_action_state == ACTION_STATE_FALLING) {
+        else if (pm_player.prev_action_state == ACTION_STATE_FALLING && pm_player.action_state != ACTION_STATE_SPIN_JUMP && pm_player.action_state != ACTION_STATE_ULTRA_JUMP) {
             fp_log("jump 1 frame early");
             if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
                 fp_log("control early");
