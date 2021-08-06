@@ -6,6 +6,50 @@
 #define PM64_SCREEN_WIDTH    320
 #define PM64_SCREEN_HEIGHT   240
 
+enum action_states {
+    ACTION_STATE_IDLE,
+    ACTION_STATE_WALK,
+    ACTION_STATE_RUN,
+    ACTION_STATE_JUMP,
+    ACTION_STATE_BOUNCE,            /* Used with Kooper */
+    ACTION_STATE_HOP,               /* Released A before apex of jump */
+    ACTION_STATE_LAUNCH,            /* Shy Guy Toybox jack-in-the-boxes */
+    ACTION_STATE_LAND_ON_SWITCH,    /* Small red/blue ! switches */
+    ACTION_STATE_FALLING,
+    ACTION_STATE_STEP_DOWN,
+    ACTION_STATE_LAND,
+    ACTION_STATE_STEP_DOWN_LAND,
+
+    // Following action states prohibit movement
+    ACTION_STATE_TALK,                /* Reading signs doesn't count */
+    ACTION_STATE_SPIN_JUMP,
+    ACTION_STATE_GROUND_POUND,
+    ACTION_STATE_ULTRA_JUMP,
+    ACTION_STATE_ULTRA_POUND,
+    ACTION_STATE_SLIDE,
+    ACTION_STATE_HAMMER,
+    ACTION_STATE_13,
+    ACTION_STATE_14,
+    ACTION_STATE_HIT_FIRE,            /* Causes Mario to fly up and take damage. Used for fire bars. */
+    ACTION_STATE_UNKNOWN_16,          /* some kind of knockback, does no damage */
+    ACTION_STATE_HIT_LAVA,
+    ACTION_STATE_18,
+    ACTION_STATE_SNEAKY_PARASOL,
+    ACTION_STATE_SPIN,
+    ACTION_STATE_ENEMY_FIRST_STRIKE,
+    ACTION_STATE_GET_STAR_SPIRIT,
+    ACTION_STATE_USE_SPINNING_FLOWER,
+    ACTION_STATE_USE_MUNCHLESIA,      /* Set by the jan_09 squishy flower entity; throws the player in the air. */
+    ACTION_STATE_USE_TWEESTER,
+    ACTION_STATE_BOUNCE_OFF_SWITCH,   /* Small red/blue ! switches */
+    ACTION_STATE_RIDE,
+    ACTION_STATE_STEP_UP,
+    ACTION_STATE_23,
+    ACTION_STATE_24,
+    ACTION_STATE_25,
+    ACTION_STATE_USE_SPRING,
+};
+
 typedef struct{
     /* 0x0000 */ float x;
     /* 0x0004 */ float y;
@@ -151,7 +195,8 @@ typedef struct{
 }unk2_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ char unk_0x00[0x03];
+    /* 0x0000 */ uint8_t enable_partner_ability;
+    /* 0x0001 */ char unk_0x01[0x02];
     /* 0x0003 */ uint8_t partner_ability;
     /* 0x0004 */ int16_t control_x_overworld;
     /* 0x0006 */ int16_t control_y_overworld;
@@ -815,6 +860,14 @@ typedef struct {
     /* 0x0000 */ uint32_t enemy_defeat_flags[600];
 }enemy_flags_ctxt_t;
 
+typedef struct {
+    /* 0x0000 */ uint32_t script_list_ptr;
+    /* 0x0004 */ uint32_t unk_04;
+    /* 0x0008 */ int32_t script_index_list[128];
+    /* 0x0208 */ int32_t script_id_list[128];
+    /* 0x0408 */ uint32_t script_list_count;
+}script_list_ctxt_t;
+
 /* Addresses */
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_FioReadFlash_addr                0x8002B828
@@ -841,6 +894,7 @@ typedef struct {
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_warp_addr                        0x80156740
 #define pm_unk7_addr                        0x8029FF14
+#define pm_current_script_list_addr         0x802DA890
 #define pm_SaveGame_addr                    0x802DC150
 #define pm_ace_addr                         0x807BFFFC
 #define pm_ace_store_addr                   0x807D0000
@@ -862,6 +916,7 @@ typedef struct {
 #define pm_player             (*(player_ctxt_t*)         pm_player_addr)
 #define pm_warp               (*(warp_ctxt_t*)           pm_warp_addr)
 #define pm_unk7               (*(unk7_ctxt_t*)           pm_unk7_addr)
+#define pm_curr_script_lst    (*(script_list_ctxt_t*)    pm_current_script_list_addr)
 #define pm_ace                (*(ace_ctxt_t*)            pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
 

@@ -223,18 +223,21 @@ void create_trainer_menu(struct menu *menu)
     static struct menu bowserMenu;
     static struct menu issMenu;
     static struct menu aceMenu;
+    static struct menu lzsMenu;
     
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
     menu_add_submenu(menu, 0, 1, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, 2, &issMenu, "ice staircase skip");
     menu_add_submenu(menu, 0, 3, &aceMenu, "oot ace");
+    menu_add_submenu(menu, 0, 4, &lzsMenu, "lzs jumps");
 
     /*build bowser menu*/
     int y_value = 0;
@@ -253,4 +256,9 @@ void create_trainer_menu(struct menu *menu)
     menu_add_static_custom(&aceMenu, 0, 1, ace_draw_proc, NULL, 0xFFFFFF);
     menu_add_button(&aceMenu, 0, 5, "practice payload", ace_practice_payload_proc, NULL);
     menu_add_button(&aceMenu, 0, 6, "oot instruction", ace_oot_instr_proc, NULL);
+
+    /*build lzs jump menu*/
+    lzsMenu.selector = menu_add_submenu(&lzsMenu, 0, 0, NULL, "return");
+    menu_add_static(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
+    menu_add_checkbox(&lzsMenu, 8, 1, checkbox_mod_proc, &fp.lzs_trainer_enabled);
 }
