@@ -19,6 +19,7 @@ enum tricks {
     OUTPOST_JUMP,
     SPIKE_SHIELD_EARLY,
     SLOW_GO_EARLY,
+    SAND_CLIP,
     CH2_CARD_LZS,
     RECORD_SKIP,
     BOW_SKIP,

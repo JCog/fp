@@ -208,6 +208,14 @@ void load_slow_go_early() {
     fp_warp(GROUP_DRY_DRY_RUINS, 8, 0);
 }
 
+void load_sand_clip() {
+    set_partner(PARTNER_LAKILESTER);
+    if (STORY_PROGRESS < STORY_CH2_DRAINED_THIRD_SAND_ROOM) {
+        STORY_PROGRESS = STORY_CH2_DRAINED_THIRD_SAND_ROOM;
+    }
+    fp_warp(GROUP_DRY_DRY_RUINS, 0xf, 0);
+}
+
 void load_ch2_card_lzs() {
     //TODO: make this not crash when loading after failed attempt
     STORY_PROGRESS = 0xc8;
@@ -560,6 +568,7 @@ void load_trick(int8_t trick) {
         case OUTPOST_JUMP:              load_outpost_jump();                break;
         case SPIKE_SHIELD_EARLY:        load_spike_shield_early();          break;
         case SLOW_GO_EARLY:             load_slow_go_early();               break;
+        case SAND_CLIP:                 load_sand_clip();                   break;
         case CH2_CARD_LZS:              load_ch2_card_lzs();                break;
 
         case RECORD_SKIP:               load_record_skip();                 break;
@@ -699,6 +708,11 @@ static void spike_shield_early_proc(struct menu_item *item, void *data) {
 static void slow_go_early_proc(struct menu_item *item, void *data) {
     fp.saved_trick = SLOW_GO_EARLY;
     load_slow_go_early();
+}
+
+static void sand_clip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = SAND_CLIP;
+    load_sand_clip();
 }
 
 static void ch2_card_lzs_proc(struct menu_item *item, void *data) {
@@ -982,6 +996,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "outpost jump", outpost_jump_proc, NULL);
     menu_add_button(page, 0, y_tab++, "spike shield early", spike_shield_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "slow go early", slow_go_early_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "sand clip", sand_clip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch2 card lzs", ch2_card_lzs_proc, NULL);
 
     /* chapter 3 */
