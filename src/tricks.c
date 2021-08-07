@@ -14,6 +14,14 @@ int equip_badge (int16_t badgeID) {
     return -1;
 }
 
+void unequip_badge (int16_t badgeID) {
+    for (int i = 0; i < 64; i++) {
+        if (pm_player.player_data.equipped_badges[i] == badgeID) {
+            pm_player.player_data.equipped_badges[i] = 0;
+        }
+    }
+}
+
 int find_badge (int16_t badgeID) { //return 0 if badgeID not found, badgeID returned if found
     for (int i = 0; i < 128; i++) {
         if (pm_player.player_data.badges[i] == badgeID) {
@@ -30,6 +38,14 @@ int find_equipped_badge (int16_t badgeID) { //return 0 if badgeID not found, bad
         }
     }
     return 0;
+}
+
+void remove_badge (int16_t badgeID) {
+    for (int i = 0; i < 128; i++) {
+        if (pm_player.player_data.badges[i] == badgeID) {
+            pm_player.player_data.badges[i] = 0;
+        }
+    }
 }
 
 void check_for_hammer() {
@@ -372,6 +388,7 @@ void load_lava_piranha_skip() {
 
 void load_ch5_card_lzs() {
     STORY_PROGRESS = 0x23;
+    fp_set_global_flag(0x51e, 1); //piranha plant cutscene
     fp_warp(0x12, 0xd, 1);
 }
 
@@ -439,6 +456,10 @@ void load_sushie_glitch() {
 void load_ice_staircase_skip() {
     set_partner(LAKILESTER);
     STORY_PROGRESS = 0x4b;
+    fp_set_global_flag(0x5b7, 0); //mega jump block
+    int16_t megaJump = 0x123;
+    unequip_badge(megaJump);
+    remove_badge(megaJump);
     fp_warp(0x14, 9, 0);
 }
 
