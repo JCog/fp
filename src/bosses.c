@@ -14,67 +14,67 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static void bowser_hallway_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x5f;
+    STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fa, 0); //hallway not defeated
     fp_warp(GROUP_PEACHS_CASTLE, 0x7, 0x0);
 }
 
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x5f;
+    STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fc, 0); //bridge not broken
     fp_set_global_flag(0x1fe, 1); //skip camera zoom in
     fp_warp(GROUP_PEACHS_CASTLE, 0x13, 0x0);
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x5f;
+    STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fc, 1); //bridge broken
     fp_warp(GROUP_PEACHS_CASTLE, 0x13, 0x1);
 }
 
 static void goomba_king_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x8f;
+    STORY_PROGRESS = STORY_CH0_DEFEATED_GOOMBA_BROS;
     fp_set_global_flag(0x02d, 1); //skip cutscene
     fp_warp(GROUP_GOOMBA_VILLAGE, 0x9, 0x0);
 }
 
 static void koopa_bros_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xb1;
+    STORY_PROGRESS = STORY_CH1_KOOPA_BROS_FIRING_BLASTERS;
     fp_warp(GROUP_KOOPA_BROS_FORTRESS, 0xa, 0x0);
 }
 
 static void tutankoopa_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xc7;
+    STORY_PROGRESS = STORY_CH2_SOLVED_ARTIFACT_PUZZLE;
     fp_warp(GROUP_DRY_DRY_RUINS, 0xe, 0x0);
 }
 
 static void tubba_blubba_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xef;
+    STORY_PROGRESS = STORY_CH3_HEART_ESCAPED_WINDY_MILL;
     fp_warp(GROUP_GUSTY_GULCH, 0x4, 0x0);
 }
 
 static void general_guy_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x03;
+    STORY_PROGRESS = STORY_CH4_OPENED_GENERAL_GUY_ROOM;
     fp_warp(GROUP_SHY_GUYS_TOY_BOX, 0xe, 0x0);
 }
 
 static void lava_piranha_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x22;
+    STORY_PROGRESS = STORY_CH5_KOLORADO_IN_TREASURE_ROOM;
     fp_warp(GROUP_VOLCANO, 0xd, 0x1);
 }
 
 static void huff_n_puff_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x37;
+    STORY_PROGRESS = STORY_CH6_GREW_MAGIC_BEANSTALK;
     fp_warp(GROUP_FLOWER_FIELDS, 0xf, 0x0);
 }
 
 static void crystal_king_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x55;
+    STORY_PROGRESS = STORY_CH7_SOLVED_ALBINO_DINO_PUZZLE;
     fp_warp(GROUP_CRYSTAL_PALACE, 0x17, 0x0);
 }
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x89;
+    STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
     uint8_t *partner = &pm_player.player_data.current_partner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { //flying partners cause a softlock
         *partner = 1; //goombario
@@ -83,60 +83,60 @@ static void jr_playground_proc(struct menu_item *item, void *data) {
 }
 
 static void jr_pleasant_path_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xb5;
+    STORY_PROGRESS = STORY_CH1_STAR_SPRIT_DEPARTED;
     fp_warp(GROUP_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x1);
 }
 
 static void jr_forever_forest_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xf3;
+    STORY_PROGRESS = STORY_CH3_STAR_SPRIT_DEPARTED;
     fp_set_global_flag(0x39f, 0); //jr not defeated
     fp_warp(GROUP_FOREVER_FOREST, 0x6, 0x3);
 }
 
 static void jr_toad_town_port_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x27;
+    STORY_PROGRESS = STORY_CH5_STAR_SPIRIT_DEPARTED;
     fp_set_global_flag(0x4c2, 0); //jr not defeated
     fp_warp(GROUP_TOAD_TOWN, 0x6, 0x1);
 }
 
 static void jr_shiver_snowfield_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x43;
+    STORY_PROGRESS = STORY_CH7_MAYOR_MURDER_SOLVED;
     fp_warp(GROUP_SHIVER_REGION, 0x2, 0x0);
 }
 
 static void jr_bowsers_castle_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x5f;
+    STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_byte(0x12c, 0);
     fp_warp(GROUP_BOWSERS_CASTLE, 0x1c, 0x0);
 }
 
 static void goomba_bros_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x8e;
+    STORY_PROGRESS = STORY_CH0_SMASHED_GATE_BLOCK;
     fp_warp(GROUP_GOOMBA_VILLAGE, 0x6, 0x0);
 }
 
 static void tubbas_heart_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0xe9;
+    STORY_PROGRESS = STORY_CH3_WENT_DOWN_THE_WELL;
     fp_warp(GROUP_GUSTY_GULCH, 0x8, 0x0);
 }
 
 static void lantern_ghost_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x00;
+    STORY_PROGRESS = STORY_CH4_SOLVED_COLOR_PUZZLE;
     fp_warp(GROUP_SHY_GUYS_TOY_BOX, 0xb, 0x0);
 }
 
 static void fuzzipede_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x09;
+    STORY_PROGRESS = STORY_CH5_ENTERED_WHALE;
     fp_warp(GROUP_WHALE, 0x1, 0x0);
 }
 
 static void lakilester_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x32;
+    STORY_PROGRESS = STORY_CH6_SPOKE_WITH_THE_SUN;
     fp_warp(GROUP_FLOWER_FIELDS, 0x8, 0x1);
 }
 
 static void monstar_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x44;
+    STORY_PROGRESS = STORY_CH7_DEFEATED_JR_TROOPA;
     fp_warp(GROUP_SHIVER_REGION, 0x4, 0x0);
 }
 
@@ -172,13 +172,13 @@ static void anti_guy_proc(struct menu_item *item, void *data) {
 }
 
 static void kent_c_koopa_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x29;
+    STORY_PROGRESS = STORY_CH6_RETURNED_TO_TOAD_TOWN;
     fp_set_global_flag(0x262, 0); //kent not defeated
     fp_warp(GROUP_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
 }
 
 static void anti_guys_unit_proc(struct menu_item *item, void *data) {
-    STORY_PROGRESS = 0x5f;
+    STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_byte(0x12b, 0);
     fp_warp(GROUP_BOWSERS_CASTLE, 0x1b, 0x0);
 }

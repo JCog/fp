@@ -210,8 +210,7 @@ void fp_main(void) {
     /* handle bowser block trainer */
     //this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
     if (fp.bowser_blocks_enabled && pm_status.is_battle) {
-        uint8_t story_progress = STORY_PROGRESS;
-        if (pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) && story_progress != 0x80 && !(pm_status.peach_flags & (1 << 0))) {
+        if (pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) && STORY_PROGRESS != STORY_INTRO && !(pm_status.peach_flags & (1 << 0))) {
             actor_t *bowser = pm_battle_status.enemy_actors[0];
             if (bowser != NULL) {
                 int32_t *turn = &bowser->var_table[0];
