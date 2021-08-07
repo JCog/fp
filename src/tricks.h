@@ -2,6 +2,7 @@
 #define TRICKS_H
 #include "menu.h"
 
+typedef int8_t Trick;
 enum tricks {
     JR_SKIP,
     BLACK_TOAD_SKIP,
@@ -66,22 +67,7 @@ enum tricks {
     LUIGI_SKIP
 };
 
-enum partners {
-    NONE,
-    GOOMBARIO,
-    KOOPER,
-    BOMBETTE,
-    PARAKARRY,
-    GOOMPA,
-    WATT,
-    SUSHIE,
-    LAKILESTER,
-    BOW,
-    GOOMBARIA,
-    TWINK
-};
-
 void create_tricks_menu(struct menu *menu);
-void load_trick(int8_t trick);
+void load_trick(Trick trick);
 
 #endif

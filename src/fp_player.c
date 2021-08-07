@@ -278,8 +278,8 @@ static int peach_parasol_proc(struct menu_item *item, enum menu_callback_reason 
 }
 
 static void item_up_proc(struct menu_item *item, void *data) {
-    uint16_t* start_item = (uint16_t*)data;
-    uint16_t* up_item = start_item - 1;
+    uint16_t *start_item = (uint16_t*)data;
+    uint16_t *up_item = start_item - 1;
 
     uint16_t temp_item = *up_item;
     *up_item = *start_item;
@@ -287,8 +287,8 @@ static void item_up_proc(struct menu_item *item, void *data) {
 }
 
 static void item_down_proc(struct menu_item *item, void *data) {
-    uint16_t* start_item = (uint16_t*)data;
-    uint16_t* down_item = start_item + 1;
+    uint16_t *start_item = (uint16_t*)data;
+    uint16_t *down_item = start_item + 1;
 
     uint16_t temp_item = *down_item;
     *down_item = *start_item;

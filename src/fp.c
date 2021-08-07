@@ -119,7 +119,6 @@ void fp_main(void) {
     _Bool in_cutscene = pm_player.flags & 0x00002000;
     switch (fp.timer.state) {
         case 0:
-            fp.timer.prev_state = 0;
             break;
         case 1:
             if (fp.timer.mode == 1 || (fp.timer.prev_cutscene_state && !in_cutscene)) {
@@ -131,7 +130,6 @@ void fp_main(void) {
                     fp_log("timer started");
                 }
             }
-            fp.timer.prev_state = 1;
             break;
         case 2:
             if (fp.timer.mode == 0 && !fp.timer.prev_cutscene_state && in_cutscene) {
@@ -150,12 +148,10 @@ void fp_main(void) {
             timer_count = fp.cpu_counter - fp.timer.start;
             lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2
                 - (pm_status.frame_counter - fp.timer.frame_start);
-            fp.timer.prev_state = 2;
             break;
         case 3:
             timer_count = fp.timer.end - fp.timer.start;
             lag_frames = (fp.timer.lag_end - fp.timer.lag_start) / 2 - (fp.timer.frame_end - fp.timer.frame_start);
-            fp.timer.prev_state = 3;
             break;
     }
     fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
@@ -273,17 +269,17 @@ void fp_main(void) {
     /* detect if loading zone is stored */
     /* TODO: Yes this function looks awful. If a cleaner way to detect stored loading zones is found or decomped,
        please submit a PR or let an fp dev know */
-    uint32_t* event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
+    uint32_t *event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
     uint32_t event_space = *event_spc_ptr;
     uint32_t event_count = pm_curr_script_lst.script_list_count;
 
     for (int event_priority = 0; event_priority < event_count; event_priority++) {
-        uint32_t* event_id_ptr = (event_spc_ptr + 2 + event_priority);
+        uint32_t *event_id_ptr = (event_spc_ptr + 2 + event_priority);
         uint32_t event_id = *event_id_ptr;
-        uint32_t* event_ptr_ptr = (uint32_t*)(event_space + (4 * event_id));
-        uint32_t* event_ptr = (uint32_t*)*event_ptr_ptr;
+        uint32_t *event_ptr_ptr = (uint32_t*)(event_space + (4 * event_id));
+        uint32_t *event_ptr = (uint32_t*)*event_ptr_ptr;
         if (event_ptr) {
-            uint32_t* callback_ptr = (uint32_t*)*(event_ptr + 2);
+            uint32_t *callback_ptr = (uint32_t*)*(event_ptr + 2);
             if (callback_ptr) {
                 uint32_t callback_function = *(callback_ptr + 0x5);
                 if (callback_function == 0x802CA400) {
@@ -515,7 +511,6 @@ void init() {
     fp.timer.prev_cutscene_state = 0;
     fp.timer.mode = 0;
     fp.timer.state = 0;
-    fp.timer.prev_state = 0;
     fp.timer.cutscene_target = 1;
     fp.timer.cutscene_count = 0;
     fp.timer.moving = 0;

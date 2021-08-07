@@ -5,7 +5,7 @@
 #include "pm64.h"
 #include "settings.h"
 
-#define FP_VERSION      "1.0.0"
+#define FP_VERSION      "1.0.1-DEV"
 #define FP_URL          "github.com/jcog/fp"
 
 struct log_entry{  
@@ -23,7 +23,6 @@ struct timer {
     _Bool           prev_cutscene_state;
     uint8_t         mode; /* 0 = auto, 1 = manual; */
     uint8_t         state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
-    uint8_t         prev_state;
     uint8_t         cutscene_target;
     uint8_t         cutscene_count;
     _Bool           moving;
@@ -68,7 +67,7 @@ typedef struct{
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-_Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance);
+_Bool fp_warp(Group group, uint16_t room, uint16_t entrance);
 void fp_set_global_flag(int flag_index, _Bool value);
 void fp_set_area_flag(int flag_index, _Bool value);
 void fp_set_enemy_defeat_flag(int flag_index, _Bool value);

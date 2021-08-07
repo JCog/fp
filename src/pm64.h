@@ -2,53 +2,10 @@
 #define PM64_H
 #include <n64.h>
 #include <stdint.h>
+#include "enums.h"
 
 #define PM64_SCREEN_WIDTH    320
 #define PM64_SCREEN_HEIGHT   240
-
-enum action_states {
-    ACTION_STATE_IDLE,
-    ACTION_STATE_WALK,
-    ACTION_STATE_RUN,
-    ACTION_STATE_JUMP,
-    ACTION_STATE_BOUNCE,            /* Used with Kooper */
-    ACTION_STATE_HOP,               /* Released A before apex of jump */
-    ACTION_STATE_LAUNCH,            /* Shy Guy Toybox jack-in-the-boxes */
-    ACTION_STATE_LAND_ON_SWITCH,    /* Small red/blue ! switches */
-    ACTION_STATE_FALLING,
-    ACTION_STATE_STEP_DOWN,
-    ACTION_STATE_LAND,
-    ACTION_STATE_STEP_DOWN_LAND,
-
-    // Following action states prohibit movement
-    ACTION_STATE_TALK,                /* Reading signs doesn't count */
-    ACTION_STATE_SPIN_JUMP,
-    ACTION_STATE_GROUND_POUND,
-    ACTION_STATE_ULTRA_JUMP,
-    ACTION_STATE_ULTRA_POUND,
-    ACTION_STATE_SLIDE,
-    ACTION_STATE_HAMMER,
-    ACTION_STATE_13,
-    ACTION_STATE_14,
-    ACTION_STATE_HIT_FIRE,            /* Causes Mario to fly up and take damage. Used for fire bars. */
-    ACTION_STATE_UNKNOWN_16,          /* some kind of knockback, does no damage */
-    ACTION_STATE_HIT_LAVA,
-    ACTION_STATE_18,
-    ACTION_STATE_SNEAKY_PARASOL,
-    ACTION_STATE_SPIN,
-    ACTION_STATE_ENEMY_FIRST_STRIKE,
-    ACTION_STATE_GET_STAR_SPIRIT,
-    ACTION_STATE_USE_SPINNING_FLOWER,
-    ACTION_STATE_USE_MUNCHLESIA,      /* Set by the jan_09 squishy flower entity; throws the player in the air. */
-    ACTION_STATE_USE_TWEESTER,
-    ACTION_STATE_BOUNCE_OFF_SWITCH,   /* Small red/blue ! switches */
-    ACTION_STATE_RIDE,
-    ACTION_STATE_STEP_UP,
-    ACTION_STATE_23,
-    ACTION_STATE_24,
-    ACTION_STATE_25,
-    ACTION_STATE_USE_SPRING,
-};
 
 typedef struct{
     /* 0x0000 */ float x;
@@ -457,13 +414,13 @@ typedef struct{
 
 typedef struct {
     /* 0x00 */ int32_t flags;
-    /* 0x04 */ int32_t* read_pos;
-    /* 0x08 */ int32_t* start_read_pos;
-    /* 0x0C */ int32_t* ptr_property_list;
-    /* 0x10 */ int32_t* image_addr;
-    /* 0x14 */ int32_t* palette_addr;
+    /* 0x04 */ int32_t *read_pos;
+    /* 0x08 */ int32_t *start_read_pos;
+    /* 0x0C */ int32_t *ptr_property_list;
+    /* 0x10 */ int32_t *image_addr;
+    /* 0x14 */ int32_t *palette_addr;
     /* 0x18 */ int32_t mem_offset;
-    /* 0x1C */ int32_t* hud_transform;
+    /* 0x1C */ int32_t *hud_transform;
     /* 0x20 */ float unk_20;
     /* 0x24 */ float unk_24;
     /* 0x28 */ float unk_img_scale[2];
@@ -556,7 +513,7 @@ typedef struct {
 typedef struct {
     /* 0x000 */ int32_t flags;
     /* 0x004 */ char unk_04[4];
-    /* 0x008 */ actor_desc_t* static_actor_data;
+    /* 0x008 */ actor_desc_t *static_actor_data;
     /* 0x00C */ actor_movement_walk_t walk;
     /* 0x070 */ int16_t move_time;
     /* 0x072 */ int16_t move_arc_amplitude;
@@ -634,7 +591,7 @@ typedef struct {
     /* 0x207 */ uint8_t extra_coin_bonus;
     /* 0x208 */ int8_t unk_208;
     /* 0x209 */ char unk_209[3];
-    /* 0x20C */ uint32_t* status_table;
+    /* 0x20C */ uint32_t *status_table;
     /* 0x210 */ int8_t debuff;
     /* 0x211 */ int8_t debuff_duration;
     /* 0x212 */ int8_t static_status; /* 0B = yes */
@@ -729,7 +686,7 @@ typedef struct {
     /* 0x09D */ int8_t water_block_turns_left;
     /* 0x09E */ uint8_t water_block_amount; /* unused? */
     /* 0x09F */ char unk_9F;
-    /* 0x0A0 */ int32_t* unk_A0;
+    /* 0x0A0 */ int32_t *unk_A0;
     /* 0x0A4 */ int8_t cloud_nine_turns_left;
     /* 0x0A5 */ uint8_t cloud_nine_dodge_chance; /* = 50% */
     /* 0x0A6 */ char unk_A6[2];
@@ -828,12 +785,8 @@ typedef struct {
 } EffectInstance; //sizeof 0x20
 
 typedef struct {
-    EffectInstance* effects[96];
+    EffectInstance *effects[96];
 }effects_ctxt_t;
-
-typedef struct{
-    uint32_t instructions[32];
-}ace_ctxt_t;
 
 typedef struct{
     uint16_t last_timer;
@@ -869,11 +822,6 @@ typedef struct {
 }script_list_ctxt_t;
 
 /* Addresses */
-#define pm_FioValidateFileChecksum_addr     0x8002B0B8
-#define pm_FioReadFlash_addr                0x8002B828
-#define pm_FioWriteFlash_addr               0x8002B908
-#define pm_LoadGame_addr                    0x8002B290
-#define pm_remove_effect_addr               0x8005A100
 #define pm_status_addr                      0x80074004
 #define pm_unk4_addr                        0x800743F0
 #define pm_unk5_addr                        0x80093B64
@@ -885,18 +833,12 @@ typedef struct {
 #define pm_effects_addr                     0x800B4378
 #define pm_save_data_addr                   0x800DACA0
 #define pm_battle_status_addr               0x800DC050
-#define pm_add_badge_addr                   0x800E76DC
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
 #define pm_player_addr                      0x8010F188
-#define pm_GameUpdate_addr                  0x801181D4 //80112FC4 on US
-#define pm_PlayAmbientSounds_addr           0x8014C418
-#define pm_PlaySfx_addr                     0x8014ED64
 #define pm_warp_addr                        0x80156740
 #define pm_unk7_addr                        0x8029FF14
 #define pm_current_script_list_addr         0x802DA890
-#define pm_SaveGame_addr                    0x802DC150
-#define pm_ace_addr                         0x807BFFFC
 #define pm_ace_store_addr                   0x807D0000
 
 /* Data */
@@ -917,13 +859,24 @@ typedef struct {
 #define pm_warp               (*(warp_ctxt_t*)           pm_warp_addr)
 #define pm_unk7               (*(unk7_ctxt_t*)           pm_unk7_addr)
 #define pm_curr_script_lst    (*(script_list_ctxt_t*)    pm_current_script_list_addr)
-#define pm_ace                (*(ace_ctxt_t*)            pm_ace_addr)
 #define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
 
-/*Function Prototypes*/
-typedef void (*pm_add_badge_t) (int16_t badgeID);
-typedef void (*pm_remove_effect_t) (EffectInstance* effect);
+/* Function Addresses */
+#define pm_FioValidateFileChecksum_addr     0x8002B0B8
+#define pm_LoadGame_addr                    0x8002B290
+#define pm_FioReadFlash_addr                0x8002B828
+#define pm_FioWriteFlash_addr               0x8002B908
+#define pm_RemoveEffect_addr                0x8005A100
+#define pm_AddBadge_addr                    0x800E76DC
+#define pm_GameUpdate_addr                  0x801181D4 //80112FC4 on US
+#define pm_PlayAmbientSounds_addr           0x8014C418
+#define pm_PlaySfx_addr                     0x8014ED64
+#define pm_SaveGame_addr                    0x802DC150
+
+/* Function Prototypes */
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
+typedef void (*pm_AddBadge_t) (Badge badgeID);
+typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
 typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_LoadGame_t) (uint8_t slot);
@@ -932,19 +885,19 @@ typedef void (*pm_PlaySfx_t) (int32_t sound_id);
 typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
 
-/*Functions*/
-#define pm_add_badge                ((pm_add_badge_t)                pm_add_badge_addr)
+/* Functions */
 #define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
-#define pm_remove_effect            ((pm_remove_effect_t)            pm_remove_effect_addr)
+#define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
-#define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)
+#define pm_RemoveEffect             ((pm_RemoveEffect_t)             pm_RemoveEffect_addr)
+#define pm_AddBadge                 ((pm_AddBadge_t)                 pm_AddBadge_addr)
 #define pm_GameUpdate               ((pm_GameUpdate_t)               pm_GameUpdate_addr)
-#define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
 #define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
+#define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
 #define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
 
-/*Convenience Values*/
+/* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
 
 #endif

@@ -2,10 +2,7 @@
 #include "menu.h"
 #include "trainer.h"
 #include "settings.h"
-#include "gfx.h"
 #include "fp.h"
-
-//extern void setACEHook1(void);
 
 char messageForASM[] = "Success";
 
@@ -13,7 +10,7 @@ extern void setACEHook(void);
 
 int getMatrixTotal(void) {
     int matrixCount = 0;
-    effects_ctxt_t* effectTable = (effects_ctxt_t*) pm_effects_addr;
+    effects_ctxt_t *effectTable = (effects_ctxt_t*) pm_effects_addr;
 
     for (int i = 0; i < 0x60; i++) {
         if (effectTable->effects[i] != NULL) {
@@ -25,7 +22,7 @@ int getMatrixTotal(void) {
 
 void clearAllEffectsManual(int matrixCount) {
     int var = 0;
-    effects_ctxt_t* effectTable = (effects_ctxt_t*) pm_effects_addr;
+    effects_ctxt_t *effectTable = (effects_ctxt_t*) pm_effects_addr;
     if (matrixCount == 0x214) {
         var = 1;
         fp_log ("Successful ACE, jump prevented");
@@ -39,14 +36,14 @@ void clearAllEffectsManual(int matrixCount) {
     if (var == 1) {
         for (int i = 0; i < 0x60; i++) {
             if (effectTable->effects[i] != NULL) {
-                pm_remove_effect(effectTable->effects[i]);
+                pm_RemoveEffect(effectTable->effects[i]);
             }
         }
     }
 }
 
 asm(".set noreorder;"
-    "tempFunctionTesting:;"
+    "ace_remove_matrices:;"
         "JAL getMatrixTotal;"
         "NOP;"
         "JAL clearAllEffectsManual;"
@@ -55,15 +52,15 @@ asm(".set noreorder;"
         "ADDIU $s1, $s1, 0x4378;"
         "J 0x80059A7C;"
         "NOP;"
-    "jumpInstructionTempFunctionTesting:;"
-        "J tempFunctionTesting;"
+    "jump_instruction_ace_remove_matrices:;"
+        "J ace_remove_matrices;"
         "NOP;"
 );
 
 asm(".set noreorder;"
     "setACEHook:;"
     "LA $t0, 0x80059A74;" //where to hook
-    "LA $t1, jumpInstructionTempFunctionTesting;"
+    "LA $t1, jump_instruction_ace_remove_matrices;"
     "LW $t1, 0x0000 ($t1);"
     "SW $zero, 0x0004 ($t0);"
     "JR $ra;"
