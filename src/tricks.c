@@ -142,6 +142,24 @@ void load_pie_jumps() {
     fp_warp(GROUP_KOOPA_BROS_FORTRESS, 3, 3);
 }
 
+void load_laki_jail_break() {
+    pm_player.player_data.party.goombario.in_party = 1;
+    pm_player.player_data.party.kooper.in_party = 1;
+    pm_player.player_data.party.bombette.in_party = 1;
+    pm_player.player_data.party.parakarry.in_party = 1;
+    pm_player.player_data.party.bow.in_party = 1;
+    pm_player.player_data.party.watt.in_party = 1;
+    pm_player.player_data.party.sushie.in_party = 1;
+    pm_player.player_data.party.lakilester.in_party = 1;
+    set_partner(PARTNER_LAKILESTER);
+    if (STORY_PROGRESS < -88) {
+        STORY_PROGRESS = 0xa8;
+    }
+    fp_set_global_flag(0x286, 0); //key not collected
+    fp_set_global_flag(0x28f, 0); //bombable wall intact
+    fp_warp(GROUP_KOOPA_BROS_FORTRESS, 3, 0);
+}
+
 void load_log_skip() {
     check_for_hammer();
     STORY_PROGRESS = 0xae;
@@ -533,6 +551,7 @@ void load_trick(int8_t trick) {
         case STAIRCASE_SKIP:            load_staircase_skip();              break;
         case PIT:                       load_pit();                         break;
         case PIE_JUMPS:                 load_pie_jumps();                   break;
+        case LAKI_JAIL_BREAK:           load_laki_jail_break();             break;
         case LOG_SKIP:                  load_log_skip();                    break;
 
         case ROCK_CLIMB:                load_rock_climb();                  break;
@@ -640,6 +659,11 @@ static void pit_proc(struct menu_item *item, void *data) {
 static void pie_jumps_proc(struct menu_item *item, void *data) {
     fp.saved_trick = PIE_JUMPS;
     load_pie_jumps();
+}
+
+static void laki_jail_break_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = LAKI_JAIL_BREAK;
+    load_laki_jail_break();
 }
 
 static void log_skip_proc(struct menu_item *item, void *data) {
@@ -945,6 +969,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "staircase skip", staircase_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "the pit", pit_proc, NULL);
     menu_add_button(page, 0, y_tab++, "pie jumps", pie_jumps_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "laki jail break", laki_jail_break_proc, NULL);
     menu_add_button(page, 0, y_tab++, "log skip", log_skip_proc, NULL);
 
     /* chapter 2 */

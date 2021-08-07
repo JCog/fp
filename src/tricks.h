@@ -11,6 +11,7 @@ enum tricks {
     STAIRCASE_SKIP,
     PIT,
     PIE_JUMPS,
+    LAKI_JAIL_BREAK,
     LOG_SKIP,
     ROCK_CLIMB,
     EARLY_SEED,
