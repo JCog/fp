@@ -388,6 +388,7 @@ void load_lava_piranha_skip() {
 
 void load_ch5_card_lzs() {
     STORY_PROGRESS = 0x23;
+    fp_set_global_flag(0x51e, 1); //piranha plant cutscene
     fp_warp(0x12, 0xd, 1);
 }
 
