@@ -40,7 +40,7 @@ static int draw_proc(struct menu_item *item,
   {
     texture,
     data->anim_state == 0 ? 0 : 1,
-    draw_params->x -
+    draw_params->x +
     (cw - texture->tile_width) / 2,
     draw_params->y -
     (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,

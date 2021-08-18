@@ -22,7 +22,8 @@ static int watch_type_size[] =
   4,
 };
 
-static int getValueAsString(struct menu_item *item)
+static int draw_proc(struct menu_item *item,
+                     struct menu_draw_params *draw_params)
 {
   struct item_data *data = item->data;
   uint32_t address = data->address;
@@ -67,19 +68,6 @@ static int getValueAsString(struct menu_item *item)
   default:
     break;
   }
-
-  return 0;
-}
-
-static int draw_proc(struct menu_item *item,
-                     struct menu_draw_params *draw_params)
-{
-  getValueAsString(item); 
-  gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color,
-                                               draw_params->alpha));
-  gfx_printf(draw_params->font, draw_params->x, draw_params->y,
-               "%s", draw_params->text);
-  
   return 0;
 }
 
@@ -89,8 +77,8 @@ struct menu_item *menu_add_watch(struct menu *menu, int x, int y,
   struct item_data *data = malloc(sizeof(*data));
   data->address = address;
   data->type = type;
-  struct menu_item *item = menu_item_add(menu, x, y, "Hello World!", 0xC0C0C0);
-  item->text = malloc(20);
+  struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xC0C0C0);
+  item->text = malloc(17);
   item->selectable = 0;
   item->data = data;
   item->draw_proc = draw_proc;
