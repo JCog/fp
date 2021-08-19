@@ -182,62 +182,62 @@ void fp_main(void) {
     }
     
     /*draw watches*/
-	int watch_type_size[] =
-	{
-	  1, 1, 1,
-	  2, 2, 2,
-	  4, 4, 4,
-	  4,
-	};
+    int watch_type_size[] =
+    {
+      1, 1, 1,
+      2, 2, 2,
+      4, 4, 4,
+      4,
+    };
     for(unsigned int entry = 0; entry < SETTINGS_WATCHES_MAX; entry++)
     {
-	    char watch_text[17] = "HELLO!\0";
-	    if (settings->bits.watches_enabled && settings->watch_info[entry].anchored) {
-		gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
-	  uint32_t address = settings->watch_address[entry];
-	  if (address < 0x80000000 || address >= 0x80800000 ||
-	      settings->watch_info[entry].type < 0 || settings->watch_info[entry].type >= WATCH_TYPE_MAX)
-	    continue;
-	  address -= address % watch_type_size[settings->watch_info[entry].type];
-  switch (settings->watch_info[entry].type) {
-  case WATCH_TYPE_U8:
-    snprintf(watch_text, 17, "%"   PRIu8,  *(uint8_t*) address); break;
-  case WATCH_TYPE_S8:
-    snprintf(watch_text, 17, "%"   PRIi8,  *(int8_t*)  address); break;
-  case WATCH_TYPE_X8:
-    snprintf(watch_text, 17, "0x%" PRIx8,  *(uint8_t*) address); break;
-  case WATCH_TYPE_U16:
-    snprintf(watch_text, 17, "%"   PRIu16, *(uint16_t*)address); break;
-  case WATCH_TYPE_S16:
-    snprintf(watch_text, 17, "%"   PRIi16, *(int16_t*) address); break;
-  case WATCH_TYPE_X16:
-    snprintf(watch_text, 17, "0x%" PRIx16, *(uint16_t*)address); break;
-  case WATCH_TYPE_U32:
-    snprintf(watch_text, 17, "%"   PRIu32, *(uint32_t*)address); break;
-  case WATCH_TYPE_S32:
-    snprintf(watch_text, 17, "%"   PRIi32, *(int32_t*) address); break;
-  case WATCH_TYPE_X32:
-    snprintf(watch_text, 17, "0x%" PRIx32, *(uint32_t*)address); break;
-  case WATCH_TYPE_F32: {
-    float v = *(float*)address;
-    if (is_nan(v))
-      strcpy(watch_text, "nan");
-    else if (v == INFINITY)
-      strcpy(watch_text, "inf");
-    else if (v == -INFINITY)
-      strcpy(watch_text, "-inf");
-    else {
-      if (!isnormal(v))
-        v = 0.f;
-      snprintf(watch_text, 17, "%g", v);
-    }
-    break;
-  }
-	  default:
-	    break;
-	  }
-		gfx_printf(font, settings->watch_x[entry], settings->watch_y[entry], "%s", watch_text);
-	    }
+        char watch_text[17] = "\0";
+        if (settings->bits.watches_enabled && settings->watch_info[entry].anchored) {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, alpha));
+      uint32_t address = settings->watch_address[entry];
+      if (address < 0x80000000 || address >= 0x80800000 ||
+          settings->watch_info[entry].type < 0 || settings->watch_info[entry].type >= WATCH_TYPE_MAX)
+        continue;
+      address -= address % watch_type_size[settings->watch_info[entry].type];
+      switch (settings->watch_info[entry].type) {
+      case WATCH_TYPE_U8:
+          snprintf(watch_text, 17, "%"   PRIu8,  *(uint8_t*) address); break;
+      case WATCH_TYPE_S8:
+          snprintf(watch_text, 17, "%"   PRIi8,  *(int8_t*)  address); break;
+      case WATCH_TYPE_X8:
+          snprintf(watch_text, 17, "0x%" PRIx8,  *(uint8_t*) address); break;
+      case WATCH_TYPE_U16:
+          snprintf(watch_text, 17, "%"   PRIu16, *(uint16_t*)address); break;
+      case WATCH_TYPE_S16:
+          snprintf(watch_text, 17, "%"   PRIi16, *(int16_t*) address); break;
+      case WATCH_TYPE_X16:
+          snprintf(watch_text, 17, "0x%" PRIx16, *(uint16_t*)address); break;
+      case WATCH_TYPE_U32:
+          snprintf(watch_text, 17, "%"   PRIu32, *(uint32_t*)address); break;
+      case WATCH_TYPE_S32:
+          snprintf(watch_text, 17, "%"   PRIi32, *(int32_t*) address); break;
+      case WATCH_TYPE_X32:
+          snprintf(watch_text, 17, "0x%" PRIx32, *(uint32_t*)address); break;
+      case WATCH_TYPE_F32: {
+          float v = *(float*)address;
+          if (is_nan(v))
+          strcpy(watch_text, "nan");
+          else if (v == INFINITY)
+          strcpy(watch_text, "inf");
+          else if (v == -INFINITY)
+          strcpy(watch_text, "-inf");
+          else {
+          if (!isnormal(v))
+              v = 0.f;
+          snprintf(watch_text, 17, "%g", v);
+          }
+          break;
+      }
+      default:
+        break;
+      }
+        gfx_printf(font, settings->watch_x[entry], settings->watch_y[entry], "%s", watch_text);
+        }
     }
 
     /* show version on startup */

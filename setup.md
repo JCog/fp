@@ -80,7 +80,8 @@ First clone this project to your location of choice. I personally keep it on the
 replace the 'e' with 'c' if you'd like to use your C drive:  
 ```git clone https://github.com/jcog/fp.git```  
 
-Then back in windows, create a folder in the fp project called "rom".  Place a totally legally obtained Mario Story (J) ROM in this folder and rename it to "base-j.z64".  
+Then back in windows, create a folder in the fp project called "rom".  Place a totally legally obtained Mario Story (J) ROM in this folder and rename it to "base-j.z64". 
+If you are unsure if the rom is a .z64 format follow [this guide](https://github.com/jcog/fp/blob/master/conversion.md).  
 Back in WSL, run the following:  
 ```cd /mnt/e/<path to fp>```  
 ```make clean all crc```  
