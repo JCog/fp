@@ -19,6 +19,9 @@
 #define SETTINGS_BREAK_NORMAL       0
 #define SETTINGS_BREAK_AGGRESSIVE   1
 
+#define SETTINGS_WATCH_SCREEN_X 0xc8
+#define SETTINGS_WATCH_SCREEN_Y 0x4c
+
 enum cheats {
     CHEAT_HP,
     CHEAT_FP,
