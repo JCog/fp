@@ -164,6 +164,7 @@ static void tab_next_proc(struct menu_item *item, void *data) {
 static void restore_settings_proc(struct menu_item *item, void *data) {
     settings_load_default();
     apply_menu_settings();
+    apply_watch_settings();
     fp_log("loaded defaults");
 }
 
@@ -175,6 +176,7 @@ static void save_settings_proc(struct menu_item *item, void *data) {
 static void load_settings_proc(struct menu_item *item, void *data) {
     if (settings_load(fp.profile)) {
         apply_menu_settings();
+        apply_watch_settings();
         fp_log("loaded profile %i", fp.profile);
     }
     else {

@@ -50,7 +50,7 @@ void settings_load_default(void){
     d->log_y = PM64_SCREEN_HEIGHT - 33;
     d->timer_x = 16;
     d->timer_y = 68;
-    d->n_watches = SETTINGS_WATCHES_MAX;
+    d->n_watches = 0;
     d->cheats = 0;
     d->binds[COMMAND_MENU] = input_bind_make(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
@@ -68,16 +68,6 @@ void settings_load_default(void){
     d->binds[COMMAND_START_TIMER] = input_bind_make(0);
     d->binds[COMMAND_RESET_TIMER] = input_bind_make(0);
     d->binds[COMMAND_SHOW_HIDE_TIMER] = input_bind_make(0);
-     
-    for(unsigned int idx = 0; idx < SETTINGS_WATCHES_MAX; idx++)
-    {
-        d->watch_info[idx].anchored = 0;
-        d->watch_info[idx].position_set = 1;
-        d->watch_info[idx].type = WATCH_TYPE_U8;
-        d->watch_address[idx] = 0x80000000;
-        d->watch_x[idx] = SETTINGS_WATCH_SCREEN_X;
-        d->watch_y[idx] = SETTINGS_WATCH_SCREEN_Y + (idx * 0x8);
-    }
 }
 
 void apply_menu_settings(){
