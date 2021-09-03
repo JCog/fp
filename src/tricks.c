@@ -178,7 +178,7 @@ void load_rock_climb() {
 
 void load_early_seed() {
     check_for_hammer();
-    set_partner(PARTNER_KOOPER);
+    
     remove_key_item(KEY_ITEM_MAGICAL_SEED_2);
     fp_warp(GROUP_MT_RUGGED, 2, 2);
 }
