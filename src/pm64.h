@@ -11,7 +11,7 @@
 #error no pm64 version specified
 #endif
 
-#define PM64E    0x00
+#define PM64U    0x00
 #define PM64J    0x01
 
 typedef struct{
@@ -829,7 +829,7 @@ typedef struct {
 }script_list_ctxt_t;
 
 /* Addresses */
-#if PM64_VERSION==PM64E
+#if PM64_VERSION==PM64U
 #define pm_status_addr                      0x80074024
 #define pm_unk4_addr                        0x80074410
 #define pm_unk5_addr                        0x80093B94
@@ -890,7 +890,7 @@ typedef struct {
 #define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
 
 /* Function Addresses */
-#if PM64_VERSION==PM64E
+#if PM64_VERSION==PM64U
 #define pm_FioValidateFileChecksum_addr     0x8002B0F8
 #define pm_LoadGame_addr                    0x8002B2D0
 #define pm_FioReadFlash_addr                0x8002B868

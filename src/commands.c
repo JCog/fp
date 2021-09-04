@@ -9,7 +9,7 @@
 #include "settings.h"
 #include "tricks.h"
 
-#if PM64_VERSION==PM64E
+#if PM64_VERSION==PM64U
     #define RM_CHNGE_PTR 0x8003617C
 #else
     #define RM_CHNGE_PTR 0x80035DFC

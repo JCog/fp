@@ -15,7 +15,7 @@ BINDIR      = bin
 RESDIR      = res
 CFILES      = *.c
 SFILES      = *.s
-FP_VERSIONS = PM64J PM64E
+FP_VERSIONS = PM64J PM64U
 NAME        = fp
 
 ADDRESS     = 0x80400040
@@ -24,11 +24,11 @@ CPPFLAGS    = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
 LDFLAGS     = -T gl-n64.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
 
 FP          = $(foreach v,$(FP_VERSIONS),patch-fp-$(v))
-FP-PM64E    = patch-fp-PM64E
+FP-PM64U    = patch-fp-PM64U
 FP-PM64J    = patch-fp-PM64J
 
 all         : $(FP)
-us          : $(FP-PM64E)
+us          : $(FP-PM64U)
 jp          : $(FP-PM64J)
 clean       :
 	rm -rf $(OBJDIR) $(BINDIR)

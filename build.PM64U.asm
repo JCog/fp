@@ -48,7 +48,7 @@ init:
 	nop
 
 .org FP_RAM
-.incbin "bin/PM64E/fp.bin"
+.incbin "bin/PM64U/fp.bin"
 .align 8
 END:
 .close
