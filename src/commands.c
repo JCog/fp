@@ -9,6 +9,12 @@
 #include "settings.h"
 #include "tricks.h"
 
+#if PM64_VERSION==PM64E
+    #define RM_CHNGE_PTR 0x8003617C
+#else
+    #define RM_CHNGE_PTR 0x80035DFC
+#endif
+
 struct command fp_commands[COMMAND_MAX] = {
     {"show/hide menu",   COMMAND_PRESS_ONCE,  0,   NULL},
     {"return from menu", COMMAND_PRESS_ONCE,  0,   NULL},
@@ -86,7 +92,7 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
 
     pm_unk2.room_change_state = 1;
 
-    uint32_t val = 0x80035DFC;
+    uint32_t val = RM_CHNGE_PTR;
     pm_warp.room_change_ptr = val;
 
     return 1;

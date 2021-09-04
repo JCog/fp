@@ -7,6 +7,13 @@
 #define PM64_SCREEN_WIDTH    320
 #define PM64_SCREEN_HEIGHT   240
 
+#ifndef PM64_VERSION
+#error no pm64 version specified
+#endif
+
+#define PM64E    0x00
+#define PM64J    0x01
+
 typedef struct{
     /* 0x0000 */ float x;
     /* 0x0004 */ float y;
@@ -822,6 +829,26 @@ typedef struct {
 }script_list_ctxt_t;
 
 /* Addresses */
+#if PM64_VERSION==PM64E
+#define pm_status_addr                      0x80074024
+#define pm_unk4_addr                        0x80074410
+#define pm_unk5_addr                        0x80093B94
+#define pm_unk1_addr                        0x8009A5C8
+#define pm_gfx_addr                         0x8009A66C
+#define pm_unk2_addr                        0x800A08C0
+#define pm_unk6_addr                        0x800AE388
+#define pm_enemy_flags_addr                 0x800B0FC0
+#define pm_effects_addr                     0x800B4398
+#define pm_save_data_addr                   0x800DACC0
+#define pm_battle_status_addr               0x800DC070
+#define pm_overworld_addr                   0x8010EBB0
+#define pm_hud_addr                         0x8010EF58
+#define pm_player_addr                      0x8010EFC8
+#define pm_warp_addr                        0x80151700
+#define pm_unk7_addr                        0x8029FC24
+#define pm_current_script_list_addr         0x802DA890
+#define pm_ace_store_addr                   0x807D0000
+#elif PM64_VERSION==PM64J
 #define pm_status_addr                      0x80074004
 #define pm_unk4_addr                        0x800743F0
 #define pm_unk5_addr                        0x80093B64
@@ -840,6 +867,7 @@ typedef struct {
 #define pm_unk7_addr                        0x8029FF14
 #define pm_current_script_list_addr         0x802DA890
 #define pm_ace_store_addr                   0x807D0000
+#endif
 
 /* Data */
 #define pm_status             (*(status_ctxt_t*)         pm_status_addr)
@@ -862,16 +890,29 @@ typedef struct {
 #define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
 
 /* Function Addresses */
+#if PM64_VERSION==PM64E
+#define pm_FioValidateFileChecksum_addr     0x8002B0F8
+#define pm_LoadGame_addr                    0x8002B2D0
+#define pm_FioReadFlash_addr                0x8002B868
+#define pm_FioWriteFlash_addr               0x8002B948
+#define pm_RemoveEffect_addr                0x8005A450
+#define pm_AddBadge_addr                    0x800E773C
+#define pm_GameUpdate_addr                  0x80112FC4
+#define pm_PlayAmbientSounds_addr           0x80147368
+#define pm_PlaySfx_addr                     0x80149CB4
+#define pm_SaveGame_addr                    0x802E11A0
+#elif PM64_VERSION==PM64J
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_LoadGame_addr                    0x8002B290
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
 #define pm_RemoveEffect_addr                0x8005A100
 #define pm_AddBadge_addr                    0x800E76DC
-#define pm_GameUpdate_addr                  0x801181D4 //80112FC4 on US
+#define pm_GameUpdate_addr                  0x801181D4
 #define pm_PlayAmbientSounds_addr           0x8014C418
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_SaveGame_addr                    0x802DC150
+#endif
 
 /* Function Prototypes */
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
