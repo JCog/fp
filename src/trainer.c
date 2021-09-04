@@ -231,13 +231,16 @@ void create_trainer_menu(struct menu *menu)
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    menu_add_submenu(menu, 0, 1, &bowserMenu, "bowser blocks");
-    menu_add_submenu(menu, 0, 2, &issMenu, "ice staircase skip");
-    menu_add_submenu(menu, 0, 3, &aceMenu, "oot ace");
-    menu_add_submenu(menu, 0, 4, &lzsMenu, "lzs jumps");
+    int y_value = 1;
+    menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
+    menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
+    #if PM64_VERSION==PM64J
+    menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); //TODO: add english support for ace
+    #endif
+    menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
 
     /*build bowser menu*/
-    int y_value = 0;
+    y_value = 0;
     bowserMenu.selector = menu_add_submenu(&bowserMenu, 0, y_value++, NULL, "return");
     menu_add_static(&bowserMenu, 0, y_value, "enabled", 0xC0C0C0);
     menu_add_checkbox(&bowserMenu, 8, y_value++, checkbox_mod_proc, &fp.bowser_blocks_enabled);
