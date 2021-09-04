@@ -1,3 +1,4 @@
-local rom = gru.n64rom_load('rom/fp.z64')
-rom:crc_update()
-rom:save_file('rom/fp.z64')
+local args = {...}
+local romu = gru.n64rom_load(args[1])
+romu:crc_update()
+romu:save_file(args[1])
