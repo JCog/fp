@@ -15,7 +15,7 @@ BINDIR      = bin
 RESDIR      = res
 CFILES      = *.c
 SFILES      = *.s
-FP_VERSIONS = PM64J
+FP_VERSIONS = PM64J PM64U
 NAME        = fp
 
 ADDRESS     = 0x80400040
@@ -24,13 +24,18 @@ CPPFLAGS    = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
 LDFLAGS     = -T gl-n64.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
 
 FP          = $(foreach v,$(FP_VERSIONS),patch-fp-$(v))
+FP-PM64U    = patch-fp-PM64U
+FP-PM64J    = patch-fp-PM64J
+
 all         : $(FP)
+us          : $(FP-PM64U)
+jp          : $(FP-PM64J)
 clean       :
 	rm -rf $(OBJDIR) $(BINDIR)
 crc         :
-	$(GRU) $(LUAFILE)
+	@find ./rom/ -name "fp-*.z64" -type f -printf "$(GRU) $(LUAFILE) %f\n" -exec $(GRU) $(LUAFILE) {} \;
 
-.PHONY: clean all crc
+.PHONY: clean all crc us jp
 
 define bin_template
 SRCDIR-$(1)      = src
@@ -39,7 +44,7 @@ OBJDIR-$(1)      = obj/$(2)
 BINDIR-$(1)      = bin/$(2)
 NAME-$(1)        = $(1)
 BUILDFILE-$(1)   = build.$(2).asm
-CPPFLAGS-$(1)    = -DPM_VERSION=$(2) $(CPPFLAGS)
+CPPFLAGS-$(1)    = -DPM64_VERSION=$(2) $(CPPFLAGS)
 CSRC-$(1)       := $$(foreach s,$$(CFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
 COBJ-$(1)        = $$(patsubst $$(SRCDIR-$(1))/%,$$(OBJDIR-$(1))/%.o,$$(CSRC-$(1)))
 SSRC-$(1)       := $$(foreach s,$$(SFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
