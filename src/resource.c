@@ -143,6 +143,11 @@ static void *rc_icon_save(void)
   return resource_load_grc_texture("save_icons");
 }
 
+static void *rc_icon_osk(void)
+{
+    return resource_load_grc_texture("osk_icons");
+}
+
 static void *rc_texture_crosshair(void)
 {
   return resource_load_grc_texture("crosshair");
@@ -176,6 +181,7 @@ static void *(*res_ctor[RES_MAX])(void) =
   rc_icon_arrow,
   rc_icon_file,
   rc_icon_save,
+  rc_icon_osk,
   rc_texture_crosshair,
 };
 

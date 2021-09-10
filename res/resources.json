@@ -89,6 +89,12 @@
     "format":       "ia16",
     "tile_height":  8
   },
+  "wrench.png": {
+    "type": "texture",
+    "name": "wrench",
+    "format": "ia16",
+    "tile_height": 8
+  },
   "check_icons.png":
   {
     "type":         "texture",
@@ -151,6 +157,13 @@
     "name":         "save_icons",
     "format":       "rgba16",
     "tile_height":  15
+  },
+  "osk_icons.png":
+  {
+    "type":         "texture",
+    "name":         "osk_icons",
+    "format":       "i4",
+    "tile_height":  8
   },
   "crosshair.png":
   {

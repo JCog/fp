@@ -4,7 +4,7 @@
 #include "input.h"
 #include "fp.h"
 #include "resource.h"
-#include "settings.h"
+#include "watchlist.h"
 
 static _Alignas(128)
 struct settings       settings_store;
@@ -39,6 +39,7 @@ void settings_load_default(void){
     d->bits.timer_show = 0;
     d->bits.battle_debug = 0;
     d->bits.quizmo_debug = 0;
+    d->bits.watches_visible = 1;
     d->menu_x = 16;
     d->menu_y = 60;
     d->input_display_x = 16;
@@ -51,22 +52,22 @@ void settings_load_default(void){
     d->timer_y = 68;
     d->n_watches = 0;
     d->cheats = 0;
-    d->binds[COMMAND_MENU] = input_bind_make(2, BUTTON_R, BUTTON_D_UP);
-    d->binds[COMMAND_RETURN] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_LEVITATE] = input_bind_make(1, BUTTON_D_UP);
-    d->binds[COMMAND_TURBO] = input_bind_make(1, BUTTON_D_DOWN);
-    d->binds[COMMAND_SAVEPOS] = input_bind_make(1, BUTTON_D_LEFT);
-    d->binds[COMMAND_LOADPOS] = input_bind_make(1, BUTTON_D_RIGHT);
-    d->binds[COMMAND_LZS] = input_bind_make(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_RELOAD] = input_bind_make(2, BUTTON_R, BUTTON_D_DOWN);
-    d->binds[COMMAND_RELOAD_LAST_WARP] = input_bind_make(0);
-    d->binds[COMMAND_COORDS] = input_bind_make(2, BUTTON_R, BUTTON_D_RIGHT);
-    d->binds[COMMAND_TRICK] = input_bind_make(2, BUTTON_R, BUTTON_Z);
-    d->binds[COMMAND_SAVE_GAME] = input_bind_make(2, BUTTON_L, BUTTON_D_LEFT);
-    d->binds[COMMAND_LOAD_GAME] = input_bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
-    d->binds[COMMAND_START_TIMER] = input_bind_make(0);
-    d->binds[COMMAND_RESET_TIMER] = input_bind_make(0);
-    d->binds[COMMAND_SHOW_HIDE_TIMER] = input_bind_make(0);
+    d->binds[COMMAND_MENU] = bind_make(2, BUTTON_R, BUTTON_D_UP);
+    d->binds[COMMAND_RETURN] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
+    d->binds[COMMAND_LEVITATE] = bind_make(1, BUTTON_D_UP);
+    d->binds[COMMAND_TURBO] = bind_make(1, BUTTON_D_DOWN);
+    d->binds[COMMAND_SAVEPOS] = bind_make(1, BUTTON_D_LEFT);
+    d->binds[COMMAND_LOADPOS] = bind_make(1, BUTTON_D_RIGHT);
+    d->binds[COMMAND_LZS] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
+    d->binds[COMMAND_RELOAD] = bind_make(2, BUTTON_R, BUTTON_D_DOWN);
+    d->binds[COMMAND_RELOAD_LAST_WARP] = bind_make(0);
+    d->binds[COMMAND_COORDS] = bind_make(2, BUTTON_R, BUTTON_D_RIGHT);
+    d->binds[COMMAND_TRICK] = bind_make(2, BUTTON_R, BUTTON_Z);
+    d->binds[COMMAND_SAVE_GAME] = bind_make(2, BUTTON_L, BUTTON_D_LEFT);
+    d->binds[COMMAND_LOAD_GAME] = bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
+    d->binds[COMMAND_START_TIMER] = bind_make(0);
+    d->binds[COMMAND_RESET_TIMER] = bind_make(0);
+    d->binds[COMMAND_SHOW_HIDE_TIMER] = bind_make(0);
 }
 
 void apply_menu_settings(){
@@ -79,7 +80,7 @@ void apply_menu_settings(){
     menu_set_pxoffset(fp.main_menu, settings->menu_x);
     menu_set_pyoffset(fp.main_menu, settings->menu_y);
     menu_imitate(fp.global, fp.main_menu);
-    /*watchlist_fetch(gz.menu_watchlist);*/
+    watchlist_fetch(fp.menu_watchlist);
     pm_status.battle_debug = settings->bits.battle_debug;
     pm_status.quizmo_debug = settings->bits.quizmo_debug;
 }

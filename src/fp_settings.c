@@ -4,6 +4,7 @@
 #include "commands.h"
 #include "resource.h"
 #include "fp.h"
+#include "watchlist.h"
 
 static uint16_t font_options[] = {
     RES_FONT_FIPPS,
@@ -168,6 +169,7 @@ static void restore_settings_proc(struct menu_item *item, void *data) {
 }
 
 static void save_settings_proc(struct menu_item *item, void *data) {
+    watchlist_store(fp.menu_watchlist);
     settings_save(fp.profile);
     fp_log("saved profile %i", fp.profile);
 }

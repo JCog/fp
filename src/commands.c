@@ -38,14 +38,12 @@ void show_menu() {
     menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
     fp.menu_active = 1;
     input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
-    input_reservation_set(1);
 }
 
 void hide_menu() {
     menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
     fp.menu_active = 0;
     input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
-    input_reservation_set(0);
 }
 
 void fp_log(const char *fmt, ...) {

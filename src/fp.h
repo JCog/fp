@@ -32,6 +32,9 @@ typedef struct{
     _Bool                   ready;
     struct menu             *main_menu;
     struct menu             *global;
+    struct menu             *menu_mem;
+    struct menu             *menu_watches;
+    struct menu_item        *menu_watchlist;
     uint8_t                 profile;
     _Bool                   settings_loaded;
     _Bool                   version_shown;
@@ -77,7 +80,6 @@ struct menu *create_warps_menu();
 struct menu *create_cheats_menu();
 struct menu *create_player_menu();
 struct menu *create_file_menu();
-struct menu *create_watches_menu();
 struct menu *create_practice_menu();
 struct menu *create_debug_menu();
 struct menu *create_settings_menu();

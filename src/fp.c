@@ -13,6 +13,7 @@
 #include "commands.h"
 #include "resource.h"
 #include "settings.h"
+#include "watchlist.h"
 
 __attribute__((section(".data")))
 fp_ctxt_t fp = { 
@@ -540,14 +541,16 @@ void init() {
 
     /*init menus*/
     static struct menu main_menu;
-    static struct menu global;
     static struct menu watches;
-    fp.main_menu = &main_menu;
-    fp.global = &global;
+    static struct menu global;
 
     menu_init(&main_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&watches, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&global, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
+    fp.main_menu = &main_menu;
+    fp.global = &global;
+    fp.menu_watches = &watches;
 
     /*populate top level menus*/
     int menu_index = 0;
@@ -555,11 +558,15 @@ void init() {
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_warps_menu(), "warps");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_cheats_menu(), "cheats");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
-    //menu_add_submenu(fp.main_menu, 0, menu_index++, create_watches_menu(), "watches");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, &watches, "watches");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
+
+    /* populate watches menu */
+    watches.selector = menu_add_submenu(&watches, 0, 0, NULL, "return");
+    fp.menu_watchlist = watchlist_create(&watches, &global, 0, 1);
 
     /* configure menu related commands */
     input_bind_set_override(COMMAND_MENU, 1);
@@ -626,6 +633,7 @@ ENTRY void _start(void) {
 }
 
 #include <startup.c>
+#include <set/set.c>
 #include <vector/vector.c>
 #include <list/list.c>
 #include <grc.c>

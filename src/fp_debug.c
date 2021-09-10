@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "mem.h"
 #include "flags.h"
+#include "fp.h"
 
 struct menu *create_debug_menu(void)
 {
@@ -21,6 +22,7 @@ struct menu *create_debug_menu(void)
     /*build memory menu */
     flag_menu_create(&flags);
     mem_menu_create(&memory);
+    fp.menu_mem = &memory;
 
     return &menu;
 }
