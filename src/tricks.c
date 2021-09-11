@@ -420,6 +420,9 @@ void load_flarakarry() {
     equip_badge(BADGE_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_FELL_IN_PIT;
     set_partner(PARTNER_PARAKARRY);
+    for (int i = 0x524; i < 0x52b; i++) {
+        fp_set_global_flag(i, 0); //ultra blocks
+    }
     fp_warp(GROUP_VOLCANO, 0xb, 0);
 }
 

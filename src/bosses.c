@@ -22,6 +22,7 @@ static void bowser_hallway_proc(struct menu_item *item, void *data) {
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fc, 0); //bridge not broken
+    fp_set_global_flag(0x1fd, 0); //not sure, but prevents a crash
     fp_set_global_flag(0x1fe, 1); //skip camera zoom in
     fp_warp(GROUP_PEACHS_CASTLE, 0x13, 0x0);
 }
