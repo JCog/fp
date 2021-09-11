@@ -185,7 +185,7 @@ void load_early_seed() {
 
 void load_buzzar_skip() {
     equip_badge(BADGE_SPEEDY_SPIN);
-    pm_player.player_data.current_partner = 4;
+    set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_MT_RUGGED, 4, 0);
 }
 
@@ -207,6 +207,15 @@ void load_spike_shield_early() {
         }
     }
     fp_warp(GROUP_DRY_DRY_RUINS, 0x1, 0x0);
+}
+
+void load_artifact_jump() {
+    fp_set_global_flag(0x374, 0); //artifact
+    fp_set_global_flag(0x37f, 0); //block
+    remove_key_item(KEY_ITEM_ARTIFACT);
+    set_partner(PARTNER_LAKILESTER);
+    pm_player.player_data.party.lakilester.in_party = 1;
+    fp_warp(GROUP_DRY_DRY_RUINS, 0x6, 0x1);
 }
 
 void load_slow_go_early() {
@@ -619,6 +628,7 @@ void load_trick(int8_t trick) {
         case BUZZAR_SKIP:               load_buzzar_skip();                 break;
         case OUTPOST_JUMP:              load_outpost_jump();                break;
         case SPIKE_SHIELD_EARLY:        load_spike_shield_early();          break;
+        case ARTIFACT_JUMP:             load_artifact_jump();               break;
         case SLOW_GO_EARLY:             load_slow_go_early();               break;
         case SAND_CLIP:                 load_sand_clip();                   break;
         case CH2_CARD_LZS:              load_ch2_card_lzs();                break;
@@ -755,6 +765,11 @@ static void outpost_jump_proc(struct menu_item *item, void *data) {
 static void spike_shield_early_proc(struct menu_item *item, void *data) {
     fp.saved_trick = SPIKE_SHIELD_EARLY;
     load_spike_shield_early();
+}
+
+static void artifact_jump_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ARTIFACT_JUMP;
+    load_artifact_jump();
 }
 
 static void slow_go_early_proc(struct menu_item *item, void *data) {
@@ -1047,6 +1062,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_button(page, 0, y_tab++, "buzzar skip", buzzar_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "outpost jump", outpost_jump_proc, NULL);
     menu_add_button(page, 0, y_tab++, "spike shield early", spike_shield_early_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "artifact jump", artifact_jump_proc, NULL);
     menu_add_button(page, 0, y_tab++, "slow go early", slow_go_early_proc, NULL);
     menu_add_button(page, 0, y_tab++, "sand clip", sand_clip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ch2 card lzs", ch2_card_lzs_proc, NULL);

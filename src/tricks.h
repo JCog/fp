@@ -18,6 +18,7 @@ enum tricks {
     BUZZAR_SKIP,
     OUTPOST_JUMP,
     SPIKE_SHIELD_EARLY,
+    ARTIFACT_JUMP,
     SLOW_GO_EARLY,
     SAND_CLIP,
     CH2_CARD_LZS,
