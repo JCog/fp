@@ -65,8 +65,6 @@ struct settings_data{
     int16_t               menu_y;
     int16_t               input_display_x;
     int16_t               input_display_y;
-    int16_t               coord_display_x;
-    int16_t               coord_display_y;
     int16_t               log_x;
     int16_t               log_y;
     int16_t               timer_x;

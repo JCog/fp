@@ -106,16 +106,6 @@ static int timer_position_proc(struct menu_item *item, enum menu_callback_reason
     return generic_position_proc(item, reason, &settings->timer_x);
 }
 
-static int coord_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    if (reason == MENU_CALLBACK_ACTIVATE) {
-        fp.coord_moving = 1;
-    }
-    else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        fp.coord_moving = 0;
-    }
-    return generic_position_proc(item, reason, &settings->coord_display_x);
-}
-
 static int input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.input_display = 1;
@@ -213,8 +203,6 @@ struct menu *create_settings_menu(void) {
     menu_add_positioning(&menu, MENU_X, y++, menu_position_proc, NULL);
     menu_add_static(&menu, 0, y, "timer position", 0xC0C0C0);
     menu_add_positioning(&menu, MENU_X, y++, timer_position_proc, NULL);
-    menu_add_static(&menu, 0, y, "coords position", 0xC0C0C0);
-    menu_add_positioning(&menu, MENU_X, y++, coord_position_proc, NULL);
     menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);

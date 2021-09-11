@@ -42,8 +42,6 @@ typedef struct{
     int32_t                 cpu_counter_freq;
     struct timer            timer;
     _Bool                   menu_active;
-    _Bool                   coord_active;
-    _Bool                   coord_moving;
     struct log_entry        log[SETTINGS_LOG_MAX];
     float                   saved_x;
     float                   saved_y;

@@ -107,14 +107,6 @@ void fp_main(void) {
       }
     }
 
-    /* draw coordinates */
-    if (fp.coord_active || fp.coord_moving) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-        gfx_printf(font, settings->coord_display_x, settings->coord_display_y, "x: %.4f", pm_player.position.x);
-        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch, "z: %.4f", pm_player.position.z);
-        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "y: %.4f", pm_player.position.y);
-    }
-
     /* draw and update timer */
     int64_t timer_count = 0;
     int32_t lag_frames = 0;
@@ -190,23 +182,6 @@ void fp_main(void) {
         gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 0, "fp");
         gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_VERSION);
         gfx_printf(font, PM64_SCREEN_WIDTH - cw * 21, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_URL);
-    }
-
-    /* handle ace practice (should probably make toggleable at some point) */
-    if (pm_status.group_id == 0 && pm_status.room_id == 9) {
-        pm_player.peach_disguise = 0x81e;
-    }
-    int last_timer = pm_ace_store.last_timer;
-    if (last_timer != 0) {
-        if (last_timer <= 0x81f && last_timer > 0x81f - fp.ace_frame_window) {
-            //will work
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-        }
-        else {
-            //won't work
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-        }
-        gfx_printf(font, settings->coord_display_x, settings->coord_display_y + ch * 2, "0x%x", last_timer);
     }
 
     /* handle bowser block trainer */
@@ -516,8 +491,6 @@ void init() {
     fp.timer.cutscene_count = 0;
     fp.timer.moving = 0;
     fp.menu_active = 0;
-    fp.coord_active = 0;
-    fp.coord_moving = 0;
     for (int i = 0; i < SETTINGS_LOG_MAX; i++) {
         fp.log[i].msg = NULL;
     }

@@ -8,6 +8,7 @@
 #include "fp.h"
 #include "settings.h"
 #include "tricks.h"
+#include "watchlist.h"
 
 #if PM64_VERSION==PM64U
     #define RM_CHNGE_PTR 0x8003617C
@@ -16,22 +17,22 @@
 #endif
 
 struct command fp_commands[COMMAND_MAX] = {
-    {"show/hide menu",   COMMAND_PRESS_ONCE,  0,   NULL},
-    {"return from menu", COMMAND_PRESS_ONCE,  0,   NULL},
-    {"levitate",         COMMAND_HOLD,        0,   command_levitate_proc},
-    {"turbo",            COMMAND_PRESS_ONCE,  0,   command_turbo_proc},
-    {"save position",    COMMAND_PRESS_ONCE,  0,   command_save_pos_proc},
-    {"load position",    COMMAND_PRESS_ONCE,  0,   command_load_pos_proc},
-    {"lzs",              COMMAND_PRESS_ONCE,  0,   command_lzs_proc},
-    {"reload room",      COMMAND_PRESS_ONCE,  0,   command_reload_proc},
-    {"reload last warp", COMMAND_PRESS_ONCE,  0,   command_reload_last_warp_proc},
-    {"show coordinates", COMMAND_PRESS_ONCE,  0,   command_coords_proc},
-    {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
-    {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
-    {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc},
-    {"start/stop timer", COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
-    {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc},
-    {"show/hide timer",  COMMAND_PRESS_ONCE,  0,   command_show_hide_timer_proc}
+    {"show/hide menu",   COMMAND_PRESS_ONCE,  0, NULL},
+    {"return from menu", COMMAND_PRESS_ONCE,  0, NULL},
+    {"levitate",         COMMAND_HOLD,        0, command_levitate_proc},
+    {"turbo",            COMMAND_PRESS_ONCE,  0, command_turbo_proc},
+    {"save position",    COMMAND_PRESS_ONCE,  0, command_save_pos_proc},
+    {"load position",    COMMAND_PRESS_ONCE,  0, command_load_pos_proc},
+    {"lzs",              COMMAND_PRESS_ONCE,  0, command_lzs_proc},
+    {"reload room",      COMMAND_PRESS_ONCE,  0, command_reload_proc},
+    {"reload last warp", COMMAND_PRESS_ONCE,  0, command_reload_last_warp_proc},
+    {"toggle watches",   COMMAND_PRESS_ONCE,  0, command_toggle_watches_proc},
+    {"load trick",       COMMAND_PRESS_ONCE,  0, command_trick_proc},
+    {"save game",        COMMAND_PRESS_ONCE,  0, command_save_game_proc},
+    {"load game",        COMMAND_PRESS_ONCE,  0, command_load_game_proc},
+    {"start/stop timer", COMMAND_PRESS_ONCE,  0, command_start_timer_proc},
+    {"reset timer",      COMMAND_PRESS_ONCE,  0, command_reset_timer_proc},
+    {"show/hide timer",  COMMAND_PRESS_ONCE,  0, command_show_hide_timer_proc}
 };
 
 void show_menu() {
@@ -182,8 +183,14 @@ void command_reload_last_warp_proc() {
     }
 }
 
-void command_coords_proc() {
-    fp.coord_active = !fp.coord_active;
+void command_toggle_watches_proc() {
+    settings->bits.watches_visible = !settings->bits.watches_visible;
+    if (settings->bits.watches_visible) {
+        watchlist_show(fp.menu_watchlist);
+    }
+    else {
+        watchlist_hide(fp.menu_watchlist);
+    }
 }
 
 void command_trick_proc() {

@@ -176,7 +176,7 @@ The following commands are available:
 -   **lzs**: Allows Mario to walk into loading zones and store them without taking them. If a menu is then opened and closed after moving somewhere else, Mario will then take the loading zone as though Loading Zone Storage jumps had been performed. *Default: `R + D-Left`*
 -   **reload room**: Reloads the current room with the last known entrance value. Also works when in battle. *Default: `R + D-Down`*
 -   **reload last warp**: Reloads the last room warped to through the **locations** or **favorite rooms** menus. *Default: `unbound`*
--   **show coordinates**: Displays your `x`, `y`, and `z` coordinates on screen.
+-   **toggle watches**: Toggles whether or not to display the watches you have set. *Default: `R + D-Right`*
 -   **load trick**: Reloads the last trick selected from the **tricks** menu. *Default: `R + Z`*
 -   **save game**: Saves the game to the current save slot as though a save block had been used. *Default: `L + D-Left`*
 -   **load game**: Loads the save file from the selected save slot, similar to loading a file from the file select screen. *Default: `L + D-Right`*
