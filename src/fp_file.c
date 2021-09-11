@@ -104,6 +104,22 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     return 1;
 }
 
+static void open_pipes_proc(struct menu_item *item, void *data) {
+    fp_set_global_flag(0x1ad, 1); // 3 pipe blooper gone
+    fp_set_global_flag(0x78d, 1); // 3 pipes opened
+    fp_set_global_flag(0x791, 1); // goomba village pipe
+    fp_set_global_flag(0x792, 1); // koopa village pipe
+    fp_set_global_flag(0x793, 1); // dry dry outpost pipe
+
+    fp_set_global_flag(0x1af, 1); // ch5 blooper gone
+    fp_set_global_flag(0x78e, 1); // ch5 sewer pipe
+    fp_set_global_flag(0x795, 1); // lavalava island pipe
+
+    fp_set_global_flag(0x1b0, 1); // dark koopas gone
+    fp_set_global_flag(0x78f, 1); // dark koopa pipe
+    fp_set_global_flag(0x794, 1); // boo's mansion pipe
+}
+
 static void restore_enemies_proc(struct menu_item *item, void *data) {
     for (int i = 0; i < 600; i++){
         pm_enemy_flags.enemy_defeat_flags[i] = 0;
@@ -157,6 +173,7 @@ struct menu *create_file_menu(void)
     menu_add_option(&menu, MENU_X, y++, "fuzzy\0""hammer bros.\0""thunder rage\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xD9]);
     menu_add_static(&menu, 0, y, "peach item 3", 0xC0C0C0);
     menu_add_option(&menu, MENU_X, y++, "pokey\0""koopatrol\0""super soda\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xDA]);
+    menu_add_button(&menu, 0, y++, "open shortcut pipes", open_pipes_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore enemies", restore_enemies_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore letters", restore_letters_proc, NULL);
 
