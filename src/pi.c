@@ -3,6 +3,7 @@
 #include <n64.h>
 #include "pi.h"
 #include "util.h"
+#include "pm64.h"
 
 typedef void io_func_t(uint32_t dev_addr, uint32_t ram_addr, size_t size);
 

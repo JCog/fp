@@ -6,11 +6,12 @@
 #include <startup.h>
 #include <mips.h>
 #include <n64.h>
+#include "commands.h"
 #include "fp.h"
 #include "gfx.h"
 #include "input.h"
+#include "io.h"
 #include "menu.h"
-#include "commands.h"
 #include "resource.h"
 #include "settings.h"
 #include "watchlist.h"
@@ -535,6 +536,9 @@ void init() {
     fp.lz_stored = 0;
     fp.player_landed = 0;
     fp.frames_since_land = 0;
+
+    /* initialize io device */
+    io_init();
 
     /*load default settings*/
     settings_load_default();

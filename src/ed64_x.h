@@ -1,6 +1,7 @@
 #ifndef ED64_X_H
 #define ED64_X_H
 #include <stdint.h>
+#include "pm64.h"
 
 /*
  *  SD_CMD: 8-bit shift register for IO on CMD.

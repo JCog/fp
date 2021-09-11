@@ -828,8 +828,12 @@ typedef struct {
     /* 0x0408 */ uint32_t script_list_count;
 }script_list_ctxt_t;
 
-/* Addresses */
+typedef __OSEventState __osEventStateTab_t[];
+
+
+/* Data Addresses */
 #if PM64_VERSION==PM64U
+#define osEventStateTab_addr                0x800D9F80
 #define pm_status_addr                      0x80074024
 #define pm_unk4_addr                        0x80074410
 #define pm_unk5_addr                        0x80093B94
@@ -849,6 +853,7 @@ typedef struct {
 #define pm_current_script_list_addr         0x802DA890
 #define pm_ace_store_addr                   0x807D0000
 #elif PM64_VERSION==PM64J
+#define osEventStateTab_addr                0x800D9F60
 #define pm_status_addr                      0x80074004
 #define pm_unk4_addr                        0x800743F0
 #define pm_unk5_addr                        0x80093B64
@@ -870,6 +875,7 @@ typedef struct {
 #endif
 
 /* Data */
+#define __osEventStateTab     (*(__osEventStateTab_t*)   osEventStateTab_addr)
 #define pm_status             (*(status_ctxt_t*)         pm_status_addr)
 #define pm_unk5               (*(unk5_ctxt_t*)           pm_unk5_addr)
 #define pm_unk1               (*(unk1_ctxt_t*)           pm_unk1_addr)
@@ -891,6 +897,10 @@ typedef struct {
 
 /* Function Addresses */
 #if PM64_VERSION==PM64U
+#define __osPiGetAccess_addr                0x800614A4
+#define __osPiRelAccess_addr                0x80061510
+#define osCreateMesgQueue_addr              0x80065580
+#define osRecvMesg_addr                     0x800656F0
 #define pm_FioValidateFileChecksum_addr     0x8002B0F8
 #define pm_LoadGame_addr                    0x8002B2D0
 #define pm_FioReadFlash_addr                0x8002B868
@@ -902,6 +912,10 @@ typedef struct {
 #define pm_PlaySfx_addr                     0x80149CB4
 #define pm_SaveGame_addr                    0x802E11A0
 #elif PM64_VERSION==PM64J
+#define __osPiGetAccess_addr                0x80061474
+#define __osPiRelAccess_addr                0x800614E0
+#define osCreateMesgQueue_addr              0x80065550
+#define osRecvMesg_addr                     0x800656C0
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
 #define pm_LoadGame_addr                    0x8002B290
 #define pm_FioReadFlash_addr                0x8002B828
@@ -915,6 +929,10 @@ typedef struct {
 #endif
 
 /* Function Prototypes */
+typedef void (*__osPiGetAccess_t) ();
+typedef void (*__osPiRelAccess_t) ();
+typedef void (*osCreateMesgQueue_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
+typedef void (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
 typedef void (*pm_AddBadge_t) (Badge badgeID);
 typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
@@ -927,6 +945,10 @@ typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
 
 /* Functions */
+#define __osPiGetAccess             ((__osPiGetAccess_t)             __osPiGetAccess_addr)
+#define __osPiRelAccess             ((__osPiRelAccess_t)             __osPiRelAccess_addr)
+#define osCreateMesgQueue           ((osCreateMesgQueue_t)           osCreateMesgQueue_addr)
+#define osRecvMesg                  ((osRecvMesg_t)                  osRecvMesg_addr)
 #define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
 #define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
