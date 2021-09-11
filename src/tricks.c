@@ -516,6 +516,13 @@ void load_murder_solved_early() {
     fp_warp(GROUP_SHIVER_REGION, 0xa, 0);
 }
 
+void load_attack_fx_e_clip() {
+    set_partner(PARTNER_LAKILESTER);
+    remove_badge(BADGE_ATTACK_FX_E);
+    fp_set_global_flag(0x59b, 0); //attack fx e chest
+    fp_warp(GROUP_SHIVER_REGION, 0x0, 0);
+}
+
 void load_sushie_glitch() {
     equip_badge(BADGE_SPEEDY_SPIN);
     set_partner(PARTNER_SUSHIE);
@@ -672,6 +679,7 @@ void load_trick(int8_t trick) {
 
         case CLIPPY_BOOTS:              load_clippy_boots();                break;
         case MURDER_SOLVED_EARLY:       load_murder_solved_early();         break;
+        case ATTACK_FX_E_CLIP:          load_attack_fx_e_clip();            break;
         case SUSHIE_GLITCH:             load_sushie_glitch();               break;
         case ICE_STAIRCASE_SKIP:        load_ice_staircase_skip();          break;
         case MIRROR_CLIP:               load_mirror_clip();                 break;
@@ -962,6 +970,11 @@ static void murder_solved_early_proc(struct menu_item *item, void *data) {
     load_murder_solved_early();
 }
 
+static void attack_fx_e_clip_proc(struct menu_item *item, void *data) {
+    fp.saved_trick = ATTACK_FX_E_CLIP;
+    load_attack_fx_e_clip();
+}
+
 static void sushie_glitch_proc(struct menu_item *item, void *data) {
     fp.saved_trick = SUSHIE_GLITCH;
     load_sushie_glitch();
@@ -1126,6 +1139,7 @@ void create_tricks_menu(struct menu *menu)
     menu_add_static(page, 0, y_tab++, "chapter 7", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "clippy boots", clippy_boots_proc, NULL);
     menu_add_button(page, 0, y_tab++, "murder solved early", murder_solved_early_proc, NULL);
+    menu_add_button(page, 0, y_tab++, "attack fx e clip", attack_fx_e_clip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "sushie glitch", sushie_glitch_proc, NULL);
     menu_add_button(page, 0, y_tab++, "ice staircase skip", ice_staircase_skip_proc, NULL);
     menu_add_button(page, 0, y_tab++, "mirror clip", mirror_clip_proc, NULL);
