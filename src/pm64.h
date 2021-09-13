@@ -828,6 +828,12 @@ typedef struct {
     /* 0x0408 */ uint32_t script_list_count;
 }script_list_ctxt_t;
 
+typedef struct {
+    /* 0x0000 */ int32_t logical_save_info[4][2];
+    /* 0x0020 */ int32_t physical_save_info[6][2];
+    /* 0x0050 */ int32_t next_available_save_page;
+}save_info_ctxt_t;
+
 typedef __OSEventState __osEventStateTab_t[];
 
 
@@ -839,6 +845,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_unk5_addr                        0x80093B94
 #define pm_unk1_addr                        0x8009A5C8
 #define pm_gfx_addr                         0x8009A66C
+#define pm_save_info_addr                   0x8009BA30
 #define pm_unk2_addr                        0x800A08C0
 #define pm_unk6_addr                        0x800AE388
 #define pm_enemy_flags_addr                 0x800B0FC0
@@ -859,6 +866,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_unk5_addr                        0x80093B64
 #define pm_unk1_addr                        0x8009A5A8
 #define pm_gfx_addr                         0x8009A64C
+#define pm_save_info_addr                   0x8009BA10
 #define pm_unk2_addr                        0x8009E6D0
 #define pm_unk6_addr                        0x800AC198
 #define pm_enemy_flags_addr                 0x800B0FA0
@@ -880,6 +888,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_unk5               (*(unk5_ctxt_t*)           pm_unk5_addr)
 #define pm_unk1               (*(unk1_ctxt_t*)           pm_unk1_addr)
 #define pm_gfx                (*(gfx_ctxt_t*)            pm_gfx_addr)
+#define pm_save_info          (*(save_info_ctxt_t*)      pm_save_info_addr)
 #define pm_unk2               (*(unk2_ctxt_t*)           pm_unk2_addr)
 #define pm_unk6               (*(unk6_ctxt_t*)           pm_unk6_addr)
 #define pm_enemy_flags        (*(enemy_flags_ctxt_t*)    pm_enemy_flags_addr)

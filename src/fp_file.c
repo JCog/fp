@@ -1,8 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "menu.h"
 #include "settings.h"
 #include "fp.h"
 #include "commands.h"
+#include "files.h"
+#include "sys.h"
+#include "pm64.h"
 
 static void save_slot_dec_proc(struct menu_item *item, void *data) {
     pm_status.save_slot += 3;
@@ -140,6 +144,119 @@ static void restore_letters_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x5a9, 0);
 }
 
+static int do_export_file(const char *path, void *data) {
+    const char *err_str = NULL;
+    int f = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    save_data_ctxt_t *file = data;
+    if (f != -1) {
+        if (write(f, file, sizeof(*file)) != sizeof(*file)) {
+            err_str = strerror(errno);
+        }
+        else {
+            if (close(f)) {
+                err_str = strerror(errno);
+            }
+            f = -1;
+        }
+    }
+    else {
+        err_str = strerror(errno);
+    }
+
+    if (f != -1) {
+        close(f);
+    }
+    if (file) {
+        free(file);
+    }
+    if (err_str) {
+        menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
+        return 1;
+    }
+    else {
+        fp_log("exported file %d to disk", file->save_slot);
+        return 0;
+    }
+}
+
+static int do_import_file(const char *path, void *data) {
+    const char *s_invalid = "invalid or corrupt file";
+    const char *s_memory = "out of memory";
+    const char *err_str = NULL;
+    save_data_ctxt_t *file = NULL;
+    int f = open(path, O_RDONLY);
+    if (f != -1) {
+        struct stat st;
+        if (fstat(f, &st))
+            err_str = strerror(errno);
+        else if (st.st_size != sizeof(*file))
+            err_str = s_invalid;
+        else {
+            file = malloc(sizeof(*file));
+            if (!file)
+                err_str = s_memory;
+            else {
+                errno = 0;
+                if (read(f, file, sizeof(*file)) != sizeof(*file)) {
+                    if (errno == 0)
+                        err_str = s_invalid;
+                    else
+                        err_str = strerror(errno);
+                }
+                else {
+                    if (pm_FioValidateFileChecksum(file)) {
+                        pm_save_data = *file;
+                        fp_warp(pm_save_data.group_id, pm_save_data.room_id, pm_save_data.entrance_id);
+                    }
+                    else {
+                        fp_log("save file corrupt");
+                    }
+                }
+            }
+        }
+    }
+    else {
+        err_str = strerror(errno);
+    }
+
+    if (f != -1) {
+        close(f);
+    }
+    if (file) {
+        free(file);
+    }
+    if (err_str) {
+        menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
+        return 1;
+    }
+    else {
+        fp_log("loaded file from disk");
+        return 0;
+    }
+}
+
+static void export_file_proc(struct menu_item *item, void *data) {
+    save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
+
+    if (pm_FioValidateFileChecksum(file)) {
+        menu_get_file(fp.main_menu, GETFILE_SAVE, "file", ".pmsave", do_export_file, file);
+    }
+    else {
+        free(file);
+        fp_log("no file in slot %d", pm_status.save_slot);
+    }
+}
+
+static void import_file_proc(struct menu_item *item, void *data) {
+    if (fp_warp_will_crash()) {
+        fp_log("can't import right now");
+    }
+    else {
+        menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
+    }
+}
+
 struct menu *create_file_menu(void)
 {
     static struct menu menu;
@@ -158,6 +275,8 @@ struct menu *create_file_menu(void)
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     menu_add_button(&menu, 0, y, "save", save_proc, NULL);
     menu_add_button(&menu, 5, y++, "load", load_proc, NULL);
+    menu_add_button(&menu, 0, y++, "export to disk", export_file_proc, NULL);
+    menu_add_button(&menu, 0, y++, "import from disk", import_file_proc, NULL);
     y++;
     menu_add_static(&menu, 0, y, "story progress", 0xC0C0C0);
     menu_add_intinput(&menu, MENU_X, y++, 16, 2, byte_mod_proc, &STORY_PROGRESS);

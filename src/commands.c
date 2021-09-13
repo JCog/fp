@@ -72,17 +72,19 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
+_Bool fp_warp_will_crash() {
+    return (pm_player.flags & (1 << 5)) ||
+           (pm_status.is_battle && pm_unk6.menu_open) ||
+           (pm_status.group_id == 0 && pm_status.room_id == 0xe);
+}
+
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
-    //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to warp properly
-    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        fp_log("can't warp with menu open");
+    //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to prevent crashes entirely
+    if (fp_warp_will_crash()) {
+        fp_log("can't warp right now");
         return 0;
     }
-    //would be nice to know why warping from this room crashes
-    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        fp_log("can't warp from here");
-        return 0;
-    }
+
     pm_PlayAmbientSounds(-1, 0);
     pm_status.loading_zone_tangent = 0;
     pm_status.group_id = group;
@@ -246,12 +248,8 @@ int _save_not_empty(int slot) {
 }
 
 void command_load_game_proc() {
-    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        fp_log("can't load with menu open");
-        return;
-    }
-    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        fp_log("can't load from here");
+    if (fp_warp_will_crash()) {
+        fp_log("can't load right now");
         return;
     }
     if (_save_not_empty(pm_status.save_slot)) {
