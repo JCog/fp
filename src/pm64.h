@@ -911,7 +911,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define osCreateMesgQueue_addr              0x80065580
 #define osRecvMesg_addr                     0x800656F0
 #define pm_FioValidateFileChecksum_addr     0x8002B0F8
-#define pm_LoadGame_addr                    0x8002B2D0
+#define pm_FioDeserializeState_addr         0x8002B490
 #define pm_FioReadFlash_addr                0x8002B868
 #define pm_FioWriteFlash_addr               0x8002B948
 #define pm_RemoveEffect_addr                0x8005A450
@@ -926,7 +926,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define osCreateMesgQueue_addr              0x80065550
 #define osRecvMesg_addr                     0x800656C0
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
-#define pm_LoadGame_addr                    0x8002B290
+#define pm_FioDeserializeState_addr         0x8002B450
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
 #define pm_RemoveEffect_addr                0x8005A100
@@ -943,11 +943,11 @@ typedef void (*__osPiRelAccess_t) ();
 typedef void (*osCreateMesgQueue_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 typedef void (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
+typedef void (*pm_FioDeserializeState_t) ();
 typedef void (*pm_AddBadge_t) (Badge badgeID);
 typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
 typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
-typedef void (*pm_LoadGame_t) (uint8_t slot);
 typedef void (*pm_GameUpdate_t) ();
 typedef void (*pm_PlaySfx_t) (int32_t sound_id);
 typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
@@ -959,7 +959,7 @@ typedef void (*pm_SaveGame_t) ();
 #define osCreateMesgQueue           ((osCreateMesgQueue_t)           osCreateMesgQueue_addr)
 #define osRecvMesg                  ((osRecvMesg_t)                  osRecvMesg_addr)
 #define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
-#define pm_LoadGame                 ((pm_LoadGame_t)                 pm_LoadGame_addr)
+#define pm_FioDeserializeState      ((pm_FioDeserializeState_t)      pm_FioDeserializeState_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
 #define pm_RemoveEffect             ((pm_RemoveEffect_t)             pm_RemoveEffect_addr)
