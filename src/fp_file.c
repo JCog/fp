@@ -7,6 +7,7 @@
 #include "files.h"
 #include "sys.h"
 #include "pm64.h"
+#include "resource.h"
 
 static void save_slot_dec_proc(struct menu_item *item, void *data) {
     pm_status.save_slot += 3;
@@ -261,23 +262,31 @@ static void import_file_proc(struct menu_item *item, void *data) {
 struct menu *create_file_menu(void)
 {
     static struct menu menu;
+    struct menu_item *item;
     
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     int y = 0;
-    int MENU_X = 17;
+    const int MENU_X = 17;
+    struct gfx_texture *t_save = resource_get(RES_ICON_SAVE);
 
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
     menu_add_button(&menu, 11, y, "-", save_slot_dec_proc, NULL);
     menu_add_watch(&menu, 13, y, (uint32_t)&pm_status.save_slot, WATCH_TYPE_U8);
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
-    menu_add_button(&menu, 0, y, "save", save_proc, NULL);
-    menu_add_button(&menu, 5, y++, "load", load_proc, NULL);
-    menu_add_button(&menu, 0, y++, "export to disk", export_file_proc, NULL);
-    menu_add_button(&menu, 0, y++, "import from disk", import_file_proc, NULL);
+    y++;
+    item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0xFFFFFF, save_proc, NULL);
+    item->tooltip = "save";
+    item = menu_add_button_icon(&menu, 3, y, t_save, 2, 0xFFFFFF, load_proc, NULL);
+    item->tooltip = "load";
+    item = menu_add_button_icon(&menu, 6, y, t_save, 1, 0xFFFFFF, export_file_proc, NULL);
+    item->tooltip = "export";
+    item = menu_add_button_icon(&menu, 9, y, t_save, 0, 0xFFFFFF, import_file_proc, NULL);
+    item->tooltip = "import";
+    menu_add_tooltip(&menu, 12, y++, fp.main_menu, 0xC0C0C0);
     y++;
     menu_add_static(&menu, 0, y, "story progress", 0xC0C0C0);
     menu_add_intinput(&menu, MENU_X, y++, 16, 2, byte_mod_proc, &STORY_PROGRESS);

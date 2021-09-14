@@ -1,9 +1,6 @@
-#include <stdlib.h>
 #include <stdint.h>
-#include <inttypes.h>
 #include "menu.h"
 #include "settings.h"
-#include "pm64.h"
 #include "warp_info.h"
 #include "fp.h"
 
