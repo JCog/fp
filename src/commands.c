@@ -245,7 +245,7 @@ void command_load_game_proc() {
     if (pm_FioValidateFileChecksum(file)) {
         pm_save_data = *file;
         pm_FioDeserializeState();
-        fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+        fp_warp(file->group_id, file->room_id, file->entrance_id);
         fp_log("loaded from slot %d", pm_status.save_slot);
     }
     else {
