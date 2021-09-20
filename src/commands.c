@@ -241,6 +241,7 @@ void command_load_game_proc() {
     }
 
     save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
     if (pm_FioValidateFileChecksum(file)) {
         pm_save_data = *file;

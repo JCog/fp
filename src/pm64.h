@@ -911,6 +911,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define osCreateMesgQueue_addr              0x80065580
 #define osRecvMesg_addr                     0x800656F0
 #define pm_FioValidateFileChecksum_addr     0x8002B0F8
+#define pm_FioFetchSavedFileInfo_addr       0x8002B154
 #define pm_FioDeserializeState_addr         0x8002B490
 #define pm_FioReadFlash_addr                0x8002B868
 #define pm_FioWriteFlash_addr               0x8002B948
@@ -926,6 +927,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define osCreateMesgQueue_addr              0x80065550
 #define osRecvMesg_addr                     0x800656C0
 #define pm_FioValidateFileChecksum_addr     0x8002B0B8
+#define pm_FioFetchSavedFileInfo_addr       0x8002B114
 #define pm_FioDeserializeState_addr         0x8002B450
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
@@ -943,6 +945,7 @@ typedef void (*__osPiRelAccess_t) ();
 typedef void (*osCreateMesgQueue_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 typedef void (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
+typedef _Bool (*pm_FioFetchSavedFileInfo_t) ();
 typedef void (*pm_FioDeserializeState_t) ();
 typedef void (*pm_AddBadge_t) (Badge badgeID);
 typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
@@ -959,6 +962,7 @@ typedef void (*pm_SaveGame_t) ();
 #define osCreateMesgQueue           ((osCreateMesgQueue_t)           osCreateMesgQueue_addr)
 #define osRecvMesg                  ((osRecvMesg_t)                  osRecvMesg_addr)
 #define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
+#define pm_FioFetchSavedFileInfo    ((pm_FioFetchSavedFileInfo_t)    pm_FioFetchSavedFileInfo_addr)
 #define pm_FioDeserializeState      ((pm_FioDeserializeState_t)      pm_FioDeserializeState_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
