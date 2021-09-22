@@ -79,6 +79,7 @@ $$(OUTDIR-$(1))   :
 	mkdir -p $$@
 patch-$(1)        : $$(BIN-$(1))
 	$(ARMIPS) $$(BUILDFILE-$(1))
+	@find ./rom/ -name "fp-*.z64" -type f -printf "$(GRU) $(LUAFILE) %f\n" -exec $(GRU) $(LUAFILE) {} \;
 endef
 
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp)))
