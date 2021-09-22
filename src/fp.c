@@ -423,6 +423,8 @@ void fp_main(void) {
             PRINTF("destroying popupmenu\n");
             pm_DestroyPopupMenu();
         }
+        
+        pm_SetMapTransitionEffect(8); // mario head transition
         PRINTF("changing game mode\n");
         pm_SetGameMode(5); // start the "change map" game mode
         fp.warp = 0;
