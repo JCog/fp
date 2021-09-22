@@ -17,11 +17,17 @@ CFILES      = *.c
 SFILES      = *.s
 FP_VERSIONS = PM64J PM64U
 NAME        = fp
+NDEBUG     ?= 0
 
 ADDRESS     = 0x80400040
 CFLAGS      = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks 
 CPPFLAGS    = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
 LDFLAGS     = -T gl-n64.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
+
+ifeq ($(NDEBUG),1)
+  CFLAGS += -DNDEBUG
+  CPPFLAGS += -DNDEBUG
+endif
 
 FP          = $(foreach v,$(FP_VERSIONS),patch-fp-$(v))
 FP-PM64U    = patch-fp-PM64U

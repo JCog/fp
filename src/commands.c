@@ -80,10 +80,10 @@ _Bool fp_warp_will_crash() {
 
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to prevent crashes entirely
-    if (fp_warp_will_crash()) {
-        fp_log("can't warp right now");
-        return 0;
-    }
+    // if (fp_warp_will_crash()) {
+    //     fp_log("can't warp right now");
+    //     return 0;
+    // }
 
     pm_PlayAmbientSounds(-1, 0);
     pm_status.loading_zone_tangent = 0;
@@ -93,8 +93,16 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
 
     pm_unk2.room_change_state = 1;
 
-    uint32_t val = RM_CHNGE_PTR;
-    pm_warp.room_change_ptr = val;
+    PRINTF("***** WARP TRIGGERED ******\n");
+    PRINTF("pm_popup_menu_var: %d (addr:%8X) \n", pm_popup_menu_var, &pm_popup_menu_var);
+    // if a popup menu is open, hide it and wait
+    if (pm_popup_menu_var == 1) {
+        PRINTF("popup is open, setting delay and hiding menu\n");
+        fp.warp_delay = 15;
+        pm_HidePopupMenu();
+    }
+
+    fp.warp = 1;
 
     return 1;
 }

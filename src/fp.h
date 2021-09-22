@@ -62,7 +62,8 @@ typedef struct{
     _Bool                   lz_stored;
     _Bool                   player_landed;
     uint16_t                frames_since_land;
-    
+    _Bool                   warp;
+    uint8_t                 warp_delay;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
@@ -83,5 +84,10 @@ struct menu *create_practice_menu();
 struct menu *create_debug_menu();
 struct menu *create_settings_menu();
 
+#ifdef NDEBUG
+#define PRINTF(...) ((void)0)
+#else
+#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
+#endif
 
 #endif

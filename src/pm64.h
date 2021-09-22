@@ -852,6 +852,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_effects_addr                     0x800B4398
 #define pm_save_data_addr                   0x800DACC0
 #define pm_battle_status_addr               0x800DC070
+#define pm_popup_menu_var_addr              0x8010D640
 #define pm_overworld_addr                   0x8010EBB0
 #define pm_hud_addr                         0x8010EF58
 #define pm_player_addr                      0x8010EFC8
@@ -873,6 +874,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_effects_addr                     0x800B4378
 #define pm_save_data_addr                   0x800DACA0
 #define pm_battle_status_addr               0x800DC050
+#define pm_popup_menu_var_addr              0x8010D800
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
 #define pm_player_addr                      0x8010F188
@@ -896,6 +898,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_effects            (*(effects_ctxt_t*)        pm_effects_addr)
 #define pm_save_data          (*(save_data_ctxt_t*)      pm_save_data_addr)
 #define pm_battle_status      (*(battle_status_ctxt_t*)  pm_battle_status_addr)
+#define pm_popup_menu_var     (*(int32_t*)               pm_popup_menu_var_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)      pm_overworld_addr)
 #define pm_hud                (*(hud_ctxt_t*)            pm_hud_addr)
 #define pm_player             (*(player_ctxt_t*)         pm_player_addr)
@@ -906,6 +909,7 @@ typedef __OSEventState __osEventStateTab_t[];
 
 /* Function Addresses */
 #if PM64_VERSION==PM64U
+#define osSyncPrintf_addr                   0x80025CFC
 #define __osPiGetAccess_addr                0x800614A4
 #define __osPiRelAccess_addr                0x80061510
 #define osCreateMesgQueue_addr              0x80065580
@@ -915,13 +919,17 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_FioDeserializeState_addr         0x8002B490
 #define pm_FioReadFlash_addr                0x8002B868
 #define pm_FioWriteFlash_addr               0x8002B948
+#define pm_SetGameMode_addr                 0x800334F0
 #define pm_RemoveEffect_addr                0x8005A450
 #define pm_AddBadge_addr                    0x800E773C
+#define pm_HidePopupMenu_addr               0x800F13B0
+#define pm_DestroyPopupMenu_addr            0x800F1538
 #define pm_GameUpdate_addr                  0x80112FC4
 #define pm_PlayAmbientSounds_addr           0x80147368
 #define pm_PlaySfx_addr                     0x80149CB4
 #define pm_SaveGame_addr                    0x802E11A0
 #elif PM64_VERSION==PM64J
+#define osSyncPrintf_addr                   0x80025CFC
 #define __osPiGetAccess_addr                0x80061474
 #define __osPiRelAccess_addr                0x800614E0
 #define osCreateMesgQueue_addr              0x80065550
@@ -931,23 +939,31 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_FioDeserializeState_addr         0x8002B450
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
+#define pm_SetGameMode_addr                 0x80033180
 #define pm_RemoveEffect_addr                0x8005A100
 #define pm_AddBadge_addr                    0x800E76DC
+#define pm_HidePopupMenu_addr               0x800F1340
+#define pm_DestroyPopupMenu_addr            0x800F14C8
 #define pm_GameUpdate_addr                  0x801181D4
 #define pm_PlayAmbientSounds_addr           0x8014C418
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_SaveGame_addr                    0x802DC150
+
 #endif
 
 /* Function Prototypes */
+typedef void (*osSyncPrintf_t) (const char *fmt, ...);
 typedef void (*__osPiGetAccess_t) ();
 typedef void (*__osPiRelAccess_t) ();
 typedef void (*osCreateMesgQueue_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
-typedef void (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
+typedef int32_t (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t flag);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
 typedef _Bool (*pm_FioFetchSavedFileInfo_t) ();
 typedef void (*pm_FioDeserializeState_t) ();
 typedef void (*pm_AddBadge_t) (Badge badgeID);
+typedef void (*pm_HidePopupMenu_t) (void);
+typedef void (*pm_DestroyPopupMenu_t) (void);
+typedef void (*pm_SetGameMode_t) (int32_t mode);
 typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
 typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
@@ -957,6 +973,7 @@ typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
 
 /* Functions */
+#define osSyncPrintf                ((osSyncPrintf_t)                osSyncPrintf_addr)
 #define __osPiGetAccess             ((__osPiGetAccess_t)             __osPiGetAccess_addr)
 #define __osPiRelAccess             ((__osPiRelAccess_t)             __osPiRelAccess_addr)
 #define osCreateMesgQueue           ((osCreateMesgQueue_t)           osCreateMesgQueue_addr)
@@ -966,8 +983,11 @@ typedef void (*pm_SaveGame_t) ();
 #define pm_FioDeserializeState      ((pm_FioDeserializeState_t)      pm_FioDeserializeState_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
+#define pm_SetGameMode              ((pm_SetGameMode_t)              pm_SetGameMode_addr)
 #define pm_RemoveEffect             ((pm_RemoveEffect_t)             pm_RemoveEffect_addr)
 #define pm_AddBadge                 ((pm_AddBadge_t)                 pm_AddBadge_addr)
+#define pm_HidePopupMenu            ((pm_HidePopupMenu_t)            pm_HidePopupMenu_addr)
+#define pm_DestroyPopupMenu         ((pm_DestroyPopupMenu_t)         pm_DestroyPopupMenu_addr)
 #define pm_GameUpdate               ((pm_GameUpdate_t)               pm_GameUpdate_addr)
 #define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
 #define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)

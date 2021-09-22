@@ -410,6 +410,27 @@ void fp_main(void) {
         }
     }
 
+    /* handle warps */
+
+    if (fp.warp_delay != 0) {
+        PRINTF("fp.warp_delay: %d\n", fp.warp_delay);
+    }
+
+    if (fp.warp_delay > 0) {
+        fp.warp_delay--;
+    }
+
+    if (fp.warp && fp.warp_delay == 0) {
+        // if a popup menu is currently hidden, destroy it
+        if (pm_popup_menu_var == 10) {
+            PRINTF("destroying popupmenu\n");
+            pm_DestroyPopupMenu();
+        }
+        PRINTF("changing game mode\n");
+        pm_SetGameMode(5); // start the "change map" game mode
+        fp.warp = 0;
+    }
+
     /* draw and animate menus */
     while (fp.menu_active && menu_think(fp.main_menu))
       ;
@@ -509,6 +530,8 @@ void init() {
     fp.lz_stored = 0;
     fp.player_landed = 0;
     fp.frames_since_land = 0;
+    fp.warp = 0;
+    fp.warp_delay = 0;
 
     /* initialize io device */
     io_init();
