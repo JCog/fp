@@ -851,6 +851,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_enemy_flags_addr                 0x800B0FC0
 #define pm_effects_addr                     0x800B4398
 #define pm_save_data_addr                   0x800DACC0
+#define pm_battle_state_2_addr              0x800DC4DC
 #define pm_battle_status_addr               0x800DC070
 #define pm_popup_menu_var_addr              0x8010D640
 #define pm_overworld_addr                   0x8010EBB0
@@ -897,6 +898,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_unk4               (*(unk4_ctxt_t*)           pm_unk4_addr)
 #define pm_effects            (*(effects_ctxt_t*)        pm_effects_addr)
 #define pm_save_data          (*(save_data_ctxt_t*)      pm_save_data_addr)
+#define pm_battle_state_2     (*(int32_t*)               pm_battle_state_2_addr)
 #define pm_battle_status      (*(battle_status_ctxt_t*)  pm_battle_status_addr)
 #define pm_popup_menu_var     (*(int32_t*)               pm_popup_menu_var_addr)
 #define pm_overworld          (*(overworld_ctxt_t*)      pm_overworld_addr)
@@ -929,6 +931,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_PlayAmbientSounds_addr           0x80147368
 #define pm_PlaySfx_addr                     0x80149CB4
 #define pm_SaveGame_addr                    0x802E11A0
+#define pm_func_802A472C_addr               0x802A472C
 #elif PM64_VERSION==PM64J
 #define osSyncPrintf_addr                   0x80025CFC
 #define __osPiGetAccess_addr                0x80061474
@@ -973,6 +976,7 @@ typedef int32_t (*pm_SetMapTransitionEffect_t) (int32_t transition);
 typedef void (*pm_PlaySfx_t) (int32_t sound_id);
 typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
+typedef void (*pm_func_802A472C_t) ();
 
 /* Functions */
 #define osSyncPrintf                ((osSyncPrintf_t)                osSyncPrintf_addr)
@@ -995,6 +999,7 @@ typedef void (*pm_SaveGame_t) ();
 #define pm_SetMapTransitionEffect   ((pm_SetMapTransitionEffect_t)   pm_SetMapTransitionEffect_addr)
 #define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
 #define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
+#define pm_func_802A472C             ((pm_func_802A472C_t)           pm_func_802A472C_addr)
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

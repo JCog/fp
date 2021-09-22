@@ -94,12 +94,19 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     pm_unk2.room_change_state = 1;
 
     PRINTF("***** WARP TRIGGERED ******\n");
-    PRINTF("pm_popup_menu_var: %d (addr:%8X) \n", pm_popup_menu_var, &pm_popup_menu_var);
-    // if a popup menu is open, hide it and wait
-    if (pm_popup_menu_var == 1) {
-        PRINTF("popup is open, setting delay and hiding menu\n");
-        fp.warp_delay = 15;
-        pm_HidePopupMenu();
+
+    if (pm_battle_state_2 == 0) {
+        if (pm_popup_menu_var == 1) {
+            PRINTF("overworld popup is open, setting delay and hiding menu\n");
+            fp.warp_delay = 15;
+            pm_HidePopupMenu();
+        }
+    } else if (pm_battle_state_2 == 0xC9) {
+        PRINTF("battle popup is open, destroying menu\n");
+        pm_func_802A472C();
+        fp.warp_delay = 0;
+    } else {
+        fp.warp_delay = 0;
     }
 
     fp.warp = 1;
