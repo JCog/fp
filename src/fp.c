@@ -412,11 +412,8 @@ void fp_main(void) {
 
     /* handle warps */
 
-    if (fp.warp_delay != 0) {
-        PRINTF("fp.warp_delay: %d\n", fp.warp_delay);
-    }
-
     if (fp.warp_delay > 0) {
+        PRINTF("fp.warp_delay: %d\n", fp.warp_delay);
         fp.warp_delay--;
     }
 
