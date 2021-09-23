@@ -851,8 +851,8 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_enemy_flags_addr                 0x800B0FC0
 #define pm_effects_addr                     0x800B4398
 #define pm_save_data_addr                   0x800DACC0
-#define pm_battle_state_2_addr              0x800DC4DC
 #define pm_battle_status_addr               0x800DC070
+#define pm_battle_state_2_addr              0x800DC4DC
 #define pm_popup_menu_var_addr              0x8010D640
 #define pm_overworld_addr                   0x8010EBB0
 #define pm_hud_addr                         0x8010EF58
@@ -875,6 +875,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_effects_addr                     0x800B4378
 #define pm_save_data_addr                   0x800DACA0
 #define pm_battle_status_addr               0x800DC050
+#define pm_battle_state_2_addr               0x800DC4BC
 #define pm_popup_menu_var_addr              0x8010D800
 #define pm_overworld_addr                   0x8010ED70
 #define pm_hud_addr                         0x8010F118
@@ -921,6 +922,9 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_FioDeserializeState_addr         0x8002B490
 #define pm_FioReadFlash_addr                0x8002B868
 #define pm_FioWriteFlash_addr               0x8002B948
+#define pm_SetCurtainScaleGoal_addr         0x8002BEDC
+#define pm_SetCurtainDrawCallback_addr      0x8002BF04
+#define pm_SetCurtainFadeGoal_addr          0x8002BF14
 #define pm_SetGameMode_addr                 0x800334F0
 #define pm_RemoveEffect_addr                0x8005A450
 #define pm_AddBadge_addr                    0x800E773C
@@ -943,6 +947,9 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_FioDeserializeState_addr         0x8002B450
 #define pm_FioReadFlash_addr                0x8002B828
 #define pm_FioWriteFlash_addr               0x8002B908
+#define pm_SetCurtainScaleGoal_addr         0x8002BE9C
+#define pm_SetCurtainDrawCallback_addr      0x8002BEC4
+#define pm_SetCurtainFadeGoal_addr          0x8002BED4
 #define pm_SetGameMode_addr                 0x80033180
 #define pm_RemoveEffect_addr                0x8005A100
 #define pm_AddBadge_addr                    0x800E76DC
@@ -953,6 +960,7 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_PlayAmbientSounds_addr           0x8014C418
 #define pm_PlaySfx_addr                     0x8014ED64
 #define pm_SaveGame_addr                    0x802DC150
+#define pm_func_802A472C_addr               0x802A4608
 #endif
 
 /* Function Prototypes */
@@ -964,6 +972,9 @@ typedef int32_t (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t flag);
 typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
 typedef _Bool (*pm_FioFetchSavedFileInfo_t) ();
 typedef void (*pm_FioDeserializeState_t) ();
+typedef void (*pm_SetCurtainScaleGoal_t) (float goal);
+typedef void (*pm_SetCurtainDrawCallback_t) (void* callback);
+typedef void (*pm_SetCurtainFadeGoal_t) (float goal);
 typedef void (*pm_AddBadge_t) (Badge badgeID);
 typedef void (*pm_HidePopupMenu_t) (void);
 typedef void (*pm_DestroyPopupMenu_t) (void);
@@ -989,6 +1000,9 @@ typedef void (*pm_func_802A472C_t) ();
 #define pm_FioDeserializeState      ((pm_FioDeserializeState_t)      pm_FioDeserializeState_addr)
 #define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
 #define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
+#define pm_SetCurtainScaleGoal      ((pm_SetCurtainScaleGoal_t)      pm_SetCurtainScaleGoal_addr)
+#define pm_SetCurtainDrawCallback   ((pm_SetCurtainDrawCallback_t)   pm_SetCurtainDrawCallback_addr)
+#define pm_SetCurtainFadeGoal       ((pm_SetCurtainFadeGoal_t)       pm_SetCurtainFadeGoal_addr)
 #define pm_SetGameMode              ((pm_SetGameMode_t)              pm_SetGameMode_addr)
 #define pm_RemoveEffect             ((pm_RemoveEffect_t)             pm_RemoveEffect_addr)
 #define pm_AddBadge                 ((pm_AddBadge_t)                 pm_AddBadge_addr)
