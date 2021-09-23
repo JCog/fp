@@ -420,7 +420,7 @@ void fp_main(void) {
     if (fp.warp && fp.warp_delay == 0) {
         // if a popup menu is currently hidden, destroy it
         if (pm_popup_menu_var == 10) {
-            PRINTF("destroying popupmenu\n");
+            PRINTF("destroying popup menu\n");
             pm_DestroyPopupMenu();
         }
         
