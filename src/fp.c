@@ -424,7 +424,7 @@ void fp_main(void) {
             pm_DestroyPopupMenu();
         }
         
-        pm_SetMapTransitionEffect(8); // mario head transition
+        pm_SetMapTransitionEffect(0); // normal black fade
         PRINTF("changing game mode\n");
         pm_SetGameMode(5); // start the "change map" game mode
         fp.warp = 0;
