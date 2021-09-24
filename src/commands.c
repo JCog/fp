@@ -80,10 +80,10 @@ _Bool fp_warp_will_crash() {
 
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to prevent crashes entirely
-    if (fp_warp_will_crash()) {
-        fp_log("can't warp right now");
-        return 0;
-    }
+    // if (fp_warp_will_crash()) {
+    //     fp_log("can't warp right now");
+    //     return 0;
+    // }
 
     pm_PlayAmbientSounds(-1, 0);
     pm_status.loading_zone_tangent = 0;
@@ -93,8 +93,31 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
 
     pm_unk2.room_change_state = 1;
 
-    uint32_t val = RM_CHNGE_PTR;
-    pm_warp.room_change_ptr = val;
+    PRINTF("***** WARP TRIGGERED ******\n");
+
+    if (pm_status.is_battle) {
+        if (pm_battle_state_2 == 0xC9) {
+            PRINTF("battle popup is open, destroying menu\n");
+            pm_func_802A472C();
+        }
+        fp.warp_delay = 0;
+    } else {
+        if (pm_popup_menu_var == 1) {
+            PRINTF("overworld popup is open, setting delay and hiding menu\n");
+            fp.warp_delay = 15;
+            pm_HidePopupMenu();
+        } else {
+            fp.warp_delay = 0;
+        }
+    }
+
+    // set the global curtain to default+off state
+    // this is mainly to prevent a crash when warping from "card obtained"
+    pm_SetCurtainScaleGoal(2.0f);
+    pm_SetCurtainDrawCallback(NULL);
+    pm_SetCurtainFadeGoal(0.0f);
+
+    fp.warp = 1;
 
     return 1;
 }
