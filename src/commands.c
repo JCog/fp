@@ -85,7 +85,10 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     //     return 0;
     // }
 
-    pm_PlayAmbientSounds(-1, 0);
+    pm_PlayAmbientSounds(-1, 0); //clear ambient sounds
+    pm_BgmSetSong(1, -1, 0, 0, 8); //clear secondary songs
+    pm_SfxStopSound(0x19C); //clear upward vine sound
+    pm_SfxStopSound(0x19D); //clear downward vine sound
     pm_status.loading_zone_tangent = 0;
     pm_status.group_id = group;
     pm_status.room_id = room;

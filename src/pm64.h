@@ -934,6 +934,8 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_SetMapTransitionEffect_addr      0x801382A0
 #define pm_PlayAmbientSounds_addr           0x80147368
 #define pm_PlaySfx_addr                     0x80149CB4
+#define pm_BgmSetSong_addr                  0x8014A918
+#define pm_SfxStopSound_addr                0x80149C6C
 #define pm_SaveGame_addr                    0x802E11A0
 #define pm_func_802A472C_addr               0x802A472C
 #elif PM64_VERSION==PM64J
@@ -959,6 +961,8 @@ typedef __OSEventState __osEventStateTab_t[];
 #define pm_SetMapTransitionEffect_addr      0x8013D350
 #define pm_PlayAmbientSounds_addr           0x8014C418
 #define pm_PlaySfx_addr                     0x8014ED64
+#define pm_BgmSetSong_addr                  0x8014F9C8
+#define pm_SfxStopSound_addr                0x8014ED1C
 #define pm_SaveGame_addr                    0x802DC150
 #define pm_func_802A472C_addr               0x802A4608
 #endif
@@ -985,6 +989,8 @@ typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
 typedef void (*pm_GameUpdate_t) ();
 typedef int32_t (*pm_SetMapTransitionEffect_t) (int32_t transition);
 typedef void (*pm_PlaySfx_t) (int32_t sound_id);
+typedef void (*pm_BgmSetSong_t) (int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
+typedef void (*pm_SfxStopSound_t) (int32_t sound_id);
 typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
 typedef void (*pm_SaveGame_t) ();
 typedef void (*pm_func_802A472C_t) ();
@@ -1012,8 +1018,10 @@ typedef void (*pm_func_802A472C_t) ();
 #define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
 #define pm_SetMapTransitionEffect   ((pm_SetMapTransitionEffect_t)   pm_SetMapTransitionEffect_addr)
 #define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
+#define pm_BgmSetSong               ((pm_BgmSetSong_t)               pm_BgmSetSong_addr)
+#define pm_SfxStopSound             ((pm_SfxStopSound_t)             pm_SfxStopSound_addr)
 #define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
-#define pm_func_802A472C             ((pm_func_802A472C_t)           pm_func_802A472C_addr)
+#define pm_func_802A472C            ((pm_func_802A472C_t)            pm_func_802A472C_addr)
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
