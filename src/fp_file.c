@@ -258,7 +258,7 @@ static void import_file_proc(struct menu_item *item, void *data) {
     //     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
     // }
 
-    // do we still need the crash check? remove when commented code above when confirmed
+    // do we still need the crash check? remove commented code above when confirmed
     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
 }
 

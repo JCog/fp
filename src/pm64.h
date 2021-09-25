@@ -136,11 +136,6 @@ typedef struct{
 } status_ctxt_t;
 
 typedef struct{
-    /* 0x0000 */ char unk_0x00[0x10];
-    /* 0x0010 */ uint32_t saveblock_freeze; /*00000001 = frozen, loading zones dissapear. can be used for lzs*/
-} unk1_ctxt_t;
-
-typedef struct{
     /* 0x0000 */ uint8_t enable_partner_ability;
     /* 0x0001 */ char unk_0x01[0x02];
     /* 0x0003 */ uint8_t partner_ability;
@@ -816,7 +811,7 @@ typedef __OSEventState __osEventStateTab_t[];
 extern_data status_ctxt_t pm_status;
 extern_data uint32_t pm_ViFrames;
 extern_data int32_t pm_TimeFreezeMode;
-extern_data Gfx* pm_MasterGfxPos;
+extern_data Gfx *pm_MasterGfxPos;
 extern_data save_info_ctxt_t pm_save_info;
 extern_data int16_t pm_RoomChangeState;
 extern_data uint32_t pm_enemy_defeat_flags[600];
