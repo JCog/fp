@@ -18,13 +18,13 @@ typedef struct{
     /* 0x0000 */ float x;
     /* 0x0004 */ float y;
     /* 0x0008 */ float z;
-}xyz_t; // size: 0x000C
+} xyz_t; // size: 0x000C
 
 typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
-}vec3s_t;
+} vec3s_t;
 
 typedef struct{
     /* 0x0000 */ int8_t x_cardinal;
@@ -51,7 +51,7 @@ typedef struct{
       };
       /* 0x0003 */ uint16_t buttons;
     };
-}controller_t; //size: 0x0004
+} controller_t; //size: 0x0004
 
 typedef struct{
     /* 0x0000 */ controller_t raw; /* raw input */
@@ -133,30 +133,12 @@ typedef struct{
     /* 0x0166 */ uint8_t save_slot;
     /* 0x0167 */ uint8_t load_type; /* 0 = from map, 1 = from main menu */
     /* 0x0168 */ int32_t save_count;
-}status_ctxt_t;
+} status_ctxt_t;
 
 typedef struct{
     /* 0x0000 */ char unk_0x00[0x10];
     /* 0x0010 */ uint32_t saveblock_freeze; /*00000001 = frozen, loading zones dissapear. can be used for lzs*/
-}unk1_ctxt_t;
-
-typedef struct {
-    /* 0x00000 */ char unk_0x00[0x230];
-    /* 0x00230 */ Gfx buf[0x2000];
-    /* 0x10230 */ Gfx buf_work[0x200];
-    /* 0x11230 */ Mtx unk_mtx[0x200];
-}disp_buf_t; //size: 0x19230
-
-typedef struct{
-    /* 0x00000 */ Gfx *p;
-    /* 0x00004 */ uint32_t unk;
-    /* 0x00008 */ disp_buf_t *disp_buf;
-}gfx_ctxt_t; // size: 0x0000C
-
-typedef struct{
-    /* 0x0000 */ char unk_0x00[0x84];
-    /* 0x0084 */ uint16_t room_change_state;
-}unk2_ctxt_t;
+} unk1_ctxt_t;
 
 typedef struct{
     /* 0x0000 */ uint8_t enable_partner_ability;
@@ -167,7 +149,7 @@ typedef struct{
     /* 0x0008 */ controller_t raw_overworld;
     /* 0x000C */ controller_t pressed1_overworld;
     /* 0x0010 */ controller_t pressed2_overworld;
-}overworld_ctxt_t; // size: 0x00014
+} overworld_ctxt_t; // size: 0x00014
 
 typedef struct{
     /* 0x00000 */ uint32_t hp_text;
@@ -210,13 +192,13 @@ typedef struct{
     /* 0x00055 */ uint8_t coin_flash_counter;
     /* 0x00056 */ char unk_0x56[0x02];
     /* 0x00058 */ char unk_0x58[0x18];
-}hud_ctxt_t; // size: 0x00070
+} hud_ctxt_t; // size: 0x00070
 
 typedef struct {
     /* 0x00000 */ uint8_t in_party;
     /* 0x00001 */ uint8_t upgrade;
     /* 0x00002 */ char unk_0x02[0x06];
-}partner_t; // size: 0x00008
+} partner_t; // size: 0x00008
 
 typedef struct{
     /* 0x0000 */ partner_t goombario;
@@ -230,7 +212,7 @@ typedef struct{
     /* 0x0040 */ partner_t bow;
     /* 0x0048 */ partner_t goombaria;
     /* 0x0050 */ partner_t twink;
-}party_t; // size: 0x0058
+} party_t; // size: 0x0058
 
 typedef struct{
     /* 0x0000 */ char unk_0x00[0x01];
@@ -238,7 +220,7 @@ typedef struct{
     /* 0x0002 */ uint8_t casts_remaining;
     /* 0x0003 */ char unk_0x03[0x02];
     /* 0x0005 */ uint8_t turns_until_spell;
-}merlee_t; // size: 0x0006
+} merlee_t; // size: 0x0006
 
 typedef struct{
     /* 0x0000 */ uint8_t star_spirits_saved;
@@ -247,7 +229,7 @@ typedef struct{
     /* 0x0003 */ uint8_t partial_bars_filled;
     /* 0x0004 */ uint8_t beam_rank; /*1 for star beam, 2 for peach beam*/
     /* 0x0005 */ char unk_0x05[0x01];
-}star_power_t; // size: 0x0006
+} star_power_t; // size: 0x0006
 
 typedef struct {
     /* 0x000 */ uint8_t boots_upgrade; /*start: 8010F450*/
@@ -305,7 +287,7 @@ typedef struct {
     /* 0x338 */ int32_t smash_game_total; /* all-time winnings, max = 99999 */
     /* 0x33C */ int16_t smash_game_record;
     /* 0x33E */ char unk_606[2];
-}player_data_t; // size: 0x340
+} player_data_t; // size: 0x340
 
 typedef struct{
     /* 0x0000 */ int32_t flags; /*third byte related to cutscenes - write 0 to break free*/
@@ -383,7 +365,7 @@ typedef struct{
     /* 0x02B6 */ char unk_0x228[0x02];
     /* 0x02B8 */ char unk_0x2B8[0x10];
     /* 0x02C8 */ player_data_t player_data;
-}player_ctxt_t;
+} player_ctxt_t;
 
 typedef struct {
     /* 0x0000 */ char magic_string[16]; /* "Mario Story 006" */
@@ -411,13 +393,7 @@ typedef struct {
     /* 0x12FC */ int32_t unk_12FC;
     /* 0x1300 */ int32_t unk_1300;
     /* 0x1304 */ char unk_1304[0x7C];
-}save_data_ctxt_t;
-
-typedef struct{
-    /* 0x0000 */ char unk_0x00[0x08];
-    /* 0x0008 */ uint32_t room_change_ptr;
-    /* 0x000C */ char unk_0x0C[0x0C];
-}warp_ctxt_t; // size: 0x0018
+} save_data_ctxt_t;
 
 typedef struct {
     /* 0x00 */ int32_t flags;
@@ -789,36 +765,35 @@ typedef struct {
     /* 0x00 */ int32_t flags;
     /* 0x04 */ int32_t effectIndex;
     /* 0x08 */ int32_t matrixTotal;
-} EffectInstance; //sizeof 0x20
+} EffectInstance; // size = 0x20
 
 typedef struct {
-    EffectInstance *effects[96];
-}effects_ctxt_t;
-
-typedef struct{
-    uint16_t last_timer;
-}ace_store_ctxt_t;
-
-typedef struct{
-    uint32_t rng;
-}unk4_ctxt_t;
-
-typedef struct{
-    uint32_t vi_frames;
-}unk5_ctxt_t;
-
-typedef struct {
-    /* 0x0000 */ char unk_0x00[0x03];
-    /* 0x0003 */ uint8_t menu_open; /* seems to always be non-zero when a menu is open in battle */
-}unk6_ctxt_t;
-
-typedef struct {
-    /* 0x0000 */ uint16_t mash_bar; /* ranges from 0 to 10,000 */
-}unk7_ctxt_t;
-
-typedef struct {
-    /* 0x0000 */ uint32_t enemy_defeat_flags[600];
-}enemy_flags_ctxt_t;
+    /* 0x00 */ char unk_00[0x44];
+    /* 0x44 */ uint16_t mash_bar;
+    /* 0x4A */ int16_t unk_4A; // current action command id?
+    /* 0x4C */ int16_t unk_4C;
+    /* 0x4E */ char unk_4E[0x10];
+    /* 0x5E */ int8_t unk_5E;
+    /* 0x5F */ int8_t unk_5F;
+    /* 0x60 */ int8_t unk_60;
+    /* 0x61 */ int8_t unk_61;
+    /* 0x62 */ int16_t unk_62;
+    /* 0x64 */ int16_t unk_64;
+    /* 0x66 */ int16_t unk_66;
+    /* 0x68 */ int16_t unk_68;
+    /* 0x6A */ int16_t unk_6A;
+    /* 0x6C */ int16_t unk_6C;
+    /* 0x6E */ int16_t hitsTakenIsMax;
+    /* 0x70 */ char unk_70[2];
+    /* 0x72 */ char unk_72[2];
+    /* 0x74 */ int16_t unk_74;
+    /* 0x76 */ int16_t unk_76;
+    /* 0x78 */ int16_t unk_78;
+    /* 0x7A */ int16_t unk_7A;
+    /* 0x7C */ int16_t unk_7C;
+    /* 0x7E */ int16_t unk_7E;
+    /* 0x80 */ int8_t unk_80;
+} ActionCommandState; // size unknown, taken from decomp
 
 typedef struct {
     /* 0x0000 */ uint32_t script_list_ptr;
@@ -826,202 +801,64 @@ typedef struct {
     /* 0x0008 */ int32_t script_index_list[128];
     /* 0x0208 */ int32_t script_id_list[128];
     /* 0x0408 */ uint32_t script_list_count;
-}script_list_ctxt_t;
+} script_list_ctxt_t;
 
 typedef struct {
     /* 0x0000 */ int32_t logical_save_info[4][2];
     /* 0x0020 */ int32_t physical_save_info[6][2];
     /* 0x0050 */ int32_t next_available_save_page;
-}save_info_ctxt_t;
+} save_info_ctxt_t;
 
 typedef __OSEventState __osEventStateTab_t[];
 
-
-/* Data Addresses */
-#if PM64_VERSION==PM64U
-#define osEventStateTab_addr                0x800D9F80
-#define pm_status_addr                      0x80074024
-#define pm_unk4_addr                        0x80074410
-#define pm_unk5_addr                        0x80093B94
-#define pm_unk1_addr                        0x8009A5C8
-#define pm_gfx_addr                         0x8009A66C
-#define pm_save_info_addr                   0x8009BA30
-#define pm_unk2_addr                        0x800A08C0
-#define pm_unk6_addr                        0x800AE388
-#define pm_enemy_flags_addr                 0x800B0FC0
-#define pm_effects_addr                     0x800B4398
-#define pm_save_data_addr                   0x800DACC0
-#define pm_battle_status_addr               0x800DC070
-#define pm_battle_state_2_addr              0x800DC4DC
-#define pm_popup_menu_var_addr              0x8010D640
-#define pm_overworld_addr                   0x8010EBB0
-#define pm_hud_addr                         0x8010EF58
-#define pm_player_addr                      0x8010EFC8
-#define pm_warp_addr                        0x80151700
-#define pm_unk7_addr                        0x8029FC24
-#define pm_current_script_list_addr         0x802DA890
-#define pm_ace_store_addr                   0x807D0000
-#elif PM64_VERSION==PM64J
-#define osEventStateTab_addr                0x800D9F60
-#define pm_status_addr                      0x80074004
-#define pm_unk4_addr                        0x800743F0
-#define pm_unk5_addr                        0x80093B64
-#define pm_unk1_addr                        0x8009A5A8
-#define pm_gfx_addr                         0x8009A64C
-#define pm_save_info_addr                   0x8009BA10
-#define pm_unk2_addr                        0x8009E6D0
-#define pm_unk6_addr                        0x800AC198
-#define pm_enemy_flags_addr                 0x800B0FA0
-#define pm_effects_addr                     0x800B4378
-#define pm_save_data_addr                   0x800DACA0
-#define pm_battle_status_addr               0x800DC050
-#define pm_battle_state_2_addr               0x800DC4BC
-#define pm_popup_menu_var_addr              0x8010D800
-#define pm_overworld_addr                   0x8010ED70
-#define pm_hud_addr                         0x8010F118
-#define pm_player_addr                      0x8010F188
-#define pm_warp_addr                        0x80156740
-#define pm_unk7_addr                        0x8029FF14
-#define pm_current_script_list_addr         0x802DA890
-#define pm_ace_store_addr                   0x807D0000
-#endif
-
 /* Data */
-#define __osEventStateTab     (*(__osEventStateTab_t*)   osEventStateTab_addr)
-#define pm_status             (*(status_ctxt_t*)         pm_status_addr)
-#define pm_unk5               (*(unk5_ctxt_t*)           pm_unk5_addr)
-#define pm_unk1               (*(unk1_ctxt_t*)           pm_unk1_addr)
-#define pm_gfx                (*(gfx_ctxt_t*)            pm_gfx_addr)
-#define pm_save_info          (*(save_info_ctxt_t*)      pm_save_info_addr)
-#define pm_unk2               (*(unk2_ctxt_t*)           pm_unk2_addr)
-#define pm_unk6               (*(unk6_ctxt_t*)           pm_unk6_addr)
-#define pm_enemy_flags        (*(enemy_flags_ctxt_t*)    pm_enemy_flags_addr)
-#define pm_unk4               (*(unk4_ctxt_t*)           pm_unk4_addr)
-#define pm_effects            (*(effects_ctxt_t*)        pm_effects_addr)
-#define pm_save_data          (*(save_data_ctxt_t*)      pm_save_data_addr)
-#define pm_battle_state_2     (*(int32_t*)               pm_battle_state_2_addr)
-#define pm_battle_status      (*(battle_status_ctxt_t*)  pm_battle_status_addr)
-#define pm_popup_menu_var     (*(int32_t*)               pm_popup_menu_var_addr)
-#define pm_overworld          (*(overworld_ctxt_t*)      pm_overworld_addr)
-#define pm_hud                (*(hud_ctxt_t*)            pm_hud_addr)
-#define pm_player             (*(player_ctxt_t*)         pm_player_addr)
-#define pm_warp               (*(warp_ctxt_t*)           pm_warp_addr)
-#define pm_unk7               (*(unk7_ctxt_t*)           pm_unk7_addr)
-#define pm_curr_script_lst    (*(script_list_ctxt_t*)    pm_current_script_list_addr)
-#define pm_ace_store          (*(ace_store_ctxt_t*)      pm_ace_store_addr)
-
-/* Function Addresses */
-#if PM64_VERSION==PM64U
-#define osSyncPrintf_addr                   0x80025CFC
-#define __osPiGetAccess_addr                0x800614A4
-#define __osPiRelAccess_addr                0x80061510
-#define osCreateMesgQueue_addr              0x80065580
-#define osRecvMesg_addr                     0x800656F0
-#define pm_FioValidateFileChecksum_addr     0x8002B0F8
-#define pm_FioFetchSavedFileInfo_addr       0x8002B154
-#define pm_FioDeserializeState_addr         0x8002B490
-#define pm_FioReadFlash_addr                0x8002B868
-#define pm_FioWriteFlash_addr               0x8002B948
-#define pm_SetCurtainScaleGoal_addr         0x8002BEDC
-#define pm_SetCurtainDrawCallback_addr      0x8002BF04
-#define pm_SetCurtainFadeGoal_addr          0x8002BF14
-#define pm_SetGameMode_addr                 0x800334F0
-#define pm_RemoveEffect_addr                0x8005A450
-#define pm_AddBadge_addr                    0x800E773C
-#define pm_HidePopupMenu_addr               0x800F13B0
-#define pm_DestroyPopupMenu_addr            0x800F1538
-#define pm_GameUpdate_addr                  0x80112FC4
-#define pm_SetMapTransitionEffect_addr      0x801382A0
-#define pm_PlayAmbientSounds_addr           0x80147368
-#define pm_PlaySfx_addr                     0x80149CB4
-#define pm_BgmSetSong_addr                  0x8014A918
-#define pm_SfxStopSound_addr                0x80149C6C
-#define pm_SaveGame_addr                    0x802E11A0
-#define pm_func_802A472C_addr               0x802A472C
-#elif PM64_VERSION==PM64J
-#define osSyncPrintf_addr                   0x80025CFC
-#define __osPiGetAccess_addr                0x80061474
-#define __osPiRelAccess_addr                0x800614E0
-#define osCreateMesgQueue_addr              0x80065550
-#define osRecvMesg_addr                     0x800656C0
-#define pm_FioValidateFileChecksum_addr     0x8002B0B8
-#define pm_FioFetchSavedFileInfo_addr       0x8002B114
-#define pm_FioDeserializeState_addr         0x8002B450
-#define pm_FioReadFlash_addr                0x8002B828
-#define pm_FioWriteFlash_addr               0x8002B908
-#define pm_SetCurtainScaleGoal_addr         0x8002BE9C
-#define pm_SetCurtainDrawCallback_addr      0x8002BEC4
-#define pm_SetCurtainFadeGoal_addr          0x8002BED4
-#define pm_SetGameMode_addr                 0x80033180
-#define pm_RemoveEffect_addr                0x8005A100
-#define pm_AddBadge_addr                    0x800E76DC
-#define pm_HidePopupMenu_addr               0x800F1340
-#define pm_DestroyPopupMenu_addr            0x800F14C8
-#define pm_GameUpdate_addr                  0x801181D4
-#define pm_SetMapTransitionEffect_addr      0x8013D350
-#define pm_PlayAmbientSounds_addr           0x8014C418
-#define pm_PlaySfx_addr                     0x8014ED64
-#define pm_BgmSetSong_addr                  0x8014F9C8
-#define pm_SfxStopSound_addr                0x8014ED1C
-#define pm_SaveGame_addr                    0x802DC150
-#define pm_func_802A472C_addr               0x802A4608
-#endif
-
-/* Function Prototypes */
-typedef void (*osSyncPrintf_t) (const char *fmt, ...);
-typedef void (*__osPiGetAccess_t) ();
-typedef void (*__osPiRelAccess_t) ();
-typedef void (*osCreateMesgQueue_t) (OSMesgQueue *queue, OSMesg *msg, int32_t unk);
-typedef int32_t (*osRecvMesg_t) (OSMesgQueue *queue, OSMesg *msg, int32_t flag);
-typedef int32_t (*pm_FioValidateFileChecksum_t) (void *buffer);
-typedef _Bool (*pm_FioFetchSavedFileInfo_t) ();
-typedef void (*pm_FioDeserializeState_t) ();
-typedef void (*pm_SetCurtainScaleGoal_t) (float goal);
-typedef void (*pm_SetCurtainDrawCallback_t) (void* callback);
-typedef void (*pm_SetCurtainFadeGoal_t) (float goal);
-typedef void (*pm_AddBadge_t) (Badge badgeID);
-typedef void (*pm_HidePopupMenu_t) (void);
-typedef void (*pm_DestroyPopupMenu_t) (void);
-typedef void (*pm_SetGameMode_t) (int32_t mode);
-typedef void (*pm_RemoveEffect_t) (EffectInstance *effect);
-typedef void (*pm_FioReadFlash_t) (int32_t slot, void *buffer, uint32_t size);
-typedef void (*pm_FioWriteFlash_t) (int32_t slot, void *buffer, uint32_t size);
-typedef void (*pm_GameUpdate_t) ();
-typedef int32_t (*pm_SetMapTransitionEffect_t) (int32_t transition);
-typedef void (*pm_PlaySfx_t) (int32_t sound_id);
-typedef void (*pm_BgmSetSong_t) (int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
-typedef void (*pm_SfxStopSound_t) (int32_t sound_id);
-typedef void (*pm_PlayAmbientSounds_t) (int32_t sounds_id, int32_t fade_time);
-typedef void (*pm_SaveGame_t) ();
-typedef void (*pm_func_802A472C_t) ();
+#define extern_data extern __attribute__ ((section(".data")))
+extern_data status_ctxt_t pm_status;
+extern_data uint32_t pm_ViFrames;
+extern_data int32_t pm_TimeFreezeMode;
+extern_data Gfx* pm_MasterGfxPos;
+extern_data save_info_ctxt_t pm_save_info;
+extern_data int16_t pm_RoomChangeState;
+extern_data uint32_t pm_enemy_defeat_flags[600];
+extern_data int32_t pm_RandSeed;
+extern_data EffectInstance *pm_effects[96];
+extern_data save_data_ctxt_t pm_save_data;
+extern_data int32_t pm_battle_state_2;
+extern_data battle_status_ctxt_t pm_battle_status;
+extern_data int32_t pm_popup_menu_var;
+extern_data overworld_ctxt_t pm_overworld;
+extern_data hud_ctxt_t pm_hud;
+extern_data player_ctxt_t pm_player;
+extern_data ActionCommandState pm_ActionCommandState;
+extern_data script_list_ctxt_t pm_curr_script_lst;
 
 /* Functions */
-#define osSyncPrintf                ((osSyncPrintf_t)                osSyncPrintf_addr)
-#define __osPiGetAccess             ((__osPiGetAccess_t)             __osPiGetAccess_addr)
-#define __osPiRelAccess             ((__osPiRelAccess_t)             __osPiRelAccess_addr)
-#define osCreateMesgQueue           ((osCreateMesgQueue_t)           osCreateMesgQueue_addr)
-#define osRecvMesg                  ((osRecvMesg_t)                  osRecvMesg_addr)
-#define pm_FioValidateFileChecksum  ((pm_FioValidateFileChecksum_t)  pm_FioValidateFileChecksum_addr)
-#define pm_FioFetchSavedFileInfo    ((pm_FioFetchSavedFileInfo_t)    pm_FioFetchSavedFileInfo_addr)
-#define pm_FioDeserializeState      ((pm_FioDeserializeState_t)      pm_FioDeserializeState_addr)
-#define pm_FioReadFlash             ((pm_FioReadFlash_t)             pm_FioReadFlash_addr)
-#define pm_FioWriteFlash            ((pm_FioWriteFlash_t)            pm_FioWriteFlash_addr)
-#define pm_SetCurtainScaleGoal      ((pm_SetCurtainScaleGoal_t)      pm_SetCurtainScaleGoal_addr)
-#define pm_SetCurtainDrawCallback   ((pm_SetCurtainDrawCallback_t)   pm_SetCurtainDrawCallback_addr)
-#define pm_SetCurtainFadeGoal       ((pm_SetCurtainFadeGoal_t)       pm_SetCurtainFadeGoal_addr)
-#define pm_SetGameMode              ((pm_SetGameMode_t)              pm_SetGameMode_addr)
-#define pm_RemoveEffect             ((pm_RemoveEffect_t)             pm_RemoveEffect_addr)
-#define pm_AddBadge                 ((pm_AddBadge_t)                 pm_AddBadge_addr)
-#define pm_HidePopupMenu            ((pm_HidePopupMenu_t)            pm_HidePopupMenu_addr)
-#define pm_DestroyPopupMenu         ((pm_DestroyPopupMenu_t)         pm_DestroyPopupMenu_addr)
-#define pm_GameUpdate               ((pm_GameUpdate_t)               pm_GameUpdate_addr)
-#define pm_PlayAmbientSounds        ((pm_PlayAmbientSounds_t)        pm_PlayAmbientSounds_addr)
-#define pm_SetMapTransitionEffect   ((pm_SetMapTransitionEffect_t)   pm_SetMapTransitionEffect_addr)
-#define pm_PlaySfx                  ((pm_PlaySfx_t)                  pm_PlaySfx_addr)
-#define pm_BgmSetSong               ((pm_BgmSetSong_t)               pm_BgmSetSong_addr)
-#define pm_SfxStopSound             ((pm_SfxStopSound_t)             pm_SfxStopSound_addr)
-#define pm_SaveGame                 ((pm_SaveGame_t)                 pm_SaveGame_addr)
-#define pm_func_802A472C            ((pm_func_802A472C_t)            pm_func_802A472C_addr)
+void osSyncPrintf(const char *fmt, ...);
+void __osPiGetAccess(void);
+void __osPiRelAccess(void);
+void osCreateMesgQueue(OSMesgQueue *queue, OSMesg *msg, int32_t unk);
+int32_t osRecvMesg(OSMesgQueue *queue, OSMesg *msg, int32_t flag);
+int32_t pm_FioValidateFileChecksum(void *buffer);
+_Bool pm_FioFetchSavedFileInfo(void);
+void pm_FioDeserializeState(void);
+void pm_SetCurtainScaleGoal(float goal);
+void pm_SetCurtainDrawCallback(void *callback);
+void pm_SetCurtainFadeGoal(float goal);
+void pm_AddBadge(Badge badgeID);
+void pm_HidePopupMenu(void);
+void pm_DestroyPopupMenu(void);
+void pm_SetGameMode(int32_t mode);
+void pm_RemoveEffect(EffectInstance *effect);
+void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
+void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
+void pm_GameUpdate(void);
+int32_t pm_SetMapTransitionEffect(int32_t transition);
+void pm_PlaySfx(int32_t sound_id);
+void pm_BgmSetSong(int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
+void pm_SfxStopSound(int32_t sound_id);
+void pm_PlayAmbientSounds(int32_t sounds_id, int32_t fade_time);
+void pm_SaveGame(void);
+void pm_func_802A472C(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

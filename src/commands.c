@@ -72,19 +72,7 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-_Bool fp_warp_will_crash() {
-    return (pm_player.flags & (1 << 5)) ||
-           (pm_status.is_battle && pm_unk6.menu_open) ||
-           (pm_status.group_id == 0 && pm_status.room_id == 0xe);
-}
-
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
-    //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to prevent crashes entirely
-    // if (fp_warp_will_crash()) {
-    //     fp_log("can't warp right now");
-    //     return 0;
-    // }
-
     pm_PlayAmbientSounds(-1, 0); //clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); //clear secondary songs
     pm_SfxStopSound(0x19C); //clear upward vine sound
@@ -94,9 +82,9 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     pm_status.room_id = room;
     pm_status.entrance_id = entrance;
 
-    pm_unk2.room_change_state = 1;
+    pm_RoomChangeState = 1;
 
-    PRINTF("***** WARP TRIGGERED ******\n");
+    PRINTF("***** WARP TRIGGERED *****\n");
 
     if (pm_status.is_battle) {
         if (pm_battle_state_2 == 0xC9) {
@@ -145,7 +133,7 @@ void fp_set_area_flag(int flag_index, _Bool value) {
 }
 
 void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
-    set_flag(pm_enemy_flags.enemy_defeat_flags, flag_index, value);
+    set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
 void fp_set_global_byte(int byte_index,  int8_t value) {
@@ -191,12 +179,12 @@ void command_load_pos_proc() {
 }
 
 void command_lzs_proc() {
-    if (pm_unk1.saveblock_freeze == 0) {
-        pm_unk1.saveblock_freeze = 1;
+    if (pm_TimeFreezeMode == 0) {
+        pm_TimeFreezeMode = 1;
         fp_log("easy lzs enabled");
     }
-    else if (pm_unk1.saveblock_freeze == 1) {
-        pm_unk1.saveblock_freeze = 0;
+    else if (pm_TimeFreezeMode == 1) {
+        pm_TimeFreezeMode = 0;
         fp_log("easy lzs disabled");
     }
 }
@@ -261,10 +249,10 @@ void command_show_hide_timer_proc() {
 }
 
 void command_load_game_proc() {
-    if (fp_warp_will_crash()) {
-        fp_log("can't load right now");
-        return;
-    }
+    // if (fp_warp_will_crash()) {
+    //     fp_log("can't load right now");
+    //     return;
+    // }
 
     save_data_ctxt_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();

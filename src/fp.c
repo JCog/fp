@@ -118,7 +118,7 @@ void fp_main(void) {
             if (fp.timer.mode == 1 || (fp.timer.prev_cutscene_state && !in_cutscene)) {
                 fp.timer.state = 2;
                 fp.timer.start = fp.cpu_counter;
-                fp.timer.lag_start = pm_unk5.vi_frames;
+                fp.timer.lag_start = pm_ViFrames;
                 fp.timer.frame_start = pm_status.frame_counter;
                 if (settings->bits.timer_logging) {
                     fp_log("timer started");
@@ -135,12 +135,12 @@ void fp_main(void) {
             if (fp.timer.cutscene_count == fp.timer.cutscene_target) {
                 fp.timer.state = 3;
                 fp.timer.end = fp.cpu_counter;
-                fp.timer.lag_end = pm_unk5.vi_frames;
+                fp.timer.lag_end = pm_ViFrames;
                 fp.timer.frame_end = pm_status.frame_counter;
                 fp_log("timer stopped");
             }
             timer_count = fp.cpu_counter - fp.timer.start;
-            lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2
+            lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2
                 - (pm_status.frame_counter - fp.timer.frame_start);
             break;
         case 3:
@@ -211,24 +211,24 @@ void fp_main(void) {
                         *turns_since_claw = 0;
                         *turns_since_stomp = 1;
                         *turns_since_wave = 0;
-                        pm_unk4.rng = 0x03D49DFF;
+                        pm_RandSeed = 0x03D49DFF;
                         break;
                     case 2: //claw
                         *turn = 3;
                         *turns_since_stomp = 0;
                         *turns_since_claw = 1;
                         *turns_since_wave = 0;
-                        pm_unk4.rng = 0x9CB89EDA;
+                        pm_RandSeed = 0x9CB89EDA;
                         break;
                     case 3: //wave
                         *turn = 4;
                         *turns_since_wave = 6;
-                        pm_unk4.rng = 0x77090261;
+                        pm_RandSeed = 0x77090261;
                         break;
                     case 4: //lightning, still gives wave for hallway bowser
                         *turn = 4;
                         *turns_since_wave = 6;
-                        pm_unk4.rng = 0x72A5DCE5;
+                        pm_RandSeed = 0x72A5DCE5;
                         break;
                 }
             }
@@ -281,7 +281,7 @@ void fp_main(void) {
 
     /* handle lzs jump trainer */
     if (fp.lzs_trainer_enabled && fp.lz_stored && pm_status.pressed.a) {
-        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP && pm_unk2.room_change_state == 0) {
+        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP && pm_RoomChangeState == 0) {
             fp_log("control early");
         }
         else if (pm_player.prev_action_state == ACTION_STATE_JUMP || pm_player.action_state == ACTION_STATE_SPIN_JUMP || pm_player.action_state == ACTION_STATE_ULTRA_JUMP) {
@@ -296,7 +296,7 @@ void fp_main(void) {
                 fp_log("control early");
             }
         }
-        else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_unk2.room_change_state == 0) {
+        else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_RoomChangeState == 0) {
             fp_log("jump 1 frame late");
             fp_log("control early");
         }
@@ -316,7 +316,7 @@ void fp_main(void) {
             fp_log("jump >= 2 frames late");
             fp_log("control early");
         }
-        else if (fp.frames_since_land >= 5 && pm_unk2.room_change_state == 0) {
+        else if (fp.frames_since_land >= 5 && pm_RoomChangeState == 0) {
             fp_log("jump > 2 frames late");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
@@ -326,7 +326,7 @@ void fp_main(void) {
     fp.prev_pressed_y = pm_status.pressed.y_cardinal;
     fp.prev_prev_action_state = pm_player.prev_action_state;
 
-    if (pm_unk2.room_change_state == 0x1) {
+    if (pm_RoomChangeState == 1) {
         fp.lz_stored = 0;
         fp.player_landed = 0;
         fp.frames_since_land = 0;
@@ -386,7 +386,9 @@ void fp_main(void) {
         }
     }
     if (settings->cheats & (1 << CHEAT_AUTO_MASH)) {
-        pm_unk7.mash_bar = 10000;
+        if (pm_status.is_battle) {
+            pm_ActionCommandState.mash_bar = 10000;
+        }
     }
 
     /* update turbo */
@@ -578,7 +580,7 @@ void init() {
     pm_status.skip_intro = 1;
 
     /* calculate frame window for OoT ACE */
-    pm_ace_store.last_timer = 0;
+    *(uint16_t*)0x807D0000 = 0;
     int memory_value = 0;
     int *pointer = (int*)0x807bfff8;
     while (memory_value == 0) {

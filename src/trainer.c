@@ -10,11 +10,10 @@ extern void setACEHook(void);
 
 int getMatrixTotal(void) {
     int matrixCount = 0;
-    effects_ctxt_t *effectTable = (effects_ctxt_t*) pm_effects_addr;
 
     for (int i = 0; i < 0x60; i++) {
-        if (effectTable->effects[i] != NULL) {
-            matrixCount += effectTable->effects[i]->matrixTotal;
+        if (pm_effects[i] != NULL) {
+            matrixCount += pm_effects[i]->matrixTotal;
         }
     }
     return matrixCount;
@@ -22,7 +21,7 @@ int getMatrixTotal(void) {
 
 void clearAllEffectsManual(int matrixCount) {
     int var = 0;
-    effects_ctxt_t *effectTable = (effects_ctxt_t*) pm_effects_addr;
+
     if (matrixCount == 0x214) {
         var = 1;
         fp_log ("Successful ACE, jump prevented");
@@ -35,8 +34,8 @@ void clearAllEffectsManual(int matrixCount) {
 
     if (var == 1) {
         for (int i = 0; i < 0x60; i++) {
-            if (effectTable->effects[i] != NULL) {
-                pm_RemoveEffect(effectTable->effects[i]);
+            if (pm_effects[i] != NULL) {
+                pm_RemoveEffect(pm_effects[i]);
             }
         }
     }
@@ -175,7 +174,7 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     int effect_count = 0;
     int i;
     for (i = 0; i<96; i++) {
-        if (pm_effects.effects[i]) {
+        if (pm_effects[i]) {
             effect_count++;
         }
     }
