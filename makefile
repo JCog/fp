@@ -86,5 +86,10 @@ endef
 
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp)))
 
+$(FP-PM64U)	:	LDFLAGS	+=	-Wl,-Map=bin/PM64U/fp-u.map
+$(FP-PM64J)	:	LDFLAGS	+=	-Wl,-Map=bin/PM64J/fp-j.map
+
 $(FP-PM64U)	:	LIBS	:=	-lpm-us
 $(FP-PM64J)	:	LIBS	:=	-lpm-jp
+
+
