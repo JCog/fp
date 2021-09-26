@@ -91,5 +91,3 @@ $(FP-PM64J)	:	LDFLAGS	+=	-Wl,-Map=bin/PM64J/fp-j.map
 
 $(FP-PM64U)	:	LIBS	:=	-lpm-us
 $(FP-PM64J)	:	LIBS	:=	-lpm-jp
-
-
