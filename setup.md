@@ -1,3 +1,7 @@
+## Latest Builds
+
+For an up-to-date development build of fp without the need to build from source, click on the latest workflow run on the [ci page](https://github.com/jcog/fp/actions) and download the patch for the version you want under the Artifacts header
+
 # Building
 
 This tool requires two programs to compile and build.  
