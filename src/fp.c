@@ -30,7 +30,7 @@ static void update_cpu_counter(void) {
     fp.cpu_counter += new_count - count;
     count = new_count;
 }
-s32 timer = 60;
+
 void fp_main(void) {
     update_cpu_counter();
     gfx_mode_init();
