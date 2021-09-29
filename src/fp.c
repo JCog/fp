@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "settings.h"
 #include "watchlist.h"
+#include "crash_screen.h"
 
 __attribute__((section(".data")))
 fp_ctxt_t fp = { 
@@ -29,11 +30,15 @@ static void update_cpu_counter(void) {
     fp.cpu_counter += new_count - count;
     count = new_count;
 }
-
+s32 timer = 60;
 void fp_main(void) {
     update_cpu_counter();
     gfx_mode_init();
     input_update();
+
+    #if PM64_VERSION == PM64J
+    crash_screen_set_draw_info(nuGfxCfb_ptr, PM64_SCREEN_WIDTH, PM64_SCREEN_HEIGHT);
+    #endif
 
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
@@ -599,6 +604,10 @@ void init() {
     }
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
+
+    #if PM64_VERSION == PM64J
+    crash_screen_init();
+    #endif
 
     /*ready*/
     fp.ready = 1;

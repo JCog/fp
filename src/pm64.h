@@ -2,6 +2,7 @@
 #define PM64_H
 #include <n64.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include "enums.h"
 
 #define PM64_SCREEN_WIDTH    320
@@ -13,6 +14,21 @@
 
 #define PM64U    0x00
 #define PM64J    0x01
+
+typedef uint8_t u8;
+typedef int8_t s8;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef uint32_t u32;
+typedef int32_t s32;
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef float f32;
+typedef double f64;
+
+typedef s32	OSPri;
+typedef s32	OSId;
+typedef union	{ struct { f32 f_odd; f32 f_even; } f; f64 d; }	__OSfp;
 
 typedef struct{
     /* 0x0000 */ float x;
@@ -805,6 +821,7 @@ typedef struct {
 } save_info_ctxt_t;
 
 typedef __OSEventState __osEventStateTab_t[];
+typedef void* (*PrintCallback)(void*, const char*, u32);
 
 /* Data */
 #define extern_data extern __attribute__ ((section(".data")))
@@ -826,6 +843,9 @@ extern_data hud_ctxt_t pm_hud;
 extern_data player_ctxt_t pm_player;
 extern_data ActionCommandState pm_ActionCommandState;
 extern_data script_list_ctxt_t pm_curr_script_lst;
+
+extern_data u16* nuGfxCfb_ptr;
+extern_data u32 osMemSize;
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
@@ -854,6 +874,17 @@ void pm_SfxStopSound(int32_t sound_id);
 void pm_PlayAmbientSounds(int32_t sounds_id, int32_t fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
+
+void osSetTime(u64);
+u64 osGetTime();
+s32 _Printf(PrintCallback pfn, void* arg, const char* fmt, va_list ap);
+void osWritebackDCacheAll(void);
+void osViBlack(u8);
+void osViRepeatLine(u8);
+void osViSwapBuffer(void*);
+void osSetEventMesg(OSEvent, OSMesgQueue*, OSMesg);
+void osStopThread(OSThread*);
+OSThread* osGetActiveQueue(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
