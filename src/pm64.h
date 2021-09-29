@@ -874,7 +874,6 @@ void pm_SfxStopSound(int32_t sound_id);
 void pm_PlayAmbientSounds(int32_t sounds_id, int32_t fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
-
 void osSetTime(u64);
 u64 osGetTime();
 s32 _Printf(PrintCallback pfn, void* arg, const char* fmt, va_list ap);
