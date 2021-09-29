@@ -192,7 +192,7 @@ void gfx_flush(void)
 {
   flush_chars();
   gSPEndDisplayList(gfx_disp_p++);
-  gSPDisplayList(pm_gfx.p++, gfx_disp);
+  gSPDisplayList(pm_MasterGfxPos++, gfx_disp);
   Gfx *disp_w = gfx_disp_w;
   gfx_disp_w = gfx_disp;
   gfx_disp = disp_w;

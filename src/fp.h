@@ -69,7 +69,6 @@ typedef struct{
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-_Bool fp_warp_will_crash();
 _Bool fp_warp(Group group, uint16_t room, uint16_t entrance);
 void fp_set_global_flag(int flag_index, _Bool value);
 void fp_set_area_flag(int flag_index, _Bool value);

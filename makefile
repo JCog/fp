@@ -12,6 +12,7 @@ LUAFILE     = crc.lua
 SRCDIR      = src
 OBJDIR      = obj
 BINDIR      = bin
+LIBDIR      = lib
 RESDIR      = res
 CFILES      = *.c
 SFILES      = *.s
@@ -22,7 +23,8 @@ NDEBUG     ?= 0
 ADDRESS     = 0x80400040
 CFLAGS      = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks 
 CPPFLAGS    = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2
-LDFLAGS     = -T gl-n64.ld -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
+LDFLAGS     = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(ADDRESS) 
+ALL_LIBS    = $(LIBS)
 
 ifeq ($(NDEBUG),1)
   CFLAGS += -DNDEBUG
@@ -70,7 +72,7 @@ $$(COBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
 $$(SOBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
 	$(AS) -c -MMD -MP $$< -o $$@
 $$(ELF-$(1))      : $$(COBJ-$(1)) $$(SOBJ-$(1)) $$(RESOBJ-$(1)) | $$(BINDIR-$(1))
-	$(LD) $$(LDFLAGS) $$^ -o $$@
+	$(LD) $$(LDFLAGS) $$^ $$(ALL_LIBS) -o $$@
 $$(BIN-$(1))      : $$(ELF-$(1)) | $$(BINDIR-$(1))
 	$(OBJCOPY) -S -O binary $$< $$@
 $$(RESOBJ-$(1))   : $$(OBJDIR-$(1))/$$(RESDIR)/%.o: $$(RESDIR-$(1))/% $$(RESDESC) | $$(OBJDIR-$(1))/$$(RESDIR)
@@ -83,3 +85,9 @@ patch-$(1)        : $$(BIN-$(1))
 endef
 
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp)))
+
+$(FP-PM64U)	:	LDFLAGS	+=	-Wl,-Map=bin/PM64U/fp-u.map
+$(FP-PM64J)	:	LDFLAGS	+=	-Wl,-Map=bin/PM64J/fp-j.map
+
+$(FP-PM64U)	:	LIBS	:=	-lpm-us
+$(FP-PM64J)	:	LIBS	:=	-lpm-jp

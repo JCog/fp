@@ -127,7 +127,7 @@ static void open_pipes_proc(struct menu_item *item, void *data) {
 
 static void restore_enemies_proc(struct menu_item *item, void *data) {
     for (int i = 0; i < 600; i++){
-        pm_enemy_flags.enemy_defeat_flags[i] = 0;
+        pm_enemy_defeat_flags[i] = 0;
     }
 }
 
@@ -251,12 +251,15 @@ static void export_file_proc(struct menu_item *item, void *data) {
 }
 
 static void import_file_proc(struct menu_item *item, void *data) {
-    if (fp_warp_will_crash()) {
-        fp_log("can't import right now");
-    }
-    else {
-        menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
-    }
+    // if (fp_warp_will_crash()) {
+    //     fp_log("can't import right now");
+    // }
+    // else {
+    //     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
+    // }
+
+    // do we still need the crash check? remove commented code above when confirmed
+    menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
 }
 
 struct menu *create_file_menu(void)

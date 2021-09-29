@@ -119,7 +119,7 @@ void load_oot_ace() {
     pm_player.player_data.star_points = 50;
     pm_player.player_data.hp = pm_player.player_data.max_hp;
     pm_player.player_data.fp = pm_player.player_data.max_fp;
-    pm_ace_store.last_timer = 0;
+    *(uint16_t*)0x807D0000 = 0;
     fp_warp(GROUP_GOOMBA_VILLAGE, 9, 0);
 }
 

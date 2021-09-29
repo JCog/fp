@@ -67,7 +67,7 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     switch (fp.timer.state) {
         case 2:
             timer_count = fp.cpu_counter - fp.timer.start;
-            lag_frames = (pm_unk5.vi_frames - fp.timer.lag_start) / 2
+            lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2
                          - (pm_status.frame_counter - fp.timer.frame_start);
             break;
         case 3:
