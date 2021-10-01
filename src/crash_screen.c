@@ -288,8 +288,8 @@ void crash_screen_thread_entry(void* unused) {
         
     } while (faultedThread == NULL);
 
-    PRINTF("faulted thread detected\n");
     osStopThread(faultedThread);
+    PRINTF("drawing crash screen\n");
     crash_screen_draw(faultedThread);
 
     while (1) {}
