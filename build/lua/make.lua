@@ -11,15 +11,13 @@ if rom_info == nil then
     return 1
 end
 
-local ram = 0x80400000
-
 local fp_version = "fp-" .. rom_info.rom_id
 print("Building " .. fp_version)
 
-print("make LDFLAGS=' -Wl,--defsym,start=0x80400060' " .. 
+print("make " .. 
 fp_version ..
 " patch/" .. fp_version .. "/hooks.gsc")
-local _,_,res = os.execute("make LDFLAGS=' -Wl,--defsym,start=0x80400060' " .. 
+local _,_,res = os.execute("make " .. 
                            fp_version ..
                            " patch/" .. fp_version .. "/hooks.gsc")
 if res ~= 0 then

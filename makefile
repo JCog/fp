@@ -1,30 +1,28 @@
-PACKAGE     ?= $(NAME)
-URL         ?= github.com/jcog/fp
-CC           = mips64-gcc
-LD           = mips64-g++
-AS           = mips64-gcc -x assembler-with-cpp
-OBJCOPY      = mips64-objcopy
-GRC          = grc
-GENHOOKS     = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
-RESDESC      = $(RESDIR)/resources.json
-SRCDIR       = src
-OBJDIR       = obj
-BINDIR       = bin
-LIBDIR       = lib
-RESDIR       = res
-CFILES       = *.c
-SFILES       = *.S
-FP_VERSIONS  = PM64J PM64U
-NAME         = fp
-NDEBUG      ?= 0
+PACKAGE       ?= $(NAME)
+URL           ?= github.com/jcog/fp
+CC             = mips64-gcc
+LD             = mips64-g++
+AS             = mips64-gcc -x assembler-with-cpp
+OBJCOPY        = mips64-objcopy
+GRC            = grc
+GENHOOKS       = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
+RESDESC        = $(RESDIR)/resources.json
+SRCDIR         = src
+OBJDIR         = obj
+BINDIR         = bin
+LIBDIR         = lib
+RESDIR         = res
+CFILES         = *.c
+SFILES         = *.s
+FP_VERSIONS    = PM64J PM64U
+NAME           = fp
+NDEBUG        ?= 0
 
-ADDRESS      = 0x80400060
-ADDRESS_LDR_JP = 0x8004AA2C
-ADDRESS_LDR_US = 0x8004AD7C
-CFLAGS       = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks
-ALL_CPPFLAGS = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2 $(CPPFLAGS)
-ALL_LDFLAGS      = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
-ALL_LIBS     = $(LIBS)
+ADDRESS_FP_BIN = 0x80400060
+CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks
+ALL_CPPFLAGS   = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2 $(CPPFLAGS)
+ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
+ALL_LIBS       = $(LIBS)
 
 ifeq ($(NDEBUG),1)
   CFLAGS += -DNDEBUG
@@ -86,8 +84,8 @@ endef
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,ldr,ldr/res)))
 
-$(FP-PM64U)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64U/fp-u.map 
-$(FP-PM64J)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64J/fp-j.map
+$(FP-PM64U)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64U/fp-u.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
+$(FP-PM64J)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64J/fp-j.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
 
 $(FP-PM64U)	:	LIBS	:=	-lpm-us
 $(FP-PM64J)	:	LIBS	:=	-lpm-jp

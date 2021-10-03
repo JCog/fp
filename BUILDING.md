@@ -17,7 +17,7 @@ Clone the fp source code by running:
 
 `git clone https://github.com/jcog/fp.git`  
 
-To build all fp binaries, run `make LDFLAGS=' -Wl,--defsym,start=0x80400060'` in the root directory of the fp repository.
+To build all fp binaries, run `make` in the root directory of the fp repository.
 If you only want to patch a rom, you can skip this step and move on to the patching section.
 
 # Patching
