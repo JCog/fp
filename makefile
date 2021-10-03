@@ -9,8 +9,8 @@ GENHOOKS       = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
 RESDESC        = $(RESDIR)/resources.json
 SRCDIR         = src
 BUILDDIR       = build
-OBJDIR         = obj
-BINDIR         = bin
+OBJDIR         = $(BUILDDIR)/obj
+BINDIR         = $(BUILDDIR)/bin
 LIBDIR         = lib
 RESDIR         = res
 CFILES         = *.c
@@ -47,9 +47,9 @@ clean       :
 define bin_template
 SRCDIR-$(1)      = $(4)
 RESDIR-$(1)      = $(5)
-OBJDIR-$(1)      = obj/$(1)
-BINDIR-$(1)      = bin/$(1)
-HOOKSDIR-$(1)    = patch/$(1)
+OBJDIR-$(1)      = $(BUILDDIR)/obj/$(1)
+BINDIR-$(1)      = $(BUILDDIR)/bin/$(1)
+HOOKSDIR-$(1)    = $(BUILDDIR)/patch/$(1)
 NAME-$(1)        = $(1)
 CPPFLAGS-$(1)    = -DVERSION=$(2) $(ALL_CPPFLAGS)
 CSRC-$(1)       := $$(foreach s,$$(CFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
@@ -62,7 +62,7 @@ OBJ-$(1)         = $$(COBJ-$(1)) $$(SOBJ-$(1)) $$(RESOBJ-$(1))
 ELF-$(1)         = $$(BINDIR-$(1))/$(3).elf
 BIN-$(1)         = $$(BINDIR-$(1))/$(3).bin
 OUTDIR-$(1)      = $$(OBJDIR-$(1)) $$(OBJDIR-$(1))/$$(RESDIR) $$(BINDIR-$(1)) $$(HOOKSDIR-$(1))
-HOOKS-$(1)       = patch/$(1)/hooks.gsc
+HOOKS-$(1)       = $(BUILDDIR)/patch/$(1)/hooks.gsc
 BUILD-$(1)       = $(1)
 CLEAN-$(1)       = clean-$(1)
 $$(BUILD-$(1))   : $$(BIN-$(1))
