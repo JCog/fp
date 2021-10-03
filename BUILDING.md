@@ -23,8 +23,8 @@ If you only want to patch a rom, you can skip this step and move on to the patch
 # Patching
 To create a patched ROM, run
 
-    build/makerom <rom-file>
+    ./makerom <rom-file>
 
 replacing `<rom-file>` with the path to a unmodified (and 100% legally obtained) Mario Story (J) or Paper Mario (U) ROM.
 
-If you do not specifiy an output rom with `-o <output-rom>`, the newly built fp rom will be located in the build directory as either `fp-PM64J.z64` or `fp-PM64U.z64`.
+If you do not specifiy an output rom with `-o <output-rom>`, the newly built fp rom will be located in the root directory as either `fp-jp.z64` or `fp-us.z64`.

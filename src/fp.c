@@ -179,9 +179,9 @@ void fp_main(void) {
     }
     if (!fp.version_shown) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 0, "fp");
-        gfx_printf(font, 16, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_VERSION);
-        gfx_printf(font, PM64_SCREEN_WIDTH - cw * 21, PM64_SCREEN_HEIGHT - 35 + ch * 1, FP_URL);
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + ch * 0, "fp");
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + ch * 1, FP_VERSION);
+        gfx_printf(font, SCREEN_WIDTH - cw * 21, SCREEN_HEIGHT - 35 + ch * 1, FP_URL);
     }
 
     /* handle bowser block trainer */

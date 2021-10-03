@@ -4,15 +4,15 @@
 #include <stdint.h>
 #include "enums.h"
 
-#define PM64_SCREEN_WIDTH    320
-#define PM64_SCREEN_HEIGHT   240
+#define SCREEN_WIDTH    320
+#define SCREEN_HEIGHT   240
 
-#ifndef PM64_VERSION
+#ifndef VERSION
 #error no pm64 version specified
 #endif
 
-#define PM64U    0x00
-#define PM64J    0x01
+#define US    0x00
+#define JP    0x01
 
 typedef struct{
     /* 0x0000 */ float x;

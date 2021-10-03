@@ -10,7 +10,7 @@
 #include "tricks.h"
 #include "watchlist.h"
 
-#if PM64_VERSION==PM64U
+#if VERSION==US
     #define RM_CHNGE_PTR 0x8003617C
 #else
     #define RM_CHNGE_PTR 0x80035DFC

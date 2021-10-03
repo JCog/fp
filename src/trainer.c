@@ -233,7 +233,7 @@ void create_trainer_menu(struct menu *menu)
     int y_value = 1;
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
-    #if PM64_VERSION==PM64J
+    #if VERSION==JP
     menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); //TODO: add english support for ace
     #endif
     menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");

@@ -13,13 +13,13 @@ while(args[1]) do
     end
 end
 
-local make = loadfile("build/lua/make.lua")
-local patched_rom, rom_info, fp_version = make(in_rom)
+local make = loadfile("lua/make.lua")
+local patched_rom, rom_id = make(in_rom)
 
 if(opt_out_rom ~= nil) then
     print("Saving " .. opt_out_rom)
     patched_rom:save(opt_out_rom)
 else
-    print("Saving build/" .. fp_version .. ".z64")
-    patched_rom:save("build/" .. fp_version .. ".z64")
+    print("Saving fp-" .. rom_id:lower() .. ".z64")
+    patched_rom:save("fp-" .. rom_id:lower() .. ".z64")
 end

@@ -8,13 +8,14 @@ GRC            = grc
 GENHOOKS       = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
 RESDESC        = $(RESDIR)/resources.json
 SRCDIR         = src
+BUILDDIR       = build
 OBJDIR         = obj
 BINDIR         = bin
 LIBDIR         = lib
 RESDIR         = res
 CFILES         = *.c
 SFILES         = *.s
-FP_VERSIONS    = PM64J PM64U
+FP_VERSIONS    = JP US
 NAME           = fp
 NDEBUG        ?= 0
 
@@ -32,13 +33,14 @@ endif
 FP_ALL      = $(foreach v,$(FP_VERSIONS),fp-$(v))
 LDR         = $(foreach v,$(FP_VERSIONS),ldr-fp-$(v))
 
-FP-ALL      = $(FP-PM64J) $(FP-PM64U)
-FP-PM64J    = $(OBJ-fp-PM64J) $(ELF-fp-PM64J) $(HOOKS-fp-PM64J)
-FP-PM64U    = $(OBJ-fp-PM64U) $(ELF-fp-PM64U) $(HOOKS-fp-PM64U)
+FP-ALL      = $(FP-JP) $(FP-US)
+FP-JP       = $(OBJ-fp-JP) $(ELF-fp-JP) $(HOOKS-fp-JP)
+FP-US       = $(OBJ-fp-US) $(ELF-fp-US) $(HOOKS-fp-US)
 
 all         : $(FP_ALL)
 clean       :
-	rm -rf $(OBJDIR) $(BINDIR)
+	rm -rf $(BUILDDIR)
+	rm -f fp-jp.z64 fp-us.z64
 
 .PHONY: clean all
 
@@ -49,7 +51,7 @@ OBJDIR-$(1)      = obj/$(1)
 BINDIR-$(1)      = bin/$(1)
 HOOKSDIR-$(1)    = patch/$(1)
 NAME-$(1)        = $(1)
-CPPFLAGS-$(1)    = -DPM64_VERSION=$(2) $(ALL_CPPFLAGS)
+CPPFLAGS-$(1)    = -DVERSION=$(2) $(ALL_CPPFLAGS)
 CSRC-$(1)       := $$(foreach s,$$(CFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
 COBJ-$(1)        = $$(patsubst $$(SRCDIR-$(1))/%,$$(OBJDIR-$(1))/%.o,$$(CSRC-$(1)))
 SSRC-$(1)       := $$(foreach s,$$(SFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
@@ -82,10 +84,10 @@ $$(HOOKS-$(1))      :   $$(ELF-$(1)) $$(HOOKSDIR-$(1))
 	$$(GENHOOKS) $$< $(7) >$$@
 endef
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
-$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,ldr,ldr/res)))
+$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/ldr,res/ldr)))
 
-$(FP-PM64U)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64U/fp-u.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
-$(FP-PM64J)	:	ALL_LDFLAGS	+=	-Wl,-Map=bin/fp-PM64J/fp-j.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
+$(FP-US)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-us.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
+$(FP-JP)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-jp.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
 
-$(FP-PM64U)	:	LIBS	:=	-lpm-us
-$(FP-PM64J)	:	LIBS	:=	-lpm-jp
+$(FP-US)	:	LIBS	:=	-lpm-us
+$(FP-JP)	:	LIBS	:=	-lpm-jp
