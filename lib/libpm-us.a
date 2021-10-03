@@ -43,3 +43,4 @@ pm_ActionCommandState = 0x8029FC24;
 pm_func_802A472C = 0x802A472C;
 pm_curr_script_lst = 0x802DA890;
 pm_SaveGame = 0x802E11A0;
+pm_main_game_hook = 0x80026CBC;

@@ -623,7 +623,7 @@ static void init_stack(void (*func)(void)) {
 
 
 /* fp entry point - init stack, update game, and call main function */
-ENTRY void _start(void) {
+ENTRY void fp_entry(void) {
 
     init_gp();
     if(!fp.ready) {
