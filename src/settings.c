@@ -43,9 +43,9 @@ void settings_load_default(void){
     d->menu_x = 16;
     d->menu_y = 60;
     d->input_display_x = 16;
-    d->input_display_y = PM64_SCREEN_HEIGHT - 23;
-    d->log_x = PM64_SCREEN_WIDTH - 20;
-    d->log_y = PM64_SCREEN_HEIGHT - 33;
+    d->input_display_y = SCREEN_HEIGHT - 23;
+    d->log_x = SCREEN_WIDTH - 20;
+    d->log_y = SCREEN_HEIGHT - 33;
     d->timer_x = 16;
     d->timer_y = 68;
     d->n_watches = 0;

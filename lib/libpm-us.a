@@ -1,4 +1,5 @@
 osSyncPrintf = 0x80025CFC;
+pm_main_game_hook = 0x80026CBC;
 pm_FioValidateFileChecksum = 0x8002B0F8;
 pm_FioFetchSavedFileInfo = 0x8002B154;
 pm_FioDeserializeState = 0x8002B490;
