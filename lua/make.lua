@@ -16,15 +16,15 @@ print("Building " .. fp_version)
 
 print("make " .. 
 fp_version ..
-" patch/" .. fp_version .. "/hooks.gsc")
+" build/patch/" .. fp_version .. "/hooks.gsc")
 local _,_,res = os.execute("make " .. 
                            fp_version ..
-                           " patch/" .. fp_version .. "/hooks.gsc")
+                           " build/patch/" .. fp_version .. "/hooks.gsc")
 if res ~= 0 then
     error("could not build fp", 0)
 end
 
-local hooks = gru.gsc_load("patch/" .. fp_version .. "/hooks.gsc")
+local hooks = gru.gsc_load("build/patch/" .. fp_version .. "/hooks.gsc")
 
 print("Applying hooks")
 hooks:shift(-rom_info.code_ram)

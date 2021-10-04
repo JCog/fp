@@ -84,7 +84,7 @@ $$(HOOKS-$(1))      :   $$(ELF-$(1)) $$(HOOKSDIR-$(1))
 	$$(GENHOOKS) $$< $(7) >$$@
 endef
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
-$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/ldr,res/ldr)))
+$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/asm,res/ldr)))
 
 $(FP-US)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-us.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
 $(FP-JP)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-jp.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
