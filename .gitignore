@@ -2,4 +2,3 @@ build/
 *.exe
 *.z64
 /.vs
-patch/

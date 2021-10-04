@@ -27,7 +27,7 @@ end
 local hooks = gru.gsc_load("build/patch/" .. fp_version .. "/hooks.gsc")
 
 print("Applying hooks")
-hooks:shift(-rom_info.code_ram)
+hooks:shift(-rom_info.rom_to_ram)
 hooks:apply_be(rom)
 
 local old_ldr = rom:copy(rom_info.ldr_rom, 0x54)
@@ -36,12 +36,12 @@ local payload_rom = 0x2800000
 local fp_rom = payload_rom + 0x60
 
 print("Building Loader")
-print(string.format("make CPPFLAGS=' -DDMA=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
+print(string.format("make CPPFLAGS=' -DDMA_COPY=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
                     " ldr-" .. fp_version, 
                     rom_info.dma_func,
                     fp:size() + fp_rom,
                     rom_info.ldr_addr))
-local _,_,res = os.execute(string.format("make CPPFLAGS=' -DDMA=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
+local _,_,res = os.execute(string.format("make CPPFLAGS=' -DDMA_COPY=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
                                          " ldr-" .. fp_version, 
                                          rom_info.dma_func,
                                          fp:size() + fp_rom,

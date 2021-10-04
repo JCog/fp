@@ -19,7 +19,7 @@ FP_VERSIONS    = JP US
 NAME           = fp
 NDEBUG        ?= 0
 
-ADDRESS_FP_BIN = 0x80400060
+FP_BIN_ADDRESS = 0x80400060
 CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks
 ALL_CPPFLAGS   = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2 $(CPPFLAGS)
 ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
@@ -86,8 +86,8 @@ endef
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/asm,res/ldr)))
 
-$(FP-US)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-us.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
-$(FP-JP)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-jp.map -Wl,--defsym,start=$(ADDRESS_FP_BIN)
+$(FP-US)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-us.map -Wl,--defsym,start=$(FP_BIN_ADDRESS)
+$(FP-JP)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-jp.map -Wl,--defsym,start=$(FP_BIN_ADDRESS)
 
 $(FP-US)	:	LIBS	:=	-lpm-us
 $(FP-JP)	:	LIBS	:=	-lpm-jp
