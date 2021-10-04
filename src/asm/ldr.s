@@ -9,7 +9,7 @@ _start:
 li  $a0, 0x2800000
 li  $a1, (END)
 lui $a2, 0x8040
-jal (DMA)
+jal (DMA_COPY)
 j 0x80400000
 nop
 nop
@@ -22,6 +22,6 @@ nop
 nop
 nop
 nop
-nop // last instruction of the function that was originally here
+nop
 .end _start
 .size _start, . - _start
