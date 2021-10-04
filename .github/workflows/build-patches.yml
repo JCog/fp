@@ -17,31 +17,26 @@ jobs:
         echo deb https://practicerom.com/public/packages/debian ./staging main | sudo tee /etc/apt/sources.list.d/practicerom.list
         sudo apt-get update
         sudo apt-get install practicerom-dev xdelta3
-    - name: Install armips
-      run: |
-        git clone --recursive https://github.com/Kingcom/armips.git
-        cd armips
-        cmake -DCMAKE_BUILD_TYPE=Release .
-        cmake --build . -j8
-        sudo cp armips /usr/local/bin/
     - name: Download ROMs
       run: |
         mkdir rom
-        curl -sL -o rom/base-j.z64 ${{ secrets.JP_ROM }}
-        curl -sL -o rom/base-u.z64 ${{ secrets.US_ROM }}
+        curl -sL -o base-jp.z64 ${{ secrets.JP_ROM }}
+        curl -sL -o base-us.z64 ${{ secrets.US_ROM }}
     - name: Make fp ROMs
-      run: NDEBUG=1 make clean all
+      run: |
+        ./makerom base-jp.z64
+        ./makerom base-us.z64
     - name: Create xdelta patches
       run: |
-        xdelta3 -e -S none -s rom/base-j.z64 rom/fp-j.z64 fp-j.xdelta
-        xdelta3 -e -S none -s rom/base-u.z64 rom/fp-u.z64 fp-u.xdelta
+        xdelta3 -e -S none -s base-jp.z64 fp-jp.z64 fp-j.xdelta
+        xdelta3 -e -S none -s base-us.z64 fp-us.z64 fp-u.xdelta
     - name: Upload JP patch
       uses: actions/upload-artifact@v2.2.4
       with:
-        name: fp-j.xdelta
-        path: fp-j.xdelta
+        name: fp-jp.xdelta
+        path: fp-jp.xdelta
     - name: Upload US patch
       uses: actions/upload-artifact@v2.2.4
       with:
-        name: fp-u.xdelta
-        path: fp-u.xdelta
+        name: fp-us.xdelta
+        path: fp-us.xdelta
