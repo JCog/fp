@@ -89,4 +89,6 @@ struct menu *create_settings_menu();
 #define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
 #endif
 
+#define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
+
 #endif

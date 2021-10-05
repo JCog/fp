@@ -4,6 +4,17 @@
 #include <stdint.h>
 #include "enums.h"
 
+typedef uint8_t u8;
+typedef int8_t s8;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef uint32_t u32;
+typedef int32_t s32;
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef float f32;
+typedef double f64;
+
 #define SCREEN_WIDTH    320
 #define SCREEN_HEIGHT   240
 
@@ -828,6 +839,7 @@ extern_data ActionCommandState pm_ActionCommandState;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 
 /* Functions */
+void step_game_loop(void);
 void osSyncPrintf(const char *fmt, ...);
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);
@@ -846,7 +858,6 @@ void pm_SetGameMode(int32_t mode);
 void pm_RemoveEffect(EffectInstance *effect);
 void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
 void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
-void pm_GameUpdate(void);
 int32_t pm_SetMapTransitionEffect(int32_t transition);
 void pm_PlaySfx(int32_t sound_id);
 void pm_BgmSetSong(int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
