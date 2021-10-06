@@ -21,6 +21,23 @@ fp_ctxt_t fp = {
     .ready = 0, 
 };
 
+// Initializes and uses new stack instead of using games main thread stack.
+static void init_stack(void (*func)(void)) {
+    static _Alignas(8) __attribute__((section(".stack"))) 
+    char stack[0x2000];
+    __asm__ volatile(   "la     $t0, %1;"
+                        "sw     $sp, -0x04($t0);"
+                        "sw     $ra, -0x08($t0);"
+                        "addiu  $sp, $t0, -0x08;"
+                        "jalr   %0;"
+                        "nop;"
+                        "lw     $ra, 0($sp);"
+                        "lw     $sp, 4($sp);"
+                        ::
+                        "r"(func),
+                        "i"(&stack[sizeof(stack)]));
+}
+
 static void main_return_proc(struct menu_item *item, void *data) {
     hide_menu();
 }
@@ -78,7 +95,7 @@ void fp_init() {
 
     settings_load_default();
 
-    /* init menus */
+    // init menus
     static struct menu main_menu;
     static struct menu watches;
     static struct menu global;
@@ -91,7 +108,7 @@ void fp_init() {
     fp.global = &global;
     fp.menu_watches = &watches;
 
-    /* populate top level menus */
+    // populate top level menus
     s32 menu_index = 0;
     main_menu.selector = menu_add_button(fp.main_menu, 0, menu_index++, "return", main_return_proc, NULL);
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_warps_menu(), "warps");
@@ -103,21 +120,21 @@ void fp_init() {
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
 
-    /* populate watches menu */
+    // populate watches menu
     watches.selector = menu_add_submenu(&watches, 0, 0, NULL, "return");
     fp.menu_watchlist = watchlist_create(&watches, &global, 0, 1);
 
-    /* configure menu related commands */
+    // configure menu related commands
     input_bind_set_override(COMMAND_MENU, 1);
     input_bind_set_override(COMMAND_RETURN, 1);
 
-    /*get menu appearance*/
+    // get menu appearance
     apply_menu_settings();
 
-    /* skip intro on boot */
+    // skip intro on boot
     pm_status.skip_intro = 1;
 
-    /* calculate frame window for OoT ACE */
+    // calculate frame window for OoT ACE
     *(u16*)0x807D0000 = 0;
     s32 memory_value = 0;
     s32 *pointer = (s32*)0x807BFFF8;
@@ -142,7 +159,6 @@ void fp_init() {
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
 
-    /*ready*/
     fp.ready = 1;
 }
 
@@ -379,8 +395,8 @@ void fp_bowser_block_trainer(void) {
 
 void fp_lzs_trainer(void) {
     // detect if loading zone is stored
-    /* TODO: Yes this function looks awful. If a cleaner way to detect stored loading zones is found or decomped,
-       please submit a PR or let an fp dev know */
+    // TODO: Yes this function looks awful. 
+    // If a cleaner way to detect stored loading zones is found or decomped, please submit a PR or let an fp dev know
     u32 *event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
     u32 event_space = *event_spc_ptr;
     u32 event_count = pm_curr_script_lst.script_list_count;
@@ -568,7 +584,9 @@ void fp_update(void) {
 
     u16 pad_pressed = input_pressed();
 
-    pm_status.skip_intro = 1;
+    if (!fp.version_shown) {
+        pm_status.skip_intro = 1;
+    }
 
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
@@ -669,22 +687,7 @@ void fp_draw(void) {
     gfx_flush();
 }
 
-// Initializes and uses new stack instead of using graph threads stack.
-static void init_stack(void (*func)(void)) {
-    static _Alignas(8) __attribute__((section(".stack"))) 
-    char stack[0x2000];
-    __asm__ volatile(   "la     $t0, %1;"
-                        "sw     $sp, -0x04($t0);"
-                        "sw     $ra, -0x08($t0);"
-                        "addiu  $sp, $t0, -0x08;"
-                        "jalr   %0;"
-                        "nop;"
-                        "lw     $ra, 0($sp);"
-                        "lw     $sp, 4($sp);"
-                        ::
-                        "r"(func),
-                        "i"(&stack[sizeof(stack)]));
-}
+/* ========================== HOOK ENTRY POINTS ========================== */
 
 ENTRY void fp_update_entry(void) {
     init_gp();
@@ -701,6 +704,10 @@ ENTRY void fp_draw_entry(void) {
     init_gp();
     state_render_frontUI();
     init_stack(fp_draw);
+}
+
+ENTRY void fp_after_draw_entry(void) {
+    crash_screen_set_draw_info();
 }
 
 #include <startup.c>

@@ -49,3 +49,6 @@ step_game_loop = 0x80026740;
 
 draw_hook = 0x80026CBC;
 state_render_frontUI = 0x80112FC4;
+
+after_draw_hook = 0x80026DC0;
+crash_screen_set_draw_info = 0x8002C890;
