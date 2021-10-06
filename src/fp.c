@@ -563,11 +563,13 @@ void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu
  * This runs after the base games full update loop every frame
  */
 void fp_main(void) {
-    u16 pad_pressed = input_pressed();
+    u16 pad_pressed;
 
     fp_update_cpu_counter();
     gfx_mode_init();
     input_update();
+
+    pad_pressed = input_pressed();
 
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
@@ -684,7 +686,7 @@ ENTRY void fp_entry(void) {
         init_stack(fp_init);
     }
 
-    pm_GameUpdate();
+    state_render_frontUI();
     init_stack(fp_main);
 }
 
