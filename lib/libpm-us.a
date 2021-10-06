@@ -33,7 +33,6 @@ pm_popup_menu_var = 0x8010D640;
 pm_overworld = 0x8010EBB0;
 pm_hud = 0x8010EF58;
 pm_player = 0x8010EFC8;
-state_render_frontUI = 0x80112FC4;
 pm_SetMapTransitionEffect = 0x801382A0;
 pm_PlayAmbientSounds = 0x80147368;
 pm_PlaySfx = 0x80149CB4;

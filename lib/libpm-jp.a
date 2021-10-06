@@ -43,9 +43,6 @@ pm_func_802A472C = 0x802A4608;
 pm_curr_script_lst = 0x802DA890;
 pm_SaveGame = 0x802DC150;
 
-pm_main_game_hook = 0x80026C88;
-state_render_frontUI = 0x801181D4;
-
 update_hook = 0x80026100;
 step_game_loop = 0x80026710;
 
