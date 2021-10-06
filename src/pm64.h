@@ -866,7 +866,9 @@ void pm_PlayAmbientSounds(int32_t sounds_id, int32_t fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
 
-void gfx_draw_frame(void);
+void state_render_frontUI(void);
+void step_game_loop(void);
+
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
 

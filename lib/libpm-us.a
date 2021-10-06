@@ -44,7 +44,8 @@ pm_func_802A472C = 0x802A472C;
 pm_curr_script_lst = 0x802DA890;
 pm_SaveGame = 0x802E11A0;
 
-hook_draw_frame = 0x80026148;
+update_hook = 0x8002611C;
+step_game_loop = 0x80026740;
+
 draw_hook = 0x80026CBC;
 state_render_frontUI = 0x80112FC4;
-gfx_draw_frame = 0x80026B08;

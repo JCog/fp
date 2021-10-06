@@ -562,14 +562,13 @@ void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu
  * fp's main update function
  * This runs after the base games full update loop every frame
  */
-void fp_main(void) {
-    u16 pad_pressed;
-
+void fp_update(void) {
     fp_update_cpu_counter();
-    gfx_mode_init();
     input_update();
 
-    pad_pressed = input_pressed();
+    u16 pad_pressed = input_pressed();
+
+    pm_status.skip_intro = 1;
 
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
@@ -580,39 +579,21 @@ void fp_main(void) {
 
     fp_emergency_settings_reset(pad_pressed);
 
-    struct gfx_font *font = menu_get_font(fp.main_menu, 1);
-    u8 menu_alpha = menu_get_alpha_i(fp.main_menu, 1);
-    s32 cell_width = menu_get_cell_width(fp.main_menu, 1);
-    s32 cell_height = menu_get_cell_height(fp.main_menu, 1);
-
-    if (!fp.version_shown) {
-        fp_draw_version(font, cell_width, cell_height, menu_alpha);
-    }
-
-    if (settings->bits.input_display) {
-        fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
-    }
-
     if (fp.menu_active) {
         fp_update_menu();
     } else if (input_bind_pressed_raw(COMMAND_MENU)) {
         show_menu();
     }
 
-    s64 timer_count = 0;
-    s32 lag_frames = 0;
+    fp.timer_count = 0;
+    fp.lag_frames = 0;
 
     if (fp.timer.state != 0) {
-        fp_update_timer(&timer_count, &lag_frames);
+        fp_update_timer(&fp.timer_count, &fp.lag_frames);
     }
 
     fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
 
-    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) || 
-       (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
-        fp_draw_timer(timer_count, lag_frames, font, cell_width, cell_height, menu_alpha);
-    }
-    
     if (fp.bowser_blocks_enabled) {
         fp_bowser_block_trainer();
     }
@@ -652,6 +633,32 @@ void fp_main(void) {
     while (menu_think(fp.global)) {
         // wait
     }
+}
+
+/**
+ * fp's main draw function
+ * This runs after the game draws the front UI every frame
+ */
+void fp_draw(void) {
+    gfx_mode_init();
+
+    struct gfx_font *font = menu_get_font(fp.main_menu, 1);
+    u8 menu_alpha = menu_get_alpha_i(fp.main_menu, 1);
+    s32 cell_width = menu_get_cell_width(fp.main_menu, 1);
+    s32 cell_height = menu_get_cell_height(fp.main_menu, 1);
+
+    if (!fp.version_shown) {
+        fp_draw_version(font, cell_width, cell_height, menu_alpha);
+    }
+
+    if (settings->bits.input_display) {
+        fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
+    }
+
+    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) || 
+       (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
+        fp_draw_timer(fp.timer_count, fp.lag_frames, font, cell_width, cell_height, menu_alpha);
+    }
 
     if (fp.menu_active) {
       menu_draw(fp.main_menu);
@@ -679,15 +686,21 @@ static void init_stack(void (*func)(void)) {
                         "i"(&stack[sizeof(stack)]));
 }
 
-ENTRY void fp_entry(void) {
+ENTRY void fp_update_entry(void) {
     init_gp();
 
     if(!fp.ready) {
         init_stack(fp_init);
     }
 
+    step_game_loop();
+    init_stack(fp_update);
+}
+
+ENTRY void fp_draw_entry(void) {
+    init_gp();
     state_render_frontUI();
-    init_stack(fp_main);
+    init_stack(fp_draw);
 }
 
 #include <startup.c>

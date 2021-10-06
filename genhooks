@@ -35,4 +35,5 @@ genhook()
     rm -f "$tmp"
 }
 
-genhook "$sym_draw_hook" "jal $sym_fp_entry;"
+genhook "$sym_update_hook" "jal $sym_fp_update_entry;"
+genhook "$sym_draw_hook" "jal $sym_fp_draw_entry;"
