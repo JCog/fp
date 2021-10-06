@@ -839,7 +839,6 @@ extern_data ActionCommandState pm_ActionCommandState;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 
 /* Functions */
-void step_game_loop(void);
 void osSyncPrintf(const char *fmt, ...);
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);
@@ -865,7 +864,6 @@ void pm_SfxStopSound(int32_t sound_id);
 void pm_PlayAmbientSounds(int32_t sounds_id, int32_t fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
-
 void state_render_frontUI(void);
 void step_game_loop(void);
 
