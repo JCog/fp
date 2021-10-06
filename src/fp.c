@@ -706,9 +706,9 @@ ENTRY void fp_draw_entry(void) {
     init_stack(fp_draw);
 }
 
-ENTRY void fp_after_draw_entry(void) {
-    crash_screen_set_draw_info();
-}
+// ENTRY void fp_after_draw_entry(void) {
+//     crash_screen_set_draw_info();
+// }
 
 #include <startup.c>
 #include <set/set.c>
