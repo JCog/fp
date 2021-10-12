@@ -8,7 +8,7 @@ The latest release and installation instructions can be found on the [releases p
 See the [user manual](https://github.com/JCog/fp/blob/master/USAGE.md) for information on how to use fp.
 
 # Building
-To build from source, refer to [this guide](https://github.com/jcog/fp/blob/master/setup.md).  
+To build from source, refer to [this guide](https://github.com/jcog/fp/blob/master/BUILDING.md).  
 
 # Feedback
 If you found a bug or have an idea for an enhancement or feature, please [create an issue](https://github.com/JCog/fp/issues).

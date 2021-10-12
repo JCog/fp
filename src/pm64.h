@@ -5,15 +5,26 @@
 #include <stdarg.h>
 #include "enums.h"
 
-#define PM64_SCREEN_WIDTH    320
-#define PM64_SCREEN_HEIGHT   240
+typedef uint8_t u8;
+typedef int8_t s8;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef uint32_t u32;
+typedef int32_t s32;
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef float f32;
+typedef double f64;
 
-#ifndef PM64_VERSION
+#define SCREEN_WIDTH    320
+#define SCREEN_HEIGHT   240
+
+#ifndef VERSION
 #error no pm64 version specified
 #endif
 
-#define PM64U    0x00
-#define PM64J    0x01
+#define US    0x00
+#define JP    0x01
 
 typedef uint8_t u8;
 typedef int8_t s8;
@@ -866,7 +877,6 @@ void pm_SetGameMode(int32_t mode);
 void pm_RemoveEffect(EffectInstance *effect);
 void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
 void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
-void pm_GameUpdate(void);
 int32_t pm_SetMapTransitionEffect(int32_t transition);
 void pm_PlaySfx(int32_t sound_id);
 void pm_BgmSetSong(int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
@@ -884,6 +894,8 @@ void osViSwapBuffer(void*);
 void osSetEventMesg(OSEvent, OSMesgQueue*, OSMesg);
 void osStopThread(OSThread*);
 OSThread* osGetActiveQueue(void);
+void state_render_frontUI(void);
+void step_game_loop(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

@@ -41,6 +41,8 @@ typedef struct{
     int64_t                 cpu_counter;
     int32_t                 cpu_counter_freq;
     struct timer            timer;
+    s64                     timer_count;
+    s32                     lag_frames;
     _Bool                   menu_active;
     struct log_entry        log[SETTINGS_LOG_MAX];
     float                   saved_x;
@@ -88,5 +90,7 @@ struct menu *create_settings_menu();
 #else
 #define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
 #endif
+
+#define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
 
 #endif

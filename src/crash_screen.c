@@ -295,16 +295,16 @@ void crash_screen_thread_entry(void* unused) {
     while (1) {}
 }
 
-void crash_screen_set_draw_info(u16* frameBufPtr, s16 width, s16 height) {
+void crash_screen_set_draw_info_custom(u16* frameBufPtr, s16 width, s16 height) {
     gCrashScreen.frameBuf = (u16*)((u32)frameBufPtr | 0xA0000000);
     gCrashScreen.width = width;
     gCrashScreen.height = height;
 }
 
 void crash_screen_init(void) {
-    gCrashScreen.width = PM64_SCREEN_WIDTH;
+    gCrashScreen.width = SCREEN_WIDTH;
     gCrashScreen.height = 16;
-    gCrashScreen.frameBuf = (u16*)((osMemSize | 0xA0000000) - ((PM64_SCREEN_WIDTH * PM64_SCREEN_HEIGHT) * 2));
+    gCrashScreen.frameBuf = (u16*)((osMemSize | 0xA0000000) - ((SCREEN_WIDTH * SCREEN_HEIGHT) * 2));
     osCreateMesgQueue(&gCrashScreen.queue, &gCrashScreen.mesg, 1);
     osCreateThread(&gCrashScreen.thread, 2, crash_screen_thread_entry, NULL,
                    gCrashScreen.stack + sizeof(gCrashScreen.stack), 0x80);

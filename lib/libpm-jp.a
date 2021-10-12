@@ -47,7 +47,6 @@ pm_popup_menu_var = 0x8010D800;
 pm_overworld = 0x8010ED70;
 pm_hud = 0x8010F118;
 pm_player = 0x8010F188;
-pm_GameUpdate = 0x801181D4;
 pm_SetMapTransitionEffect = 0x8013D350;
 pm_PlayAmbientSounds = 0x8014C418;
 pm_PlaySfx = 0x8014ED64;
@@ -57,3 +56,12 @@ pm_ActionCommandState = 0x8029FF14;
 pm_func_802A472C = 0x802A4608;
 pm_curr_script_lst = 0x802DA890;
 pm_SaveGame = 0x802DC150;
+
+update_hook = 0x80026100;
+step_game_loop = 0x80026710;
+
+draw_hook = 0x80026C88;
+state_render_frontUI = 0x801181D4;
+
+after_draw_hook = 0x80026D8C;
+crash_screen_set_draw_info = 0x8002C850;

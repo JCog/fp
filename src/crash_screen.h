@@ -14,6 +14,6 @@ typedef struct {
 } CrashScreen; // size = 0x9D4
 
 void crash_screen_init(void);
-void crash_screen_set_draw_info(u16* frameBufPtr, s16 width, s16 height);
+void crash_screen_set_draw_info_custom(u16* frameBufPtr, s16 width, s16 height);
 
 #endif

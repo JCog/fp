@@ -73,7 +73,7 @@ void gfx_mode_init(void)
   gDPSetCycleType(gfx_disp_p++, G_CYC_1CYCLE);
   gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
   gDPSetScissor(gfx_disp_p++, G_SC_NON_INTERLACE,
-                0, 0, PM64_SCREEN_WIDTH, PM64_SCREEN_HEIGHT);
+                0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   gDPSetAlphaDither(gfx_disp_p++, G_AD_DISABLE);
   gDPSetColorDither(gfx_disp_p++, G_CD_DISABLE);
   gDPSetAlphaCompare(gfx_disp_p++, G_AC_NONE);
