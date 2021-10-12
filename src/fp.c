@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "settings.h"
 #include "watchlist.h"
+#include "crash_screen.h"
 
 __attribute__((section(".data")))
 fp_ctxt_t fp = { 
@@ -158,6 +159,10 @@ void fp_init() {
 
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
+
+#if PM64_VERSION == PM64J
+    crash_screen_init();
+#endif
 
     fp.ready = 1;
 }
@@ -706,9 +711,13 @@ ENTRY void fp_draw_entry(void) {
     init_stack(fp_draw);
 }
 
-// ENTRY void fp_after_draw_entry(void) {
-//     crash_screen_set_draw_info();
-// }
+ENTRY void fp_after_draw_entry(void) {
+#if PM64_VERSION == PM64J
+    crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+#else
+    crash_screen_set_draw_info(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+#endif
+}
 
 #include <startup.c>
 #include <set/set.c>
