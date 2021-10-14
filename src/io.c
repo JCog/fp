@@ -7,7 +7,8 @@
 
 static unsigned int clock_ticks_dflt(void) {
     unsigned int count;
-    __asm__("mfc0    %0, $9;" : "=r"(count));
+    __asm__("mfc0    %0, $9;"
+            : "=r"(count));
     return count;
 }
 

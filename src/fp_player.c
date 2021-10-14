@@ -710,14 +710,14 @@ struct menu *create_player_menu(void) {
         int y_value = 0;
 
         partner_t *partner_list[] = {&pm_player.player_data.party.goombario, &pm_player.player_data.party.kooper,
-                                     &pm_player.player_data.party.bombette,  &pm_player.player_data.party.parakarry,
-                                     &pm_player.player_data.party.bow,       &pm_player.player_data.party.watt,
-                                     &pm_player.player_data.party.sushie,    &pm_player.player_data.party.lakilester,
-                                     &pm_player.player_data.party.goompa,    &pm_player.player_data.party.goombaria,
+                                     &pm_player.player_data.party.bombette, &pm_player.player_data.party.parakarry,
+                                     &pm_player.player_data.party.bow, &pm_player.player_data.party.watt,
+                                     &pm_player.player_data.party.sushie, &pm_player.player_data.party.lakilester,
+                                     &pm_player.player_data.party.goompa, &pm_player.player_data.party.goombaria,
                                      &pm_player.player_data.party.twink};
 
-        static const char *partner_names[] = {"goombario", "kooper",     "bombette", "parakarry", "bow",  "watt",
-                                              "sushie",    "lakilester", "goompa",   "goombaria", "twink"};
+        static const char *partner_names[] = {"goombario", "kooper", "bombette", "parakarry", "bow", "watt",
+                                              "sushie", "lakilester", "goompa", "goombaria", "twink"};
 
         partners.selector = menu_add_submenu(&partners, 0, y_value++, NULL, "return");
 

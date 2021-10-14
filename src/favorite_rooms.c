@@ -1,8 +1,11 @@
 #include "menu.h"
 #include "fp.h"
+
+// clang-format off
 static const char *labels[] = {
     "0:", "1:", "2:", "3:", "4:", "5:", "6:", "7:", "8:", "9:",
 };
+// clang-format on
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;

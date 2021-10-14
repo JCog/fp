@@ -59,10 +59,12 @@ uint16_t bind_get_bitmask(uint16_t bind) {
     return p;
 }
 
+// clang-format off
 const uint32_t input_button_color[] = {
     0xFFA000, 0xFFA000, 0xFFA000, 0xFFA000, 0xC0C0C0, 0xC0C0C0, 0x000000, 0x000000,
     0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC80000, 0xC0C0C0, 0x009600, 0x5A5AFF,
 };
+// clang-format on
 
 void input_update(void) {
     joy_x = pm_status.control_x;
@@ -278,7 +280,12 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
             break;
         }
         struct gfx_sprite sprite = {
-            texture, c, x + i * 10, y, 1.f, 1.f,
+            texture,
+            c,
+            x + i * 10,
+            y,
+            1.f,
+            1.f,
         };
         if (item->owner->selector != item) {
             gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[c], draw_params->alpha));

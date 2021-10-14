@@ -2,6 +2,7 @@
 
 CrashScreen gCrashScreen;
 
+// clang-format off
 u8 gCrashScreencharToGlyph[128] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, 41, -1, -1, -1, 43, -1, -1, 37, 38, -1, 42, -1, 39, 44, -1, 0,  1,  2,  3,
@@ -20,6 +21,7 @@ u32 gCrashScreenFont[] = {
     0x70852220, 0xF8011000, 0x08020800, 0x10840400, 0x20040470, 0x40840400, 0x80020800, 0xF8011000,
     0x70800000, 0x88822200, 0x08820400, 0x108F8800, 0x20821000, 0x00022200, 0x20800020, 0x00000000,
 };
+// clang-format on
 
 const char *gFaultCauses[18] = {
     "Interrupt",
@@ -43,7 +45,12 @@ const char *gFaultCauses[18] = {
 };
 
 const char *gFPCSRFaultCauses[6] = {
-    "Unimplemented operation", "Invalid operation", "Division by zero", "Overflow", "Underflow", "Inexact operation",
+    "Unimplemented operation",
+    "Invalid operation",
+    "Division by zero",
+    "Overflow",
+    "Underflow",
+    "Inexact operation",
 };
 
 void crash_screen_sleep(s32 ms) {
@@ -285,8 +292,7 @@ void crash_screen_thread_entry(void *unused) {
     PRINTF("drawing crash screen\n");
     crash_screen_draw(faultedThread);
 
-    while (1) {
-    }
+    while (1) {}
 }
 
 void crash_screen_set_draw_info_custom(u16 *frameBufPtr, s16 width, s16 height) {

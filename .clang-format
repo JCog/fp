@@ -1,12 +1,13 @@
 BasedOnStyle: LLVM
 IndentWidth: 4
-ColumnLimit: 120
+ColumnLimit: 0
 IndentCaseLabels: true
 AlignEscapedNewlines: Left
 SortIncludes: false
-AlignArrayOfStructures: None
+AlignArrayOfStructures: Left
 AllowShortEnumsOnASingleLine: false
 AlignConsecutiveMacros: AcrossEmptyLinesAndComments
 AlignConsecutiveBitFields: AcrossComments
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty

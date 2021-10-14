@@ -185,7 +185,8 @@ void fp_update_menu(void) {
 static void fp_update_cpu_counter(void) {
     static u32 count = 0;
     u32 new_count;
-    __asm__("mfc0    %0, $9;" : "=r"(new_count));
+    __asm__("mfc0    %0, $9;"
+            : "=r"(new_count));
     fp.cpu_counter_freq = OS_CPU_COUNTER;
     fp.cpu_counter += new_count - count;
     count = new_count;
@@ -194,8 +195,16 @@ static void fp_update_cpu_counter(void) {
 void fp_emergency_settings_reset(u16 pad_pressed) {
     if (pad_pressed) {
         static const u16 input_list[] = {
-            BUTTON_D_UP,    BUTTON_D_UP,   BUTTON_D_DOWN,  BUTTON_D_DOWN, BUTTON_D_LEFT,
-            BUTTON_D_RIGHT, BUTTON_D_LEFT, BUTTON_D_RIGHT, BUTTON_B,      BUTTON_A,
+            BUTTON_D_UP,
+            BUTTON_D_UP,
+            BUTTON_D_DOWN,
+            BUTTON_D_DOWN,
+            BUTTON_D_LEFT,
+            BUTTON_D_RIGHT,
+            BUTTON_D_LEFT,
+            BUTTON_D_RIGHT,
+            BUTTON_B,
+            BUTTON_A,
         };
         static s32 input_pos = 0;
         size_t input_list_length = sizeof(input_list) / sizeof(*input_list);
@@ -234,9 +243,12 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
     gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
+
+    // clang-format off
     static const s32 buttons[] = {
         15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
     };
+    // clang-format on
 
     for (s32 i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
         s32 b = buttons[i];
@@ -246,7 +258,12 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
         s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
         s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
         struct gfx_sprite sprite = {
-            texture, b, settings->input_display_x + cell_width * 10 + x, settings->input_display_y + y, 1.f, 1.f,
+            texture,
+            b,
+            settings->input_display_x + cell_width * 10 + x,
+            settings->input_display_y + y,
+            1.f,
+            1.f,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
         gfx_sprite_draw(&sprite);

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <n64.h>
 
+// clang-format off
 #define M_PI 3.14159265358979323846
 #define guDefMtxF(xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, wx, wy, wz, ww) \
     {                                                                             \
@@ -17,6 +18,7 @@ typedef union {
         float xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, wx, wy, wz, ww;
     };
 } MtxF;
+// clang-format on
 
 void guMtxIdent(Mtx *m);
 void guMtxIdentF(MtxF *mf);

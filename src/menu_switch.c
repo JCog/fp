@@ -69,7 +69,12 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     if (data->disable_shadow)
         gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
     struct gfx_sprite sprite = {
-        texture, texture_tile, x, y, data->scale, data->scale,
+        texture,
+        texture_tile,
+        x,
+        y,
+        data->scale,
+        data->scale,
     };
     gfx_sprite_draw(&sprite);
     gfx_mode_pop(GFX_MODE_FILTER);

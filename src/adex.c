@@ -7,7 +7,11 @@
 #include "pm64.h"
 
 const char *adex_error_name[] = {
-    "success", "out of memory", "syntax error", "arithmetic error", "address unavailable",
+    "success",
+    "out of memory",
+    "syntax error",
+    "arithmetic error",
+    "address unavailable",
 };
 
 #define ID_MAX 0x20

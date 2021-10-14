@@ -1,10 +1,13 @@
 #include "menu.h"
 #include "settings.h"
 
-static const char *labels[] = {"hp",    "fp",         "coins",    "star power", "star pieces",
-                               "peril", "break free", "auto mash"
+// clang-format off
+static const char *labels[] = {
+    "hp", "fp", "coins", "star power", "star pieces",
+    "peril", "break free", "auto mash"
 
 };
+// clang-format on
 
 static int battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
