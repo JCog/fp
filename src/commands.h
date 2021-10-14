@@ -29,10 +29,10 @@ enum activation_type {
 };
 
 struct command {
-    const char             *text;
-    enum activation_type   command_type;
-    uint16_t               bind;
-    void                   (*proc)();
+    const char *text;
+    enum activation_type command_type;
+    uint16_t bind;
+    void (*proc)();
 };
 
 void show_menu();

@@ -4,8 +4,7 @@
 #include "trainer.h"
 #include "tricks.h"
 
-struct menu *create_practice_menu(void)
-{
+struct menu *create_practice_menu(void) {
     static struct menu menu;
     static struct menu tricks_menu;
     static struct menu trainer_menu;

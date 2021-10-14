@@ -8,8 +8,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p)
             menu_intinput_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_CHANGED)
+    } else if (reason == MENU_CALLBACK_CHANGED)
         *p = menu_intinput_get(item);
     return 0;
 }
@@ -19,14 +18,12 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p)
             menu_option_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_DEACTIVATE)
+    } else if (reason == MENU_CALLBACK_DEACTIVATE)
         *p = menu_option_get(item);
     return 0;
 }
 
-static int show_timer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data)
-{
+static int show_timer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON)
         settings->bits.timer_show = 1;
     else if (reason == MENU_CALLBACK_SWITCH_OFF)
@@ -36,8 +33,7 @@ static int show_timer_proc(struct menu_item *item, enum menu_callback_reason rea
     return 0;
 }
 
-static int timer_logging_proc(struct menu_item *item, enum menu_callback_reason reason, void *data)
-{
+static int timer_logging_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON)
         settings->bits.timer_logging = 1;
     else if (reason == MENU_CALLBACK_SWITCH_OFF)
@@ -67,8 +63,7 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     switch (fp.timer.state) {
         case 2:
             timer_count = fp.cpu_counter - fp.timer.start;
-            lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2
-                         - (pm_status.frame_counter - fp.timer.frame_start);
+            lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2 - (pm_status.frame_counter - fp.timer.frame_start);
             break;
         case 3:
             timer_count = fp.timer.end - fp.timer.start;
@@ -85,11 +80,9 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     minutes %= 60;
     if (hours > 0) {
         gfx_printf(font, x, y, "timer  %d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
-    }
-    else if (minutes > 0) {
+    } else if (minutes > 0) {
         gfx_printf(font, x, y, "timer  %d:%02d.%02d", minutes, seconds, hundredths);
-    }
-    else {
+    } else {
         gfx_printf(font, x, y, "timer  %d.%02d", seconds, hundredths);
     }
     gfx_printf(font, x, y + chHeight, "lag    %d", lag_frames >= 0 ? lag_frames : 0);
@@ -103,24 +96,15 @@ static int timer_status_draw_proc(struct menu_item *item, struct menu_draw_param
     int y = draw_params->y;
 
     switch (fp.timer.state) {
-        case 0:
-            gfx_printf(font, x, y, "inactive");
-            break;
-        case 1:
-            gfx_printf(font, x, y, "waiting to start");
-            break;
-        case 2:
-            gfx_printf(font, x, y, "running");
-            break;
-        case 3:
-            gfx_printf(font, x, y, "stopped");
-            break;
+        case 0: gfx_printf(font, x, y, "inactive"); break;
+        case 1: gfx_printf(font, x, y, "waiting to start"); break;
+        case 2: gfx_printf(font, x, y, "running"); break;
+        case 3: gfx_printf(font, x, y, "stopped"); break;
     }
     return 1;
 }
 
-void create_timer_menu(struct menu *menu)
-{
+void create_timer_menu(struct menu *menu) {
     int y_main = 0;
     int MENU_X = 15;
 
@@ -137,7 +121,10 @@ void create_timer_menu(struct menu *menu)
     menu_add_button(menu, 11, y_main++, "reset", reset_proc, NULL);
     y_main++;
     menu_add_static(menu, 0, y_main, "timer mode", 0xC0C0C0);
-    menu_add_option(menu, MENU_X, y_main++, "automatic\0""manual\0", byte_optionmod_proc, &fp.timer.mode);
+    menu_add_option(menu, MENU_X, y_main++,
+                    "automatic\0"
+                    "manual\0",
+                    byte_optionmod_proc, &fp.timer.mode);
     menu_add_static(menu, 0, y_main, "cutscene count", 0xC0C0C0);
     menu_add_intinput(menu, MENU_X, y_main++, 10, 2, byte_mod_proc, &fp.timer.cutscene_target);
     menu_add_static(menu, 0, y_main, "show timer", 0xC0C0C0);

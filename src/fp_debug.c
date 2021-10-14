@@ -3,8 +3,7 @@
 #include "flags.h"
 #include "fp.h"
 
-struct menu *create_debug_menu(void)
-{
+struct menu *create_debug_menu(void) {
     static struct menu menu;
     static struct menu flags;
     static struct menu memory;

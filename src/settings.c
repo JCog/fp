@@ -6,13 +6,12 @@
 #include "resource.h"
 #include "watchlist.h"
 
-static _Alignas(128)
-struct settings       settings_store;
+static _Alignas(128) struct settings settings_store;
 struct settings_data *settings = &settings_store.data;
 
 static uint16_t settings_checksum_compute(struct settings *settings) {
     uint16_t checksum = 0;
-    uint16_t *p = (void*)&settings->data;
+    uint16_t *p = (void *)&settings->data;
     uint16_t *e = p + sizeof(settings->data) / sizeof(*p);
     while (p < e) {
         checksum += *p++;
@@ -21,12 +20,11 @@ static uint16_t settings_checksum_compute(struct settings *settings) {
 }
 
 static _Bool settings_validate(struct settings *settings) {
-    return settings->header.version == SETTINGS_VERSION &&
-           settings->header.data_size == sizeof(settings->data) &&
+    return settings->header.version == SETTINGS_VERSION && settings->header.data_size == sizeof(settings->data) &&
            settings->header.data_checksum == settings_checksum_compute(settings);
 }
 
-void settings_load_default(void){
+void settings_load_default(void) {
     settings_store.header.version = SETTINGS_VERSION;
     settings_store.header.data_size = sizeof(settings_store.data);
     struct settings_data *d = &settings_store.data;
@@ -68,7 +66,7 @@ void settings_load_default(void){
     d->binds[COMMAND_SHOW_HIDE_TIMER] = bind_make(0);
 }
 
-void apply_menu_settings(){
+void apply_menu_settings() {
     struct gfx_font *font = resource_get(settings->bits.font_resource);
     menu_set_font(fp.main_menu, font);
     menu_set_cell_width(fp.main_menu, font->char_width + font->letter_spacing);
@@ -87,11 +85,11 @@ void settings_save(int profile) {
     uint16_t *checksum = &settings_store.header.data_checksum;
     *checksum = settings_checksum_compute(&settings_store);
 
-    //read in save file in the same slot as the profile
+    // read in save file in the same slot as the profile
     char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
     pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
 
-    //append settings data to the end and save to file
+    // append settings data to the end and save to file
     char *offset = start + SETTINGS_SAVE_FILE_SIZE;
     memcpy(offset, &settings_store, sizeof(settings_store));
     pm_FioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
@@ -112,16 +110,17 @@ _Bool _save_file_exists() {
 }
 
 _Bool settings_load(int profile) {
-    //unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for now
+    // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
+    // now
     if (!_save_file_exists()) {
         return 0;
     }
 
-    //read in save data along with the settings data in the same slot as the profile
+    // read in save data along with the settings data in the same slot as the profile
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
     pm_FioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
 
-    struct settings *settings_temp = (struct settings*)(file + SETTINGS_SAVE_FILE_SIZE);
+    struct settings *settings_temp = (struct settings *)(file + SETTINGS_SAVE_FILE_SIZE);
     if (!settings_validate(settings_temp)) {
         free(file);
         return 0;

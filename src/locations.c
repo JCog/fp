@@ -11,8 +11,7 @@ static uint16_t entrance;
 static void group_prev_proc(struct menu_item *item, void *data) {
     if (group == 0) {
         group = GROUP_COUNT - 1;
-    }
-    else {
+    } else {
         group--;
     }
 
@@ -22,8 +21,7 @@ static void group_prev_proc(struct menu_item *item, void *data) {
 static void group_next_proc(struct menu_item *item, void *data) {
     if (group == GROUP_COUNT - 1) {
         group = 0;
-    }
-    else {
+    } else {
         group++;
     }
 
@@ -33,8 +31,7 @@ static void group_next_proc(struct menu_item *item, void *data) {
 static void room_prev_proc(struct menu_item *item, void *data) {
     if (room == 0) {
         room = GROUPS[group].room_count - 1;
-    }
-    else {
+    } else {
         room--;
     }
 
@@ -44,8 +41,7 @@ static void room_prev_proc(struct menu_item *item, void *data) {
 static void room_next_proc(struct menu_item *item, void *data) {
     if (room == GROUPS[group].room_count - 1) {
         room = 0;
-    }
-    else {
+    } else {
         room++;
     }
 
@@ -55,8 +51,7 @@ static void room_next_proc(struct menu_item *item, void *data) {
 static void entrance_prev_proc(struct menu_item *item, void *data) {
     if (entrance == 0) {
         entrance = GROUPS[group].rooms[room].entrance_count - 1;
-    }
-    else {
+    } else {
         entrance--;
     }
 
@@ -66,8 +61,7 @@ static void entrance_prev_proc(struct menu_item *item, void *data) {
 static void entrance_next_proc(struct menu_item *item, void *data) {
     if (entrance == GROUPS[group].rooms[room].entrance_count - 1) {
         entrance = 0;
-    }
-    else {
+    } else {
         entrance++;
     }
 
@@ -75,8 +69,7 @@ static void entrance_next_proc(struct menu_item *item, void *data) {
 }
 
 static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color,
-                                               draw_params->alpha));
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
     int ch = menu_get_cell_height(item->owner, 1);
     int x = draw_params->x;
@@ -97,15 +90,15 @@ static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
 }
 
 static int current_room_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color,
-                                               draw_params->alpha));
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
     int ch = menu_get_cell_height(item->owner, 1);
     int x = draw_params->x;
     int y = draw_params->y;
     gfx_printf(font, x, y + ch * 0, "current room");
     gfx_printf(font, x, y + ch * 1, "g: %x %s", pm_status.group_id, GROUPS[pm_status.group_id].group_name);
-    gfx_printf(font, x, y + ch * 2, "r: %x %s", pm_status.room_id, GROUPS[pm_status.group_id].rooms[pm_status.room_id].room_name);
+    gfx_printf(font, x, y + ch * 2, "r: %x %s", pm_status.room_id,
+               GROUPS[pm_status.group_id].rooms[pm_status.room_id].room_name);
     gfx_printf(font, x, y + ch * 3, "e: %x", pm_status.entrance_id);
 
     return 1;

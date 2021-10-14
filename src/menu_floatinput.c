@@ -5,24 +5,22 @@
 #include "menu.h"
 #include "util.h"
 
-struct item_data
-{
-    int                     sig_precis;
-    int                     exp_precis;
-    menu_generic_callback   callback_proc;
-    void                   *callback_data;
-    float                   value;
-    _Bool                   active;
-    struct menu            *imenu;
-    struct menu_item       *item;
-    struct menu_item       *sig_sign;
-    struct menu_item      **sig_digits;
-    struct menu_item       *exp_sign;
-    struct menu_item      **exp_digits;
+struct item_data {
+    int sig_precis;
+    int exp_precis;
+    menu_generic_callback callback_proc;
+    void *callback_data;
+    float value;
+    _Bool active;
+    struct menu *imenu;
+    struct menu_item *item;
+    struct menu_item *sig_sign;
+    struct menu_item **sig_digits;
+    struct menu_item *exp_sign;
+    struct menu_item **exp_digits;
 };
 
-static inline int char_to_int(int x)
-{
+static inline int char_to_int(int x) {
     if (x >= '0' && x <= '9')
         return x - ('0' - 0x0);
     else if (x >= 'a' && x <= 'f')
@@ -30,8 +28,7 @@ static inline int char_to_int(int x)
     return -1;
 }
 
-static inline int int_to_char(int x)
-{
+static inline int int_to_char(int x) {
     if (x >= 0x0 && x <= 0x9)
         return x + ('0' - 0x0);
     else if (x >= 0xA && x <= 0xF)
@@ -39,8 +36,7 @@ static inline int int_to_char(int x)
     return -1;
 }
 
-static int think_proc(struct menu_item *item)
-{
+static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         int r = menu_think(data->imenu);
@@ -48,24 +44,19 @@ static int think_proc(struct menu_item *item)
             return r;
     }
     if (data->callback_proc) {
-        int r = data->callback_proc(item, MENU_CALLBACK_THINK,
-                                    data->callback_data);
+        int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
         if (r)
             return r;
         if (data->active)
-            r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE,
-                                    data->callback_data);
+            r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
         else
-            r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE,
-                                    data->callback_data);
+            r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
         return r;
     }
     return 0;
 }
 
-static int draw_proc(struct menu_item *item,
-                     struct menu_draw_params *draw_params)
-{
+static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     if (data->active) {
         data->imenu->cxoffset = item->x;
@@ -75,22 +66,17 @@ static int draw_proc(struct menu_item *item,
     return data->active;
 }
 
-static int navigate_proc(struct menu_item *item, enum menu_navigation nav)
-{
+static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
     if (data->active)
         menu_navigate(data->imenu, nav);
     return data->active;
 }
 
-static int activate_proc(struct menu_item *item)
-{
+static int activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
-        if (data->callback_proc && data->callback_proc(item,
-                                                       MENU_CALLBACK_DEACTIVATE,
-                                                       data->callback_data))
-        {
+        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
             return 1;
         }
         int sig = 0;
@@ -148,12 +134,8 @@ static int activate_proc(struct menu_item *item)
 
         if (data->callback_proc)
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
-    }
-    else {
-        if (data->callback_proc && data->callback_proc(item,
-                                                       MENU_CALLBACK_ACTIVATE,
-                                                       data->callback_data))
-        {
+    } else {
+        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
         }
     }
@@ -161,8 +143,7 @@ static int activate_proc(struct menu_item *item)
     return 1;
 }
 
-static int destroy_proc(struct menu_item *item)
-{
+static int destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     data->sig_sign->data = NULL;
     for (int i = 0; i < data->sig_precis; ++i)
@@ -176,18 +157,14 @@ static int destroy_proc(struct menu_item *item)
     return 0;
 }
 
-static int sign_navigate_proc(struct menu_item *item,
-                              enum menu_navigation nav)
-{
+static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN)
         return 0;
     item->text[0] = '+' + '-' - item->text[0];
     return 1;
 }
 
-static int digit_navigate_proc(struct menu_item *item,
-                               enum menu_navigation nav)
-{
+static int digit_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     int value = char_to_int(item->text[0]);
     if (nav == MENU_NAVIGATE_UP)
         ++value;
@@ -200,11 +177,8 @@ static int digit_navigate_proc(struct menu_item *item,
     return 1;
 }
 
-struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y,
-                                      int sig_precis, int exp_precis,
-                                      menu_generic_callback callback_proc,
-                                      void *callback_data)
-{
+struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y, int sig_precis, int exp_precis,
+                                      menu_generic_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->sig_precis = sig_precis;
     data->exp_precis = exp_precis;
@@ -252,8 +226,7 @@ struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y,
         if (i >= sig_precis) {
             x += 3;
             tx += 2;
-        }
-        else if (i > 0) {
+        } else if (i > 0) {
             ++x;
             ++tx;
         }
@@ -274,14 +247,12 @@ struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y,
     return item;
 }
 
-float menu_floatinput_get(struct menu_item *item)
-{
+float menu_floatinput_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-void menu_floatinput_set(struct menu_item *item, float value)
-{
+void menu_floatinput_set(struct menu_item *item, float value) {
     if (is_nan(value) || !isnormal(value))
         value = 0.f;
     struct item_data *data = item->data;

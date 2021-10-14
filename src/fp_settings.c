@@ -7,15 +7,8 @@
 #include "watchlist.h"
 
 static uint16_t font_options[] = {
-    RES_FONT_FIPPS,
-    RES_FONT_NOTALOT35,
-    RES_FONT_ORIGAMIMOMMY,
-    RES_FONT_PCSENIOR,
-    RES_FONT_PIXELINTV,
-    RES_FONT_PRESSSTART2P,
-    RES_FONT_SMWTEXTNC,
-    RES_FONT_WERDNASRETURN,
-    RES_FONT_PIXELZIM,
+    RES_FONT_FIPPS,        RES_FONT_NOTALOT35, RES_FONT_ORIGAMIMOMMY,  RES_FONT_PCSENIOR, RES_FONT_PIXELINTV,
+    RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
 static void profile_dec_proc(struct menu_item *item, void *data) {
@@ -39,14 +32,12 @@ static int font_proc(struct menu_item *item, enum menu_callback_reason reason, v
                 }
             }
         }
-    }
-    else if (reason == MENU_CALLBACK_CHANGED) {
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         int font_resource = font_options[menu_option_get(item)];
         settings->bits.font_resource = font_resource;
         if (settings->bits.font_resource == RES_FONT_FIPPS) {
             gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
-        }
-        else {
+        } else {
             gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
         }
         struct gfx_font *font = resource_get(font_resource);
@@ -62,8 +53,7 @@ static int drop_shadow_proc(struct menu_item *item, enum menu_callback_reason re
     if (reason == MENU_CALLBACK_CHANGED) {
         settings->bits.drop_shadow = menu_checkbox_get(item);
         gfx_mode_set(GFX_MODE_DROPSHADOW, settings->bits.drop_shadow);
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.drop_shadow);
     }
     return 0;
@@ -77,14 +67,13 @@ static int generic_position_proc(struct menu_item *item, enum menu_callback_reas
         dist *= 2;
     }
     switch (reason) {
-        case MENU_CALLBACK_ACTIVATE:    input_reserve(BUTTON_Z);  break;
-        case MENU_CALLBACK_DEACTIVATE:  input_free(BUTTON_Z);     break;
-        case MENU_CALLBACK_NAV_UP:      *y -= dist;               break;
-        case MENU_CALLBACK_NAV_DOWN:    *y += dist;               break;
-        case MENU_CALLBACK_NAV_LEFT:    *x -= dist;               break;
-        case MENU_CALLBACK_NAV_RIGHT:   *x += dist;               break;
-        default:
-            break;
+        case MENU_CALLBACK_ACTIVATE: input_reserve(BUTTON_Z); break;
+        case MENU_CALLBACK_DEACTIVATE: input_free(BUTTON_Z); break;
+        case MENU_CALLBACK_NAV_UP: *y -= dist; break;
+        case MENU_CALLBACK_NAV_DOWN: *y += dist; break;
+        case MENU_CALLBACK_NAV_LEFT: *x -= dist; break;
+        case MENU_CALLBACK_NAV_RIGHT: *x += dist; break;
+        default: break;
     }
     return 0;
 }
@@ -99,8 +88,7 @@ static int menu_position_proc(struct menu_item *item, enum menu_callback_reason 
 static int timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_ACTIVATE) {
         fp.timer.moving = 1;
-    }
-    else if (reason == MENU_CALLBACK_DEACTIVATE) {
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         fp.timer.moving = 0;
     }
     return generic_position_proc(item, reason, &settings->timer_x);
@@ -109,11 +97,9 @@ static int timer_position_proc(struct menu_item *item, enum menu_callback_reason
 static int input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.input_display = 1;
-    }
-    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.input_display = 0;
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.input_display);
     }
     return 0;
@@ -122,11 +108,9 @@ static int input_display_proc(struct menu_item *item, enum menu_callback_reason 
 static int log_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.log = 1;
-    }
-    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.log = 0;
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.log);
     }
     return 0;
@@ -168,8 +152,7 @@ static void load_settings_proc(struct menu_item *item, void *data) {
     if (settings_load(fp.profile)) {
         apply_menu_settings();
         fp_log("loaded profile %i", fp.profile);
-    }
-    else {
+    } else {
         fp_log("could not load");
     }
 }
@@ -177,11 +160,10 @@ static void load_settings_proc(struct menu_item *item, void *data) {
 struct menu *create_settings_menu(void) {
     static struct menu menu;
     static struct menu commands;
-    
+
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-
 
     /*build menu*/
     int y = 0;
@@ -190,12 +172,19 @@ struct menu *create_settings_menu(void) {
     /* appearance controls */
     menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
     menu_add_button(&menu, MENU_X, y, "-", profile_dec_proc, NULL);
-    menu_add_watch(&menu, MENU_X + 2, y, (uint32_t) & fp.profile, WATCH_TYPE_U8);
+    menu_add_watch(&menu, MENU_X + 2, y, (uint32_t)&fp.profile, WATCH_TYPE_U8);
     menu_add_button(&menu, MENU_X + 4, y++, "+", profile_inc_proc, NULL);
     menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
-    menu_add_option(&menu, 16, y++, "fipps\0""notalot35\0" "origami mommy\0"
-                                  "pc senior\0""pixel intv\0""press start 2p\0"
-                                  "smw text nc\0""werdna's return\0""pixelzim\0",
+    menu_add_option(&menu, 16, y++,
+                    "fipps\0"
+                    "notalot35\0"
+                    "origami mommy\0"
+                    "pc senior\0"
+                    "pixel intv\0"
+                    "press start 2p\0"
+                    "smw text nc\0"
+                    "werdna's return\0"
+                    "pixelzim\0",
                     font_proc, NULL);
     menu_add_static(&menu, 0, y, "drop shadow", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y++, drop_shadow_proc, NULL);
@@ -230,9 +219,8 @@ struct menu *create_settings_menu(void) {
                 break;
             }
             if (fp_commands[n].proc) {
-                menu_add_button(page, 0, j, fp_commands[n].text, activate_command_proc, (void*)n);
-            }
-            else {
+                menu_add_button(page, 0, j, fp_commands[n].text, activate_command_proc, (void *)n);
+            } else {
                 menu_add_static(page, 0, j, fp_commands[n].text, 0xC0C0C0);
             }
             binder_create(page, 18, j, n);
@@ -243,6 +231,6 @@ struct menu *create_settings_menu(void) {
     }
     menu_add_button(&commands, 8, 0, "<", tab_prev_proc, tab);
     menu_add_button(&commands, 10, 0, ">", tab_next_proc, tab);
-    
+
     return &menu;
 }

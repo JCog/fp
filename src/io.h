@@ -16,14 +16,12 @@ unsigned clock_freq(void);
 
 void cpu_reset(void);
 
-static inline unsigned msec_from_now(unsigned msec)
-{
-  return clock_ticks() + clock_freq() / 1000 * msec;
+static inline unsigned msec_from_now(unsigned msec) {
+    return clock_ticks() + clock_freq() / 1000 * msec;
 }
 
-static inline int clock_after(unsigned ticks)
-{
-  return (int)clock_ticks() - (int)ticks > 0;
+static inline int clock_after(unsigned ticks) {
+    return (int)clock_ticks() - (int)ticks > 0;
 }
 
 #endif

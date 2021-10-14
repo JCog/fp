@@ -1,26 +1,15 @@
 #include "menu.h"
 #include "fp.h"
-static const char *labels[] =
-    {
-        "0:",
-        "1:",
-        "2:",
-        "3:",
-        "4:",
-        "5:",
-        "6:",
-        "7:",
-        "8:",
-        "9:",
-    };
+static const char *labels[] = {
+    "0:", "1:", "2:", "3:", "4:", "5:", "6:", "7:", "8:", "9:",
+};
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p)
             menu_intinput_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_CHANGED)
+    } else if (reason == MENU_CALLBACK_CHANGED)
         *p = menu_intinput_get(item);
     return 0;
 }
@@ -41,14 +30,12 @@ static void current_proc(struct menu_item *item, void *data) {
     p->entrance = pm_status.entrance_id;
 }
 
-static void save_settings_proc(struct menu_item *item, void *data)
-{
+static void save_settings_proc(struct menu_item *item, void *data) {
     settings_save(fp.profile);
     fp_log("saved profile %i", fp.profile);
 }
 
-void create_favorite_rooms_menu(struct menu *menu)
-{
+void create_favorite_rooms_menu(struct menu *menu) {
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");

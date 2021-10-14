@@ -17,26 +17,22 @@
 #include "watchlist.h"
 #include "crash_screen.h"
 
-__attribute__((section(".data")))
-fp_ctxt_t fp = { 
-    .ready = 0, 
+__attribute__((section(".data"))) fp_ctxt_t fp = {
+    .ready = 0,
 };
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void init_stack(void (*func)(void)) {
-    static _Alignas(8) __attribute__((section(".stack"))) 
-    char stack[0x2000];
-    __asm__ volatile(   "la     $t0, %1;"
-                        "sw     $sp, -0x04($t0);"
-                        "sw     $ra, -0x08($t0);"
-                        "addiu  $sp, $t0, -0x08;"
-                        "jalr   %0;"
-                        "nop;"
-                        "lw     $ra, 0($sp);"
-                        "lw     $sp, 4($sp);"
-                        ::
-                        "r"(func),
-                        "i"(&stack[sizeof(stack)]));
+    static _Alignas(8) __attribute__((section(".stack"))) char stack[0x2000];
+    __asm__ volatile("la     $t0, %1;"
+                     "sw     $sp, -0x04($t0);"
+                     "sw     $ra, -0x08($t0);"
+                     "addiu  $sp, $t0, -0x08;"
+                     "jalr   %0;"
+                     "nop;"
+                     "lw     $ra, 0($sp);"
+                     "lw     $sp, 4($sp);" ::"r"(func),
+                     "i"(&stack[sizeof(stack)]));
 }
 
 static void main_return_proc(struct menu_item *item, void *data) {
@@ -49,7 +45,7 @@ void fp_init() {
 
     gfx_start();
     gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
-    gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM,G_CC_MODULATEIA_PRIM));
+    gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
 
     fp.profile = 0;
     fp.settings_loaded = 0;
@@ -136,9 +132,9 @@ void fp_init() {
     pm_status.skip_intro = 1;
 
     // calculate frame window for OoT ACE
-    *(u16*)0x807D0000 = 0;
+    *(u16 *)0x807D0000 = 0;
     s32 memory_value = 0;
-    s32 *pointer = (s32*)0x807BFFF8;
+    s32 *pointer = (s32 *)0x807BFFF8;
 
     while (memory_value == 0) {
         pointer--;
@@ -151,8 +147,7 @@ void fp_init() {
     if (frame_window % 0x4000 == 0) {
         frame_window /= 0x40000;
         frame_window -= 0x10;
-    }
-    else {
+    } else {
         frame_window /= 0x40000;
         frame_window -= 0xf;
     }
@@ -170,11 +165,9 @@ void fp_init() {
 void fp_update_menu(void) {
     if (input_bind_pressed_raw(COMMAND_MENU)) {
         hide_menu();
-    }
-    else if (input_bind_pressed(COMMAND_RETURN)) {
+    } else if (input_bind_pressed(COMMAND_RETURN)) {
         menu_return(fp.main_menu);
-    }
-    else {
+    } else {
         u16 pad_pressed = input_pressed();
         if (pad_pressed & BUTTON_D_UP)
             menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
@@ -192,7 +185,7 @@ void fp_update_menu(void) {
 static void fp_update_cpu_counter(void) {
     static u32 count = 0;
     u32 new_count;
-    __asm__ ("mfc0    %0, $9;" : "=r"(new_count));
+    __asm__("mfc0    %0, $9;" : "=r"(new_count));
     fp.cpu_counter_freq = OS_CPU_COUNTER;
     fp.cpu_counter += new_count - count;
     count = new_count;
@@ -201,16 +194,8 @@ static void fp_update_cpu_counter(void) {
 void fp_emergency_settings_reset(u16 pad_pressed) {
     if (pad_pressed) {
         static const u16 input_list[] = {
-            BUTTON_D_UP,
-            BUTTON_D_UP,
-            BUTTON_D_DOWN,
-            BUTTON_D_DOWN,
-            BUTTON_D_LEFT,
-            BUTTON_D_RIGHT,
-            BUTTON_D_LEFT,
-            BUTTON_D_RIGHT,
-            BUTTON_B,
-            BUTTON_A,
+            BUTTON_D_UP,    BUTTON_D_UP,   BUTTON_D_DOWN,  BUTTON_D_DOWN, BUTTON_D_LEFT,
+            BUTTON_D_RIGHT, BUTTON_D_LEFT, BUTTON_D_RIGHT, BUTTON_B,      BUTTON_A,
         };
         static s32 input_pos = 0;
         size_t input_list_length = sizeof(input_list) / sizeof(*input_list);
@@ -222,8 +207,7 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
                 apply_menu_settings();
                 fp_log("default settings restored");
             }
-        }
-        else {
+        } else {
             input_pos = 0;
         }
     }
@@ -251,23 +235,21 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
     gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
     static const s32 buttons[] = {
-      15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
+        15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
     };
 
     for (s32 i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
-      s32 b = buttons[i];
-      if (!(d_pad & (1 << b))) {
-          continue;
-      }
-      s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
-      s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-      struct gfx_sprite sprite = {
-        texture, b,
-        settings->input_display_x + cell_width * 10 + x, settings->input_display_y + y,
-        1.f, 1.f,
-      };
-      gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
-      gfx_sprite_draw(&sprite);
+        s32 b = buttons[i];
+        if (!(d_pad & (1 << b))) {
+            continue;
+        }
+        s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
+        s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
+        struct gfx_sprite sprite = {
+            texture, b, settings->input_display_x + cell_width * 10 + x, settings->input_display_y + y, 1.f, 1.f,
+        };
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
+        gfx_sprite_draw(&sprite);
     }
 }
 
@@ -301,8 +283,7 @@ void fp_update_timer(s64 *timer_count, s32 *lag_frames) {
                 fp_log("timer stopped");
             }
             *timer_count = fp.cpu_counter - fp.timer.start;
-            *lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2
-                - (pm_status.frame_counter - fp.timer.frame_start);
+            *lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2 - (pm_status.frame_counter - fp.timer.frame_start);
             break;
         case 3:
             *timer_count = fp.timer.end - fp.timer.start;
@@ -311,7 +292,8 @@ void fp_update_timer(s64 *timer_count, s32 *lag_frames) {
     }
 }
 
-void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
+void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 cell_width, s32 cell_height,
+                   u8 menu_alpha) {
     s32 hundredths = timer_count * 100 / fp.cpu_counter_freq;
     s32 seconds = hundredths / 100;
     s32 minutes = seconds / 60;
@@ -327,11 +309,9 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
 
     if (hours > 0) {
         gfx_printf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
-    }
-    else if (minutes > 0) {
+    } else if (minutes > 0) {
         gfx_printf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
-    }
-    else {
+    } else {
         gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
     }
 
@@ -340,7 +320,7 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
 void fp_bowser_block_trainer(void) {
-    if (pm_status.is_battle && pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) && 
+    if (pm_status.is_battle && pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) &&
         STORY_PROGRESS != STORY_INTRO && !(pm_status.peach_flags & (1 << 0))) {
 
         actor_t *bowser = pm_battle_status.enemy_actors[0];
@@ -355,32 +335,32 @@ void fp_bowser_block_trainer(void) {
             *turns_since_heal = 0;
             *turns_since_beam = 0;
             switch (fp.bowser_block) {
-                case 0: //fire
+                case 0: // fire
                     *turn = 3;
                     *turns_since_claw = 0;
                     *turns_since_stomp = 0;
                     *turns_since_wave = 0;
                     break;
-                case 1: //butt stomp
+                case 1: // butt stomp
                     *turn = 3;
                     *turns_since_claw = 0;
                     *turns_since_stomp = 1;
                     *turns_since_wave = 0;
                     pm_RandSeed = 0x03D49DFF;
                     break;
-                case 2: //claw
+                case 2: // claw
                     *turn = 3;
                     *turns_since_stomp = 0;
                     *turns_since_claw = 1;
                     *turns_since_wave = 0;
                     pm_RandSeed = 0x9CB89EDA;
                     break;
-                case 3: //wave
+                case 3: // wave
                     *turn = 4;
                     *turns_since_wave = 6;
                     pm_RandSeed = 0x77090261;
                     break;
-                case 4: //lightning, still gives wave for hallway bowser
+                case 4: // lightning, still gives wave for hallway bowser
                     *turn = 4;
                     *turns_since_wave = 6;
                     pm_RandSeed = 0x72A5DCE5;
@@ -389,7 +369,7 @@ void fp_bowser_block_trainer(void) {
         }
 
         if (pm_battle_status.partner_actor != NULL) {
-            //if partner is KO'd by wave, never let it last more than one turn so you can keep practicing the block
+            // if partner is KO'd by wave, never let it last more than one turn so you can keep practicing the block
             if (pm_battle_status.partner_actor->ko_duration > 1) {
                 pm_battle_status.partner_actor->ko_duration = 1;
                 pm_battle_status.partner_actor->ptr_defuff_icon->ptr_property_list[15] = 1;
@@ -400,7 +380,7 @@ void fp_bowser_block_trainer(void) {
 
 void fp_lzs_trainer(void) {
     // detect if loading zone is stored
-    // TODO: Yes this function looks awful. 
+    // TODO: Yes this function looks awful.
     // If a cleaner way to detect stored loading zones is found or decomped, please submit a PR or let an fp dev know
     u32 *event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
     u32 event_space = *event_spc_ptr;
@@ -409,11 +389,11 @@ void fp_lzs_trainer(void) {
     for (s32 event_priority = 0; event_priority < event_count; event_priority++) {
         u32 *event_id_ptr = (event_spc_ptr + 2 + event_priority);
         u32 event_id = *event_id_ptr;
-        u32 *event_ptr_ptr = (u32*)(event_space + (4 * event_id));
-        u32 *event_ptr = (u32*)*event_ptr_ptr;
+        u32 *event_ptr_ptr = (u32 *)(event_space + (4 * event_id));
+        u32 *event_ptr = (u32 *)*event_ptr_ptr;
 
         if (event_ptr) {
-            u32 *callback_ptr = (u32*)*(event_ptr + 2);
+            u32 *callback_ptr = (u32 *)*(event_ptr + 2);
             if (callback_ptr) {
                 u32 callback_function = *(callback_ptr + 0x5);
                 if (callback_function == 0x802CA400) {
@@ -429,8 +409,7 @@ void fp_lzs_trainer(void) {
     }
     if (fp.player_landed) {
         fp.frames_since_land++;
-    }
-    else {
+    } else {
         fp.frames_since_land = 0;
     }
     if (pm_player.action_state == ACTION_STATE_JUMP) {
@@ -439,42 +418,39 @@ void fp_lzs_trainer(void) {
 
     // log lzs status
     if (fp.lz_stored && pm_status.pressed.a) {
-        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP && pm_RoomChangeState == 0) {
+        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP &&
+            pm_RoomChangeState == 0) {
             fp_log("control early");
-        }
-        else if (pm_player.prev_action_state == ACTION_STATE_JUMP || pm_player.action_state == ACTION_STATE_SPIN_JUMP || pm_player.action_state == ACTION_STATE_ULTRA_JUMP) {
+        } else if (pm_player.prev_action_state == ACTION_STATE_JUMP ||
+                   pm_player.action_state == ACTION_STATE_SPIN_JUMP ||
+                   pm_player.action_state == ACTION_STATE_ULTRA_JUMP) {
             fp_log("jump >= 2 frames early");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control early");
             }
-        }
-        else if (pm_player.prev_action_state == ACTION_STATE_FALLING) {
+        } else if (pm_player.prev_action_state == ACTION_STATE_FALLING) {
             fp_log("jump 1 frame early");
             if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
                 fp_log("control early");
             }
-        }
-        else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_RoomChangeState == 0) {
+        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_RoomChangeState == 0) {
             fp_log("jump 1 frame late");
             fp_log("control early");
-        }
-        else if (fp.frames_since_land == 3) {
+        } else if (fp.frames_since_land == 3) {
             fp_log("jump 1 frame late");
             if (pm_status.pressed.y_cardinal) {
                 fp_log("control late");
             }
-        }
-        else if (fp.frames_since_land == 4) {
+        } else if (fp.frames_since_land == 4) {
             fp_log("jump 2 frames late");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
             }
-        }
-        else if (fp.frames_since_land == 0 && (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
+        } else if (fp.frames_since_land == 0 &&
+                   (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
             fp_log("jump >= 2 frames late");
             fp_log("control early");
-        }
-        else if (fp.frames_since_land >= 5 && pm_RoomChangeState == 0) {
+        } else if (fp.frames_since_land >= 5 && pm_RoomChangeState == 0) {
             fp_log("jump > 2 frames late");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
@@ -539,7 +515,7 @@ void fp_update_warps(void) {
             PRINTF("destroying popup menu\n");
             pm_DestroyPopupMenu();
         }
-        
+
         pm_SetMapTransitionEffect(0); // normal black fade
         PRINTF("changing game mode\n");
         pm_SetGameMode(5); // start the "change map" game mode
@@ -561,15 +537,12 @@ void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu
             free(ent->msg);
             ent->msg = NULL;
             continue;
-        }
-        else if (!settings->bits.log) {
+        } else if (!settings->bits.log) {
             continue;
-        }
-        else if (ent->age > fade_begin) {
+        } else if (ent->age > fade_begin) {
             msg_alpha = 0xFF - (ent->age - fade_begin) * 0xFF / fade_duration;
-        }
-        else {
-          msg_alpha = 0xFF;
+        } else {
+            msg_alpha = 0xFF;
         }
         msg_alpha = msg_alpha * menu_alpha / 0xFF;
         s32 msg_x = settings->log_x - cell_width * strlen(ent->msg);
@@ -637,8 +610,8 @@ void fp_update(void) {
         _Bool active = 0;
 
         switch (fp_commands[i].command_type) {
-            case COMMAND_HOLD:       active = input_bind_held(i);        break;
-            case COMMAND_PRESS:      active = input_bind_pressed(i);     break;
+            case COMMAND_HOLD: active = input_bind_held(i); break;
+            case COMMAND_PRESS: active = input_bind_pressed(i); break;
             case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
         }
 
@@ -678,13 +651,13 @@ void fp_draw(void) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
     }
 
-    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) || 
-       (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
+    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) ||
+        (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
         fp_draw_timer(fp.timer_count, fp.lag_frames, font, cell_width, cell_height, menu_alpha);
     }
 
     if (fp.menu_active) {
-      menu_draw(fp.main_menu);
+        menu_draw(fp.main_menu);
     }
 
     menu_draw(fp.global);
@@ -697,7 +670,7 @@ void fp_draw(void) {
 ENTRY void fp_update_entry(void) {
     init_gp();
 
-    if(!fp.ready) {
+    if (!fp.ready) {
         init_stack(fp_init);
     }
 
