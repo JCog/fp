@@ -280,12 +280,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
             break;
         }
         struct gfx_sprite sprite = {
-            texture,
-            c,
-            x + i * 10,
-            y,
-            1.f,
-            1.f,
+            texture, c, x + i * 10, y, 1.f, 1.f,
         };
         if (item->owner->selector != item) {
             gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[c], draw_params->alpha));

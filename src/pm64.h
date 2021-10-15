@@ -99,9 +99,9 @@ typedef struct {
     /* 0x0071 */ int8_t demo_flag;          /*1 for demo. 0 in normal gameplay freezes mario*/
     /* 0x0072 */ int8_t demo_scene;         /*0-0x12 for each demo scene*/
     /* 0x0073 */ int8_t controller_plugged; /*needs to be 1 otherwise "no controller" */
-    /* 0x0074 */ uint8_t battle_debug;      /* 0=normal, 1=enemies can't interact, 2=defeat enemies on contact, 3=auto-defeat
-                                               enemies in battle, 4=auto run away */
-    /* 0x0075 */ uint8_t quizmo_debug;      /* 1 to force a quizmo spawn every time */
+    /* 0x0074 */ uint8_t battle_debug; /* 0=normal, 1=enemies can't interact, 2=defeat enemies on contact, 3=auto-defeat
+                                          enemies in battle, 4=auto run away */
+    /* 0x0075 */ uint8_t quizmo_debug; /* 1 to force a quizmo spawn every time */
     /* 0x0076 */ int8_t unk_0x76;
     /* 0x0077 */ char unk_0x77;
     /* 0x0078 */ int8_t disable_scripts;

@@ -9,8 +9,7 @@
 static inline int set_irqf(int irqf) {
     uint32_t sr;
 
-    __asm__("mfc0    %[sr], $12;"
-            : [sr] "=r"(sr));
+    __asm__("mfc0    %[sr], $12;" : [sr] "=r"(sr));
     int old_irqf = sr & MIPS_STATUS_IE;
 
     sr = (sr & ~MIPS_STATUS_IE) | (irqf & MIPS_STATUS_IE);
@@ -22,8 +21,7 @@ static inline int set_irqf(int irqf) {
 static inline int get_irqf(void) {
     uint32_t sr;
 
-    __asm__("mfc0    %[sr], $12;"
-            : [sr] "=r"(sr));
+    __asm__("mfc0    %[sr], $12;" : [sr] "=r"(sr));
 
     return sr & MIPS_STATUS_IE;
 }

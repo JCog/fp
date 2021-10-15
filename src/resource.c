@@ -41,15 +41,8 @@ static void *rc_grc_font_generic(const char *grc_resource_name, int char_width, 
         return p_t;
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,
-        t->im_siz,
-        (uint32_t)&t->texture_data,
-        t->tile_width,
-        t->tile_height,
-        t->tiles_x,
-        t->tiles_y,
-        GFX_FILE_DRAM,
-        0,
+        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        GFX_FILE_DRAM, 0,
     };
     return rc_font_generic(&td, char_width, char_height, code_start, letter_spacing, line_spacing, baseline, median, x);
 }
@@ -139,38 +132,15 @@ static void rd_font_generic(void *data) {
 
 /* resource management tables */
 static void *(*res_ctor[RES_MAX])(void) = {
-    rc_font_fipps,
-    rc_font_notalot35,
-    rc_font_origamimommy,
-    rc_font_pcsenior,
-    rc_font_pixelintv,
-    rc_font_pressstart2p,
-    rc_font_smwtextnc,
-    rc_font_werdnasreturn,
-    rc_font_pixelzim,
-    rc_icon_check,
-    rc_icon_buttons,
-    rc_icon_pause,
-    rc_icon_macro,
-    rc_icon_movie,
-    rc_icon_arrow,
-    rc_icon_file,
-    rc_icon_save,
-    rc_icon_osk,
-    rc_texture_crosshair,
+    rc_font_fipps,        rc_font_notalot35, rc_font_origamimommy,  rc_font_pcsenior,     rc_font_pixelintv,
+    rc_font_pressstart2p, rc_font_smwtextnc, rc_font_werdnasreturn, rc_font_pixelzim,     rc_icon_check,
+    rc_icon_buttons,      rc_icon_pause,     rc_icon_macro,         rc_icon_movie,        rc_icon_arrow,
+    rc_icon_file,         rc_icon_save,      rc_icon_osk,           rc_texture_crosshair,
 };
 
 static void (*res_dtor[RES_MAX])() = {
-    rd_font_generic,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
-    gfx_texture_free,
+    rd_font_generic,  gfx_texture_free, gfx_texture_free, gfx_texture_free, gfx_texture_free,
+    gfx_texture_free, gfx_texture_free, gfx_texture_free, gfx_texture_free, gfx_texture_free,
 };
 
 /* resource interface */
@@ -194,15 +164,8 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
         return p_t;
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,
-        t->im_siz,
-        (uint32_t)&t->texture_data,
-        t->tile_width,
-        t->tile_height,
-        t->tiles_x,
-        t->tiles_y,
-        GFX_FILE_DRAM,
-        0,
+        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        GFX_FILE_DRAM, 0,
     };
     return gfx_texture_load(&td, NULL);
 }

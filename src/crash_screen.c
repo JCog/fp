@@ -45,12 +45,7 @@ const char *gFaultCauses[18] = {
 };
 
 const char *gFPCSRFaultCauses[6] = {
-    "Unimplemented operation",
-    "Invalid operation",
-    "Division by zero",
-    "Overflow",
-    "Underflow",
-    "Inexact operation",
+    "Unimplemented operation", "Invalid operation", "Division by zero", "Overflow", "Underflow", "Inexact operation",
 };
 
 void crash_screen_sleep(s32 ms) {

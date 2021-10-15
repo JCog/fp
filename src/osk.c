@@ -110,12 +110,7 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
         if (c == BIND_END)
             break;
         struct gfx_sprite sprite = {
-            texture,
-            c,
-            x + n * 10,
-            y,
-            1.f,
-            1.f,
+            texture, c, x + n * 10, y, 1.f, 1.f,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[c], draw_params->alpha));
         gfx_sprite_draw(&sprite);
