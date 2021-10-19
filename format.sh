@@ -8,10 +8,10 @@ shopt -s globstar
 
 if (( $# > 0 )); then
     echo "Formatting file(s) $*"
+    echo "Running clang-tidy..."
+    clang-tidy ${TIDY_OPTS} "$@" -- ${COMPILER_OPTS} &> /dev/null
     echo "Running clang-format..."
     clang-format ${FORMAT_OPTS} "$@"
-    #echo "Running clang-tidy..."
-    #clang-tidy ${TIDY_OPTS} "$@" -- ${COMPILER_OPTS} &> /dev/null
     echo "Adding missing final new lines..."
     sed -i -e '$a\' "$@"
     echo "Done formatting file(s) $*"
@@ -19,10 +19,10 @@ if (( $# > 0 )); then
 fi
 
 echo "Formatting C files. This will take a bit"
+echo "Running clang-tidy..."
+clang-tidy ${TIDY_OPTS} src/*.c -- ${COMPILER_OPTS} &> /dev/null
 echo "Running clang-format..."
 clang-format ${FORMAT_OPTS} src/*{.c,.h}
-#echo "Running clang-tidy..."
-#clang-tidy ${TIDY_OPTS} src/*.c -- ${COMPILER_OPTS} &> /dev/null
 echo "Adding missing final new lines..."
 find src/ -type f -exec sed -i -e '$a\' {} \;
 echo "Done formatting all files."

@@ -51,12 +51,15 @@ static _Bool stricmp(const char *a, const char *b) {
     while (*a && *b) {
         char ca = *a++;
         char cb = *b++;
-        if (ca >= 'a' && ca <= 'z')
+        if (ca >= 'a' && ca <= 'z') {
             ca += 'A' - 'a';
-        if (cb >= 'a' && cb <= 'z')
+        }
+        if (cb >= 'a' && cb <= 'z') {
             cb += 'A' - 'a';
-        if (ca != cb)
+        }
+        if (ca != cb) {
             return 0;
+        }
     }
     return *a == *b;
 }
@@ -67,11 +70,11 @@ static _Bool update_list(void) {
     /* update location */
     DIR *dir = opendir(".");
     if (!dir) {
-        if (errno == ENODEV)
+        if (errno == ENODEV) {
             strcpy(gf_location->text, "no disk");
-        else if (errno == ENOENT)
+        } else if (errno == ENOENT) {
             strcpy(gf_location->text, "no file system");
-        else {
+        } else {
             strncpy(gf_location->text, strerror(errno), 31);
             gf_location->text[31] = 0;
         }
@@ -88,8 +91,9 @@ static _Bool update_list(void) {
         _Bool dir = ((dirent->mode & S_IFMT) == S_IFDIR);
         int nl = strlen(dirent->d_name);
         int sl = gf_suffix_length;
-        if (!dir && (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix)))
+        if (!dir && (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix))) {
             continue;
+        }
         struct dir_entry entry;
         strcpy(entry.name, dirent->d_name);
         entry.dir = dir;
@@ -97,13 +101,15 @@ static _Bool update_list(void) {
             entry.tile = 0;
             strcpy(entry.text, "back");
         } else {
-            if (entry.dir)
+            if (entry.dir) {
                 entry.tile = 1;
-            else
+            } else {
                 entry.tile = 2;
+            }
             memcpy(entry.text, dirent->d_name, 32);
-            if (nl > 31)
+            if (nl > 31) {
                 strcpy(&entry.text[28], "...");
+            }
         }
         entry.anim_state = 0;
         set_insert(&gf_dir_entries, &entry);
@@ -144,14 +150,16 @@ static void update_view(_Bool enable, _Bool select) {
                     menu_select(&gf_menu, item);
                     selected = 1;
                 }
-            } else
+            } else {
                 menu_item_disable(item);
+            }
         }
         if (select && !selected) {
-            if (gf_mode == GETFILE_LOAD)
+            if (gf_mode == GETFILE_LOAD) {
                 menu_select(&gf_menu, gf_reset);
-            else
+            } else {
                 menu_select(&gf_menu, gf_name);
+            }
         }
     } else {
         menu_item_disable(gf_name);
@@ -160,17 +168,20 @@ static void update_view(_Bool enable, _Bool select) {
         menu_item_disable(gf_clear);
         menu_item_disable(gf_scroll_up);
         menu_item_disable(gf_scroll_down);
-        for (int i = 0; i < FILE_VIEW_ROWS; ++i)
+        for (int i = 0; i < FILE_VIEW_ROWS; ++i) {
             menu_item_disable(gf_files[i]);
-        if (select)
+        }
+        if (select) {
             menu_select(&gf_menu, gf_reset);
+        }
     }
 }
 
 static int get_next_prefix_number() {
     DIR *dir = opendir(".");
-    if (!dir)
+    if (!dir) {
         return 0;
+    }
 
     int max_num_found = -1;
     int sl = strlen(gf_suffix);
@@ -178,18 +189,22 @@ static int get_next_prefix_number() {
     /* enumerate entries */
     struct dirent *dirent;
     while ((dirent = readdir(dir))) {
-        if (!(dirent->mode & S_IRUSR))
+        if (!(dirent->mode & S_IRUSR)) {
             continue;
+        }
         int nl = strlen(dirent->d_name);
-        if (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix))
+        if (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix)) {
             continue;
+        }
 
         int cur_num;
         int ret = sscanf(dirent->d_name, "%d", &cur_num);
-        if (ret == EOF || ret < 1)
+        if (ret == EOF || ret < 1) {
             continue;
-        if (cur_num > max_num_found)
+        }
+        if (cur_num > max_num_found) {
             max_num_found = cur_num;
+        }
     }
 
     closedir(dir);
@@ -202,9 +217,9 @@ static void set_name(const char *name, _Bool dirty) {
         strcpy(gf_name->text, "untitled");
         gf_untitled = 1;
     } else {
-        if (gf_dirty_name || gf_mode != GETFILE_SAVE_PREFIX_INC)
+        if (gf_dirty_name || gf_mode != GETFILE_SAVE_PREFIX_INC) {
             strncpy(gf_name->text, name, 31);
-        else {
+        } else {
             int ignore, prefix_length;
             sscanf(name, "%d%n", &ignore, &prefix_length);
             int prefix = get_next_prefix_number();
@@ -219,8 +234,9 @@ static int overwrite_prompt_proc(int option_index, void *data) {
     char *path = data;
     if (option_index != -1) {
         menu_return(&gf_menu);
-        if (option_index == 0 && !gf_callback_proc(path, gf_callback_data))
+        if (option_index == 0 && !gf_callback_proc(path, gf_callback_data)) {
             menu_return(&gf_menu);
+        }
     }
     free(path);
     return 1;
@@ -244,8 +260,9 @@ static void return_path(const char *name) {
                             1, overwrite_prompt_proc, path);
                 return;
             }
-            if (!gf_callback_proc(path, gf_callback_data))
+            if (!gf_callback_proc(path, gf_callback_data)) {
                 menu_return(&gf_menu);
+            }
         }
     }
     free(path);
@@ -295,11 +312,12 @@ static int file_activate_proc(struct menu_item *item) {
     struct dir_entry *entry = set_at(&gf_dir_entries, index);
     entry->anim_state = 1;
     if (entry->dir) {
-        if (chdir(entry->name))
+        if (chdir(entry->name)) {
             return 0;
-        if (strcmp(entry->name, "..") == 0)
+        }
+        if (strcmp(entry->name, "..") == 0) {
             vector_erase(&gf_dir_state, 0, 1);
-        else {
+        } else {
             struct dir_state *ds = vector_at(&gf_dir_state, 0);
             ds->index = index;
             ds = vector_insert(&gf_dir_state, 0, 1, NULL);
@@ -308,8 +326,9 @@ static int file_activate_proc(struct menu_item *item) {
         }
 
         /* Update the prefix */
-        if (gf_mode == GETFILE_SAVE_PREFIX_INC)
+        if (gf_mode == GETFILE_SAVE_PREFIX_INC) {
             set_name(gf_name->text, 0);
+        }
 
         update_view(update_list(), 1);
     } else {
@@ -322,8 +341,9 @@ static int file_activate_proc(struct menu_item *item) {
         if (gf_mode == GETFILE_SAVE || gf_mode == GETFILE_SAVE_PREFIX_INC) {
             set_name(name, 1);
             menu_select(&gf_menu, gf_accept);
-        } else
+        } else {
             return_path(name);
+        }
         free(name);
     }
     return 1;
@@ -335,8 +355,9 @@ static int file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
     if (row == 0 && nav == MENU_NAVIGATE_UP) {
         struct dir_state *ds = vector_at(&gf_dir_state, 0);
         --ds->scroll;
-        if (ds->scroll + FILE_VIEW_ROWS > n_entries)
+        if (ds->scroll + FILE_VIEW_ROWS > n_entries) {
             ds->scroll = n_entries - FILE_VIEW_ROWS;
+        }
         if (ds->scroll < 0) {
             if (n_entries < FILE_VIEW_ROWS) {
                 ds->scroll = 0;
@@ -363,12 +384,15 @@ static int file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
 static _Bool dir_entry_comp(void *a, void *b) {
     struct dir_entry *da = a;
     struct dir_entry *db = b;
-    if (strcmp(da->name, "..") == 0)
+    if (strcmp(da->name, "..") == 0) {
         return 1;
-    if (da->dir && !db->dir)
+    }
+    if (da->dir && !db->dir) {
         return 1;
-    if (!da->dir && db->dir)
+    }
+    if (!da->dir && db->dir) {
         return 0;
+    }
     char *sa = da->name;
     char *sb = db->name;
     int d;
@@ -379,49 +403,64 @@ static _Bool dir_entry_comp(void *a, void *b) {
         if (ca >= '0' && ca <= '9' && cb >= '0' && cb <= '9') {
             char *na = sa - 1;
             char *nb = sb - 1;
-            while (*na == '0')
+            while (*na == '0') {
                 ++na;
-            while (*nb == '0')
+            }
+            while (*nb == '0') {
                 ++nb;
-            while (*sa >= '0' && *sa <= '9')
+            }
+            while (*sa >= '0' && *sa <= '9') {
                 ++sa;
-            while (*sb >= '0' && *sb <= '9')
+            }
+            while (*sb >= '0' && *sb <= '9') {
                 ++sb;
+            }
             d = (sa - na) - (sb - nb);
-            if (d < 0)
+            if (d < 0) {
                 return 1;
-            if (d > 0)
+            }
+            if (d > 0) {
                 return 0;
+            }
             while (na != sa && nb != sb) {
                 d = *na++ - *nb++;
-                if (d < 0)
+                if (d < 0) {
                     return 1;
-                if (d > 0)
+                }
+                if (d > 0) {
                     return 0;
+                }
             }
             continue;
         }
         /* case-insensitive character comparison */
-        if (ca >= 'a' && ca <= 'z')
+        if (ca >= 'a' && ca <= 'z') {
             ca += 'A' - 'a';
-        if (cb >= 'a' && cb <= 'z')
+        }
+        if (cb >= 'a' && cb <= 'z') {
             cb += 'A' - 'a';
+        }
         d = ca - cb;
-        if (d < 0)
+        if (d < 0) {
             return 1;
-        if (d > 0)
+        }
+        if (d > 0) {
             return 0;
+        }
     }
     /* length comparison */
-    while (*sa)
+    while (*sa) {
         ++sa;
-    while (*sb)
+    }
+    while (*sb) {
         ++sb;
+    }
     d = (sa - da->name) - (sb - db->name);
-    if (d < 0)
+    if (d < 0) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 static int osk_callback_proc(const char *str, void *data) {
@@ -455,24 +494,27 @@ static void reset_proc(struct menu_item *item, void *data) {
 static void scroll_up_proc(struct menu_item *item, void *data) {
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
     --ds->scroll;
-    if (ds->scroll < 0)
+    if (ds->scroll < 0) {
         ds->scroll = 0;
+    }
 }
 
 static void scroll_down_proc(struct menu_item *item, void *data) {
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
     ++ds->scroll;
     int n_entries = gf_dir_entries.container.size;
-    if (ds->scroll + FILE_VIEW_ROWS > n_entries)
+    if (ds->scroll + FILE_VIEW_ROWS > n_entries) {
         ds->scroll = n_entries - FILE_VIEW_ROWS;
-    if (ds->scroll < 0)
+    }
+    if (ds->scroll < 0) {
         ds->scroll = 0;
+    }
 }
 
 static int mkdir_osk_callback_proc(const char *str, void *data) {
-    if (*str == '\0')
+    if (*str == '\0') {
         return 0;
-    else if (mkdir(str, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) {
+    } else if (mkdir(str, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) {
         menu_prompt(&gf_menu, strerror(errno), "return\0", 0, NULL, NULL);
         return 1;
     } else {
@@ -532,8 +574,9 @@ void menu_get_file(struct menu *menu, enum get_file_mode mode, const char *defna
                    get_file_callback_t callback_proc, void *callback_data) {
     gf_mode = mode;
     gf_dirty_name = 0;
-    if (gf_suffix)
+    if (gf_suffix) {
         free(gf_suffix);
+    }
     gf_suffix = malloc(strlen(suffix) + 1);
     strcpy(gf_suffix, suffix);
     gf_suffix_length = strlen(gf_suffix);

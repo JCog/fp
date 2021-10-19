@@ -12,15 +12,17 @@ struct item_data {
 
 static int address_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     struct item_data *item_data = data;
-    if (reason == MENU_CALLBACK_CHANGED)
+    if (reason == MENU_CALLBACK_CHANGED) {
         menu_watch_set_address(item_data->watch, menu_intinput_get(item));
+    }
     return 0;
 }
 
 static int type_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     struct item_data *item_data = data;
-    if (reason == MENU_CALLBACK_CHANGED)
+    if (reason == MENU_CALLBACK_CHANGED) {
         menu_watch_set_type(item_data->watch, menu_option_get(item));
+    }
     return 0;
 }
 

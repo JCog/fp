@@ -61,8 +61,9 @@ struct menu_item *menu_add_static_custom(struct menu *menu, int x, int y,
 
 static int tooltip_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct menu *tool_menu = item->data;
-    while (tool_menu->child)
+    while (tool_menu->child) {
         tool_menu = tool_menu->child;
+    }
     if (tool_menu->selector && tool_menu->selector->tooltip) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
         gfx_printf(draw_params->font, draw_params->x, draw_params->y, "%s", tool_menu->selector->tooltip);
@@ -120,8 +121,9 @@ struct menu_item *menu_add_imenu(struct menu *menu, int x, int y, struct menu **
     menu_init(imenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     imenu->parent = menu;
     item->imenu = imenu;
-    if (p_imenu)
+    if (p_imenu) {
         *p_imenu = imenu;
+    }
     return item;
 }
 
@@ -157,8 +159,9 @@ void menu_tab_goto(struct menu_item *item, int tab_index) {
         if (data->current_tab >= 0) {
             struct menu *tab = &data->tabs[data->current_tab];
             struct menu_item *selector = menu_get_selector(tab);
-            if (selector)
+            if (selector) {
                 menu_select_top(item->owner, NULL);
+            }
             tab->parent = NULL;
             item->imenu = NULL;
         }

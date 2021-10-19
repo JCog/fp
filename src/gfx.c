@@ -86,19 +86,22 @@ void gfx_mode_apply(enum gfx_mode mode) {
         case GFX_MODE_ALL:
         case GFX_MODE_FILTER: {
             gDPSetTextureFilter(pdl++, gfx_modes[GFX_MODE_FILTER]);
-            if (mode != GFX_MODE_ALL)
+            if (mode != GFX_MODE_ALL) {
                 break;
+            }
         }
         case GFX_MODE_COMBINE: {
             gDPSetCombine(pdl++, gfx_modes[GFX_MODE_COMBINE]);
-            if (mode != GFX_MODE_ALL)
+            if (mode != GFX_MODE_ALL) {
                 break;
+            }
         }
         case GFX_MODE_COLOR: {
             uint32_t c = gfx_modes[GFX_MODE_COLOR];
             gDPSetPrimColor(pdl++, 0, 0, (c >> 24) & 0xFF, (c >> 16) & 0xFF, (c >> 8) & 0xFF, (c >> 0) & 0xFF);
-            if (mode != GFX_MODE_ALL)
+            if (mode != GFX_MODE_ALL) {
                 break;
+            }
         }
         default: break;
     }
@@ -185,8 +188,9 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     struct gfx_texture *new_texture = NULL;
     if (!texture) {
         new_texture = malloc(sizeof(*new_texture));
-        if (!new_texture)
+        if (!new_texture) {
             return new_texture;
+        }
         texture = new_texture;
     }
     texture->im_fmt = texdesc->im_fmt;
@@ -201,13 +205,15 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     void *file_start = NULL;
     if (texdesc->file_vaddr != GFX_FILE_DRAM) {
         if (texldr->file_vaddr != texdesc->file_vaddr) {
-            if (texldr->file_data)
+            if (texldr->file_data) {
                 free(texldr->file_data);
+            }
             texldr->file_data = memalign(64, texdesc->file_vsize);
             if (!texldr->file_data) {
                 texldr->file_vaddr = GFX_FILE_DRAM;
-                if (new_texture)
+                if (new_texture) {
                     free(new_texture);
+                }
                 return NULL;
             }
             texldr->file_vaddr = texdesc->file_vaddr;
@@ -217,14 +223,16 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
             texture_data = texldr->file_data;
             texldr->file_vaddr = GFX_FILE_DRAM;
             texldr->file_data = NULL;
-        } else
+        } else {
             file_start = texldr->file_data;
+        }
     }
     if (!texture_data) {
         texture_data = memalign(64, texture_size);
         if (!texture_data) {
-            if (new_texture)
+            if (new_texture) {
                 free(new_texture);
+            }
             return NULL;
         }
         memcpy(texture_data, (char *)file_start + texdesc->address, texture_size);
@@ -234,15 +242,17 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
 }
 
 void gfx_texldr_destroy(struct gfx_texldr *texldr) {
-    if (texldr->file_data)
+    if (texldr->file_data) {
         free(texldr->file_data);
+    }
 }
 
 struct gfx_texture *gfx_texture_create(g_ifmt_t im_fmt, g_isiz_t im_siz, int tile_width, int tile_height, int tiles_x,
                                        int tiles_y) {
     struct gfx_texture *texture = malloc(sizeof(*texture));
-    if (!texture)
+    if (!texture) {
         return texture;
+    }
     texture->tile_size = (tile_width * tile_height * G_SIZ_BITS(im_siz) + 63) / 64 * 8;
     texture->data = memalign(64, tiles_x * tiles_y * texture->tile_size);
     if (!texture->data) {
@@ -267,8 +277,9 @@ struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct g
 }
 
 void gfx_texture_destroy(struct gfx_texture *texture) {
-    if (texture->data)
+    if (texture->data) {
         free(texture->data);
+    }
 }
 
 void gfx_texture_free(struct gfx_texture *texture) {
@@ -284,15 +295,17 @@ struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_t
     struct gfx_texture *new_texture = NULL;
     if (!dest) {
         new_texture = malloc(sizeof(*new_texture));
-        if (!new_texture)
+        if (!new_texture) {
             return new_texture;
+        }
         dest = new_texture;
     }
     size_t texture_size = src->tile_size * src->tiles_x * src->tiles_y;
     void *texture_data = memalign(64, texture_size);
     if (!texture_data) {
-        if (new_texture)
+        if (new_texture) {
             free(new_texture);
+        }
         return NULL;
     }
     *dest = *src;
@@ -321,8 +334,9 @@ void gfx_texture_copy_tile(struct gfx_texture *dest, int dest_tile, const struct
             p_dest->g = p_dest->g + (p_src->g - p_dest->g) * p_src->a / 0xFF;
             p_dest->b = p_dest->b + (p_src->b - p_dest->b) * p_src->a / 0xFF;
             p_dest->a = p_src->a + (0xFF - p_src->a) * p_dest->a / 0xFF;
-        } else
+        } else {
             *p_dest = *p_src;
+        }
         ++p_dest;
         ++p_src;
     }
@@ -451,11 +465,13 @@ static void draw_chars(const struct gfx_font *font, int x, int y, const char *bu
         int cy = 0;
         for (int j = 0; j < l; ++j, cx += font->char_width + font->letter_spacing) {
             uint8_t c = buf[j];
-            if (c < font->code_start || c >= font->code_start + n_chars)
+            if (c < font->code_start || c >= font->code_start + n_chars) {
                 continue;
+            }
             c -= font->code_start;
-            if (c < tile_begin || c >= tile_end)
+            if (c < tile_begin || c >= tile_end) {
                 continue;
+            }
             c -= tile_begin;
             if (!tile_loaded) {
                 tile_loaded = 1;
@@ -478,8 +494,9 @@ static void flush_chars(void) {
         struct vector *tile_vect = &gfx_chars[i];
         for (int j = 0; j < tile_vect->size; ++j) {
             struct gfx_char *gc = vector_at(tile_vect, j);
-            if (j == 0)
+            if (j == 0) {
                 gfx_rdp_load_tile(font->texture, i);
+            }
             if (first || color != gc->color) {
                 color = gc->color;
                 gfx_sync();
@@ -501,8 +518,9 @@ static void gfx_printf_n_va(const struct gfx_font *font, int x, int y, const cha
     const size_t bufsize = 1024;
     char buf[bufsize];
     int l = vsnprintf(buf, bufsize, format, args);
-    if (l > bufsize - 1)
+    if (l > bufsize - 1) {
         l = bufsize - 1;
+    }
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
         uint8_t a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
@@ -517,8 +535,9 @@ static void gfx_printf_f_va(const struct gfx_font *font, int x, int y, const cha
     const size_t bufsize = 1024;
     char buf[bufsize];
     int l = vsnprintf(buf, bufsize, format, args);
-    if (l > bufsize - 1)
+    if (l > bufsize - 1) {
         l = bufsize - 1;
+    }
     x -= font->x;
     y -= font->baseline;
     struct gfx_texture *texture = font->texture;
@@ -533,8 +552,9 @@ static void gfx_printf_f_va(const struct gfx_font *font, int x, int y, const cha
         int cy = y + 1;
         for (int i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
             uint8_t c = buf[i];
-            if (c < font->code_start || c >= font->code_start + n_chars)
+            if (c < font->code_start || c >= font->code_start + n_chars) {
                 continue;
+            }
             c -= font->code_start;
             int tile_idx = c / chars_per_tile;
             int tile_char = c % chars_per_tile;
@@ -551,8 +571,9 @@ static void gfx_printf_f_va(const struct gfx_font *font, int x, int y, const cha
     int cy = y;
     for (int i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
         uint8_t c = buf[i];
-        if (c < font->code_start || c >= font->code_start + n_chars)
+        if (c < font->code_start || c >= font->code_start + n_chars) {
             continue;
+        }
         c -= font->code_start;
         int tile_idx = c / chars_per_tile;
         int tile_char = c % chars_per_tile;

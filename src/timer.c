@@ -6,40 +6,46 @@
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_intinput_get(item);
+    }
     return 0;
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p)
+        if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menu_option_get(item);
+    }
     return 0;
 }
 
 static int show_timer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON)
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.timer_show = 1;
-    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.timer_show = 0;
-    else if (reason == MENU_CALLBACK_THINK)
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.timer_show);
+    }
     return 0;
 }
 
 static int timer_logging_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON)
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.timer_logging = 1;
-    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.timer_logging = 0;
-    else if (reason == MENU_CALLBACK_THINK)
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.timer_logging);
+    }
     return 0;
 }
 

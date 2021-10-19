@@ -11,8 +11,9 @@ struct item_data {
 
 static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     static struct gfx_texture *texture = NULL;
-    if (!texture)
+    if (!texture) {
         texture = resource_load_grc_texture("move_icon");
+    }
     int cw = menu_get_cell_width(item->owner, 1);
     struct gfx_sprite sprite = {
         texture,
@@ -29,8 +30,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
 
 static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    if (data->active && data->callback_proc)
+    if (data->active && data->callback_proc) {
         data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data);
+    }
     return data->active;
 }
 

@@ -108,14 +108,15 @@ static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
     tok->type = type;
     va_list arg;
     va_start(arg, type);
-    if (type == TOK_CONST)
+    if (type == TOK_CONST) {
         tok->value = va_arg(arg, uint32_t);
-    else if (type == TOK_ID)
+    } else if (type == TOK_ID) {
         strcpy(tok->id, va_arg(arg, char *));
-    else if (type == TOK_OP)
+    } else if (type == TOK_OP) {
         tok->op = va_arg(arg, enum op);
-    else if (type == TOK_BRACK_L || type == TOK_BRACK_R)
+    } else if (type == TOK_BRACK_L || type == TOK_BRACK_R) {
         tok->brack = va_arg(arg, enum brack);
+    }
     va_end(arg);
     return tok;
 }
@@ -142,12 +143,14 @@ static _Bool is_word_char(char c) {
 
 static char *parse_word(const char **p) {
     const char *e = *p;
-    while (is_word_char(*e))
+    while (is_word_char(*e)) {
         ++e;
+    }
     int l = e - *p;
     char *s = malloc(l + 1);
-    if (!s)
+    if (!s) {
         return NULL;
+    }
     memcpy(s, *p, l);
     s[l] = 0;
     *p = e;
@@ -159,10 +162,11 @@ static void stack_init(struct vector *stack) {
 }
 
 static struct tok *stack_peek(struct vector *stack) {
-    if (stack->size == 0)
+    if (stack->size == 0) {
         return NULL;
-    else
+    } else {
         return vector_at(stack, stack->size - 1);
+    }
 }
 
 static _Bool stack_push(struct vector *stack, struct tok *tok) {
@@ -194,16 +198,17 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             continue;
         }
         /* parse comment and end-of-line */
-        else if (c == '#' || c == '\r' || c == '\n')
+        else if (c == '#' || c == '\r' || c == '\n') {
             break;
-        /* parse operator */
-        else if (parse_op(&p, &op))
+            /* parse operator */
+        } else if (parse_op(&p, &op)) {
             make_tok(&tok, TOK_OP, op);
-        /* parse constant */
-        else if (c >= '0' && c <= '9') {
+            /* parse constant */
+        } else if (c >= '0' && c <= '9') {
             char *word = parse_word(&p);
-            if (!word)
+            if (!word) {
                 goto mem_err;
+            }
             char *word_s = word;
             char *word_e = word_s + strlen(word_s);
             int base;
@@ -216,8 +221,9 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             } else if (strncmp(word, "0", 1) == 0 && word_e - word_s > 1) {
                 base = 8;
                 word_s += 1;
-            } else
+            } else {
                 base = 10;
+            }
             if (word_s == word_e) {
                 free(word);
                 goto syntax_err;
@@ -227,12 +233,13 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             for (char *word_p = word_e - 1; word_p >= word_s; --word_p) {
                 char c = *word_p;
                 int d = -1;
-                if (c >= '0' && c <= '9')
+                if (c >= '0' && c <= '9') {
                     d = c - '0';
-                else if (c >= 'A' && c <= 'F')
+                } else if (c >= 'A' && c <= 'F') {
                     d = 10 + c - 'A';
-                else if (c >= 'a' && c <= 'f')
+                } else if (c >= 'a' && c <= 'f') {
                     d = 10 + c - 'a';
+                }
                 if (d < 0 || d >= base) {
                     free(word);
                     goto syntax_err;
@@ -246,8 +253,9 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
         /* parse identifier */
         else if (is_word_char(c)) {
             char *word = parse_word(&p);
-            if (!word)
+            if (!word) {
                 goto mem_err;
+            }
             if (strlen(word) + 1 > ID_MAX) {
                 free(word);
                 goto syntax_err;
@@ -261,22 +269,25 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                 mode_op = 0;
                 make_tok(&tok, TOK_BRACK_L, BRACK_SQUARE);
                 ++p;
-            } else
+            } else {
                 make_tok(&tok, TOK_OP, OP_W);
+            }
         } else {
-            if (c == '(')
+            if (c == '(') {
                 make_tok(&tok, TOK_BRACK_L, BRACK_PAREN);
-            else if (c == ']')
+            } else if (c == ']') {
                 make_tok(&tok, TOK_BRACK_R, BRACK_SQUARE);
-            else if (c == ')')
+            } else if (c == ')') {
                 make_tok(&tok, TOK_BRACK_R, BRACK_PAREN);
-            else
+            } else {
                 goto syntax_err;
+            }
             ++p;
         }
         /* process token */
-        if (mode_op)
+        if (mode_op) {
             goto syntax_err;
+        }
         if (tok.type == TOK_ID) {
             // TODO: figure out what this is even doing
             //      _Bool found = 0;
@@ -290,40 +301,47 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             //        goto syntax_err;
         }
         if (tok.type == TOK_CONST) {
-            if (!stack_push(&adex->expr, &tok))
+            if (!stack_push(&adex->expr, &tok)) {
                 goto mem_err;
+            }
         } else if (tok.type == TOK_BRACK_L || is_func_tok(&tok)) {
             if (!stack_push(&stack, &tok))
                 goto mem_err;
-            if (tok.type == TOK_OP && tok.op >= OP_B && tok.op <= OP_W)
+            if (tok.type == TOK_OP && tok.op >= OP_B && tok.op <= OP_W) {
                 mode_op = 1;
+            }
         } else if (tok.type == TOK_BRACK_R) {
             while (1) {
                 if (!stack_peek(&stack))
                     goto syntax_err;
                 struct tok pop;
                 stack_pop(&stack, &pop);
-                if (pop.type == TOK_BRACK_L && pop.brack == tok.brack)
+                if (pop.type == TOK_BRACK_L && pop.brack == tok.brack) {
                     break;
-                if (!stack_push(&adex->expr, &pop))
+                }
+                if (!stack_push(&adex->expr, &pop)) {
                     goto mem_err;
+                }
             }
             struct tok *top = stack_peek(&stack);
             if (top && is_func_tok(top)) {
                 struct tok pop;
                 stack_pop(&stack, &pop);
-                if (!stack_push(&adex->expr, &pop))
+                if (!stack_push(&adex->expr, &pop)) {
                     goto mem_err;
+                }
             }
         } else if (tok.type == TOK_OP) {
             while (1) {
                 struct tok *top = stack_peek(&stack);
-                if (!top || top->type != TOK_OP || op_prec[top->op] < op_prec[tok.op])
+                if (!top || top->type != TOK_OP || op_prec[top->op] < op_prec[tok.op]) {
                     break;
+                }
                 struct tok pop;
                 stack_pop(&stack, &pop);
-                if (!stack_push(&adex->expr, &pop))
+                if (!stack_push(&adex->expr, &pop)) {
                     goto mem_err;
+                }
             }
             if (!stack_push(&stack, &tok))
                 goto mem_err;
@@ -342,18 +360,20 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
     int n_ops = 0;
     for (int i = 0; i < adex->expr.size; ++i) {
         struct tok *tok = vector_at(&adex->expr, i);
-        if (tok->type == TOK_CONST || tok->type == TOK_ID)
+        if (tok->type == TOK_CONST || tok->type == TOK_ID) {
             ++n_ops;
-        else if (tok->type == TOK_OP) {
+        } else if (tok->type == TOK_OP) {
             int ar = op_ar[tok->op];
-            if (n_ops < ar)
+            if (n_ops < ar) {
                 goto syntax_err;
+            }
             n_ops -= ar;
             n_ops += 1;
         }
     }
-    if (n_ops != 1)
+    if (n_ops != 1) {
         goto syntax_err;
+    }
     e = ADEX_ERROR_SUCCESS;
     goto exit;
 mem_err:
@@ -383,10 +403,10 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
     for (int i = 0; i < adex->expr.size; ++i) {
         struct tok *tok = vector_at(&adex->expr, i);
         uint32_t value;
-        if (tok->type == TOK_CONST)
+        if (tok->type == TOK_CONST) {
             /* push operand */
             value = tok->value;
-        else if (tok->type == TOK_OP) {
+        } else if (tok->type == TOK_OP) {
             /* compute operation */
             int op = tok->op;
             int ar = op_ar[op];
@@ -396,19 +416,22 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
                 /* dereference operators */
                 case OP_BZ: sign = 0;
                 case OP_B:
-                    if (!validate_addr(ops[0], 1))
+                    if (!validate_addr(ops[0], 1)) {
                         goto addr_err;
+                    }
                     value = (sign ? *(int8_t *)ops[0] : *(uint8_t *)ops[0]);
                     break;
                 case OP_HZ: sign = 0;
                 case OP_H:
-                    if (!validate_addr(ops[0], 2))
+                    if (!validate_addr(ops[0], 2)) {
                         goto addr_err;
+                    }
                     value = (sign ? *(int16_t *)ops[0] : *(uint16_t *)ops[0]);
                     break;
                 case OP_W:
-                    if (!validate_addr(ops[0], 4))
+                    if (!validate_addr(ops[0], 4)) {
                         goto addr_err;
+                    }
                     value = *(uint32_t *)ops[0];
                     break;
                 /* arithmetic operators */
@@ -416,13 +439,15 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
                 case OP_SUB: value = ops[0] - ops[1]; break;
                 case OP_MUL: value = ops[0] * ops[1]; break;
                 case OP_DIV:
-                    if (ops[1] == 0)
+                    if (ops[1] == 0) {
                         goto arith_err;
+                    }
                     value = ops[0] / ops[1];
                     break;
                 case OP_REM:
-                    if (ops[1] == 0)
+                    if (ops[1] == 0) {
                         goto arith_err;
+                    }
                     value = ops[0] % ops[1];
                     break;
             }

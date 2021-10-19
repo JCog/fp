@@ -1,10 +1,11 @@
 #include "menu.h"
 
 static int activate_proc(struct menu_item *item) {
-    if (item->data)
+    if (item->data) {
         menu_enter_top(item->owner, item->data);
-    else
+    } else {
         menu_return_top(item->owner);
+    }
     return 1;
 }
 

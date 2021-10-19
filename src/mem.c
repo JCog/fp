@@ -48,26 +48,30 @@ static void add_domain(uint32_t start, uint32_t size, const char *name) {
 
 static void update_view(void) {
     struct mem_domain *d = vector_at(&domains, view_domain_index);
-    if (d->size <= MEM_VIEW_SIZE || d->view_offset < 0)
+    if (d->size <= MEM_VIEW_SIZE || d->view_offset < 0) {
         d->view_offset = 0;
-    else if (d->view_offset + MEM_VIEW_SIZE > d->size)
+    } else if (d->view_offset + MEM_VIEW_SIZE > d->size) {
         d->view_offset = d->size - MEM_VIEW_SIZE;
+    }
     menu_intinput_set(view_address, d->start + d->view_offset);
     strcpy(view_domain_name->text, d->name);
     view_pageup->enabled = view_pagedown->enabled = (d->size > MEM_VIEW_SIZE);
     for (int y = 0; y < MEM_VIEW_ROWS; ++y) {
         struct menu_item *row = view_rows[y];
         row->enabled = (d->view_offset + y * MEM_VIEW_COLS < d->size);
-        if (row->enabled)
+        if (row->enabled) {
             sprintf(view_rows[y]->text, "%08" PRIx32, d->start + d->view_offset + y * MEM_VIEW_COLS);
+        }
         for (int x = 0; x < MEM_VIEW_COLS; ++x) {
             int n = y * MEM_VIEW_COLS + x;
-            if (n % view_data_size != 0)
+            if (n % view_data_size != 0) {
                 continue;
+            }
             struct menu_item *cell = view_cells[n];
             cell->enabled = (d->view_offset + n < d->size);
-            if (cell->enabled)
+            if (cell->enabled) {
                 cell->think_proc(cell);
+            }
         }
     }
     int width = 0;
@@ -77,9 +81,11 @@ static void update_view(void) {
         case 4: width = view_float ? 14 : 8; break;
     }
     char *p = view_cell_header->text;
-    for (int i = 0; i < MEM_VIEW_COLS; ++i)
-        if (i % view_data_size == 0)
+    for (int i = 0; i < MEM_VIEW_COLS; ++i) {
+        if (i % view_data_size == 0) {
             p += sprintf(p, "%-*x", width, (d->view_offset + i) & 0xF);
+        }
+    }
 }
 
 static int cell_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
@@ -90,30 +96,36 @@ static int cell_proc(struct menu_item *item, enum menu_callback_reason reason, v
             uint8_t *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
                 uint8_t v = *p;
-                if (menu_intinput_get(item) != v)
+                if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
-            } else if (reason == MENU_CALLBACK_CHANGED)
+                }
+            } else if (reason == MENU_CALLBACK_CHANGED) {
                 *p = menu_intinput_get(item);
+            }
             break;
         }
         case 2: {
             uint16_t *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
                 uint16_t v = *p;
-                if (menu_intinput_get(item) != v)
+                if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
-            } else if (reason == MENU_CALLBACK_CHANGED)
+                }
+            } else if (reason == MENU_CALLBACK_CHANGED) {
                 *p = menu_intinput_get(item);
+            }
             break;
         }
         case 4: {
             uint32_t *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
                 uint32_t v = *p;
-                if (menu_intinput_get(item) != v)
+                if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
-            } else if (reason == MENU_CALLBACK_CHANGED)
+                }
+            } else if (reason == MENU_CALLBACK_CHANGED) {
                 *p = menu_intinput_get(item);
+            }
             break;
         }
     }
@@ -126,19 +138,22 @@ static int float_cell_proc(struct menu_item *item, enum menu_callback_reason rea
     float *p = (void *)(d->start + d->view_offset + cell_index);
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         float v = *p;
-        if (is_nan(v) || !isnormal(v) || menu_floatinput_get(item) != v)
+        if (is_nan(v) || !isnormal(v) || menu_floatinput_get(item) != v) {
             menu_floatinput_set(item, v);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_floatinput_get(item);
+    }
     return 0;
 }
 
 static void make_cells(struct menu *menu) {
     int n = 0;
-    for (int y = 0; y < MEM_VIEW_ROWS; ++y)
+    for (int y = 0; y < MEM_VIEW_ROWS; ++y) {
         for (int x = 0; x < MEM_VIEW_COLS; ++x) {
-            if (view_cells[n])
+            if (view_cells[n]) {
                 menu_item_remove(view_cells[n]);
+            }
             if (n % view_data_size == 0) {
                 if (view_float) {
                     view_cells[n] = menu_add_floatinput(menu, 9 + x / 4 * 14, 3 + y, 7, 2, float_cell_proc, (void *)n);
@@ -146,15 +161,18 @@ static void make_cells(struct menu *menu) {
                     view_cells[n] =
                         menu_add_intinput(menu, 9 + x * 2, 3 + y, 16, view_data_size * 2, cell_proc, (void *)n);
                 }
-            } else
+            } else {
                 view_cells[n] = NULL;
+            }
             ++n;
         }
+    }
 }
 
 static int address_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED)
+    if (reason == MENU_CALLBACK_CHANGED) {
         mem_goto(menu_intinput_get(item));
+    }
     return 0;
 }
 
@@ -215,16 +233,18 @@ static void add_watch_proc(struct menu_item *item, void *data) {
     struct mem_domain *d = vector_at(&domains, view_domain_index);
     uint32_t address = d->start + d->view_offset + y * MEM_VIEW_COLS;
     enum watch_type type;
-    if (view_data_size == 1)
+    if (view_data_size == 1) {
         type = WATCH_TYPE_X8;
-    else if (view_data_size == 2)
+    } else if (view_data_size == 2) {
         type = WATCH_TYPE_X16;
-    else if (view_float)
+    } else if (view_float) {
         type = WATCH_TYPE_F32;
-    else
+    } else {
         type = WATCH_TYPE_X32;
-    if (watchlist_add(fp.menu_watchlist, address, type) >= 0)
+    }
+    if (watchlist_add(fp.menu_watchlist, address, type) >= 0) {
         menu_enter_top(menu_return_top(item->owner), fp.menu_watches);
+    }
 }
 
 void mem_menu_create(struct menu *menu) {
@@ -329,6 +349,7 @@ void mem_open_watch(struct menu *menu, struct menu *menu_mem, uint32_t address, 
     make_cells(menu_mem);
     mem_goto(address);
     menu_enter_top(menu_return_top(menu), menu_mem);
-    if (menu_mem->selector == NULL)
+    if (menu_mem->selector == NULL) {
         menu_select_top(menu_mem, view_cells[0]);
+    }
 }

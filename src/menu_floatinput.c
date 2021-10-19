@@ -21,18 +21,20 @@ struct item_data {
 };
 
 static inline int char_to_int(int x) {
-    if (x >= '0' && x <= '9')
+    if (x >= '0' && x <= '9') {
         return x - ('0' - 0x0);
-    else if (x >= 'a' && x <= 'f')
+    } else if (x >= 'a' && x <= 'f') {
         return x - ('a' - 0xA);
+    }
     return -1;
 }
 
 static inline int int_to_char(int x) {
-    if (x >= 0x0 && x <= 0x9)
+    if (x >= 0x0 && x <= 0x9) {
         return x + ('0' - 0x0);
-    else if (x >= 0xA && x <= 0xF)
+    } else if (x >= 0xA && x <= 0xF) {
         return x + ('a' - 0xA);
+    }
     return -1;
 }
 
@@ -40,17 +42,20 @@ static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         int r = menu_think(data->imenu);
-        if (r)
+        if (r) {
             return r;
+        }
     }
     if (data->callback_proc) {
         int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
-        if (r)
+        if (r) {
             return r;
-        if (data->active)
+        }
+        if (data->active) {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
-        else
+        } else {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
+        }
         return r;
     }
     return 0;
@@ -68,8 +73,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
 
 static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    if (data->active)
+    if (data->active) {
         menu_navigate(data->imenu, nav);
+    }
     return data->active;
 }
 
@@ -86,9 +92,9 @@ static int activate_proc(struct menu_item *item) {
         int exp_sign;
         int mul;
 
-        if (data->sig_sign->text[0] == '+')
+        if (data->sig_sign->text[0] == '+') {
             sig_sign = 1;
-        else {
+        } else {
             sig_sign = -1;
             *p++ = '-';
         }
@@ -96,8 +102,9 @@ static int activate_proc(struct menu_item *item) {
         mul = 1;
         for (int i = data->sig_precis - 1; i >= 0; --i) {
             int x = i;
-            if (i > 0)
+            if (i > 0) {
                 ++x;
+            }
             int n = data->sig_digits[i]->text[0];
             sig += char_to_int(n) * mul;
             mul *= 10;
@@ -108,14 +115,16 @@ static int activate_proc(struct menu_item *item) {
         *p++ = 'e';
 
         for (int i = 0; i < data->exp_precis; ++i) {
-            if (data->exp_digits[i]->text[0] != '0')
+            if (data->exp_digits[i]->text[0] != '0') {
                 break;
-            if (i == data->exp_precis - 1)
+            }
+            if (i == data->exp_precis - 1) {
                 data->exp_sign->text[0] = '+';
+            }
         }
-        if (data->exp_sign->text[0] == '+')
+        if (data->exp_sign->text[0] == '+') {
             exp_sign = 1;
-        else {
+        } else {
             exp_sign = -1;
             *p++ = '-';
         }
@@ -132,8 +141,9 @@ static int activate_proc(struct menu_item *item) {
         float exp_mul = pow(10., exp * exp_sign - (data->sig_precis - 1));
         data->value = sig * sig_sign * exp_mul;
 
-        if (data->callback_proc)
+        if (data->callback_proc) {
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        }
     } else {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
@@ -146,11 +156,13 @@ static int activate_proc(struct menu_item *item) {
 static int destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     data->sig_sign->data = NULL;
-    for (int i = 0; i < data->sig_precis; ++i)
+    for (int i = 0; i < data->sig_precis; ++i) {
         data->sig_digits[i]->data = NULL;
+    }
     data->exp_sign->data = NULL;
-    for (int i = 0; i < data->exp_precis; ++i)
+    for (int i = 0; i < data->exp_precis; ++i) {
         data->exp_digits[i]->data = NULL;
+    }
     menu_destroy(data->imenu);
     free(data->sig_digits);
     free(data->exp_digits);
@@ -158,20 +170,22 @@ static int destroy_proc(struct menu_item *item) {
 }
 
 static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
-    if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN)
+    if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN) {
         return 0;
+    }
     item->text[0] = '+' + '-' - item->text[0];
     return 1;
 }
 
 static int digit_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     int value = char_to_int(item->text[0]);
-    if (nav == MENU_NAVIGATE_UP)
+    if (nav == MENU_NAVIGATE_UP) {
         ++value;
-    else if (nav == MENU_NAVIGATE_DOWN)
+    } else if (nav == MENU_NAVIGATE_DOWN) {
         --value;
-    else
+    } else {
         return 0;
+    }
     value = (value + 10) % 10;
     item->text[0] = int_to_char(value);
     return 1;
@@ -215,10 +229,11 @@ struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y, int sig_p
         sign->navigate_proc = sign_navigate_proc;
         sign->animate_highlight = 1;
         sign->data = data;
-        if (i == 0)
+        if (i == 0) {
             data->sig_sign = sign;
-        else
+        } else {
             data->exp_sign = sign;
+        }
     }
     for (int i = 0; i < sig_precis + exp_precis; ++i) {
         int x = 1 + i;
@@ -238,10 +253,11 @@ struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y, int sig_p
         digit->navigate_proc = digit_navigate_proc;
         digit->animate_highlight = 1;
         digit->data = data;
-        if (i < sig_precis)
+        if (i < sig_precis) {
             data->sig_digits[i] = digit;
-        else
+        } else {
             data->exp_digits[i - sig_precis] = digit;
+        }
     }
     data->imenu->selector = data->sig_digits[0];
     return item;
@@ -253,8 +269,9 @@ float menu_floatinput_get(struct menu_item *item) {
 }
 
 void menu_floatinput_set(struct menu_item *item, float value) {
-    if (is_nan(value) || !isnormal(value))
+    if (is_nan(value) || !isnormal(value)) {
         value = 0.f;
+    }
     struct item_data *data = item->data;
     data->value = value;
 
@@ -266,16 +283,17 @@ void menu_floatinput_set(struct menu_item *item, float value) {
     exp *= exp_sign;
     char *p = data->item->text;
 
-    if (sig_sign == 1)
+    if (sig_sign == 1) {
         data->item->text[0] = data->sig_sign->text[0] = '+';
-    else {
+    } else {
         data->item->text[0] = data->sig_sign->text[0] = '-';
         *p++ = '-';
     }
     for (int i = data->sig_precis - 1; i >= 0; --i) {
         int x = i;
-        if (i > 0)
+        if (i > 0) {
             ++x;
+        }
         int c = int_to_char(sig % 10);
         sig /= 10;
         data->sig_digits[i]->text[0] = c;
@@ -285,9 +303,9 @@ void menu_floatinput_set(struct menu_item *item, float value) {
     p += data->sig_precis + 1;
     *p++ = 'e';
 
-    if (exp_sign == 1)
+    if (exp_sign == 1) {
         data->item->text[3 + data->sig_precis] = data->exp_sign->text[0] = '+';
-    else {
+    } else {
         data->item->text[3 + data->sig_precis] = data->exp_sign->text[0] = '-';
         *p++ = '-';
     }

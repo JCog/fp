@@ -48,8 +48,9 @@ static inline void reg_wr(int reg, uint32_t dat) {
 static inline void spi_tx(uint8_t dat) {
     reg_wr(REG_SPI, dat);
 
-    while (reg_rd(REG_STATUS) & STATUS_SPI)
+    while (reg_rd(REG_STATUS) & STATUS_SPI) {
         ;
+    }
 }
 
 static inline uint8_t spi_io(uint8_t dat) {
@@ -65,21 +66,23 @@ static inline uint8_t spi_rx(void) {
 static void sd_set_spd(int spd) {
     spi_cfg &= ~SPI_SPEED;
 
-    if (spd >= 50)
+    if (spd >= 50) {
         spi_cfg |= SPI_SPEED_50;
-    else if (spd >= 25)
+    } else if (spd >= 25) {
         spi_cfg |= SPI_SPEED_25;
-    else
+    } else {
         spi_cfg |= SPI_SPEED_LO;
+    }
 
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
 static void sd_spi_ss(int ss) {
-    if (ss)
+    if (ss) {
         spi_cfg &= ~SPI_SS;
-    else
+    } else {
         spi_cfg |= SPI_SS;
+    }
 
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
@@ -91,25 +94,29 @@ static int sd_spi_io(int dat) {
 static void sd_spi_rx_buf(void *buf, size_t size) {
     uint8_t *p = buf;
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         *p++ = spi_rx();
+    }
 }
 
 static void sd_spi_tx_buf(const void *buf, size_t size) {
     const uint8_t *p = buf;
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         spi_tx(*p++);
+    }
 }
 
 static void sd_spi_tx_clk(int dat, size_t n_clk) {
-    if (dat & 0x1)
+    if (dat & 0x1) {
         dat = 0xFF;
-    else
+    } else {
         dat = 0x00;
+    }
 
-    for (size_t i = 0; i < n_clk / 8; i++)
+    for (size_t i = 0; i < n_clk / 8; i++) {
         spi_tx(dat);
+    }
 }
 
 static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
@@ -119,12 +126,14 @@ static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
     reg_wr(REG_DMA_LEN, n_blk - 1);
     reg_wr(REG_DMA_ADDR, cart_addr >> 11);
     reg_wr(REG_DMA_CFG, DMA_SD_TO_RAM);
-    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY)
+    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY) {
         ;
+    }
 
     /* check for dma timeout */
-    if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT)
+    if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT) {
         return -SD_ERR_TIMEOUT;
+    }
 
     /* copy to ram */
     pi_read_locked(cart_addr, buf, blk_size * n_blk);
@@ -156,8 +165,9 @@ static int probe(void) {
 
     /* check firmware version */
     uint16_t fw_ver = reg_rd(REG_VER);
-    if (fw_ver < 0x0100 || fw_ver >= 0x0116)
+    if (fw_ver < 0x0100 || fw_ver >= 0x0116) {
         goto nodev;
+    }
 
     /* check spi device */
     /* for a v1 device we expect a write to trigger eight clocks with the MISO
@@ -165,11 +175,13 @@ static int probe(void) {
     reg_wr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS);
     reg_wr(REG_SPI, 0x00);
     for (int i = 0;; i++) {
-        if (i > 32)
+        if (i > 32) {
             goto nodev;
+        }
 
-        if ((reg_rd(REG_STATUS) & STATUS_SPI) == 0)
+        if ((reg_rd(REG_STATUS) & STATUS_SPI) == 0) {
             break;
+        }
     }
     uint16_t dat = reg_rd(REG_SPI);
     if (dat == 0xFF) {

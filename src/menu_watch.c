@@ -22,8 +22,9 @@ static int watch_type_size[] = {
 static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     uint32_t address = data->address;
-    if (address < 0x80000000 || address >= 0x80800000 || data->type < 0 || data->type >= WATCH_TYPE_MAX)
+    if (address < 0x80000000 || address >= 0x80800000 || data->type < 0 || data->type >= WATCH_TYPE_MAX) {
         return 1;
+    }
     address -= address % watch_type_size[data->type];
     switch (data->type) {
         case WATCH_TYPE_U8: snprintf(item->text, 17, "%" PRIu8, *(uint8_t *)address); break;
@@ -37,15 +38,16 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         case WATCH_TYPE_X32: snprintf(item->text, 17, "0x%" PRIx32, *(uint32_t *)address); break;
         case WATCH_TYPE_F32: {
             float v = *(float *)address;
-            if (is_nan(v))
+            if (is_nan(v)) {
                 strcpy(item->text, "nan");
-            else if (v == INFINITY)
+            } else if (v == INFINITY) {
                 strcpy(item->text, "inf");
-            else if (v == -INFINITY)
+            } else if (v == -INFINITY) {
                 strcpy(item->text, "-inf");
-            else {
-                if (!isnormal(v))
+            } else {
+                if (!isnormal(v)) {
                     v = 0.f;
+                }
                 snprintf(item->text, 17, "%g", v);
             }
             break;

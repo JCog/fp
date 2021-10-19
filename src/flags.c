@@ -53,8 +53,9 @@ static void add_record(size_t word_size, size_t length, void *data, const char *
 }
 
 static void add_event(int record_index, int flag_index, _Bool value) {
-    if (events.size >= FLAG_LOG_LENGTH)
+    if (events.size >= FLAG_LOG_LENGTH) {
         vector_erase(&events, 0, 1);
+    }
     struct flag_record *r = vector_at(&records, record_index);
     struct flag_event *e = vector_push_back(&events, 1, NULL);
     e->record_index = record_index;
@@ -64,12 +65,13 @@ static void add_event(int record_index, int flag_index, _Bool value) {
 }
 
 static uint32_t get_flag_word(void *data, size_t word_size, int index) {
-    if (word_size == 1)
+    if (word_size == 1) {
         return ((uint8_t *)data)[index];
-    else if (word_size == 2)
+    } else if (word_size == 2) {
         return ((uint16_t *)data)[index];
-    else if (word_size == 4)
+    } else if (word_size == 4) {
         return ((uint32_t *)data)[index];
+    }
     return 0;
 }
 
@@ -78,22 +80,25 @@ static void modify_flag(void *data, size_t word_size, int flag_index, _Bool valu
     int bit = flag_index % (word_size * 8);
     if (word_size == 1) {
         uint8_t *p = data;
-        if (value)
+        if (value) {
             p[word] |= (1 << bit);
-        else
+        } else {
             p[word] &= ~(1 << bit);
+        }
     } else if (word_size == 2) {
         uint16_t *p = data;
-        if (value)
+        if (value) {
             p[word] |= (1 << bit);
-        else
+        } else {
             p[word] &= ~(1 << bit);
+        }
     } else if (word_size == 4) {
         uint32_t *p = data;
-        if (value)
+        if (value) {
             p[word] |= (1 << bit);
-        else
+        } else {
             p[word] &= ~(1 << bit);
+        }
     }
 }
 
@@ -104,10 +109,13 @@ static int log_think_proc(struct menu_item *item) {
             uint32_t wd = get_flag_word(r->data, r->word_size, j);
             uint32_t wc = get_flag_word(r->comp, r->word_size, j);
             uint32_t d = wd ^ wc;
-            if (d != 0)
-                for (int k = 0; k < r->word_size * 8; ++k)
-                    if ((d >> k) & 1)
+            if (d != 0) {
+                for (int k = 0; k < r->word_size * 8; ++k) {
+                    if ((d >> k) & 1) {
                         add_event(i, r->word_size * 8 * j + k, (wd >> k) & 1);
+                    }
+                }
+            }
         }
     }
     update_flag_records();
@@ -130,8 +138,9 @@ static int log_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 }
 
 static void log_undo_proc(struct menu_item *item, void *data) {
-    if (events.size == 0)
+    if (events.size == 0) {
         return;
+    }
     struct flag_event *e = vector_at(&events, events.size - 1);
     struct flag_record *r = vector_at(&records, e->record_index);
     modify_flag(r->data, r->word_size, e->flag_index, !e->value);
@@ -151,14 +160,16 @@ static void update_view(void) {
     for (int y = 0; y < FLAG_VIEW_ROWS; ++y) {
         struct menu_item *row = view_rows[y];
         row->enabled = (r->view_offset + y * 0x10 < n_flags);
-        if (row->enabled)
+        if (row->enabled) {
             sprintf(view_rows[y]->text, "%04x", r->view_offset + y * 0x10);
+        }
         for (int x = 0; x < 0x10; ++x) {
             int n = y * 0x10 + x;
             struct menu_item *cell = view_cells[n];
             cell->enabled = (r->view_offset + n < n_flags);
-            if (cell->enabled)
+            if (cell->enabled) {
                 cell->think_proc(cell);
+            }
         }
     }
 }
@@ -202,10 +213,11 @@ static int flag_proc(struct menu_item *item, enum menu_callback_reason reason, v
         int bit = flag_index % (r->word_size * 8);
         _Bool v = (get_flag_word(r->data, r->word_size, word) >> bit) & 1;
         menu_switch_set(item, v);
-    } else if (reason == MENU_CALLBACK_SWITCH_ON)
+    } else if (reason == MENU_CALLBACK_SWITCH_ON) {
         modify_flag(r->data, r->word_size, flag_index, 1);
-    else if (reason == MENU_CALLBACK_SWITCH_OFF)
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         modify_flag(r->data, r->word_size, flag_index, 0);
+    }
     return 0;
 }
 
@@ -242,8 +254,9 @@ void flag_menu_create(struct menu *menu) {
         view_pagedown = menu_add_button_icon(menu, 2, 2, t_arrow, 1, 0xFFFFFF, page_down_proc, NULL);
         menu_add_static(menu, 4, 2, "0123456789abcdef", 0xC0C0C0);
         static struct gfx_texture *t_flag;
-        if (!t_flag)
+        if (!t_flag) {
             t_flag = resource_load_grc_texture("flag_icons");
+        }
         for (int y = 0; y < FLAG_VIEW_ROWS; ++y) {
             view_rows[y] = menu_add_static(menu, 0, 3 + y, NULL, 0xC0C0C0);
             view_rows[y]->text = malloc(5);

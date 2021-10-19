@@ -25,8 +25,9 @@ static int enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
 
 static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    if (data->callback_proc)
+    if (data->callback_proc) {
         return data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+    }
     return 0;
 }
 
@@ -66,17 +67,20 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         gfx_mode_replace(GFX_MODE_FILTER, G_TF_BILERP);
     else
         gfx_mode_replace(GFX_MODE_FILTER, G_TF_POINT);
-    if (data->disable_shadow)
+    if (data->disable_shadow) {
         gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
+    }
     struct gfx_sprite sprite = {
         texture, texture_tile, x, y, data->scale, data->scale,
     };
     gfx_sprite_draw(&sprite);
     gfx_mode_pop(GFX_MODE_FILTER);
-    if (data->disable_shadow)
+    if (data->disable_shadow) {
         gfx_mode_pop(GFX_MODE_DROPSHADOW);
-    if (data->anim_state > 0)
+    }
+    if (data->anim_state > 0) {
         data->anim_state = (data->anim_state + 1) % 3;
+    }
     return 1;
 }
 
@@ -87,8 +91,9 @@ static int activate_proc(struct menu_item *item) {
                              data->callback_data)) {
         data->state = !data->state;
         data->anim_state = 1;
-        if (data->callback_proc)
+        if (data->callback_proc) {
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        }
     }
     return 1;
 }

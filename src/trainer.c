@@ -78,10 +78,12 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p)
+        if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menu_option_get(item);
+    }
     return 0;
 }
 

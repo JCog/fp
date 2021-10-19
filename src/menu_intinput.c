@@ -17,18 +17,20 @@ struct item_data {
 };
 
 static inline int char_to_int(int x) {
-    if (x >= '0' && x <= '9')
+    if (x >= '0' && x <= '9') {
         return x - ('0' - 0x0);
-    else if (x >= 'a' && x <= 'f')
+    } else if (x >= 'a' && x <= 'f') {
         return x - ('a' - 0xA);
+    }
     return -1;
 }
 
 static inline int int_to_char(int x) {
-    if (x >= 0x0 && x <= 0x9)
+    if (x >= 0x0 && x <= 0x9) {
         return x + ('0' - 0x0);
-    else if (x >= 0xA && x <= 0xF)
+    } else if (x >= 0xA && x <= 0xF) {
         return x + ('a' - 0xA);
+    }
     return -1;
 }
 
@@ -36,17 +38,20 @@ static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         int r = menu_think(data->imenu);
-        if (r)
+        if (r) {
             return r;
+        }
     }
     if (data->callback_proc) {
         int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
-        if (r)
+        if (r) {
             return r;
-        if (data->active)
+        }
+        if (data->active) {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
-        else
+        } else {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
+        }
         return r;
     }
     return 0;
@@ -64,8 +69,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
 
 static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    if (data->active)
+    if (data->active) {
         menu_navigate(data->imenu, nav);
+    }
     return data->active;
 }
 
@@ -92,16 +98,20 @@ static int activate_proc(struct menu_item *item) {
                 mul *= data->base;
             }
             if (data->signed_ && sign == 1) {
-                if (i > 0)
+                if (i > 0) {
                     data->item->text[i - 1] = n;
-                if (i == data->length - 1)
+                }
+                if (i == data->length - 1) {
                     data->item->text[i] = ' ';
-            } else
+                }
+            } else {
                 data->item->text[i] = n;
+            }
         }
         data->value = value * sign;
-        if (data->callback_proc)
+        if (data->callback_proc) {
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        }
     } else {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
@@ -113,16 +123,18 @@ static int activate_proc(struct menu_item *item) {
 
 static int destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    for (int i = 0; i < data->length; ++i)
+    for (int i = 0; i < data->length; ++i) {
         data->digits[i]->data = NULL;
+    }
     menu_destroy(data->imenu);
     free(data->digits);
     return 0;
 }
 
 static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
-    if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN)
+    if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN) {
         return 0;
+    }
     item->text[0] = '+' + '-' - item->text[0];
     return 1;
 }
@@ -130,12 +142,13 @@ static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) 
 static int digit_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
     int value = char_to_int(item->text[0]);
-    if (nav == MENU_NAVIGATE_UP)
+    if (nav == MENU_NAVIGATE_UP) {
         ++value;
-    else if (nav == MENU_NAVIGATE_DOWN)
+    } else if (nav == MENU_NAVIGATE_DOWN) {
         --value;
-    else
+    } else {
         return 0;
+    }
     value = (value + data->base) % data->base;
     item->text[0] = int_to_char(value);
     return 1;
@@ -147,8 +160,9 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
     if (base < 0) {
         data->signed_ = 1;
         base = -base;
-    } else
+    } else {
         data->signed_ = 0;
+    }
     data->base = base;
     data->length = length;
     data->callback_proc = callback_proc;
@@ -181,10 +195,11 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
             digit->text[0] = '0';
             digit->navigate_proc = digit_navigate_proc;
         }
-        if (data->signed_ && i == data->length - 1)
+        if (data->signed_ && i == data->length - 1) {
             item->text[i] = ' ';
-        else
+        } else {
             item->text[i] = '0';
+        }
         digit->text[1] = 0;
         digit->animate_highlight = 1;
         digit->data = data;
@@ -210,18 +225,22 @@ void menu_intinput_set(struct menu_item *item, uint32_t value) {
     value *= sign;
     for (int i = data->length - 1; i >= 0; --i) {
         int c;
-        if (data->signed_ && i == 0)
+        if (data->signed_ && i == 0) {
             c = '+' - (sign - 1);
-        else
+        } else {
             c = int_to_char(value % data->base);
+        }
         value /= data->base;
         data->digits[i]->text[0] = c;
         if (data->signed_ && sign == 1) {
-            if (i > 0)
+            if (i > 0) {
                 data->item->text[i - 1] = c;
-            if (i == data->length - 1)
+            }
+            if (i == data->length - 1) {
                 data->item->text[i] = ' ';
-        } else
+            }
+        } else {
             data->item->text[i] = c;
+        }
     }
 }

@@ -37,15 +37,17 @@ static struct gfx_texture *list_icons = NULL;
 static struct gfx_texture *wrench = NULL;
 
 static struct member_data *get_member(struct item_data *data, int index) {
-    if (index < 0 || index >= data->members.size)
+    if (index < 0 || index >= data->members.size) {
         return NULL;
+    }
     struct member_data **member_data = vector_at(&data->members, index);
     return *member_data;
 }
 
 static void release_member(struct member_data *member_data) {
-    if (!member_data->anchored)
+    if (!member_data->anchored) {
         return;
+    }
     member_data->anchored = 0;
     menu_item_enable(member_data->positioning);
     struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
@@ -61,8 +63,9 @@ static void release_member(struct member_data *member_data) {
 }
 
 static void anchor_member(struct member_data *member_data) {
-    if (member_data->anchored)
+    if (member_data->anchored) {
         return;
+    }
     member_data->anchored = 1;
     menu_item_disable(member_data->positioning);
     struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
@@ -83,8 +86,9 @@ static int anchor_button_draw_proc(struct menu_item *item, struct menu_draw_para
     struct member_data *member_data = item->data;
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     static struct gfx_texture *texture = NULL;
-    if (!texture)
+    if (!texture) {
         texture = resource_load_grc_texture("anchor");
+    }
     int cw = menu_get_cell_width(item->owner, 1);
     if (member_data->anchor_anim_state > 0) {
         ++draw_params->x;
@@ -99,17 +103,19 @@ static int anchor_button_draw_proc(struct menu_item *item, struct menu_draw_para
         1.f,
     };
     gfx_sprite_draw(&sprite);
-    if (member_data->anchor_anim_state > 0)
+    if (member_data->anchor_anim_state > 0) {
         member_data->anchor_anim_state = (member_data->anchor_anim_state + 1) % 3;
+    }
     return 1;
 }
 
 static int anchor_button_activate_proc(struct menu_item *item) {
     struct member_data *member_data = item->data;
-    if (member_data->anchored)
+    if (member_data->anchored) {
         release_member(member_data);
-    else
+    } else {
         anchor_member(member_data);
+    }
     member_data->anchor_anim_state = 1;
     return 1;
 }
@@ -129,8 +135,9 @@ static int position_proc(struct menu_item *item, enum menu_callback_reason reaso
         member_data->y = watch->pyoffset;
     }
     int dist = 2;
-    if (input_pad() & BUTTON_Z)
+    if (input_pad() & BUTTON_Z) {
         dist *= 2;
+    }
     switch (reason) {
         case MENU_CALLBACK_ACTIVATE: input_reserve(BUTTON_Z); break;
         case MENU_CALLBACK_DEACTIVATE: input_free(BUTTON_Z); break;
@@ -148,8 +155,9 @@ static int position_proc(struct menu_item *item, enum menu_callback_reason reaso
 static void remove_button_proc(struct menu_item *item, void *data);
 static int add_member(struct item_data *data, uint32_t address, enum watch_type type, int position, _Bool anchored,
                       int x, int y, _Bool position_set) {
-    if (data->members.size >= SETTINGS_WATCHES_MAX || position < 0 || position > data->members.size)
+    if (data->members.size >= SETTINGS_WATCHES_MAX || position < 0 || position > data->members.size) {
         return 0;
+    }
     ++data->add_button->y;
     ++data->import_button->y;
     for (int i = position; i < data->members.size; ++i) {
@@ -182,18 +190,20 @@ static int add_member(struct item_data *data, uint32_t address, enum watch_type 
         menu_item_disable(watch);
     }
 
-    if (anchored)
+    if (anchored) {
         menu_item_disable(member_data->positioning);
-    else
+    } else {
         release_member(member_data);
+    }
     member_data->position_set = position_set;
     vector_insert(&data->members, position, 1, &member_data);
     return 1;
 }
 
 static int remove_member(struct item_data *data, int position) {
-    if (position < 0 || position >= data->members.size)
+    if (position < 0 || position >= data->members.size) {
         return 0;
+    }
     menu_navigate_top(data->imenu, MENU_NAVIGATE_DOWN);
     --data->add_button->y;
     --data->import_button->y;
@@ -264,10 +274,11 @@ static int toggle_visibility_proc(struct menu_item *item, enum menu_callback_rea
     struct menu_item *watchlist = data;
     if (reason == MENU_CALLBACK_CHANGED) {
         settings->bits.watches_visible = menu_checkbox_get(item);
-        if (settings->bits.watches_visible)
+        if (settings->bits.watches_visible) {
             watchlist_show(watchlist);
-        else
+        } else {
             watchlist_hide(watchlist);
+        }
     } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.watches_visible);
     }
@@ -285,10 +296,12 @@ struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release,
     data->menu_release = menu_release;
     data->imenu = imenu;
     vector_init(&data->members, sizeof(struct member_data *));
-    if (!list_icons)
+    if (!list_icons) {
         list_icons = resource_load_grc_texture("list_icons");
-    if (!wrench)
+    }
+    if (!wrench) {
         wrench = resource_load_grc_texture("wrench");
+    }
     data->add_button = menu_add_button_icon(imenu, 0, 0, list_icons, 0, 0x00FF00, add_button_proc, data);
 
     struct gfx_texture *file_icons = resource_get(RES_ICON_FILE);
@@ -301,10 +314,11 @@ struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release,
 int watchlist_add(struct menu_item *item, uint32_t address, enum watch_type type) {
     struct item_data *list = item->data;
     int pos = list->members.size;
-    if (add_member(list, address, type, pos, 1, 0, 0, 0))
+    if (add_member(list, address, type, pos, 1, 0, 0, 0)) {
         return pos;
-    else
+    } else {
         return -1;
+    }
 }
 
 void watchlist_store(struct menu_item *item) {
@@ -324,11 +338,13 @@ void watchlist_store(struct menu_item *item) {
 
 void watchlist_fetch(struct menu_item *item) {
     struct item_data *data = item->data;
-    for (int i = data->members.size - 1; i >= 0; --i)
+    for (int i = data->members.size - 1; i >= 0; --i) {
         remove_member(data, i);
-    for (int i = 0; i < settings->n_watches; ++i)
+    }
+    for (int i = 0; i < settings->n_watches; ++i) {
         add_member(data, settings->watch_address[i], settings->watch_info[i].type, i, settings->watch_info[i].anchored,
                    settings->watch_x[i], settings->watch_y[i], settings->watch_info[i].position_set);
+    }
 }
 
 /*
@@ -371,8 +387,9 @@ static void watchfile_destroy(void) {
 }
 
 static int watchfile_leave_proc(struct menu_item *item, enum menu_switch_reason reason) {
-    if (reason == MENU_SWITCH_RETURN)
+    if (reason == MENU_SWITCH_RETURN) {
         watchfile_destroy();
+    }
     return 0;
 }
 
@@ -419,17 +436,20 @@ static int entry_activate_proc(struct menu_item *item) {
 
 static void scroll_up_proc(struct menu_item *item, void *data) {
     --watchfile_scroll;
-    if (watchfile_scroll < 0)
+    if (watchfile_scroll < 0) {
         watchfile_scroll = 0;
+    }
 }
 
 static void scroll_down_proc(struct menu_item *item, void *data) {
     ++watchfile_scroll;
     int n_entries = watchfile_entries.size;
-    if (watchfile_scroll + WATCHFILE_VIEW_ROWS > n_entries)
+    if (watchfile_scroll + WATCHFILE_VIEW_ROWS > n_entries) {
         watchfile_scroll = n_entries - WATCHFILE_VIEW_ROWS;
-    if (watchfile_scroll < 0)
+    }
+    if (watchfile_scroll < 0) {
         watchfile_scroll = 0;
+    }
 }
 
 static void watchfile_menu_init(void) {
@@ -460,42 +480,51 @@ static void watchfile_view(struct menu *menu) {
     watchfile_scroll = 0;
     /* configure menus */
     for (int i = 0; i < WATCHFILE_VIEW_ROWS; ++i) {
-        if (i < watchfile_entries.size)
+        if (i < watchfile_entries.size) {
             menu_item_enable(watchfile_items[i]);
-        else
+        } else {
             menu_item_disable(watchfile_items[i]);
+        }
     }
-    if (watchfile_entries.size > 0)
+    if (watchfile_entries.size > 0) {
         menu_select(&watchfile_menu, watchfile_items[0]);
-    else
+    } else {
         menu_select(&watchfile_menu, watchfile_return);
+    }
     menu_enter(menu, &watchfile_menu);
 }
 
 static _Bool parse_line(const char *line, const char **err_str) {
     const char *p = line;
     /* skip whitespace, check for comment or empty line */
-    while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
+    while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
         ++p;
-    if (*p == '#' || *p == 0)
+    }
+    if (*p == '#' || *p == 0) {
         return 1;
+    }
     /* read name part */
-    if (*p++ != '"')
+    if (*p++ != '"') {
         goto syntax_err;
+    }
     const char *name_s = p;
     const char *name_e = strchr(p, '"');
-    if (!name_e || name_e == name_s)
+    if (!name_e || name_e == name_s) {
         goto syntax_err;
+    }
     int name_l = name_e - name_s;
     p = name_e + 1;
-    while (*p == ' ' || *p == '\t')
+    while (*p == ' ' || *p == '\t') {
         ++p;
+    }
     /* read type part */
     const char *type_s = p;
-    while (*p && *p != ' ' && *p != '\t')
+    while (*p && *p != ' ' && *p != '\t') {
         ++p;
-    while (*p == ' ' || *p == '\t')
+    }
+    while (*p == ' ' || *p == '\t') {
         ++p;
+    }
     const char *expr_s = p;
     /* construct entry */
     struct watchfile_entry entry;
@@ -507,8 +536,9 @@ static _Bool parse_line(const char *line, const char **err_str) {
             break;
         }
     }
-    if (entry.type == -1)
+    if (entry.type == -1) {
         goto syntax_err;
+    }
     enum adex_error e = adex_parse(&entry.adex, expr_s);
     if (e) {
         *err_str = adex_error_name[e];
@@ -540,24 +570,29 @@ static int import_callback(const char *path, void *data) {
         while (1) {
             if (fgets(line, 1024, f)) {
                 if (strchr(line, '\n') || feof(f)) {
-                    if (!parse_line(line, &err_str))
+                    if (!parse_line(line, &err_str)) {
                         break;
+                    }
                 } else {
                     err_str = "line overflow";
                     break;
                 }
             } else {
-                if (!feof(f))
+                if (!feof(f)) {
                     err_str = strerror(errno);
+                }
                 break;
             }
         }
-    } else
+    } else {
         err_str = strerror(errno);
-    if (f)
+    }
+    if (f) {
         fclose(f);
-    if (line)
+    }
+    if (line) {
         free(line);
+    }
     /* show error message or view file */
     struct menu *menu_top = menu_get_top(watchfile_list_data->imenu);
     if (err_str) {

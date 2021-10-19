@@ -8,8 +8,9 @@
 typedef void io_func_t(uint32_t dev_addr, uint32_t ram_addr, size_t size);
 
 static void pio_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
-    if (size == 0)
+    if (size == 0) {
         return;
+    }
 
     uint32_t dev_s = dev_addr & ~0x3;
     uint32_t dev_e = (dev_addr + size + 0x3) & ~0x3;
@@ -23,10 +24,11 @@ static void pio_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
         uint32_t w = __pi_read_raw(dev_p);
         for (int i = 0; i < 4; i++) {
             uint8_t b;
-            if (ram_p >= ram_s && ram_p < ram_e)
+            if (ram_p >= ram_s && ram_p < ram_e) {
                 b = *(uint8_t *)ram_p;
-            else
+            } else {
                 b = w >> 24;
+            }
             w = (w << 8) | b;
             ram_p++;
         }
@@ -36,8 +38,9 @@ static void pio_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
 }
 
 static void pio_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
-    if (size == 0)
+    if (size == 0) {
         return;
+    }
 
     uint32_t dev_s = dev_addr & ~0x3;
     uint32_t dev_e = (dev_addr + size + 0x3) & ~0x3;
@@ -50,8 +53,9 @@ static void pio_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
     while (dev_p < dev_e) {
         uint32_t w = __pi_read_raw(dev_p);
         for (int i = 0; i < 4; i++) {
-            if (ram_p >= ram_s && ram_p < ram_e)
+            if (ram_p >= ram_s && ram_p < ram_e) {
                 *(uint8_t *)ram_p = w >> 24;
+            }
             w <<= 8;
             ram_p++;
         }
@@ -60,8 +64,9 @@ static void pio_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
 }
 
 static void dma_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
-    if (size == 0)
+    if (size == 0) {
         return;
+    }
 
     OSMesgQueue mq;
     OSMesg m;
@@ -91,8 +96,9 @@ static void dma_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
 }
 
 static void dma_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
-    if (size == 0)
+    if (size == 0) {
         return;
+    }
 
     OSMesgQueue mq;
     OSMesg m;
