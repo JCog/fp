@@ -4,8 +4,7 @@
 #include "locations.h"
 #include "bosses.h"
 
-struct menu *create_warps_menu(void)
-{
+struct menu *create_warps_menu(void) {
     static struct menu menu;
     static struct menu locations_menu;
     static struct menu bosses_menu;

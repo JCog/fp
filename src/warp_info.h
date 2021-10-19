@@ -4,16 +4,17 @@
 #define GROUP_COUNT 0x1c
 
 struct room_info {
-    const char  *room_name;
-    int         entrance_count;
+    const char *room_name;
+    int entrance_count;
 };
 
 struct group_info {
-    const char          *group_name;
-    int                 room_count;
-    struct room_info    rooms[50];
+    const char *group_name;
+    int room_count;
+    struct room_info rooms[50];
 };
 
+// clang-format off
 struct group_info GROUPS[] =
     {
         {
@@ -1869,5 +1870,6 @@ struct group_info GROUPS[] =
             }
         }
     };
+// clang-format on
 
 #endif

@@ -2,8 +2,7 @@
 #define RESOURCE_H
 #include "gfx.h"
 
-enum resource_id
-{
+enum resource_id {
     RES_FONT_FIPPS,
     RES_FONT_NOTALOT35,
     RES_FONT_ORIGAMIMOMMY,
@@ -26,8 +25,8 @@ enum resource_id
     RES_MAX,
 };
 
-void               *resource_get(enum resource_id res);
-void                resource_free(enum resource_id res);
+void *resource_get(enum resource_id res);
+void resource_free(enum resource_id res);
 struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name);
 
 #endif

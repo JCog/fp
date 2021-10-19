@@ -9,8 +9,8 @@
 #error no pm64 version specified
 #endif
 
-#define US    0x00
-#define JP    0x01
+#define US 0x00
+#define JP 0x01
 
 typedef uint8_t u8;
 typedef int8_t s8;
@@ -23,14 +23,20 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#define SCREEN_WIDTH    320
-#define SCREEN_HEIGHT   240
+#define SCREEN_WIDTH  320
+#define SCREEN_HEIGHT 240
 
-typedef s32	OSPri;
-typedef s32	OSId;
-typedef union	{ struct { f32 f_odd; f32 f_even; } f; f64 d; }	__OSfp;
+typedef s32 OSPri;
+typedef s32 OSId;
+typedef union {
+    struct {
+        f32 f_odd;
+        f32 f_even;
+    } f;
+    f64 d;
+} __OSfp;
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ float x;
     /* 0x0004 */ float y;
     /* 0x0008 */ float z;
@@ -42,13 +48,11 @@ typedef struct {
     int16_t z;
 } vec3s_t;
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ int8_t x_cardinal;
     /* 0x0001 */ int8_t y_cardinal;
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             uint16_t a  : 1;
             uint16_t b  : 1;
             uint16_t z  : 1;
@@ -64,12 +68,12 @@ typedef struct{
             uint16_t cd : 1;
             uint16_t cl : 1;
             uint16_t cr : 1;
-      };
-      /* 0x0003 */ uint16_t buttons;
+        };
+        /* 0x0003 */ uint16_t buttons;
     };
-} controller_t; //size: 0x0004
+} controller_t; // size: 0x0004
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ controller_t raw; /* raw input */
     /* 0x0004 */ char unk_0x04[0x0C];
     /* 0x0010 */ controller_t pressed; /* one frame when pressed*/
@@ -92,10 +96,11 @@ typedef struct{
     /* 0x0062 */ char unk_0x62[0x02];
     /* 0x0064 */ char unk_0x64[0xC];
     /* 0x0070 */ int8_t is_battle;
-    /* 0x0071 */ int8_t demo_flag; /*1 for demo. 0 in normal gameplay freezes mario*/
-    /* 0x0072 */ int8_t demo_scene; /*0-0x12 for each demo scene*/
+    /* 0x0071 */ int8_t demo_flag;          /*1 for demo. 0 in normal gameplay freezes mario*/
+    /* 0x0072 */ int8_t demo_scene;         /*0-0x12 for each demo scene*/
     /* 0x0073 */ int8_t controller_plugged; /*needs to be 1 otherwise "no controller" */
-    /* 0x0074 */ uint8_t battle_debug; /* 0=normal, 1=enemies can't interact, 2=defeat enemies on contact, 3=auto-defeat enemies in battle, 4=auto run away */
+    /* 0x0074 */ uint8_t battle_debug; /* 0=normal, 1=enemies can't interact, 2=defeat enemies on contact, 3=auto-defeat
+                                          enemies in battle, 4=auto run away */
     /* 0x0075 */ uint8_t quizmo_debug; /* 1 to force a quizmo spawn every time */
     /* 0x0076 */ int8_t unk_0x76;
     /* 0x0077 */ char unk_0x77;
@@ -105,7 +110,7 @@ typedef struct{
     /* 0x007B */ char unk_0x7B;
     /* 0x007C */ int8_t unk_0x7C;
     /* 0x007D */ int8_t unk_0x7D;
-    /* 0x007E */ uint8_t peach_flags; /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasParasol*/
+    /* 0x007E */ uint8_t peach_flags;   /*bitfield, 1 = isPeach, 2 = isTransformed, 3 = hasParasol*/
     /* 0x007F */ int8_t peach_disguise; /*1 = koopatrol, 2 = hammer bro, 3 = clubba */
     /* 0x0080 */ uint8_t peach_anim_idx;
     /* 0x0081 */ char unk_0x84[0x05];
@@ -151,7 +156,7 @@ typedef struct{
     /* 0x0168 */ int32_t save_count;
 } status_ctxt_t;
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ uint8_t enable_partner_ability;
     /* 0x0001 */ char unk_0x01[0x02];
     /* 0x0003 */ uint8_t partner_ability;
@@ -162,7 +167,7 @@ typedef struct{
     /* 0x0010 */ controller_t pressed2_overworld;
 } overworld_ctxt_t; // size: 0x00014
 
-typedef struct{
+typedef struct {
     /* 0x00000 */ uint32_t hp_text;
     /* 0x00004 */ uint32_t hp_icon;
     /* 0x00008 */ uint32_t fp_text;
@@ -211,7 +216,7 @@ typedef struct {
     /* 0x00002 */ char unk_0x02[0x06];
 } partner_t; // size: 0x00008
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ partner_t goombario;
     /* 0x0008 */ partner_t kooper;
     /* 0x0010 */ partner_t bombette;
@@ -225,7 +230,7 @@ typedef struct{
     /* 0x0050 */ partner_t twink;
 } party_t; // size: 0x0058
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ char unk_0x00[0x01];
     /* 0x0001 */ uint8_t spell_type;
     /* 0x0002 */ uint8_t casts_remaining;
@@ -233,7 +238,7 @@ typedef struct{
     /* 0x0005 */ uint8_t turns_until_spell;
 } merlee_t; // size: 0x0006
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ uint8_t star_spirits_saved;
     /* 0x0001 */ char unk_0x01[0x01];
     /* 0x0002 */ uint8_t full_bars_filled;
@@ -300,16 +305,16 @@ typedef struct {
     /* 0x33E */ char unk_606[2];
 } player_data_t; // size: 0x340
 
-typedef struct{
+typedef struct {
     /* 0x0000 */ int32_t flags; /*third byte related to cutscenes - write 0 to break free*/
     /* 0x0004 */ int32_t anim_flags;
     /* 0x0008 */ uint16_t idle_timer;
     /* 0x000A */ char unk_0x0A[0x02];
     /* 0x000C */ uint16_t peach_disguise; /*has something to do with peach transforming in ch6*/
-    /* 0x000E */ uint16_t transparency; /*0xFF00 when spinning*/
-    /* 0x0010 */ uint16_t flash_timer; /*used when running away*/
+    /* 0x000E */ uint16_t transparency;   /*0xFF00 when spinning*/
+    /* 0x0010 */ uint16_t flash_timer;    /*used when running away*/
     /* 0x0012 */ char unk_0x12[0x02];
-    /* 0x0014 */ uint16_t busy; /*changed when talking/opening doors/loading zones*/
+    /* 0x0014 */ uint16_t busy;       /*changed when talking/opening doors/loading zones*/
     /* 0x0016 */ int16_t truncated_x; /*used for hazard respawns*/
     /* 0x0018 */ char unk_0x18[0x02];
     /* 0x001A */ int16_t truncated_z; /*used for hazard respawns*/
@@ -324,20 +329,21 @@ typedef struct{
     /* 0x0050 */ float last_jump_height;
     /* 0x0054 */ float speed;
     /* 0x0058 */ float walk_speed; /*constant: 0x40000000 = 2.0*/
-    /* 0x005C */ float run_speed; /*constant: 0x40800000 = 4.0*/
+    /* 0x005C */ float run_speed;  /*constant: 0x40800000 = 4.0*/
     /* 0x0060 */ char unk_0x60[0x0C];
-    /* 0x006C */ float jump_const; /*used by jumping func to compare if jump_var_1 less than const*/
-    /* 0x0070 */ float y_speed; /*related to rise/fall speed*/
+    /* 0x006C */ float jump_const;     /*used by jumping func to compare if jump_var_1 less than const*/
+    /* 0x0070 */ float y_speed;        /*related to rise/fall speed*/
     /* 0x0074 */ float y_acceleration; /*related to height cap*/
-    /* 0x0078 */ float y_jerk; /*related to height cap*/
-    /* 0x007C */ float y_snap; /*related to height cap*/
-    /* 0x0080 */ float movement_angle; /*locking this makes you move in only that direction regardless of control stick angle*/
+    /* 0x0078 */ float y_jerk;         /*related to height cap*/
+    /* 0x007C */ float y_snap;         /*related to height cap*/
+    /* 0x0080 */ float
+        movement_angle; /*locking this makes you move in only that direction regardless of control stick angle*/
     /* 0x0084 */ float facing_angle;
     /* 0x0088 */ char unk_0x88[0x08];
     /* 0x0090 */ float body_rotation; /*used for turning effect*/
     /* 0x0094 */ char unk_0x94[0x10];
     /* 0x00A4 */ int32_t sprite_animation; /* 1st byte: back turned=01 | 4th byte: animations 00-32*/
-    /* 0x00A8 */ float left_right; /*0.0=left, 180.0=right*/
+    /* 0x00A8 */ float left_right;         /*0.0=left, 180.0=right*/
     /* 0x00AC */ char unk_0xAC[0x04];
     /* 0x00B0 */ int16_t collider_height;
     /* 0x00B2 */ int16_t collider_diameter;
@@ -380,7 +386,7 @@ typedef struct{
 
 typedef struct {
     /* 0x0000 */ char magic_string[16]; /* "Mario Story 006" */
-    /* 0x0010 */ int8_t padding[32]; /* always zero */
+    /* 0x0010 */ int8_t padding[32];    /* always zero */
     /* 0x0030 */ int32_t crc1;
     /* 0x0034 */ int32_t crc2;
     /* 0x0038 */ int32_t save_slot;
@@ -419,7 +425,7 @@ typedef struct {
     /* 0x24 */ float unk_24;
     /* 0x28 */ float unk_img_scale[2];
     /* 0x30 */ float uniform_scale;
-    /* 0x34 */ float width_scale_f; /* X.10 fmt (divide by 1024.0 to get float) */
+    /* 0x34 */ float width_scale_f;  /* X.10 fmt (divide by 1024.0 to get float) */
     /* 0x38 */ float height_scale_f; /* X.10 fmt (divide by 1024.0 to get float) */
     /* 0x3C */ int16_t render_pos_x;
     /* 0x3E */ int16_t render_pos_y;
@@ -437,24 +443,24 @@ typedef struct {
 } hud_element_t; // size = 0x54
 
 typedef struct {
-    /* 0x00 */ int32_t  flags;
+    /* 0x00 */ int32_t flags;
     /* 0x04 */ char unk_04;
-    /* 0x05 */ uint8_t  type;
-    /* 0x06 */ uint8_t  level;
-    /* 0x07 */ uint8_t  max_hp;
-    /* 0x08 */ int16_t  part_count;
+    /* 0x05 */ uint8_t type;
+    /* 0x06 */ uint8_t level;
+    /* 0x07 */ uint8_t max_hp;
+    /* 0x08 */ int16_t part_count;
     /* 0x0A */ char unk_0A[2];
     /* 0x0C */ void **parts_data;
     /* 0x10 */ void *script;
     /* 0x14 */ int32_t *status_table;
-    /* 0x18 */ uint8_t  escape_chance;
-    /* 0x19 */ uint8_t  air_lift_chance;
-    /* 0x1A */ uint8_t  spook_chance;
-    /* 0x1B */ uint8_t  base_status_chance;
-    /* 0x1C */ uint8_t  up_and_away_chance;
-    /* 0x1D */ uint8_t  spin_smash_req;
-    /* 0x1E */ uint8_t  power_bounce_chance;
-    /* 0x1F */ uint8_t  coin_reward;
+    /* 0x18 */ uint8_t escape_chance;
+    /* 0x19 */ uint8_t air_lift_chance;
+    /* 0x1A */ uint8_t spook_chance;
+    /* 0x1B */ uint8_t base_status_chance;
+    /* 0x1C */ uint8_t up_and_away_chance;
+    /* 0x1D */ uint8_t spin_smash_req;
+    /* 0x1E */ uint8_t power_bounce_chance;
+    /* 0x1F */ uint8_t coin_reward;
     /* 0x20 */ int8_t size_x;
     /* 0x20 */ int8_t size_y;
     /* 0x22 */ int8_t hp_bar_offset_x;
@@ -489,9 +495,9 @@ typedef struct {
     /* 0x4C */ float distance;
     /* 0x50 */ float bounce_divisor;
     /* 0x54 */ char unk_54[0x4];
-    /* 0x58 */ int32_t  anim_jump_rise;
-    /* 0x5C */ int32_t  anim_jump_fall;
-    /* 0x60 */ int32_t  anim_jump_land;
+    /* 0x58 */ int32_t anim_jump_rise;
+    /* 0x5C */ int32_t anim_jump_fall;
+    /* 0x60 */ int32_t anim_jump_land;
 } actor_movement_walk_t; // size = 0x64;
 
 typedef struct {
@@ -501,8 +507,8 @@ typedef struct {
     /* 0x0A */ char unk_0A[7];
     /* 0x11 */ uint8_t home_col; /* from xpos --> 0-3 */
     /* 0x12 */ uint8_t home_row; /* from ypos --> 0-3 */
-    /* 0x13 */ uint8_t layer; /* from zpos? --> 0-1 */
-} selectable_target_t; // size = 0x14
+    /* 0x13 */ uint8_t layer;    /* from zpos? --> 0-1 */
+} selectable_target_t;           // size = 0x14
 
 typedef struct {
     /* 0x000 */ int32_t flags;
@@ -580,7 +586,7 @@ typedef struct {
     /* 0x1FA */ int16_t hp_change_counter;
     /* 0x1FC */ int16_t damage_counter;
     /* 0x1FE */ char unk_1FE[2];
-    /* 0x200 */ int32_t** unk_200; // Probably a struct but not sure what yet
+    /* 0x200 */ int32_t **unk_200; // Probably a struct but not sure what yet
     /* 0x204 */ char unk_204[3];
     /* 0x207 */ uint8_t extra_coin_bonus;
     /* 0x208 */ int8_t unk_208;
@@ -613,8 +619,8 @@ typedef struct {
     /* 0x427 */ char unk_427;
     /* 0x428 */ int16_t target_actor_id;
     /* 0x42A */ char unk_42A[2];
-    /* 0x42C */ void *shadow; /* might be shadow ID */
-    /* 0x430 */ float shadow_scale; /* = actor size / 24.0 */
+    /* 0x42C */ void *shadow;        /* might be shadow ID */
+    /* 0x430 */ float shadow_scale;  /* = actor size / 24.0 */
     /* 0x434 */ int16_t render_mode; /* initially 0xD, set to 0x22 if any part is transparent */
     /* 0x436 */ int16_t unk_436;
     /* 0x438 */ int32_t x[2]; /* ??? see FUN_80253974 */
@@ -646,7 +652,7 @@ typedef struct {
     /* 0x072 */ char unk_72[2];
     /* 0x074 */ int32_t unk_74;
     /* 0x078 */ uint8_t total_star_points;
-    /* 0x079 */ uint8_t pending_star_points; /* how many to add */
+    /* 0x079 */ uint8_t pending_star_points;        /* how many to add */
     /* 0x07A */ uint8_t increment_star_point_delay; /* related to star points, set to 0x28 when they are dropped */
     /* 0x07B */ uint8_t damage_taken;
     /* 0x07C */ uint8_t change_partner_allowed;
@@ -657,7 +663,7 @@ typedef struct {
     /* 0x084 */ int8_t unk_84;
     /* 0x085 */ int8_t unk_85;
     /* 0x086 */ int8_t unk_86;
-    /* 0x087 */ int8_t block_result; /* 0 = fail, 1 = success, -1 = mashed */
+    /* 0x087 */ int8_t block_result;    /* 0 = fail, 1 = success, -1 = mashed */
     /* 0x088 */ uint8_t item_uses_left; /* set to 2 for doublke dip, 3 for triple */
     /* 0x089 */ uint8_t hp_drain_count;
     /* 0x08A */ char unk_8A;
@@ -711,7 +717,8 @@ typedef struct {
     /* 0x17E */ int16_t current_attack_damage;
     /* 0x180 */ int16_t last_attack_damage;
     /* 0x182 */ char unk_182[2];
-    /* 0x184 */ int32_t current_target_list_flags; /* set when creating a target list, also obtain from the flags field of moves */
+    /* 0x184 */ int32_t
+        current_target_list_flags; /* set when creating a target list, also obtain from the flags field of moves */
     /* 0x188 */ int32_t current_attack_element;
     /* 0x18C */ int32_t current_attack_event_suppression;
     /* 0x190 */ int32_t current_attack_status;
@@ -723,7 +730,7 @@ typedef struct {
     /* 0x199 */ int8_t was_status_inflicted; /* during last attack */
     /* 0x19A */ uint8_t unk_19A;
     /* 0x19B */ char unk_19B[5];
-    /* 0x1A0 */ int16_t current_target_id; /* selected? */
+    /* 0x1A0 */ int16_t current_target_id;   /* selected? */
     /* 0x1A2 */ uint8_t current_target_part; /* selected? */
     /* 0x1A3 */ char unk_1A3;
     /* 0x1A4 */ int16_t current_target_id2;
@@ -821,10 +828,10 @@ typedef struct {
 } save_info_ctxt_t;
 
 typedef __OSEventState __osEventStateTab_t[];
-typedef void* (*PrintCallback)(void*, const char*, u32);
+typedef void *(*PrintCallback)(void *, const char *, u32);
 
 /* Data */
-#define extern_data extern __attribute__ ((section(".data")))
+#define extern_data extern __attribute__((section(".data")))
 extern_data status_ctxt_t pm_status;
 extern_data uint32_t pm_ViFrames;
 extern_data int32_t pm_TimeFreezeMode;
@@ -844,7 +851,7 @@ extern_data player_ctxt_t pm_player;
 extern_data ActionCommandState pm_ActionCommandState;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 
-extern_data u16* nuGfxCfb_ptr;
+extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
 
 /* Functions */
@@ -875,14 +882,14 @@ void pm_SaveGame(void);
 void pm_func_802A472C(void);
 void osSetTime(u64);
 u64 osGetTime();
-s32 _Printf(PrintCallback pfn, void* arg, const char* fmt, va_list ap);
+s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 void osWritebackDCacheAll(void);
 void osViBlack(u8);
 void osViRepeatLine(u8);
-void osViSwapBuffer(void*);
-void osSetEventMesg(OSEvent, OSMesgQueue*, OSMesg);
-void osStopThread(OSThread*);
-OSThread* osGetActiveQueue(void);
+void osViSwapBuffer(void *);
+void osSetEventMesg(OSEvent, OSMesgQueue *, OSMesg);
+void osStopThread(OSThread *);
+OSThread *osGetActiveQueue(void);
 void state_render_frontUI(void);
 void step_game_loop(void);
 

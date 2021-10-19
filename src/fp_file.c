@@ -32,8 +32,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p)
             menu_intinput_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_CHANGED)
+    } else if (reason == MENU_CALLBACK_CHANGED)
         *p = menu_intinput_get(item);
     return 0;
 }
@@ -43,8 +42,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p)
             menu_option_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_DEACTIVATE)
+    } else if (reason == MENU_CALLBACK_DEACTIVATE)
         *p = menu_option_get(item);
     return 0;
 }
@@ -53,11 +51,9 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
-    }
-    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         *p = 0;
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, *p);
     }
     return 0;
@@ -69,26 +65,14 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     int x = draw_params->x;
     int y = draw_params->y;
 
-    int8_t chapter_starts[] = {
-        -128,
-        -98,
-        -74,
-        -51,
-        -12,
-        8,
-        40,
-        60,
-        90,
-        97
-    };
+    int8_t chapter_starts[] = {-128, -98, -74, -51, -12, 8, 40, 60, 90, 97};
     uint8_t chapter = 0;
     int8_t chapter_progress = 0;
     int8_t chapter_max = 0;
     for (int i = 1; i < 10; i++) {
         if (STORY_PROGRESS >= chapter_starts[i]) {
             chapter++;
-        }
-        else {
+        } else {
             chapter_progress = STORY_PROGRESS - chapter_starts[chapter];
             chapter_max = chapter_starts[chapter + 1] - chapter_starts[chapter];
             break;
@@ -98,11 +82,9 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     char buffer[24];
     if (chapter == 0) {
         sprintf(buffer, "- prologue (%d/%d)", chapter_progress, chapter_max);
-    }
-    else if (chapter > 8) {
+    } else if (chapter > 8) {
         sprintf(buffer, "- invalid");
-    }
-    else {
+    } else {
         sprintf(buffer, "- chapter %d (%d/%d)", chapter, chapter_progress, chapter_max);
     }
     gfx_printf(font, x, y, buffer);
@@ -126,7 +108,7 @@ static void open_pipes_proc(struct menu_item *item, void *data) {
 }
 
 static void restore_enemies_proc(struct menu_item *item, void *data) {
-    for (int i = 0; i < 600; i++){
+    for (int i = 0; i < 600; i++) {
         pm_enemy_defeat_flags[i] = 0;
     }
 }
@@ -152,15 +134,13 @@ static int do_export_file(const char *path, void *data) {
     if (f != -1) {
         if (write(f, file, sizeof(*file)) != sizeof(*file)) {
             err_str = strerror(errno);
-        }
-        else {
+        } else {
             if (close(f)) {
                 err_str = strerror(errno);
             }
             f = -1;
         }
-    }
-    else {
+    } else {
         err_str = strerror(errno);
     }
 
@@ -173,8 +153,7 @@ static int do_export_file(const char *path, void *data) {
     if (err_str) {
         menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
         return 1;
-    }
-    else {
+    } else {
         fp_log("exported file %d to disk", file->save_slot);
         return 0;
     }
@@ -203,21 +182,18 @@ static int do_import_file(const char *path, void *data) {
                         err_str = s_invalid;
                     else
                         err_str = strerror(errno);
-                }
-                else {
+                } else {
                     if (pm_FioValidateFileChecksum(file)) {
                         pm_save_data = *file;
                         pm_FioDeserializeState();
                         fp_warp(file->group_id, file->room_id, file->entrance_id);
-                    }
-                    else {
+                    } else {
                         fp_log("save file corrupt");
                     }
                 }
             }
         }
-    }
-    else {
+    } else {
         err_str = strerror(errno);
     }
 
@@ -230,8 +206,7 @@ static int do_import_file(const char *path, void *data) {
     if (err_str) {
         menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
         return 1;
-    }
-    else {
+    } else {
         fp_log("loaded file from disk");
         return 0;
     }
@@ -243,8 +218,7 @@ static void export_file_proc(struct menu_item *item, void *data) {
 
     if (pm_FioValidateFileChecksum(file)) {
         menu_get_file(fp.main_menu, GETFILE_SAVE, "file", ".pmsave", do_export_file, file);
-    }
-    else {
+    } else {
         free(file);
         fp_log("no file in slot %d", pm_status.save_slot);
     }
@@ -262,11 +236,10 @@ static void import_file_proc(struct menu_item *item, void *data) {
     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
 }
 
-struct menu *create_file_menu(void)
-{
+struct menu *create_file_menu(void) {
     static struct menu menu;
     struct menu_item *item;
-    
+
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
@@ -300,15 +273,26 @@ struct menu *create_file_menu(void)
     menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
     menu_add_intinput(&menu, MENU_X, y++, 10, 2, byte_mod_proc, &pm_save_data.global_bytes[0x161]);
     menu_add_static(&menu, 0, y, "peach item 1", 0xC0C0C0);
-    menu_add_option(&menu, MENU_X, y++, "goomba\0""clubba\0""mushroom\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xD8]);
+    menu_add_option(&menu, MENU_X, y++,
+                    "goomba\0"
+                    "clubba\0"
+                    "mushroom\0",
+                    byte_optionmod_proc, &pm_save_data.global_bytes[0xD8]);
     menu_add_static(&menu, 0, y, "peach item 2", 0xC0C0C0);
-    menu_add_option(&menu, MENU_X, y++, "fuzzy\0""hammer bros.\0""thunder rage\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xD9]);
+    menu_add_option(&menu, MENU_X, y++,
+                    "fuzzy\0"
+                    "hammer bros.\0"
+                    "thunder rage\0",
+                    byte_optionmod_proc, &pm_save_data.global_bytes[0xD9]);
     menu_add_static(&menu, 0, y, "peach item 3", 0xC0C0C0);
-    menu_add_option(&menu, MENU_X, y++, "pokey\0""koopatrol\0""super soda\0", byte_optionmod_proc,&pm_save_data.global_bytes[0xDA]);
+    menu_add_option(&menu, MENU_X, y++,
+                    "pokey\0"
+                    "koopatrol\0"
+                    "super soda\0",
+                    byte_optionmod_proc, &pm_save_data.global_bytes[0xDA]);
     menu_add_button(&menu, 0, y++, "open shortcut pipes", open_pipes_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore enemies", restore_enemies_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore letters", restore_letters_proc, NULL);
 
-    
     return &menu;
 }

@@ -24,12 +24,11 @@ void clearAllEffectsManual(int matrixCount) {
 
     if (matrixCount == 0x214) {
         var = 1;
-        fp_log ("Successful ACE, jump prevented");
-
+        fp_log("Successful ACE, jump prevented");
     }
-    if (matrixCount > 0x214) { //matrix limit reached, destroy all effects
+    if (matrixCount > 0x214) { // matrix limit reached, destroy all effects
         var = 1;
-        fp_log ("Matrix overflow, crash prevented");
+        fp_log("Matrix overflow, crash prevented");
     }
 
     if (var == 1) {
@@ -43,38 +42,34 @@ void clearAllEffectsManual(int matrixCount) {
 
 asm(".set noreorder;"
     "ace_remove_matrices:;"
-        "JAL getMatrixTotal;"
-        "NOP;"
-        "JAL clearAllEffectsManual;"
-        "DADDU $a0, $v0, $zero;"
-        "LUI $s1, 0x800B;"
-        "ADDIU $s1, $s1, 0x4378;"
-        "J 0x80059A7C;"
-        "NOP;"
+    "JAL getMatrixTotal;"
+    "NOP;"
+    "JAL clearAllEffectsManual;"
+    "DADDU $a0, $v0, $zero;"
+    "LUI $s1, 0x800B;"
+    "ADDIU $s1, $s1, 0x4378;"
+    "J 0x80059A7C;"
+    "NOP;"
     "jump_instruction_ace_remove_matrices:;"
-        "J ace_remove_matrices;"
-        "NOP;"
-);
+    "J ace_remove_matrices;"
+    "NOP;");
 
 asm(".set noreorder;"
     "setACEHook:;"
-    "LA $t0, 0x80059A74;" //where to hook
+    "LA $t0, 0x80059A74;" // where to hook
     "LA $t1, jump_instruction_ace_remove_matrices;"
     "LW $t1, 0x0000 ($t1);"
     "SW $zero, 0x0004 ($t0);"
     "JR $ra;"
-    "SW $t1, 0x0000 ($t0);"
-);
+    "SW $t1, 0x0000 ($t0);");
 
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
-    }
-    else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         *p = 0;
-    }
-    else if (reason == MENU_CALLBACK_THINK) {
+    } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, *p);
     }
     return 0;
@@ -85,8 +80,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p)
             menu_option_set(item, *p);
-    }
-    else if (reason == MENU_CALLBACK_DEACTIVATE)
+    } else if (reason == MENU_CALLBACK_DEACTIVATE)
         *p = menu_option_get(item);
     return 0;
 }
@@ -105,39 +99,31 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     _Bool willClip = 0;
 
     if (pm_player.position.z >= -26.3686f) {
-        //check if in a known position that will clip and respawn OoB
+        // check if in a known position that will clip and respawn OoB
         if (zPos == -24 && xPos == -184) {
             goodPos = 1;
-        }
-        else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
+        } else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
             goodPos = 1;
-        }
-        else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
+        } else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
             goodPos = 1;
         }
 
-        //check if in a known position that will clip
+        // check if in a known position that will clip
         if (xPos == -186 && (zPos >= -26 && zPos <= -21)) {
             willClip = 1;
-        }
-        else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
+        } else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
             willClip = 1;
-        }
-        else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
+        } else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
             willClip = 1;
-        }
-        else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
+        } else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
             willClip = 1;
-        }
-        else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
+        } else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
             willClip = 1;
-        }
-        else if (xPos == -181 && zPos == -26) {
+        } else if (xPos == -181 && zPos == -26) {
             willClip = 1;
         }
     }
 
-    
     int menuY = 0;
     gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
     gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
@@ -151,12 +137,10 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     if (goodPos) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "good");
-    }
-    else if (willClip) {
+    } else if (willClip) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "inconsistent");
-    }
-    else {
+    } else {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "bad");
     }
@@ -173,7 +157,7 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 
     int effect_count = 0;
     int i;
-    for (i = 0; i<96; i++) {
+    for (i = 0; i < 96; i++) {
         if (pm_effects[i]) {
             effect_count++;
         }
@@ -189,8 +173,7 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     if (pm_player.anim_flags == 0x01000000) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
-    }
-    else {
+    } else {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
@@ -205,22 +188,19 @@ static void ace_practice_payload_proc(struct menu_item *item, void *data) {
 }
 
 static void ace_oot_instr_proc(struct menu_item *item, void *data) {
-    //write jump to jp file names to addr 0x807C0000
+    // write jump to jp file names to addr 0x807C0000
     fp_log("oot instruction placed");
-   __asm__(
-       "LA $t0, 0x807C0000;"
-       "LA $t1, 0x0801DE67;"
-       "SW $t1, 0x0000 ($t0);"
-    );
+    __asm__("LA $t0, 0x807C0000;"
+            "LA $t1, 0x0801DE67;"
+            "SW $t1, 0x0000 ($t0);");
 }
 
-void create_trainer_menu(struct menu *menu)
-{
+void create_trainer_menu(struct menu *menu) {
     static struct menu bowserMenu;
     static struct menu issMenu;
     static struct menu aceMenu;
     static struct menu lzsMenu;
-    
+
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -233,9 +213,9 @@ void create_trainer_menu(struct menu *menu)
     int y_value = 1;
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
-    #if VERSION==JP
-    menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); //TODO: add english support for ace
-    #endif
+#if VERSION == JP
+    menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); // TODO: add english support for ace
+#endif
     menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
 
     /*build bowser menu*/
@@ -244,7 +224,13 @@ void create_trainer_menu(struct menu *menu)
     menu_add_static(&bowserMenu, 0, y_value, "enabled", 0xC0C0C0);
     menu_add_checkbox(&bowserMenu, 8, y_value++, checkbox_mod_proc, &fp.bowser_blocks_enabled);
     menu_add_static(&bowserMenu, 0, y_value, "attack", 0xC0C0C0);
-    menu_add_option(&bowserMenu, 8, y_value++, "fire\0""butt stomp\0""claw\0""wave\0""lightning\0", byte_optionmod_proc, &fp.bowser_block);
+    menu_add_option(&bowserMenu, 8, y_value++,
+                    "fire\0"
+                    "butt stomp\0"
+                    "claw\0"
+                    "wave\0"
+                    "lightning\0",
+                    byte_optionmod_proc, &fp.bowser_block);
 
     /*build iss menu*/
     issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");

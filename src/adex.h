@@ -3,18 +3,16 @@
 #include <stdint.h>
 #include <vector/vector.h>
 
-enum adex_error
-{
-  ADEX_ERROR_SUCCESS,
-  ADEX_ERROR_MEMORY,
-  ADEX_ERROR_SYNTAX,
-  ADEX_ERROR_ARITHMETIC,
-  ADEX_ERROR_ADDRESS,
+enum adex_error {
+    ADEX_ERROR_SUCCESS,
+    ADEX_ERROR_MEMORY,
+    ADEX_ERROR_SYNTAX,
+    ADEX_ERROR_ARITHMETIC,
+    ADEX_ERROR_ADDRESS,
 };
 
-struct adex
-{
-  struct vector expr;
+struct adex {
+    struct vector expr;
 };
 
 enum adex_error adex_parse(struct adex *adex, const char *str);

@@ -10,29 +10,29 @@
 #include "tricks.h"
 #include "watchlist.h"
 
-#if VERSION==US
-    #define RM_CHNGE_PTR 0x8003617C
+#if VERSION == US
+#define RM_CHNGE_PTR 0x8003617C
 #else
-    #define RM_CHNGE_PTR 0x80035DFC
+#define RM_CHNGE_PTR 0x80035DFC
 #endif
 
 struct command fp_commands[COMMAND_MAX] = {
-    {"show/hide menu",   COMMAND_PRESS_ONCE,  0, NULL},
-    {"return from menu", COMMAND_PRESS_ONCE,  0, NULL},
-    {"levitate",         COMMAND_HOLD,        0, command_levitate_proc},
-    {"turbo",            COMMAND_PRESS_ONCE,  0, command_turbo_proc},
-    {"save position",    COMMAND_PRESS_ONCE,  0, command_save_pos_proc},
-    {"load position",    COMMAND_PRESS_ONCE,  0, command_load_pos_proc},
-    {"lzs",              COMMAND_PRESS_ONCE,  0, command_lzs_proc},
-    {"reload room",      COMMAND_PRESS_ONCE,  0, command_reload_proc},
-    {"reload last warp", COMMAND_PRESS_ONCE,  0, command_reload_last_warp_proc},
-    {"toggle watches",   COMMAND_PRESS_ONCE,  0, command_toggle_watches_proc},
-    {"load trick",       COMMAND_PRESS_ONCE,  0, command_trick_proc},
-    {"save game",        COMMAND_PRESS_ONCE,  0, command_save_game_proc},
-    {"load game",        COMMAND_PRESS_ONCE,  0, command_load_game_proc},
-    {"start/stop timer", COMMAND_PRESS_ONCE,  0, command_start_timer_proc},
-    {"reset timer",      COMMAND_PRESS_ONCE,  0, command_reset_timer_proc},
-    {"show/hide timer",  COMMAND_PRESS_ONCE,  0, command_show_hide_timer_proc}
+    {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                         },
+    {"return from menu", COMMAND_PRESS_ONCE, 0, NULL                         },
+    {"levitate",         COMMAND_HOLD,       0, command_levitate_proc        },
+    {"turbo",            COMMAND_PRESS_ONCE, 0, command_turbo_proc           },
+    {"save position",    COMMAND_PRESS_ONCE, 0, command_save_pos_proc        },
+    {"load position",    COMMAND_PRESS_ONCE, 0, command_load_pos_proc        },
+    {"lzs",              COMMAND_PRESS_ONCE, 0, command_lzs_proc             },
+    {"reload room",      COMMAND_PRESS_ONCE, 0, command_reload_proc          },
+    {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
+    {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
+    {"load trick",       COMMAND_PRESS_ONCE, 0, command_trick_proc           },
+    {"save game",        COMMAND_PRESS_ONCE, 0, command_save_game_proc       },
+    {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
+    {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
+    {"reset timer",      COMMAND_PRESS_ONCE, 0, command_reset_timer_proc     },
+    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc }
 };
 
 void show_menu() {
@@ -55,7 +55,7 @@ void fp_log(const char *fmt, ...) {
     for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
         fp.log[i] = fp.log[i - 1];
     }
-      
+
     va_list va;
     va_start(va, fmt);
     int l = vsnprintf(NULL, 0, fmt, va);
@@ -73,10 +73,10 @@ void fp_log(const char *fmt, ...) {
 }
 
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
-    pm_PlayAmbientSounds(-1, 0); //clear ambient sounds
-    pm_BgmSetSong(1, -1, 0, 0, 8); //clear secondary songs
-    pm_SfxStopSound(0x19C); //clear upward vine sound
-    pm_SfxStopSound(0x19D); //clear downward vine sound
+    pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
+    pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
+    pm_SfxStopSound(0x19C);        // clear upward vine sound
+    pm_SfxStopSound(0x19D);        // clear downward vine sound
     pm_status.loading_zone_tangent = 0;
     pm_status.group_id = group;
     pm_status.room_id = room;
@@ -118,8 +118,7 @@ void set_flag(uint32_t *flags, int flag_index, _Bool value) {
     int bit = flag_index % 32;
     if (value) {
         flags[word_index] |= (1 << bit);
-    }
-    else {
+    } else {
         flags[word_index] &= ~(1 << bit);
     }
 }
@@ -136,7 +135,7 @@ void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
     set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
-void fp_set_global_byte(int byte_index,  int8_t value) {
+void fp_set_global_byte(int byte_index, int8_t value) {
     pm_save_data.global_bytes[byte_index] = value;
 }
 
@@ -153,8 +152,7 @@ void command_turbo_proc() {
     if (fp.turbo) {
         fp.turbo = 0;
         fp_log("turbo disabled");
-    }
-    else {
+    } else {
         fp.turbo = 1;
         fp_log("turbo enabled");
     }
@@ -182,8 +180,7 @@ void command_lzs_proc() {
     if (pm_TimeFreezeMode == 0) {
         pm_TimeFreezeMode = 1;
         fp_log("easy lzs enabled");
-    }
-    else if (pm_TimeFreezeMode == 1) {
+    } else if (pm_TimeFreezeMode == 1) {
         pm_TimeFreezeMode = 0;
         fp_log("easy lzs disabled");
     }
@@ -203,8 +200,7 @@ void command_toggle_watches_proc() {
     settings->bits.watches_visible = !settings->bits.watches_visible;
     if (settings->bits.watches_visible) {
         watchlist_show(fp.menu_watchlist);
-    }
-    else {
+    } else {
         watchlist_hide(fp.menu_watchlist);
     }
 }
@@ -225,11 +221,9 @@ void command_start_timer_proc() {
         if (fp.timer.mode == 0) {
             fp_log("timer set to start");
         }
-    }
-    else if (fp.timer.state == 2 && fp.timer.mode == 1) {
+    } else if (fp.timer.state == 2 && fp.timer.mode == 1) {
         fp.timer.cutscene_count = fp.timer.cutscene_target;
-    }
-    else if (fp.timer.state == 3) {
+    } else if (fp.timer.state == 3) {
         fp.timer.state = 1;
         fp.timer.cutscene_count = 0;
         if (fp.timer.mode == 0) {
@@ -262,8 +256,7 @@ void command_load_game_proc() {
         pm_FioDeserializeState();
         fp_warp(file->group_id, file->room_id, file->entrance_id);
         fp_log("loaded from slot %d", pm_status.save_slot);
-    }
-    else {
+    } else {
         fp_log("no file in slot %d", pm_status.save_slot);
     }
     free(file);
