@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 FORMAT_OPTS="-i -style=file"
-#TIDY_OPTS="-p . --fix --fix-errors"
-#COMPILER_OPTS="-fno-builtin -std=gnu90 -Iinclude -Isrc -D_LANGUAGE_C -DNON_MATCHING"
+TIDY_OPTS="-p . --fix --fix-errors"
+COMPILER_OPTS="-std=gnu11"
 
 shopt -s globstar
 
@@ -22,7 +22,7 @@ echo "Formatting C files. This will take a bit"
 echo "Running clang-format..."
 clang-format ${FORMAT_OPTS} src/*{.c,.h}
 #echo "Running clang-tidy..."
-#clang-tidy ${TIDY_OPTS} src/**/*.c -- ${COMPILER_OPTS} &> /dev/null
+#clang-tidy ${TIDY_OPTS} src/*.c -- ${COMPILER_OPTS} &> /dev/null
 echo "Adding missing final new lines..."
 find src/ -type f -exec sed -i -e '$a\' {} \;
 echo "Done formatting all files."
