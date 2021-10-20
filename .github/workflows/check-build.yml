@@ -1,0 +1,30 @@
+name: Code check
+on:
+  push:
+    branches:
+      - contributing-stuff
+  pull_request:
+    branches:
+      - contributing-stuff
+jobs:
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo sh -c '(curl https://practicerom.com/public/packages/debian/pgp.pub || wget -O - https://practicerom.com/public/packages/debian/pgp.pub) | apt-key add - && echo deb https://practicerom.com/public/packages/debian ./staging main >/etc/apt/sources.list.d/practicerom.list && apt update'
+        sudo apt install practicerom-dev
+    - name: Test build
+      run: make all
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: clang-format style check
+      uses: imaandrew/clang-format-action@main
+      with:
+        clang-format-version: '14'
+        check-path: 'src'
