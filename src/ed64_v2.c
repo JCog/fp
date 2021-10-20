@@ -55,8 +55,9 @@ static inline void spi_mode(int cfg) {
 static inline void spi_tx(uint8_t dat) {
     reg_wr(REG_SPI, dat);
 
-    while (reg_rd(REG_STATUS) & STATUS_SPI)
+    while (reg_rd(REG_STATUS) & STATUS_SPI) {
         ;
+    }
 }
 
 static inline uint8_t spi_rx(void) {
@@ -68,12 +69,13 @@ static inline uint8_t spi_rx(void) {
 static void sd_set_spd(int spd) {
     spi_cfg &= ~SPI_SPEED;
 
-    if (spd >= 50)
+    if (spd >= 50) {
         spi_cfg |= SPI_SPEED_50;
-    else if (spd >= 25)
+    } else if (spd >= 25) {
         spi_cfg |= SPI_SPEED_25;
-    else
+    } else {
         spi_cfg |= SPI_SPEED_LO;
+    }
 
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
@@ -101,8 +103,9 @@ static void sd_cmd_rx_buf(void *buf, size_t size) {
 
     spi_mode(SPI_CMD | SPI_RD | SPI_BYTE);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         *p++ = spi_rx();
+    }
 }
 
 static void sd_cmd_tx_buf(const void *buf, size_t size) {
@@ -110,8 +113,9 @@ static void sd_cmd_tx_buf(const void *buf, size_t size) {
 
     spi_mode(SPI_CMD | SPI_WR | SPI_BYTE);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         spi_tx(*p++);
+    }
 }
 
 static void sd_dat_rx_buf(void *buf, size_t size) {
@@ -119,8 +123,9 @@ static void sd_dat_rx_buf(void *buf, size_t size) {
 
     spi_mode(SPI_DAT | SPI_RD | SPI_BYTE);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         *p++ = spi_rx();
+    }
 }
 
 static void sd_dat_tx_buf(const void *buf, size_t size) {
@@ -128,8 +133,9 @@ static void sd_dat_tx_buf(const void *buf, size_t size) {
 
     spi_mode(SPI_DAT | SPI_WR | SPI_BYTE);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         spi_tx(*p++);
+    }
 }
 
 static void sd_dat_tx_clk(int dat, size_t n_clk) {
@@ -138,8 +144,9 @@ static void sd_dat_tx_clk(int dat, size_t n_clk) {
 
     spi_mode(SPI_DAT | SPI_WR | SPI_BYTE);
 
-    for (size_t i = 0; i < n_clk / 2; i++)
+    for (size_t i = 0; i < n_clk / 2; i++) {
         spi_tx(dat);
+    }
 }
 
 static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
@@ -150,12 +157,14 @@ static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
     reg_wr(REG_DMA_LEN, n_blk - 1);
     reg_wr(REG_DMA_ADDR, cart_addr >> 11);
     reg_wr(REG_DMA_CFG, DMA_SD_TO_RAM);
-    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY)
+    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY) {
         ;
+    }
 
     /* check for dma timeout */
-    if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT)
+    if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT) {
         return -SD_ERR_TIMEOUT;
+    }
 
     /* copy to ram */
     pi_read_locked(cart_addr, buf, blk_size * n_blk);
@@ -190,8 +199,9 @@ static int probe(void) {
 
     /* check firmware version */
     uint16_t fw_ver = reg_rd(REG_VER);
-    if (fw_ver < 0x0116)
+    if (fw_ver < 0x0116) {
         goto nodev;
+    }
 
     /* check spi device */
     /* for a v2 device we expect a write with this config to trigger one
@@ -199,11 +209,13 @@ static int probe(void) {
     reg_wr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS | SPI_RD | SPI_DAT | SPI_1CLK);
     reg_wr(REG_SPI, 0x00);
     for (int i = 0;; i++) {
-        if (i > 32)
+        if (i > 32) {
             goto nodev;
+        }
 
-        if ((reg_rd(REG_STATUS) & STATUS_SPI) == 0)
+        if ((reg_rd(REG_STATUS) & STATUS_SPI) == 0) {
             break;
+        }
     }
     uint16_t dat = reg_rd(REG_SPI);
     if (dat == 0x0F) {
@@ -234,10 +246,11 @@ static int fifo_poll(void) {
     int ret;
 
     cart_lock();
-    if (reg_rd(REG_STATUS) & STATUS_RXF)
+    if (reg_rd(REG_STATUS) & STATUS_RXF) {
         ret = 0;
-    else
+    } else {
         ret = 1;
+    }
     cart_unlock();
 
     return ret;
@@ -250,15 +263,17 @@ static int fifo_read(void *dst, size_t n_blocks) {
     cart_lock();
 
     /* wait for rx buffer full (RXF low) */
-    while (reg_rd(REG_STATUS) & STATUS_RXF)
+    while (reg_rd(REG_STATUS) & STATUS_RXF) {
         ;
+    }
 
     /* dma fifo to cart */
     reg_wr(REG_DMA_LEN, n_blocks - 1);
     reg_wr(REG_DMA_ADDR, cart_addr >> 11);
     reg_wr(REG_DMA_CFG, DMA_FIFO_TO_RAM);
-    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY)
+    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY) {
         ;
+    }
 
     /* check for dma timeout */
     if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT) {
@@ -280,8 +295,9 @@ static int fifo_write(const void *src, size_t n_blocks) {
     cart_lock();
 
     /* wait for tx buffer empty (TXE low) */
-    while (reg_rd(REG_STATUS) & STATUS_TXE)
+    while (reg_rd(REG_STATUS) & STATUS_TXE) {
         ;
+    }
 
     /* copy to cart */
     pi_write_locked(cart_addr, src, n_blocks * blk_size);
@@ -290,8 +306,9 @@ static int fifo_write(const void *src, size_t n_blocks) {
     reg_wr(REG_DMA_LEN, n_blocks - 1);
     reg_wr(REG_DMA_ADDR, cart_addr >> 11);
     reg_wr(REG_DMA_CFG, DMA_RAM_TO_FIFO);
-    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY)
+    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY) {
         ;
+    }
 
     /* check for dma timeout */
     if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT) {

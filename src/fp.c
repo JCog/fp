@@ -169,16 +169,21 @@ void fp_update_menu(void) {
         menu_return(fp.main_menu);
     } else {
         u16 pad_pressed = input_pressed();
-        if (pad_pressed & BUTTON_D_UP)
+        if (pad_pressed & BUTTON_D_UP) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
-        if (pad_pressed & BUTTON_D_DOWN)
+        }
+        if (pad_pressed & BUTTON_D_DOWN) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
-        if (pad_pressed & BUTTON_D_LEFT)
+        }
+        if (pad_pressed & BUTTON_D_LEFT) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
-        if (pad_pressed & BUTTON_D_RIGHT)
+        }
+        if (pad_pressed & BUTTON_D_RIGHT) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
-        if (pad_pressed & BUTTON_L)
+        }
+        if (pad_pressed & BUTTON_L) {
             menu_activate(fp.main_menu);
+        }
     }
 }
 

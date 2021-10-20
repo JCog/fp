@@ -30,20 +30,24 @@ static void load_proc() {
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     int8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_intinput_get(item);
+    }
     return 0;
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p)
+        if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menu_option_get(item);
+    }
     return 0;
 }
 
@@ -167,21 +171,22 @@ static int do_import_file(const char *path, void *data) {
     int f = open(path, O_RDONLY);
     if (f != -1) {
         struct stat st;
-        if (fstat(f, &st))
+        if (fstat(f, &st)) {
             err_str = strerror(errno);
-        else if (st.st_size != sizeof(*file))
+        } else if (st.st_size != sizeof(*file)) {
             err_str = s_invalid;
-        else {
+        } else {
             file = malloc(sizeof(*file));
-            if (!file)
+            if (!file) {
                 err_str = s_memory;
-            else {
+            } else {
                 errno = 0;
                 if (read(f, file, sizeof(*file)) != sizeof(*file)) {
-                    if (errno == 0)
+                    if (errno == 0) {
                         err_str = s_invalid;
-                    else
+                    } else {
                         err_str = strerror(errno);
+                    }
                 } else {
                     if (pm_FioValidateFileChecksum(file)) {
                         pm_save_data = *file;

@@ -34,8 +34,9 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
         switch (nav) {
             case MENU_NAVIGATE_UP: {
                 osk_shift_state = !osk_shift_state;
-                for (int i = 0; i < 26; ++i)
+                for (int i = 0; i < 26; ++i) {
                     osk_letters[i]->text[0] += (osk_shift_state ? 'A' - 'a' : 'a' - 'A');
+                }
                 osk_minus->text[0] = (osk_shift_state ? '_' : '-');
                 break;
             }
@@ -59,29 +60,33 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
             }
         }
         return 1;
-    } else
+    } else {
         return 0;
+    }
 }
 
 static int activate_text_proc(struct menu_item *item) {
-    if (!osk_callback_proc || !osk_callback_proc(osk_buf, osk_callback_data))
+    if (!osk_callback_proc || !osk_callback_proc(osk_buf, osk_callback_data)) {
         menu_return(&osk_menu);
+    }
     return 1;
 }
 
 static int navigate_text_proc(struct menu_item *item, enum menu_navigation nav) {
-    if (navigate_proc(item, nav))
+    if (navigate_proc(item, nav)) {
         return 1;
-    else {
+    } else {
         switch (nav) {
             case MENU_NAVIGATE_LEFT: {
-                if (osk_cursor_pos > 0)
+                if (osk_cursor_pos > 0) {
                     --osk_cursor_pos;
+                }
                 return 1;
             }
             case MENU_NAVIGATE_RIGHT: {
-                if (osk_cursor_pos < strlen(osk_buf))
+                if (osk_cursor_pos < strlen(osk_buf)) {
                     ++osk_cursor_pos;
+                }
                 return 1;
             }
             default: return 0;
@@ -107,8 +112,9 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
     int n;
     for (n = 0; n < 4; ++n) {
         uint16_t c = bind_get_component(bind, n);
-        if (c == BIND_END)
+        if (c == BIND_END) {
             break;
+        }
         struct gfx_sprite sprite = {
             texture, c, x + n * 10, y, 1.f, 1.f,
         };
@@ -212,8 +218,9 @@ static void create_osk_menu(void) {
         item = menu_add_button(&osk_menu, 18, 8, ".", key_proc, NULL);
         item->navigate_proc = navigate_proc;
 
-        for (int i = 0; i < 26; ++i)
+        for (int i = 0; i < 26; ++i) {
             osk_letters[i]->navigate_proc = navigate_proc;
+        }
 
         struct gfx_texture *osk_icons = resource_get(RES_ICON_OSK);
         item = menu_add_button_icon(&osk_menu, 0, 8, osk_icons, 0, 0xFFFFFF, space_proc, NULL);
@@ -229,8 +236,9 @@ static void create_osk_menu(void) {
 
 void menu_get_osk_string(struct menu *menu, const char *dflt, osk_callback_t callback_proc, void *callback_data) {
     memset(osk_buf, 0, sizeof(osk_buf));
-    if (dflt)
+    if (dflt) {
         strncpy(osk_buf, dflt, sizeof(osk_buf) - 1);
+    }
     osk_callback_proc = callback_proc;
     osk_callback_data = callback_data;
     osk_cursor_pos = 0;

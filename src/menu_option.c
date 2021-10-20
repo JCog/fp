@@ -15,12 +15,14 @@ static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->callback_proc) {
         int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
-        if (r)
+        if (r) {
             return r;
-        if (data->active)
+        }
+        if (data->active) {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
-        else
+        } else {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
+        }
         return r;
     }
     return 0;
@@ -28,8 +30,9 @@ static int think_proc(struct menu_item *item) {
 
 static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data))
+    if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data)) {
         return 1;
+    }
     int value = data->value;
     switch (nav) {
         case MENU_NAVIGATE_UP: value += 1; break;
@@ -38,26 +41,30 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
         case MENU_NAVIGATE_RIGHT: value += 3; break;
     }
     value %= (int)data->options.size;
-    if (value < 0)
+    if (value < 0) {
         value += (int)data->options.size;
+    }
     data->value = value;
     char **option = vector_at(&data->options, data->value);
     item->text = *option;
-    if (data->callback_proc)
+    if (data->callback_proc) {
         data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+    }
     return 1;
 };
 
 static int activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
-        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data))
+        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
             return 1;
+        }
         item->navigate_proc = NULL;
         item->animate_highlight = 0;
     } else {
-        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data))
+        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
+        }
         item->navigate_proc = navigate_proc;
         item->animate_highlight = 1;
     }

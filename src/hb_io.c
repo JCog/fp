@@ -9,35 +9,40 @@
  */
 
 static int hb_check(void) {
-    if (hb_regs.key == 0x1234)
+    if (hb_regs.key == 0x1234) {
         return 0;
-    else
+    } else {
         return -1;
+    }
 }
 
 static int hb_sd_init(void) {
     hb_regs.status = HB_STATUS_SD_INIT;
-    while (hb_regs.status & HB_STATUS_SD_BUSY)
+    while (hb_regs.status & HB_STATUS_SD_BUSY) {
         ;
+    }
 
     uint32_t status = hb_regs.status;
-    if ((status & HB_STATUS_SD_READY) && (status & HB_STATUS_SD_INSERTED))
+    if ((status & HB_STATUS_SD_READY) && (status & HB_STATUS_SD_INSERTED)) {
         return 0;
-    else
+    } else {
         return -1;
+    }
 }
 
 static int hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
     hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(dst);
     hb_regs.sd_n_blocks = n_blocks;
     hb_regs.sd_read_lba = lba;
-    while (hb_regs.status & HB_STATUS_SD_BUSY)
+    while (hb_regs.status & HB_STATUS_SD_BUSY) {
         ;
+    }
 
-    if (hb_regs.status & HB_STATUS_ERROR)
+    if (hb_regs.status & HB_STATUS_ERROR) {
         return -1;
-    else
+    } else {
         return 0;
+    }
 }
 
 static int hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
@@ -45,19 +50,22 @@ static int hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
         hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(src);
         hb_regs.sd_n_blocks = n_blocks;
         hb_regs.sd_write_lba = lba;
-        while (hb_regs.status & HB_STATUS_SD_BUSY)
+        while (hb_regs.status & HB_STATUS_SD_BUSY) {
             ;
+        }
 
-        if (hb_regs.status & HB_STATUS_ERROR)
+        if (hb_regs.status & HB_STATUS_ERROR) {
             return -1;
-        else
+        } else {
             return 0;
+        }
     } else {
         char data[512] = {0};
 
         while (n_blocks != 0) {
-            if (hb_sd_write(lba, 1, data))
+            if (hb_sd_write(lba, 1, data)) {
                 return -1;
+            }
 
             n_blocks--;
             lba++;
@@ -90,8 +98,9 @@ static unsigned int clock_freq(void) {
 static void cpu_reset(void) {
     /* simulate 0.5s nmi delay */
     uint64_t tb_wait = hb_get_timebase64() + HB_TIMEBASE_FREQ / 2;
-    while (hb_get_timebase64() < tb_wait)
+    while (hb_get_timebase64() < tb_wait) {
         ;
+    }
 
     hb_reset(0x00400000, 0x00400000);
 }

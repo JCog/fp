@@ -5,10 +5,12 @@
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_intinput_get(item);
+    }
     return 0;
 }
 

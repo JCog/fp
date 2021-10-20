@@ -1,0 +1,1 @@
+Checks: '-*,clang-analyzer-core.*,clang-analyzer-deadcode.*,readability-braces-around-statements'

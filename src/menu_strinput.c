@@ -22,17 +22,20 @@ static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         int r = menu_think(data->imenu);
-        if (r)
+        if (r) {
             return r;
+        }
     }
     if (data->callback_proc) {
         int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
-        if (r)
+        if (r) {
             return r;
-        if (data->active)
+        }
+        if (data->active) {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
-        else
+        } else {
             r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
+        }
         return r;
     }
     return 0;
@@ -50,8 +53,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
 
 static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    if (data->active)
+    if (data->active) {
         menu_navigate(data->imenu, nav);
+    }
     return data->active;
 }
 
@@ -64,15 +68,17 @@ static int activate_proc(struct menu_item *item) {
         int max = 0;
         for (int i = 0; i < data->length; ++i) {
             char c = data->chars[i]->text[0];
-            if (c == '_')
+            if (c == '_') {
                 c = ' ';
-            else
+            } else {
                 max = i + 1;
+            }
             data->item->text[i] = c;
         }
         data->item->text[max] = 0;
-        if (data->callback_proc)
+        if (data->callback_proc) {
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        }
     } else {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
@@ -84,8 +90,9 @@ static int activate_proc(struct menu_item *item) {
 
 static int destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    for (int i = 0; i < data->length; ++i)
+    for (int i = 0; i < data->length; ++i) {
         data->chars[i]->data = NULL;
+    }
     menu_destroy(data->imenu);
     free(data->chars);
     return 0;
@@ -94,12 +101,13 @@ static int destroy_proc(struct menu_item *item) {
 static int char_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     int n = strchr(charset, item->text[0]) - charset;
     int d = (input_pad() & BUTTON_Z) ? 3 : 1;
-    if (nav == MENU_NAVIGATE_UP)
+    if (nav == MENU_NAVIGATE_UP) {
         n += d;
-    else if (nav == MENU_NAVIGATE_DOWN)
+    } else if (nav == MENU_NAVIGATE_DOWN) {
         n -= d;
-    else
+    } else {
         return 0;
+    }
     n = (n + charset_size) % charset_size;
     item->text[0] = charset[n];
     return 1;
@@ -152,19 +160,20 @@ void menu_strinput_set(struct menu_item *item, const char *str) {
     _Bool end = 0;
     for (int i = 0; i < data->length; ++i) {
         char c;
-        if (end)
+        if (end) {
             c = ' ';
-        else {
+        } else {
             c = str[i];
             if (c == 0) {
                 end = 1;
                 c = ' ';
-            } else if (!strchr(charset, c) || c == '_')
+            } else if (!strchr(charset, c) || c == '_') {
                 c = ' ';
+            }
         }
-        if (c == ' ')
+        if (c == ' ') {
             data->chars[i]->text[0] = '_';
-        else {
+        } else {
             data->chars[i]->text[0] = c;
             max = i + 1;
         }

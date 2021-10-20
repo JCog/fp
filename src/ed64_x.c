@@ -55,15 +55,17 @@ static inline void spi_nclk(int bitlen) {
 static inline void cmd_tx(uint8_t dat) {
     reg_wr(REG_SD_CMD_WR, dat);
 
-    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY)
+    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
         ;
+    }
 }
 
 static inline uint8_t cmd_rx(void) {
     reg_wr(REG_SD_CMD_RD, 0xFF);
 
-    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY)
+    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
         ;
+    }
 
     return reg_rd(REG_SD_CMD_RD);
 }
@@ -71,15 +73,17 @@ static inline uint8_t cmd_rx(void) {
 static inline void dat_tx(uint16_t dat) {
     reg_wr(REG_SD_DAT_WR, dat);
 
-    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY)
+    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
         ;
+    }
 }
 
 static inline uint16_t dat_rx(void) {
     reg_wr(REG_SD_DAT_RD, 0xFFFF);
 
-    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY)
+    while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
         ;
+    }
 
     return reg_rd(REG_SD_DAT_RD);
 }
@@ -88,10 +92,11 @@ static void sd_set_spd(int spd) {
     /* The ED64-X IO don't seem to support Default Speed (25MHz), so I guess
      * we'd better hope that the card supports High Speed (50MHz).
      */
-    if (spd >= 25)
+    if (spd >= 25) {
         spi_cfg |= SD_CFG_SPD;
-    else
+    } else {
         spi_cfg &= ~SD_CFG_SPD;
+    }
 
     reg_wr(REG_SD_STATUS, spi_cfg);
 }
@@ -119,8 +124,9 @@ static void sd_cmd_rx_buf(void *buf, size_t size) {
 
     spi_nclk(8);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         *p++ = cmd_rx();
+    }
 }
 
 static void sd_cmd_tx_buf(const void *buf, size_t size) {
@@ -128,8 +134,9 @@ static void sd_cmd_tx_buf(const void *buf, size_t size) {
 
     spi_nclk(8);
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++) {
         cmd_tx(*p++);
+    }
 }
 
 static void sd_dat_rx_buf(void *buf, size_t size) {
@@ -164,8 +171,9 @@ static void sd_dat_tx_clk(int dat, size_t n_clk) {
 
     spi_nclk(4);
 
-    for (size_t i = 0; i < n_clk / 4; i++)
+    for (size_t i = 0; i < n_clk / 4; i++) {
         dat_tx(dat);
+    }
 }
 
 static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
@@ -174,12 +182,14 @@ static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
     /* dma to cart */
     reg_wr(REG_DMA_ADDR, cart_addr);
     reg_wr(REG_DMA_LEN, n_blk);
-    while (reg_rd(REG_DMA_STA) & DMA_STA_BUSY)
+    while (reg_rd(REG_DMA_STA) & DMA_STA_BUSY) {
         ;
+    }
 
     /* check for dma timeout */
-    if (reg_rd(REG_DMA_STA) & DMA_STA_ERROR)
+    if (reg_rd(REG_DMA_STA) & DMA_STA_ERROR) {
         return -SD_ERR_TIMEOUT;
+    }
 
     /* copy to ram */
     pi_read_locked(cart_addr, buf, blk_size * n_blk);
@@ -213,8 +223,9 @@ static int probe(void) {
     reg_wr(REG_KEY, 0xAA55);
 
     /* check magic number */
-    if ((reg_rd(REG_EDID) >> 16) != 0xED64)
+    if ((reg_rd(REG_EDID) >> 16) != 0xED64) {
         goto nodev;
+    }
 
     cart_unlock();
     return 0;
@@ -241,10 +252,11 @@ static int fifo_poll(void) {
     int ret;
 
     cart_lock();
-    if ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_RXF)) == USB_STA_PWR)
+    if ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_RXF)) == USB_STA_PWR) {
         ret = 1;
-    else
+    } else {
         ret = 0;
+    }
     cart_unlock();
 
     return ret;
@@ -258,13 +270,15 @@ static int fifo_read(void *dst, size_t n_blocks) {
     char *p = dst;
     while (n_blocks != 0) {
         /* wait for power on and rx buffer full (PWR high, RXF low) */
-        while ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_RXF)) != USB_STA_PWR)
+        while ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_RXF)) != USB_STA_PWR) {
             ;
+        }
 
         /* receive */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_RD | USB_CFG_ACT);
-        while (reg_rd(REG_USB_CFG) & USB_STA_ACT)
+        while (reg_rd(REG_USB_CFG) & USB_STA_ACT) {
             ;
+        }
 
         /* copy from rx buffer */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_RD);
@@ -286,8 +300,9 @@ static int fifo_write(const void *src, size_t n_blocks) {
     const char *p = src;
     while (n_blocks != 0) {
         /* wait for power on and tx buffer empty (PWR high, TXE low) */
-        while ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_TXE)) != USB_STA_PWR)
+        while ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_TXE)) != USB_STA_PWR) {
             ;
+        }
 
         /* copy to tx buffer */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_WR);
@@ -295,8 +310,9 @@ static int fifo_write(const void *src, size_t n_blocks) {
 
         /* transmit */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_WR | USB_CFG_ACT);
-        while (reg_rd(REG_USB_CFG) & USB_STA_ACT)
+        while (reg_rd(REG_USB_CFG) & USB_STA_ACT) {
             ;
+        }
 
         p += blk_size;
         n_blocks--;

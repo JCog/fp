@@ -11,20 +11,23 @@ static int do_callback(int index) {
         menu_prompt_callback proc = prompt_callback_proc;
         prompt_callback_proc = NULL;
         return proc(index, prompt_callback_data);
-    } else
+    } else {
         return 0;
+    }
 }
 
 static int leave_proc(struct menu_item *item, enum menu_switch_reason reason) {
-    if (reason == MENU_SWITCH_RETURN)
+    if (reason == MENU_SWITCH_RETURN) {
         do_callback(-1);
+    }
     return 0;
 }
 
 static int activate_proc(struct menu_item *item) {
     int index = (int)item->data;
-    if (!do_callback(index))
+    if (!do_callback(index)) {
         menu_return(&prompt_menu);
+    }
     return 0;
 }
 
@@ -42,8 +45,9 @@ void menu_prompt(struct menu *menu, const char *prompt, const char *options, int
             menu_return(&prompt_menu);
         }
         menu_destroy(&prompt_menu);
-    } else
+    } else {
         ready = 1;
+    }
     menu_init(&prompt_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     struct menu_item *item = menu_add_static(&prompt_menu, 0, 0, prompt, 0xC0C0C0);
     item->leave_proc = leave_proc;
@@ -58,8 +62,9 @@ void menu_prompt(struct menu *menu, const char *prompt, const char *options, int
         item->activate_proc = activate_proc;
         item->destroy_proc = destroy_proc;
         option += option_length + 1;
-        if (i == default_option)
+        if (i == default_option) {
             prompt_menu.selector = item;
+        }
     }
     prompt_callback_proc = callback_proc;
     prompt_callback_data = callback_data;

@@ -18,8 +18,9 @@ static int enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
 
 static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    if (data->callback_proc)
+    if (data->callback_proc) {
         return data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+    }
     return 0;
 }
 
@@ -27,8 +28,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     struct item_data *data = item->data;
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     static struct gfx_texture *texture = NULL;
-    if (!texture)
+    if (!texture) {
         texture = resource_load_grc_texture("checkbox");
+    }
     int cw = menu_get_cell_width(item->owner, 1);
     struct gfx_sprite sprite = {
         texture,
@@ -44,8 +46,9 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         sprite.texture_tile = 2;
         gfx_sprite_draw(&sprite);
     }
-    if (data->anim_state > 0)
+    if (data->anim_state > 0) {
         data->anim_state = (data->anim_state + 1) % 3;
+    }
     return 1;
 }
 
@@ -56,8 +59,9 @@ static int activate_proc(struct menu_item *item) {
                              data->callback_data)) {
         data->state = !data->state;
         data->anim_state = 1;
-        if (data->callback_proc)
+        if (data->callback_proc) {
             data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        }
     }
     return 1;
 }

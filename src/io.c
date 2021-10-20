@@ -33,8 +33,9 @@ int io_init(void) {
     int n_devs = sizeof(devs) / sizeof(devs[0]);
     for (int i = 0; i < n_devs; i++) {
         current_dev = devs[i];
-        if (current_dev->probe() == 0)
+        if (current_dev->probe() == 0) {
             return 0;
+        }
     }
 
     current_dev = NULL;
@@ -47,8 +48,9 @@ int disk_init(void) {
         if (current_dev->disk_init()) {
             errno = ENODEV;
             return -1;
-        } else
+        } else {
             return 0;
+        }
     } else {
         errno = ENODEV;
         return -1;
@@ -117,17 +119,19 @@ int fifo_write(const void *src, size_t n_blocks) {
 }
 
 unsigned int clock_ticks(void) {
-    if (current_dev && current_dev->clock_ticks)
+    if (current_dev && current_dev->clock_ticks) {
         return current_dev->clock_ticks();
-    else
+    } else {
         return clock_ticks_dflt();
+    }
 }
 
 unsigned int clock_freq(void) {
-    if (current_dev && current_dev->clock_freq)
+    if (current_dev && current_dev->clock_freq) {
         return current_dev->clock_freq();
-    else
+    } else {
         return clock_freq_dflt();
+    }
 }
 
 // int cpu_reset(void)

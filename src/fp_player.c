@@ -66,40 +66,48 @@ const char *ITEM_LIST = "-\0""Jump\0""Spin Jump\0""Tornado Jump\0""Hammer\0""Sup
 static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint16_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_intinput_get(item);
+    }
     return 0;
 }
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
-    } else if (reason == MENU_CALLBACK_CHANGED)
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
         *p = menu_intinput_get(item);
+    }
     return 0;
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p)
+        if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menu_option_get(item);
+    }
     return 0;
 }
 
 static int halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint16_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p)
+        if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menu_option_get(item);
+    }
     return 0;
 }
 
@@ -117,8 +125,9 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
 
 static int max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.player_data.max_hp)
+        if (menu_intinput_get(item) != pm_player.player_data.max_hp) {
             menu_intinput_set(item, pm_player.player_data.max_hp);
+        }
     } else if (reason == MENU_CALLBACK_CHANGED) {
         pm_player.player_data.max_hp = menu_intinput_get(item);
         pm_player.player_data.menu_max_hp = menu_intinput_get(item);
@@ -128,8 +137,9 @@ static int max_hp_proc(struct menu_item *item, enum menu_callback_reason reason,
 
 static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.player_data.max_fp)
+        if (menu_intinput_get(item) != pm_player.player_data.max_fp) {
             menu_intinput_set(item, pm_player.player_data.max_fp);
+        }
     } else if (reason == MENU_CALLBACK_CHANGED) {
         pm_player.player_data.max_fp = menu_intinput_get(item);
         pm_player.player_data.menu_max_fp = menu_intinput_get(item);
@@ -140,10 +150,12 @@ static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason,
 static int hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t menu_hammer = menu_option_get(item) - 1;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_hammer != pm_player.player_data.hammer_upgrade)
+        if (menu_hammer != pm_player.player_data.hammer_upgrade) {
             menu_option_set(item, (uint8_t)pm_player.player_data.hammer_upgrade + 1);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         pm_player.player_data.hammer_upgrade = (uint8_t)menu_option_get(item) - 1;
+    }
     return 0;
 }
 
@@ -162,18 +174,21 @@ static int in_party_proc(struct menu_item *item, enum menu_callback_reason reaso
 static int rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     partner_t *partner = (partner_t *)data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != partner->upgrade)
+        if (menu_option_get(item) != partner->upgrade) {
             menu_option_set(item, partner->upgrade);
-    } else if (reason == MENU_CALLBACK_DEACTIVATE)
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         partner->upgrade = menu_option_get(item);
+    }
     return 0;
 }
 
 static int item_int_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint16_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
+        }
     } else if (reason == MENU_CALLBACK_CHANGED) {
         if (menu_intinput_get(item) > 0x16c) {
             *p = 0x16c;
@@ -187,8 +202,9 @@ static int item_int_proc(struct menu_item *item, enum menu_callback_reason reaso
 static int star_power_full_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
+        }
         if (pm_player.player_data.star_power.full_bars_filled >= pm_player.player_data.star_power.star_spirits_saved) {
             menu_intinput_set(item, pm_player.player_data.star_power.star_spirits_saved);
             *p = pm_player.player_data.star_power.star_spirits_saved;
@@ -206,8 +222,9 @@ static int star_power_full_proc(struct menu_item *item, enum menu_callback_reaso
 static int star_power_partial_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     uint8_t *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p)
+        if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
+        }
         if (pm_player.player_data.star_power.full_bars_filled >= pm_player.player_data.star_power.star_spirits_saved) {
             menu_intinput_set(item, 0);
             *p = 0;
