@@ -1,5 +1,5 @@
 ## Latest Builds
-For an up-to-date development build of fp without the need to build from source, click on the latest workflow run on the [ci page](https://github.com/jcog/fp/actions) and download the patch for the version you want under the Artifacts header
+For an up-to-date development build of fp without the need to build from source, click on the latest workflow run on the [ci page](https://github.com/JCog/fp/actions/workflows/build-patches.yml) and download the patch for the version you want under the Artifacts header
 
 # Prerequisites
 If you want to build fp on Windows, you'll have to install the Windows Subsystem for Linux (WSL). Instructions for this can be found: [here](https://docs.microsoft.com/en-us/windows/wsl/install)
