@@ -2,10 +2,10 @@ name: Code check
 on:
   push:
     branches:
-      - contributing-stuff
+      - develop
   pull_request:
     branches:
-      - contributing-stuff
+      - develop
 jobs:
   build-check:
     name: Build Check
