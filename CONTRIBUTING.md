@@ -12,4 +12,4 @@ If the only clang-format or clang-tidy versions available for you are older than
 
 ## Pull Requests
 
-Before you create a pull request with your changes, make sure your code actually builds and anything you changed works. Next, run the `format.sh` script to ensure that everything matches fp's code style. Once you've done that, you're ready to create a [pull request!](https://github.com/pmret/papermario/pulls) When creating a pull request, make sure that it is to the `develop` branch and that any commit and pull request names accurately describe what your changes are. 
+Before you create a pull request with your changes, make sure your code actually builds and anything you changed works. Next, run the `format.sh` script to ensure that everything matches fp's code style. Once you've done that, you're ready to create a pull request! When creating a pull request, make sure that it is to the `develop` branch and that any commit and pull request names accurately describe what your changes are. 
