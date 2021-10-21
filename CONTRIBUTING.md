@@ -1,5 +1,7 @@
 # Contributing
 
+Contributions are welcome! If you want to fix a bug or implement a feature yourself, feel free to make a development fork. Before you start working on a feature, you may first want to submit an issue where you describe the feature you want to add, to be sure that such a feature would be accepted.
+
 ## Dependencies
 
 Apart from glank's n64 toolchain, you will need to install clang-format and clang-tidy of at least version 14.
@@ -10,4 +12,4 @@ If the only clang-format or clang-tidy versions available for you are older than
 
 ## Pull Requests
 
-Before you create a pull request with your changes, make sure your code actually builds and anything you changed works. Next, run the `format.sh` script to ensure that everything matches fp's code style. Once you've done that, you're ready to create a [pull request!](https://github.com/pmret/papermario/pulls) When creating a pull request, make sure that your commits and pull request name accurately describe what your changes are.
+Before you create a pull request with your changes, make sure your code actually builds and anything you changed works. Next, run the `format.sh` script to ensure that everything matches fp's code style. Once you've done that, you're ready to create a [pull request!](https://github.com/pmret/papermario/pulls) When creating a pull request, make sure that your pr is to the `develop` branch and that commits and pull request name accurately describe what your changes are. 
