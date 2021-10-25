@@ -786,32 +786,40 @@ typedef struct {
 } EffectInstance; // size = 0x20
 
 typedef struct {
-    /* 0x00 */ char unk_00[0x44];
-    /* 0x44 */ uint16_t mash_bar;
-    /* 0x4A */ int16_t unk_4A; // current action command id?
-    /* 0x4C */ int16_t unk_4C;
-    /* 0x4E */ char unk_4E[0x10];
-    /* 0x5E */ int8_t unk_5E;
+    /* 0x00 */ int32_t unk_00;
+    /* 0x04 */ int32_t hudElements[15];
+    /* 0x40 */ char unk_40[0x4];
+    /* 0x44 */ int16_t barFillLevel;
+    /* 0x46 */ int16_t unk_46;
+    /* 0x48 */ int16_t unk_48;
+    /* 0x4A */ int16_t actionCommandID; // current action command id?
+    /* 0x4C */ int16_t state;
+    /* 0x4E */ int16_t unk_4E;
+    /* 0x50 */ int16_t unk_50;
+    /* 0x52 */ int16_t unk_52;
+    /* 0x54 */ int16_t unk_54;
+    /* 0x56 */ int16_t hudElementX;
+    /* 0x58 */ int16_t hudElementY;
+    /* 0x5A */ int16_t unk_5A;
+    /* 0x5C */ int8_t unk_5C;
+    /* 0x5D */ int8_t unk_5D;
+    /* 0x5E */ int8_t autoSucceed;
     /* 0x5F */ int8_t unk_5F;
     /* 0x60 */ int8_t unk_60;
     /* 0x61 */ int8_t unk_61;
-    /* 0x62 */ int16_t unk_62;
+    /* 0x62 */ int8_t unk_62;
+    /* 0x63 */ int8_t unk_63;
     /* 0x64 */ int16_t unk_64;
     /* 0x66 */ int16_t unk_66;
     /* 0x68 */ int16_t unk_68;
     /* 0x6A */ int16_t unk_6A;
     /* 0x6C */ int16_t unk_6C;
     /* 0x6E */ int16_t hitsTakenIsMax;
-    /* 0x70 */ char unk_70[2];
-    /* 0x72 */ char unk_72[2];
-    /* 0x74 */ int16_t unk_74;
-    /* 0x76 */ int16_t unk_76;
-    /* 0x78 */ int16_t unk_78;
-    /* 0x7A */ int16_t unk_7A;
-    /* 0x7C */ int16_t unk_7C;
-    /* 0x7E */ int16_t unk_7E;
-    /* 0x80 */ int8_t unk_80;
-} ActionCommandState; // size unknown, taken from decomp
+    /* 0x70 */ int16_t unk_70;
+    /* 0x72 */ int16_t unk_72;
+    /* 0x74 */ int16_t mashMeterCutoffs[6]; // upper bounds for each interval
+    /* 0x80 */ int8_t mashMeterIntervals;
+} ActionCommandStatus; // size = 0x80
 
 typedef struct {
     /* 0x0000 */ uint32_t script_list_ptr;
@@ -848,7 +856,7 @@ extern_data int32_t pm_popup_menu_var;
 extern_data overworld_ctxt_t pm_overworld;
 extern_data hud_ctxt_t pm_hud;
 extern_data player_ctxt_t pm_player;
-extern_data ActionCommandState pm_ActionCommandState;
+extern_data ActionCommandStatus pm_ActionCommandStatus;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 
 extern_data u16 *nuGfxCfb_ptr;
