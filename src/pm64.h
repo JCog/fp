@@ -819,7 +819,7 @@ typedef struct {
     /* 0x72 */ int16_t unk_72;
     /* 0x74 */ int16_t mashMeterCutoffs[6]; // upper bounds for each interval
     /* 0x80 */ int8_t mashMeterIntervals;
-} ActionCommandStatus; // size = 0x81
+} ActionCommandStatus; // size = 0x84
 
 typedef struct {
     /* 0x0000 */ uint32_t script_list_ptr;
