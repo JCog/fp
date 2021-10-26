@@ -506,7 +506,7 @@ void fp_update_cheats(void) {
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
         if (pm_status.is_battle) {
-            pm_ActionCommandState.mash_bar = 10000;
+            pm_ActionCommandStatus.barFillLevel = 10000;
         }
     }
 }
