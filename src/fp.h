@@ -63,6 +63,9 @@ typedef struct {
     uint16_t frames_since_land;
     _Bool warp;
     uint8_t warp_delay;
+    uint16_t current_lzs_jumps;
+    uint16_t record_lzs_jumps;
+    uint16_t frames_since_battle;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

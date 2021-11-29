@@ -83,6 +83,8 @@ void fp_init() {
     fp.bowser_block = 0;
     fp.prev_prev_action_state = 0;
     fp.lz_stored = 0;
+    fp.record_lzs_jumps = 0;
+    fp.current_lzs_jumps = 0;
     fp.player_landed = 0;
     fp.frames_since_land = 0;
     fp.warp = 0;
@@ -414,7 +416,8 @@ void fp_lzs_trainer(void) {
     }
 
     // Count frames since mario landed
-    if (pm_player.action_state == ACTION_STATE_LAND) {
+    if (pm_player.action_state == ACTION_STATE_LAND || pm_player.action_state == ACTION_STATE_WALK ||
+        pm_player.action_state == ACTION_STATE_RUN) {
         fp.player_landed = 1;
     }
     if (fp.player_landed) {
@@ -465,7 +468,13 @@ void fp_lzs_trainer(void) {
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
             }
+        } else if (fp.frames_since_land == 2) {
+            fp.current_lzs_jumps++;
         }
+    }
+
+    if (fp.current_lzs_jumps > fp.record_lzs_jumps) {
+        fp.record_lzs_jumps = fp.current_lzs_jumps;
     }
 
     fp.prev_pressed_y = pm_status.pressed.y_cardinal;
@@ -475,6 +484,7 @@ void fp_lzs_trainer(void) {
         fp.lz_stored = 0;
         fp.player_landed = 0;
         fp.frames_since_land = 0;
+        fp.current_lzs_jumps = 0;
     }
 }
 
