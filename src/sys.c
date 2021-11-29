@@ -24,6 +24,9 @@ struct dir_desc {
     struct dirent dirent;
 };
 
+__attribute__((used)) __attribute__((noinline)) void __assert_func(const char *file, int line, const char *func,
+                                                                   const char *failedexpr) {}
+
 static _Bool fat_ready = 0;
 static struct fat fat;
 static void *desc_list[OPEN_MAX] = {NULL};
