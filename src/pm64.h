@@ -5,13 +5,6 @@
 #include <stdarg.h>
 #include "enums.h"
 
-#ifndef VERSION
-#error no pm64 version specified
-#endif
-
-#define US 0x00
-#define JP 0x01
-
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;
@@ -900,6 +893,7 @@ void osStopThread(OSThread *);
 OSThread *osGetActiveQueue(void);
 void state_render_frontUI(void);
 void step_game_loop(void);
+void pm_disable_player_input(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

@@ -1,5 +1,11 @@
 PACKAGE       ?= $(NAME)
 URL           ?= github.com/jcog/fp
+ifeq ($(origin FP_VERSION), undefined)
+FP_VERSION    := $(shell git tag 2>/dev/null)-DEV
+ifeq ('$(FP_VERSION)', '')
+FP_VERSION     = Unknown version
+endif
+endif
 CC             = mips64-gcc
 LD             = mips64-g++
 AS             = mips64-gcc -x assembler-with-cpp
@@ -20,8 +26,8 @@ NAME           = fp
 NDEBUG        ?= 0
 
 FP_BIN_ADDRESS = 0x80400060
-CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O1 -fno-reorder-blocks
-ALL_CPPFLAGS   = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DF3DEX_GBI_2 $(CPPFLAGS)
+CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks
+ALL_CPPFLAGS   = -DPACKAGE=$(PACKAGE) -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
 ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
 ALL_LIBS       = $(LIBS)
 
@@ -51,7 +57,7 @@ OBJDIR-$(1)      = $(BUILDDIR)/obj/$(1)
 BINDIR-$(1)      = $(BUILDDIR)/bin/$(1)
 HOOKSDIR-$(1)    = $(BUILDDIR)/patch/$(1)
 NAME-$(1)        = $(1)
-CPPFLAGS-$(1)    = -DVERSION=$(2) $(ALL_CPPFLAGS)
+CPPFLAGS-$(1)    = -DPM64_VERSION=$(2) $(ALL_CPPFLAGS)
 CSRC-$(1)       := $$(foreach s,$$(CFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
 COBJ-$(1)        = $$(patsubst $$(SRCDIR-$(1))/%,$$(OBJDIR-$(1))/%.o,$$(CSRC-$(1)))
 SSRC-$(1)       := $$(foreach s,$$(SFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
@@ -81,7 +87,7 @@ $$(RESOBJ-$(1))   : $$(OBJDIR-$(1))/$$(RESDIR)/%.o: $$(RESDIR-$(1))/% $$(RESDESC
 $$(OUTDIR-$(1))   :
 	mkdir -p $$@
 $$(HOOKS-$(1))      :   $$(ELF-$(1)) $$(HOOKSDIR-$(1))
-	$$(GENHOOKS) $$< $(7) >$$@
+	$$(GENHOOKS) $$< $(7) > $$@
 endef
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
 $(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/asm,res/ldr)))
