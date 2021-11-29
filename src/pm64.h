@@ -62,7 +62,7 @@ typedef struct {
             uint16_t cl : 1;
             uint16_t cr : 1;
         };
-        /* 0x0003 */ uint16_t buttons;
+        /* 0x0002 */ uint16_t buttons;
     };
 } controller_t; // size: 0x0004
 
@@ -309,7 +309,7 @@ typedef struct {
     /* 0x0012 */ char unk_0x12[0x02];
     /* 0x0014 */ uint16_t busy;       /*changed when talking/opening doors/loading zones*/
     /* 0x0016 */ int16_t truncated_x; /*used for hazard respawns*/
-    /* 0x0018 */ char unk_0x18[0x02];
+    /* 0x0018 */ int16_t truncated_y;
     /* 0x001A */ int16_t truncated_z; /*used for hazard respawns*/
     /* 0x001C */ char unk_0x1C[0x0C];
     /* 0x0028 */ xyz_t position;
@@ -773,6 +773,46 @@ typedef struct {
 } battle_status_ctxt_t; // size = 0x490
 
 typedef struct {
+    /* 0x000 */ int32_t flags;
+    /* 0x004 */ int8_t first_strike; /* 0 = none, 1 = player, 2 = enemy */
+    /* 0x005 */ int8_t hit_type;     /* 1 = none/enemy, 2 = jump */
+    /* 0x006 */ int8_t hit_tier;     /* 0 = normal, 1 = super, 2 = ultra */
+    /* 0x007 */ char unk_07;
+    /* 0x008 */ int8_t unk_08;
+    /* 0x009 */ int8_t battle_outcome; /* 0 = won, 1 = lost */
+    /* 0x00A */ int8_t unk_0A;
+    /* 0x00B */ int8_t merlee_coin_bonus; /* triple coins when != 0 */
+    /* 0x00C */ uint8_t damage_taken;     /* valid after battle */
+    /* 0x00D */ char unk_0D;
+    /* 0x00E */ int16_t coins_earned; /* valid after battle */
+    /* 0x010 */ char unk_10;
+    /* 0x011 */ uint8_t allow_fleeing;
+    /* 0x012 */ int8_t unk_12;
+    /* 0x013 */ uint8_t drop_whacka_bump;
+    /* 0x014 */ int32_t song_id;
+    /* 0x018 */ int32_t unk_18;
+    /* 0x01C */ int8_t num_encounters; /* number of encounters for current map (in list) */
+    /* 0x01D */ int8_t current_area_index;
+    /* 0x01E */ uint8_t current_map_index;
+    /* 0x01F */ uint8_t current_entry_index;
+    /* 0x020 */ int8_t map_id;
+    /* 0x021 */ int8_t reset_map_encounter_flags;
+    /* 0x022 */ char unk_22[2];
+    /* 0x024 */ int32_t *npc_group_list;
+    /* 0x028 */ int32_t *unk_28[24];    /* struct Encounter* encounter_list[24]; */
+    /* 0x088 */ int32_t *unk_88;        /* struct Encounter* current_encounter; */
+    /* 0x08C */ int32_t *current_enemy; /* struct Enemy* current_enemy; */
+    /* 0x090 */ int32_t fade_out_amount;
+    /* 0x094 */ int32_t unk_94;
+    /* 0x098 */ int32_t fade_out_accel;
+    /* 0x09C */ int32_t battle_start_countdown;
+    /* 0x0A0 */ char unk_A0[16];
+    /* 0x0B0 */ int32_t defeat_flags[60][12];
+    /* 0xFB0 */ int16_t recent_maps[2];
+    /* 0xFB4 */ char unk_FB4[4];
+} encounter_status_ctxt_t; // size = 0xFB8
+
+typedef struct {
     /* 0x00 */ int32_t flags;
     /* 0x04 */ int32_t effectIndex;
     /* 0x08 */ int32_t matrixTotal;
@@ -851,9 +891,11 @@ extern_data hud_ctxt_t pm_hud;
 extern_data player_ctxt_t pm_player;
 extern_data ActionCommandStatus pm_ActionCommandStatus;
 extern_data script_list_ctxt_t pm_curr_script_lst;
+extern_data encounter_status_ctxt_t pm_encounter_status;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
+extern_data s32 pm_GameState;
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);

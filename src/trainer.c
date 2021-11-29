@@ -218,6 +218,7 @@ void create_trainer_menu(struct menu *menu) {
     static struct menu issMenu;
     static struct menu aceMenu;
     static struct menu lzsMenu;
+    static struct menu clippyMenu;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -225,6 +226,7 @@ void create_trainer_menu(struct menu *menu) {
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
@@ -235,6 +237,7 @@ void create_trainer_menu(struct menu *menu) {
     menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); // TODO: add english support for ace
 #endif
     menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
+    menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
 
     /*build bowser menu*/
     y_value = 0;
@@ -265,4 +268,9 @@ void create_trainer_menu(struct menu *menu) {
     menu_add_static(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
     menu_add_checkbox(&lzsMenu, 8, 1, checkbox_mod_proc, &fp.lzs_trainer_enabled);
     menu_add_static_custom(&lzsMenu, 0, 2, lzs_draw_proc, NULL, 0xFFFFFF);
+
+    /*build clippy menu*/
+    clippyMenu.selector = menu_add_submenu(&clippyMenu, 0, 0, NULL, "return");
+    menu_add_static(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
+    menu_add_checkbox(&clippyMenu, 8, 1, checkbox_mod_proc, &fp.clippy_trainer_enabled);
 }

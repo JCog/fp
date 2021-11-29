@@ -89,6 +89,8 @@ void fp_init() {
     fp.frames_since_land = 0;
     fp.warp = 0;
     fp.warp_delay = 0;
+    fp.frames_since_battle = 0;
+    fp.clippy_status = 0;
 
     io_init();
 
@@ -488,6 +490,30 @@ void fp_lzs_trainer(void) {
     }
 }
 
+void fp_clippy_trainer(void) {
+    if (pm_status.pressed.cr && pm_encounter_status.first_strike != 2) {
+        if (pm_GameState == 2 && pm_overworld.enable_partner_ability == 1) {
+            fp.clippy_status = 1;
+        } else if (fp.frames_since_battle > 0) {
+            fp.clippy_status = 3;
+        } else if (pm_GameState == 3 && fp.frames_since_battle == 0) {
+            fp.clippy_status = 2;
+        }
+    }
+
+    if (pm_GameState == 3) {
+        fp.frames_since_battle++;
+        switch (fp.clippy_status) {
+            case 1: fp_log("early"); break;
+            case 2: break; // Got clippy
+            case 3: fp_log("late"); break;
+        }
+        fp.clippy_status = 0;
+    } else if (pm_GameState != 3) {
+        fp.frames_since_battle = 0;
+    }
+}
+
 void fp_update_cheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_player.player_data.hp = pm_player.player_data.max_hp;
@@ -619,6 +645,10 @@ void fp_update(void) {
 
     if (fp.lzs_trainer_enabled) {
         fp_lzs_trainer();
+    }
+
+    if (fp.clippy_trainer_enabled) {
+        fp_clippy_trainer();
     }
 
     fp_update_cheats();
