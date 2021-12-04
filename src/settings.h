@@ -10,7 +10,6 @@
 #define SETTINGS_VERSION          0x0003
 
 #define SETTINGS_WATCHES_MAX      18
-#define SETTINGS_ROOMS_MAX        10
 #define SETTINGS_TELEPORT_MAX     9
 #define SETTINGS_MEMFILE_MAX      10
 #define SETTINGS_BIND_MAX         COMMAND_MAX
@@ -38,12 +37,6 @@ struct watch_info {
     uint8_t position_set : 1;
 };
 
-struct fav_room_info {
-    uint8_t group;
-    uint8_t room;
-    uint8_t entrance;
-};
-
 struct settings_bits {
     uint32_t font_resource   : 4;
     uint32_t drop_shadow     : 1;
@@ -60,7 +53,6 @@ struct settings_data {
     /* order elements by size for space-efficient packing */
     uint32_t watch_address[SETTINGS_WATCHES_MAX];
     uint32_t cheats;
-    struct fav_room_info rooms[SETTINGS_ROOMS_MAX];
     struct settings_bits bits;
     int16_t menu_x;
     int16_t menu_y;
