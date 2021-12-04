@@ -219,6 +219,7 @@ static int do_import_file(const char *path, void *data) {
 
 static void export_file_proc(struct menu_item *item, void *data) {
     save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
 
     if (pm_FioValidateFileChecksum(file)) {
@@ -230,14 +231,6 @@ static void export_file_proc(struct menu_item *item, void *data) {
 }
 
 static void import_file_proc(struct menu_item *item, void *data) {
-    // if (fp_warp_will_crash()) {
-    //     fp_log("can't import right now");
-    // }
-    // else {
-    //     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
-    // }
-
-    // do we still need the crash check? remove commented code above when confirmed
     menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
 }
 
