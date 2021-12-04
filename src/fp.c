@@ -227,8 +227,8 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     if (pm_status.load_menu_state > 0) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 3, STRINGIFY(FP_VERSION));
-        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 3, STRINGIFY(URL));
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
+        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
     }
 
     if (pm_status.load_menu_state == 5) {
