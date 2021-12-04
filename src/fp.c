@@ -79,6 +79,9 @@ void fp_init() {
     fp.saved_entrance = 0;
     fp.saved_trick = -1;
     fp.turbo = 0;
+    fp.ace_last_timer = 0;
+    fp.ace_last_flag_status = 0;
+    fp.ace_last_jump_status = 0;
     fp.bowser_blocks_enabled = 0;
     fp.bowser_block = 0;
     fp.prev_prev_action_state = 0;
