@@ -83,10 +83,14 @@ void fp_init() {
     fp.bowser_block = 0;
     fp.prev_prev_action_state = 0;
     fp.lz_stored = 0;
+    fp.record_lzs_jumps = 0;
+    fp.current_lzs_jumps = 0;
     fp.player_landed = 0;
     fp.frames_since_land = 0;
     fp.warp = 0;
     fp.warp_delay = 0;
+    fp.frames_since_battle = 0;
+    fp.clippy_status = 0;
 
     io_init();
 
@@ -155,7 +159,7 @@ void fp_init() {
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
 
-#if PM64_VERSION == PM64J
+#if PM64_VERSION == JP
     crash_screen_init();
 #endif
 
@@ -218,12 +222,13 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
     }
 }
 
+#define STRINGIFY(S)  STRINGIFY_(S)
+#define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     if (pm_status.load_menu_state > 0) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 0, "fp");
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, FP_VERSION);
-        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, FP_URL);
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
+        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
     }
 
     if (pm_status.load_menu_state == 5) {
@@ -412,7 +417,8 @@ void fp_lzs_trainer(void) {
     }
 
     // Count frames since mario landed
-    if (pm_player.action_state == ACTION_STATE_LAND) {
+    if (pm_player.action_state == ACTION_STATE_LAND || pm_player.action_state == ACTION_STATE_WALK ||
+        pm_player.action_state == ACTION_STATE_RUN) {
         fp.player_landed = 1;
     }
     if (fp.player_landed) {
@@ -463,7 +469,13 @@ void fp_lzs_trainer(void) {
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
             }
+        } else if (fp.frames_since_land == 2) {
+            fp.current_lzs_jumps++;
         }
+    }
+
+    if (fp.current_lzs_jumps > fp.record_lzs_jumps) {
+        fp.record_lzs_jumps = fp.current_lzs_jumps;
     }
 
     fp.prev_pressed_y = pm_status.pressed.y_cardinal;
@@ -473,6 +485,31 @@ void fp_lzs_trainer(void) {
         fp.lz_stored = 0;
         fp.player_landed = 0;
         fp.frames_since_land = 0;
+        fp.current_lzs_jumps = 0;
+    }
+}
+
+void fp_clippy_trainer(void) {
+    if (pm_status.pressed.cr && pm_encounter_status.first_strike != 2) {
+        if (pm_GameState == 2 && pm_overworld.enable_partner_ability == 1) {
+            fp.clippy_status = 1;
+        } else if (fp.frames_since_battle > 0) {
+            fp.clippy_status = 3;
+        } else if (pm_GameState == 3 && fp.frames_since_battle == 0) {
+            fp.clippy_status = 2;
+        }
+    }
+
+    if (pm_GameState == 3) {
+        fp.frames_since_battle++;
+        switch (fp.clippy_status) {
+            case 1: fp_log("early"); break;
+            case 2: break; // Got clippy
+            case 3: fp_log("late"); break;
+        }
+        fp.clippy_status = 0;
+    } else if (pm_GameState != 3) {
+        fp.frames_since_battle = 0;
     }
 }
 
@@ -508,6 +545,9 @@ void fp_update_cheats(void) {
         if (pm_status.is_battle) {
             pm_ActionCommandStatus.barFillLevel = 10000;
         }
+    }
+    if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
+        pm_ActionCommandStatus.autoSucceed = 1;
     }
 }
 
@@ -606,6 +646,10 @@ void fp_update(void) {
         fp_lzs_trainer();
     }
 
+    if (fp.clippy_trainer_enabled) {
+        fp_clippy_trainer();
+    }
+
     fp_update_cheats();
 
     if (fp.turbo) {
@@ -693,7 +737,7 @@ ENTRY void fp_draw_entry(void) {
 }
 
 ENTRY void fp_after_draw_entry(void) {
-#if PM64_VERSION == PM64J
+#if PM64_VERSION == JP
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 #else
     crash_screen_set_draw_info(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);

@@ -5,9 +5,6 @@
 #include "pm64.h"
 #include "settings.h"
 
-#define FP_VERSION "1.1.0-DEV"
-#define FP_URL     "github.com/jcog/fp"
-
 struct log_entry {
     char *msg;
     int age;
@@ -66,6 +63,11 @@ typedef struct {
     uint16_t frames_since_land;
     _Bool warp;
     uint8_t warp_delay;
+    uint16_t current_lzs_jumps;
+    uint16_t record_lzs_jumps;
+    uint16_t frames_since_battle;
+    uint8_t clippy_status;
+    _Bool clippy_trainer_enabled;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

@@ -28,6 +28,7 @@ enum cheats {
     CHEAT_PERIL,
     CHEAT_BREAK,
     CHEAT_AUTO_MASH,
+    CHEAT_AUTO_ACTION_CMD,
     CHEAT_MAX
 };
 

@@ -10,12 +10,6 @@
 #include "tricks.h"
 #include "watchlist.h"
 
-#if VERSION == US
-#define RM_CHNGE_PTR 0x8003617C
-#else
-#define RM_CHNGE_PTR 0x80035DFC
-#endif
-
 struct command fp_commands[COMMAND_MAX] = {
     {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                         },
     {"return from menu", COMMAND_PRESS_ONCE, 0, NULL                         },
@@ -77,6 +71,7 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
     pm_SfxStopSound(0x19D);        // clear downward vine sound
+    pm_disable_player_input();
     pm_status.loading_zone_tangent = 0;
     pm_status.group_id = group;
     pm_status.room_id = room;

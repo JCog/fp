@@ -197,11 +197,28 @@ static void ace_oot_instr_proc(struct menu_item *item, void *data) {
             "SW $t1, 0x0000 ($t0);");
 }
 
+static int lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
+    struct gfx_font *font = draw_params->font;
+    int chHeight = menu_get_cell_height(item->owner, 1);
+    int chWidth = menu_get_cell_width(item->owner, 1);
+    int x = draw_params->x;
+    int y = draw_params->y;
+
+    gfx_printf(font, x, y + chHeight * 1, "current lzs jumps: ");
+    gfx_printf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.current_lzs_jumps);
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "record lzs jumps: ");
+    gfx_printf(font, x + chWidth * 20, y + chHeight * 2, "%d", fp.record_lzs_jumps);
+
+    return 1;
+}
+
 void create_trainer_menu(struct menu *menu) {
     static struct menu bowserMenu;
     static struct menu issMenu;
     static struct menu aceMenu;
     static struct menu lzsMenu;
+    static struct menu clippyMenu;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -209,16 +226,18 @@ void create_trainer_menu(struct menu *menu) {
     menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
     int y_value = 1;
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
-#if VERSION == JP
+#if PM64_VERSION == JP
     menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace"); // TODO: add english support for ace
 #endif
     menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
+    menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
 
     /*build bowser menu*/
     y_value = 0;
@@ -248,4 +267,10 @@ void create_trainer_menu(struct menu *menu) {
     lzsMenu.selector = menu_add_submenu(&lzsMenu, 0, 0, NULL, "return");
     menu_add_static(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
     menu_add_checkbox(&lzsMenu, 8, 1, checkbox_mod_proc, &fp.lzs_trainer_enabled);
+    menu_add_static_custom(&lzsMenu, 0, 2, lzs_draw_proc, NULL, 0xFFFFFF);
+
+    /*build clippy menu*/
+    clippyMenu.selector = menu_add_submenu(&clippyMenu, 0, 0, NULL, "return");
+    menu_add_static(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
+    menu_add_checkbox(&clippyMenu, 8, 1, checkbox_mod_proc, &fp.clippy_trainer_enabled);
 }

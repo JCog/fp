@@ -1,0 +1,5 @@
+8010F1B0 # x coordinate
+8010F1B4 # y coordinate
+8010F1B8 # z coordinate
+8029FF18 # mash bar
+800DBD50 # story progress
