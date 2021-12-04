@@ -238,11 +238,6 @@ void command_show_hide_timer_proc() {
 }
 
 void command_load_game_proc() {
-    // if (fp_warp_will_crash()) {
-    //     fp_log("can't load right now");
-    //     return;
-    // }
-
     save_data_ctxt_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
