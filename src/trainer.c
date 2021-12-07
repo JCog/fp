@@ -22,11 +22,14 @@ int getMatrixTotal(void) {
 void clearAllEffectsManual(int matrixCount) {
     int var = 0;
 
-    if (matrixCount == 0x214) {
+    if (matrixCount == 0x215) {
         var = 1;
+        fp.ace_last_flag_status = pm_player.anim_flags == 0x01000000;
+        fp.ace_last_timer = pm_player.idle_timer;
+        fp.ace_last_jump_status = (pm_player.flags & 0xff) == 3;
         fp_log("Successful ACE, jump prevented");
     }
-    if (matrixCount > 0x214) { // matrix limit reached, destroy all effects
+    if (matrixCount > 0x215) { // matrix limit reached, destroy all effects
         var = 1;
         fp_log("Matrix overflow, crash prevented");
     }
@@ -165,22 +168,67 @@ static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
         }
     }
 
-    gfx_printf(font, x, y + chHeight * 0, "effects: ");
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
+    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
+
     if (effect_count == 81) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+    } else {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
     }
     gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "flags: ");
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
     if (pm_player.anim_flags == 0x01000000) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window: %d", fp.ace_frame_window);
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+    gfx_printf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.ace_frame_window);
+
+    if (fp.ace_last_timer != 0) {
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+        gfx_printf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
+        gfx_printf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
+        gfx_printf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
+        gfx_printf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
+
+        if (fp.ace_last_timer <= 0x81f && fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        } else {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+        }
+        gfx_printf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.ace_last_timer);
+
+        if (fp.ace_last_flag_status) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "good");
+        } else {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "bad");
+        }
+
+        if (fp.ace_last_jump_status) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "good");
+        } else {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "bad");
+        }
+
+        if (fp.ace_last_flag_status && fp.ace_last_jump_status && fp.ace_last_timer <= 0x81f &&
+            fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "success");
+        } else {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "failure");
+        }
+    }
     return 1;
 }
 

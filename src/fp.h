@@ -52,6 +52,9 @@ typedef struct {
     uint16_t saved_room;
     uint16_t saved_entrance;
     int8_t ace_frame_window;
+    uint16_t ace_last_timer;
+    _Bool ace_last_flag_status;
+    _Bool ace_last_jump_status;
     _Bool turbo;
     _Bool bowser_blocks_enabled;
     int8_t bowser_block;
