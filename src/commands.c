@@ -135,11 +135,16 @@ void fp_set_global_byte(int byte_index, int8_t value) {
 }
 
 void command_levitate_proc() {
+    // TODO: figure out how to get some version of this working for peach
     if (!(pm_status.peach_flags & (1 << 0))) {
-        pm_player.flags |= 3;
+        pm_player.flags |= 1 << 1;
+        pm_player.flags &= ~(1 << 2);
         pm_player.y_speed = 11;
-        pm_player.y_snap = -0.75;
         pm_player.frames_in_air = 1;
+        // these are the default starting values for when you fall
+        pm_player.y_acceleration = -0.350080013275f;
+        pm_player.y_jerk = -0.182262003422f;
+        pm_player.y_snap = 0.0115200001746f;
     }
 }
 
