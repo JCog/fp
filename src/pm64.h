@@ -965,7 +965,7 @@ extern_data save_info_ctxt_t pm_save_info;
 extern_data int16_t pm_RoomChangeState;
 extern_data uint32_t pm_enemy_defeat_flags[600];
 extern_data StaticItem gItemTable[364];
-extern_data u32* pm_IconScripts[337][2];
+extern_data u32 *pm_IconScripts[337][2];
 extern_data int32_t pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
@@ -989,7 +989,7 @@ void __osPiGetAccess(void);
 void __osPiRelAccess(void);
 void osCreateMesgQueue(OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 int32_t osRecvMesg(OSMesgQueue *queue, OSMesg *msg, int32_t flag);
-s32 dma_copy(u32 romStart, u32 romEnd, void* vramDest);
+s32 dma_copy(u32 romStart, u32 romEnd, void *vramDest);
 int32_t pm_FioValidateFileChecksum(void *buffer);
 _Bool pm_FioFetchSavedFileInfo(void);
 void pm_FioDeserializeState(void);
@@ -1003,8 +1003,8 @@ void pm_SetGameMode(int32_t mode);
 void pm_RemoveEffect(EffectInstance *effect);
 void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
 void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
-s32 draw_ci_image_with_clipping(u8* texture, s32 width, s32 height, s32 fmt, s32 size, u8* palette, s16 posX,
-                                s16 posY, u16 clipULx, u16 clipULy, u16 clipLRx, u16 clipRLy, u8 opacity);
+s32 draw_ci_image_with_clipping(u8 *texture, s32 width, s32 height, s32 fmt, s32 size, u8 *palette, s16 posX, s16 posY,
+                                u16 clipULx, u16 clipULy, u16 clipLRx, u16 clipRLy, u8 opacity);
 int32_t pm_SetMapTransitionEffect(int32_t transition);
 void pm_PlaySfx(int32_t sound_id);
 void pm_BgmSetSong(int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
