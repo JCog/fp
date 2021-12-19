@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "settings.h"
 #include "watchlist.h"
+#include "item_icons.h"
 #include "crash_screen.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
@@ -162,7 +163,7 @@ void fp_init() {
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
 
-#if PM64_VERSION == JP
+#if PM64_VERSION == 'JP'
     crash_screen_init();
 #endif
 
@@ -229,6 +230,7 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     if (pm_status.load_menu_state > 0) {
+        item_icon_draw(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255);
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
         gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
@@ -686,39 +688,6 @@ void fp_update(void) {
     }
 }
 
-void texturetest(void) {
-    static u8* textureAlloc = NULL;
-    static u8* tlutAlloc = NULL;
-    static u8 loaded = 0;
-
-    if (!loaded) {
-        u32 start;
-        u32 size;
-        u32 end;
-
-        StaticItem* item = &gItemTable[ITEM_FP_PLUS_A];
-        IconInfo* info = pm_IconInfoTable[item->iconID][0];
-
-        start = ITEM_ICONS_ROM_START + info->textureOffset;
-        size = (32 * 32) / 2;
-        end = start + size;
-        textureAlloc = malloc(size);
-        dma_copy(start, end, textureAlloc);
-
-        start = ITEM_ICONS_ROM_START + info->tlutOffset;
-        size = 32;
-        end = start + size;
-        tlutAlloc = malloc(size);
-        dma_copy(start, end, tlutAlloc);
-
-        loaded = 1;
-    }
-    if (textureAlloc && tlutAlloc) {
-        PRINTF("textureAlloc: %8X\n", textureAlloc);
-        PRINTF("tlutAlloc: %8X\n", tlutAlloc);
-    }
-}
-
 /**
  * fp's main draw function
  * This runs after the game draws the front UI every frame
@@ -738,8 +707,6 @@ void fp_draw(void) {
     if (settings->bits.input_display) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
     }
-
-    texturetest();
 
     if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) ||
         (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
@@ -775,11 +742,7 @@ ENTRY void fp_draw_entry(void) {
 }
 
 ENTRY void fp_after_draw_entry(void) {
-#if PM64_VERSION == JP
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
-#else
-    crash_screen_set_draw_info(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
-#endif
 }
 
 #include <startup.c>

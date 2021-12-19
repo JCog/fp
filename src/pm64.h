@@ -19,17 +19,73 @@ typedef double f64;
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
-#if PM64_VERSION == US
 #include "item_ids_us.h"
-#else
-// jp enum
-#endif
 
-#if PM64_VERSION == US
+
+#if PM64_VERSION == 'US'
 #define ITEM_ICONS_ROM_START 0x1CC310
 #else
 #define ITEM_ICONS_ROM_START 0x1D4720
 #endif
+
+typedef enum {
+    HUD_ELEMENT_OP_End,
+    HUD_ELEMENT_OP_SetRGBA,
+    HUD_ELEMENT_OP_SetCI,
+    HUD_ELEMENT_OP_Restart,
+    HUD_ELEMENT_OP_Loop,
+    HUD_ELEMENT_OP_SetTileSize,
+    HUD_ELEMENT_OP_SetSizesAutoScale,
+    HUD_ELEMENT_OP_SetSizesFixedScale,
+    HUD_ELEMENT_OP_SetVisible,
+    HUD_ELEMENT_OP_SetHidden,
+    HUD_ELEMENT_OP_AddTexelOffsetX,
+    HUD_ELEMENT_OP_AddTexelOffsetY,
+    HUD_ELEMENT_OP_AddTexelOffset,
+    HUD_ELEMENT_OP_SetImage,
+    HUD_ELEMENT_OP_SetScale,
+    HUD_ELEMENT_OP_SetAlpha,
+    HUD_ELEMENT_OP_RandomDelay,
+    HUD_ELEMENT_OP_Delete,
+    HUD_ELEMENT_OP_UseIA8,
+    HUD_ELEMENT_OP_SetCustomSize,
+    HUD_ELEMENT_OP_RandomRestart,
+    HUD_ELEMENT_OP_op_15,
+    HUD_ELEMENT_OP_op_16,
+    HUD_ELEMENT_OP_RandomBranch,
+    HUD_ELEMENT_OP_SetFlags,
+    HUD_ELEMENT_OP_ClearFlags,
+    HUD_ELEMENT_OP_PlaySound,
+    HUD_ELEMENT_OP_op_1B,
+} HudElementAnim[0];
+
+enum {
+    HUD_ELEMENT_SIZE_8x8,
+    HUD_ELEMENT_SIZE_16x16,
+    HUD_ELEMENT_SIZE_24x24,
+    HUD_ELEMENT_SIZE_32x32,
+    HUD_ELEMENT_SIZE_48x48,
+    HUD_ELEMENT_SIZE_64x64,
+    HUD_ELEMENT_SIZE_8x16,
+    HUD_ELEMENT_SIZE_16x8,
+    HUD_ELEMENT_SIZE_16x24,
+    HUD_ELEMENT_SIZE_16x32,
+    HUD_ELEMENT_SIZE_64x32,
+    HUD_ELEMENT_SIZE_32x16,
+    HUD_ELEMENT_SIZE_12x12,
+    HUD_ELEMENT_SIZE_48x24,
+    HUD_ELEMENT_SIZE_32x8,
+    HUD_ELEMENT_SIZE_24x8,
+    HUD_ELEMENT_SIZE_64x16,
+    HUD_ELEMENT_SIZE_16x64,
+    HUD_ELEMENT_SIZE_192x32,
+    HUD_ELEMENT_SIZE_40x40,
+    HUD_ELEMENT_SIZE_24x16,
+    HUD_ELEMENT_SIZE_32x40,
+    HUD_ELEMENT_SIZE_40x16,
+    HUD_ELEMENT_SIZE_40x24,
+    HUD_ELEMENT_SIZE_32x24,
+};
 
 typedef s32 OSPri;
 typedef s32 OSId;
@@ -896,13 +952,6 @@ typedef struct StaticItem {
     /* 0x1D */ char unk_1D[3];
 } StaticItem; // size = 0x20
 
-typedef struct {
-    /* 0x00 */ char unk_00[0x18];
-    /* 0x18 */ u32 textureOffset;
-    /* 0x1C */ u32 tlutOffset;
-    /* 0x20 */ char unk_20[0x10];
-} IconInfo; // size = 0x30
-
 typedef __OSEventState __osEventStateTab_t[];
 typedef void *(*PrintCallback)(void *, const char *, u32);
 
@@ -916,7 +965,7 @@ extern_data save_info_ctxt_t pm_save_info;
 extern_data int16_t pm_RoomChangeState;
 extern_data uint32_t pm_enemy_defeat_flags[600];
 extern_data StaticItem gItemTable[364];
-extern_data IconInfo* pm_IconInfoTable[337][2];
+extern_data u32* pm_IconScripts[337][2];
 extern_data int32_t pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
@@ -954,6 +1003,8 @@ void pm_SetGameMode(int32_t mode);
 void pm_RemoveEffect(EffectInstance *effect);
 void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
 void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
+s32 draw_ci_image_with_clipping(u8* texture, s32 width, s32 height, s32 fmt, s32 size, u8* palette, s16 posX,
+                                s16 posY, u16 clipULx, u16 clipULy, u16 clipLRx, u16 clipRLy, u8 opacity);
 int32_t pm_SetMapTransitionEffect(int32_t transition);
 void pm_PlaySfx(int32_t sound_id);
 void pm_BgmSetSong(int32_t player_index, int32_t song_id, int32_t variation, int32_t fade_out_time, int16_t volume);
