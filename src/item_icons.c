@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include "item_icons.h"
 
-// note: currently space allocated for the texture and palettes are not freed.
-// if memory becomes a concern we can destroy the space when leaving a menu that uses icons
+// note: currently space allocated for the textures and palettes are not freed.
+// once an icon has been used once, the texture and palette stay in memory for use later.
+// if memory becomes a concern we can iterate through the entries and free all the space
+// when leaving a menu that uses icons.
+
 IconEntry gIconEntries[337];
 
 // parse the icon scripts to get size and address information
@@ -46,7 +49,6 @@ void item_icon_parse_script(u32 item_id, IconEntry* entry) {
 
             default:
                 break;
-
         }
         
         prev_cmd = cur_cmd;
@@ -63,11 +65,6 @@ void item_icon_parse_script(u32 item_id, IconEntry* entry) {
 // allocate space for texture+palette and dma them
 void item_icon_load(u32 item_id) {
     IconEntry* entry = &gIconEntries[item_id];
-
-    if (entry->texture != NULL) {
-        // already loaded, dont do anything
-        return;
-    }
 
     item_icon_parse_script(item_id, entry);
 
