@@ -19,14 +19,11 @@ typedef double f64;
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
-#include "item_ids_us.h"
-
-
-#if PM64_VERSION == 'US'
+// #if PM64_VERSION == 'US'
 #define ITEM_ICONS_ROM_START 0x1CC310
-#else
-#define ITEM_ICONS_ROM_START 0x1D4720
-#endif
+// #else
+//#define ITEM_ICONS_ROM_START 0x1D4720
+// #endif
 
 typedef enum {
     HUD_ELEMENT_OP_End,
