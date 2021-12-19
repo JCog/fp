@@ -36,16 +36,12 @@ local payload_rom = 0x2800000
 local fp_rom = payload_rom + 0x60
 
 print("Building Loader")
-print(string.format("make CPPFLAGS=' -DDMA_COPY=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
-                    " ldr-" .. fp_version, 
-                    rom_info.dma_func,
-                    fp:size() + fp_rom,
-                    rom_info.ldr_addr))
-local _,_,res = os.execute(string.format("make CPPFLAGS=' -DDMA_COPY=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
-                                         " ldr-" .. fp_version, 
-                                         rom_info.dma_func,
-                                         fp:size() + fp_rom,
-                                         rom_info.ldr_addr))
+
+local make_ldr = string.format("make -B CPPFLAGS=' -DDMA_COPY=0x%08x -DEND=0x%08x' LDFLAGS=' -Wl,--defsym,start=0x%08x'" ..
+                                " ldr-" .. fp_version, rom_info.dma_func, fp:size() + fp_rom, rom_info.ldr_addr)
+
+print(make_ldr)
+local _,_,res = os.execute(make_ldr)
 if(res ~= 0) then
     error("Could not build loader", 0)
 end
