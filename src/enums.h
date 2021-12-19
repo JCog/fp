@@ -93,7 +93,7 @@ enum partners {
     PARTNER_GOOMBARIA,
     PARTNER_TWINK,
 };
-
+/*
 typedef uint16_t KeyItem;
 enum key_items {
     KEY_ITEM_LUCKY_STAR = 0x7,
@@ -439,7 +439,7 @@ enum badges {
     BADGE_ATTACK_FX_F_4,
     BADGE_ATTACK_FX_F_5,
 };
-
+*/
 enum StoryProgress {
     /* 80 */ STORY_INTRO = -128,
 

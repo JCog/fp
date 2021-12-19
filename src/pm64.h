@@ -19,6 +19,18 @@ typedef double f64;
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
+#if PM64_VERSION == US
+#include "item_ids_us.h"
+#else
+// jp enum
+#endif
+
+#if PM64_VERSION == US
+#define ITEM_ICONS_ROM_START 0x1CC310
+#else
+#define ITEM_ICONS_ROM_START 0x1D4720
+#endif
+
 typedef s32 OSPri;
 typedef s32 OSId;
 typedef union {
@@ -868,6 +880,29 @@ typedef struct {
     /* 0x0050 */ int32_t next_available_save_page;
 } save_info_ctxt_t;
 
+typedef struct StaticItem {
+    /* 0x00 */ s32 nameMsg;
+    /* 0x04 */ s16 iconID;
+    /* 0x06 */ s16 badgeSortPriority;
+    /* 0x08 */ s32 targetFlags;
+    /* 0x0C */ s16 sellValue;
+    /* 0x0E */ char unk_0E[2];
+    /* 0x10 */ s32 menuMsg;
+    /* 0x14 */ s32 itemMsg;
+    /* 0x18 */ s16 typeFlags;
+    /* 0x1A */ u8 moveID;
+    /* 0x1B */ s8 potencyA;
+    /* 0x1C */ s8 potencyB;
+    /* 0x1D */ char unk_1D[3];
+} StaticItem; // size = 0x20
+
+typedef struct {
+    /* 0x00 */ char unk_00[0x18];
+    /* 0x18 */ u32 textureOffset;
+    /* 0x1C */ u32 tlutOffset;
+    /* 0x20 */ char unk_20[0x10];
+} IconInfo; // size = 0x30
+
 typedef __OSEventState __osEventStateTab_t[];
 typedef void *(*PrintCallback)(void *, const char *, u32);
 
@@ -880,6 +915,8 @@ extern_data Gfx *pm_MasterGfxPos;
 extern_data save_info_ctxt_t pm_save_info;
 extern_data int16_t pm_RoomChangeState;
 extern_data uint32_t pm_enemy_defeat_flags[600];
+extern_data StaticItem gItemTable[364];
+extern_data IconInfo* pm_IconInfoTable[337][2];
 extern_data int32_t pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
@@ -903,13 +940,14 @@ void __osPiGetAccess(void);
 void __osPiRelAccess(void);
 void osCreateMesgQueue(OSMesgQueue *queue, OSMesg *msg, int32_t unk);
 int32_t osRecvMesg(OSMesgQueue *queue, OSMesg *msg, int32_t flag);
+s32 dma_copy(u32 romStart, u32 romEnd, void* vramDest);
 int32_t pm_FioValidateFileChecksum(void *buffer);
 _Bool pm_FioFetchSavedFileInfo(void);
 void pm_FioDeserializeState(void);
 void pm_SetCurtainScaleGoal(float goal);
 void pm_SetCurtainDrawCallback(void *callback);
 void pm_SetCurtainFadeGoal(float goal);
-void pm_AddBadge(Badge badgeID);
+void pm_AddBadge(s32 badgeID);
 void pm_HidePopupMenu(void);
 void pm_DestroyPopupMenu(void);
 void pm_SetGameMode(int32_t mode);

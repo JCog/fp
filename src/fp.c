@@ -686,6 +686,39 @@ void fp_update(void) {
     }
 }
 
+void texturetest(void) {
+    static u8* textureAlloc = NULL;
+    static u8* tlutAlloc = NULL;
+    static u8 loaded = 0;
+
+    if (!loaded) {
+        u32 start;
+        u32 size;
+        u32 end;
+
+        StaticItem* item = &gItemTable[ITEM_FP_PLUS_A];
+        IconInfo* info = pm_IconInfoTable[item->iconID][0];
+
+        start = ITEM_ICONS_ROM_START + info->textureOffset;
+        size = (32 * 32) / 2;
+        end = start + size;
+        textureAlloc = malloc(size);
+        dma_copy(start, end, textureAlloc);
+
+        start = ITEM_ICONS_ROM_START + info->tlutOffset;
+        size = 32;
+        end = start + size;
+        tlutAlloc = malloc(size);
+        dma_copy(start, end, tlutAlloc);
+
+        loaded = 1;
+    }
+    if (textureAlloc && tlutAlloc) {
+        PRINTF("textureAlloc: %8X\n", textureAlloc);
+        PRINTF("tlutAlloc: %8X\n", tlutAlloc);
+    }
+}
+
 /**
  * fp's main draw function
  * This runs after the game draws the front UI every frame
@@ -705,6 +738,8 @@ void fp_draw(void) {
     if (settings->bits.input_display) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
     }
+
+    texturetest();
 
     if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) ||
         (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
