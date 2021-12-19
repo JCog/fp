@@ -163,7 +163,7 @@ void fp_init() {
     frame_window *= -1;
     fp.ace_frame_window = frame_window;
 
-#if PM64_VERSION == 'JP'
+#if PM64_VERSION == JP
     crash_screen_init();
 #endif
 

@@ -5,6 +5,9 @@
 #include <stdarg.h>
 #include "enums.h"
 
+#define JP 0x00
+#define US 0x01
+
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;
@@ -19,11 +22,11 @@ typedef double f64;
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
-// #if PM64_VERSION == 'US'
+#if PM64_VERSION == US
 #define ITEM_ICONS_ROM_START 0x1CC310
-// #else
-//#define ITEM_ICONS_ROM_START 0x1D4720
-// #endif
+#else
+#define ITEM_ICONS_ROM_START 0x1D4720
+#endif
 
 typedef enum {
     HUD_ELEMENT_OP_End,
