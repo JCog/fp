@@ -3,7 +3,7 @@
 #include "fp.h"
 #include "tricks.h"
 
-_Bool has_badge(Badge badge) {
+_Bool has_badge(s32 badge) {
     for (int i = 0; i < 128; i++) {
         if (pm_player.player_data.badges[i] == badge) {
             return 1;
@@ -12,7 +12,7 @@ _Bool has_badge(Badge badge) {
     return 0;
 }
 
-_Bool has_badge_equiped(Badge badge) {
+_Bool has_badge_equiped(s32 badge) {
     for (int i = 0; i < 64; i++) {
         if (pm_player.player_data.equipped_badges[i] == badge) {
             return 1;
@@ -21,7 +21,7 @@ _Bool has_badge_equiped(Badge badge) {
     return 0;
 }
 
-_Bool equip_badge(Badge badge) {
+_Bool equip_badge(s32 badge) {
     if (!has_badge(badge)) {
         pm_AddBadge(badge);
     }
@@ -36,7 +36,7 @@ _Bool equip_badge(Badge badge) {
     return 0;
 }
 
-void unequip_badge(Badge badge) {
+void unequip_badge(s32 badge) {
     for (int i = 0; i < 64; i++) {
         if (pm_player.player_data.equipped_badges[i] == badge) {
             pm_player.player_data.equipped_badges[i] = 0;
@@ -44,7 +44,7 @@ void unequip_badge(Badge badge) {
     }
 }
 
-void remove_badge(Badge badge) {
+void remove_badge(s32 badge) {
     unequip_badge(badge);
     for (int i = 0; i < 128; i++) {
         if (pm_player.player_data.badges[i] == badge) {
@@ -59,11 +59,11 @@ void check_for_hammer() {
     }
 }
 
-void set_partner(Partner partner) {
+void set_partner(s32 partner) {
     pm_player.player_data.current_partner = partner;
 }
 
-void remove_key_item(KeyItem keyItem) {
+void remove_key_item(s32 keyItem) {
     for (int i = 0; i < 32; i++) {
         if (pm_player.player_data.key_items[i] == keyItem) {
             pm_player.player_data.key_items[i] = 0;
@@ -80,7 +80,7 @@ void load_jr_skip() {
 
 void load_black_toad_skip() {
     check_for_hammer();
-    unequip_badge(BADGE_SPEEDY_SPIN);
+    unequip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH0_RETURNED_TO_TOAD_TOWN;
     fp_warp(GROUP_TOAD_TOWN, 2, 2);
 }
@@ -91,7 +91,7 @@ void load_retrigger_prologue() {
     fp_set_global_flag(0x01e, 0); // dolly not collected
     for (int i = 0; i < 32; i++) {
         if (pm_player.player_data.key_items[i] == 0) {
-            pm_player.player_data.key_items[i] = KEY_ITEM_WEIGHT;
+            pm_player.player_data.key_items[i] = ITEM_BOO_WEIGHT;
         }
     }
     set_partner(PARTNER_KOOPER);
@@ -100,7 +100,7 @@ void load_retrigger_prologue() {
 
 void load_oot_ace() {
     STORY_PROGRESS = STORY_CH0_DEFEATED_GOOMBA_KING;
-    unequip_badge(BADGE_SPEEDY_SPIN);
+    unequip_badge(ITEM_SPEEDY_SPIN);
     pm_player.player_data.hammer_upgrade = 0;
     set_partner(PARTNER_GOOMBARIO);
     pm_player.player_data.party.goombario.in_party = 1;
@@ -125,7 +125,7 @@ void load_oot_ace() {
 
 void load_staircase_skip() {
     STORY_PROGRESS = STORY_CH1_KOOPA_BROS_HID_KEY;
-    unequip_badge(BADGE_SPEEDY_SPIN);
+    unequip_badge(ITEM_SPEEDY_SPIN);
     fp_warp(GROUP_KOOPA_BROS_FORTRESS, 4, 0);
 }
 
@@ -139,7 +139,7 @@ void load_pit() {
 
 void load_pie_jumps() {
     set_partner(PARTNER_KOOPER);
-    unequip_badge(BADGE_SPEEDY_SPIN);
+    unequip_badge(ITEM_SPEEDY_SPIN);
     if (STORY_PROGRESS < STORY_CH1_KOOPA_BROS_HID_KEY) {
         STORY_PROGRESS = STORY_CH1_KOOPA_BROS_HID_KEY;
     }
@@ -156,7 +156,7 @@ void load_laki_jail_break() {
     pm_player.player_data.party.sushie.in_party = 1;
     pm_player.player_data.party.lakilester.in_party = 1;
     set_partner(PARTNER_LAKILESTER);
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     if (STORY_PROGRESS < STORY_CH1_KOOPA_BROS_HID_KEY) {
         STORY_PROGRESS = STORY_CH1_KOOPA_BROS_HID_KEY;
     }
@@ -167,7 +167,7 @@ void load_laki_jail_break() {
 
 void load_log_skip() {
     check_for_hammer();
-    unequip_badge(BADGE_SPEEDY_SPIN);
+    unequip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH1_DEFEATED_DUNGEON_GUARDS;
     fp_warp(GROUP_TOAD_TOWN, 2, 1);
 }
@@ -179,30 +179,30 @@ void load_rock_climb() {
 void load_early_seed() {
     check_for_hammer();
 
-    remove_key_item(KEY_ITEM_MAGICAL_SEED_2);
+    remove_key_item(ITEM_MAGICAL_SEED2);
     fp_warp(GROUP_MT_RUGGED, 2, 2);
 }
 
 void load_buzzar_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_MT_RUGGED, 4, 0);
 }
 
 void load_outpost_jump() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH2_BOUGHT_SECRET_ITEMS;
     fp_warp(GROUP_DRY_DRY_OUTPOST, 1, 0);
 }
 
 void load_spike_shield_early() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     fp_set_global_flag(0x694, 0); // spike shield
     fp_set_area_flag(0x4, 0);     // coffin 1
     fp_set_area_flag(0x5, 0);     // coffin 2
     fp_set_area_flag(0x6, 0);     // coffin 3
     for (int i = 0; i < 128; i++) {
-        if (pm_player.player_data.badges[i] == BADGE_SPIKE_SHIELD) {
+        if (pm_player.player_data.badges[i] == ITEM_SPIKE_SHIELD) {
             pm_player.player_data.badges[i] = 0;
         }
     }
@@ -212,14 +212,14 @@ void load_spike_shield_early() {
 void load_artifact_jump() {
     fp_set_global_flag(0x374, 0); // artifact
     fp_set_global_flag(0x37f, 0); // block
-    remove_key_item(KEY_ITEM_ARTIFACT);
+    remove_key_item(ITEM_ARTIFACT);
     set_partner(PARTNER_LAKILESTER);
     pm_player.player_data.party.lakilester.in_party = 1;
     fp_warp(GROUP_DRY_DRY_RUINS, 0x6, 0x1);
 }
 
 void load_slow_go_early() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     fp_set_global_flag(0x37b, 1); // tutankoopa text
     fp_set_global_flag(0x380, 1); // block gone
     fp_set_global_flag(0x384, 1); // chest open
@@ -228,7 +228,7 @@ void load_slow_go_early() {
 }
 
 void load_sand_clip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_LAKILESTER);
     if (STORY_PROGRESS < STORY_CH2_DRAINED_THIRD_SAND_ROOM) {
         STORY_PROGRESS = STORY_CH2_DRAINED_THIRD_SAND_ROOM;
@@ -245,45 +245,45 @@ void load_ch2_card_lzs() {
 
 void load_record_skip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH3_TRIGGERED_DOOR_JUMP_SCARE;
     fp_set_global_flag(0x3d2, 0); // close chest
     set_partner(PARTNER_BOMBETTE);
-    remove_key_item(KEY_ITEM_WEIGHT);
+    remove_key_item(ITEM_BOO_WEIGHT);
     fp_warp(GROUP_BOOS_MANSION, 6, 0);
 }
 void load_bow_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH3_HIT_HUGE_BLUE_SWITCH;
     fp_warp(GROUP_FOREVER_FOREST, 0xa, 1);
 }
 
 void load_stanley_save() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH3_ARRIVED_AT_GHOST_TOWN;
     set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_GUSTY_GULCH, 3, 0);
 }
 
 void load_bowless_spike_room() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_PARAKARRY);
     fp_set_global_flag(0x421, 0); // close chest
-    remove_key_item(KEY_ITEM_CASTLE_KEY_1);
+    remove_key_item(ITEM_TUBBA_CASTLE_KEY);
     fp_warp(GROUP_TUBBAS_MANSION, 0xc, 0);
 }
 
 void load_yakkey_trick_shot() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH3_ARRIVED_AT_TUBBAS_MANOR;
     fp_set_global_flag(0x42f, 0); // yakkey chest
-    remove_key_item(KEY_ITEM_MYSTICAL_KEY);
+    remove_key_item(ITEM_MYSTICAL_KEY);
     fp_warp(GROUP_TUBBAS_MANSION, 0x12, 0);
 }
 
 void load_quick_escape() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH3_TUBBA_SMASHED_THE_BRIDGES;
     fp_set_global_byte(0xCB, 0x1); // controls the room id that tubba is in
     set_partner(PARTNER_PARAKARRY);
@@ -297,27 +297,27 @@ void load_ch3_card_lzs() {
 
 void load_early_train() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH2_RETURNED_TO_TOAD_TOWN;
     set_partner(PARTNER_PARAKARRY);
     fp_set_global_flag(0x12f, 0); // snowman doll
     fp_set_global_flag(0x130, 0); // volt shroom
     fp_set_global_flag(0x121, 0); // toy train
     fp_set_global_flag(0x131, 0); // dizzy dial
-    remove_key_item(KEY_ITEM_TOY_TRAIN);
+    remove_key_item(ITEM_TOY_TRAIN);
     fp_warp(GROUP_TOAD_TOWN, 5, 0);
 }
 
 void load_early_whale_fast_music() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH4_DEFEATED_GENERAL_GUY;
     fp_warp(GROUP_TOAD_TOWN, 5, 1);
 }
 
 void load_frying_pan_wall_clip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_PARAKARRY);
     fp_set_global_flag(0x474, 1); // fuzzy spawn cutscene
     fp_warp(GROUP_SHY_GUYS_TOY_BOX, 6, 0);
@@ -335,7 +335,7 @@ void load_ch4_card_lzs() {
 }
 
 void load_bhs_top() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     if (STORY_PROGRESS > STORY_CH3_BEGAN_PEACH_MISSION &&
         STORY_PROGRESS < STORY_CH4_BEGAN_PEACH_MISSION) { // chapter 4 fast music
         STORY_PROGRESS = STORY_CH3_STAR_SPIRIT_RESCUED;
@@ -344,38 +344,38 @@ void load_bhs_top() {
     }
     fp_set_global_flag(0x084, 0); // odd key collected
     fp_set_global_flag(0x083, 1); // lock opened
-    remove_key_item(KEY_ITEM_ODD_KEY);
+    remove_key_item(ITEM_ODD_KEY);
     fp_warp(GROUP_TOAD_TOWN, 3, 2);
 }
 
 void load_bhs_bottom() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     if (STORY_PROGRESS > STORY_CH3_BEGAN_PEACH_MISSION &&
         STORY_PROGRESS < STORY_CH4_BEGAN_PEACH_MISSION) { // chapter 4 fast music
         STORY_PROGRESS = STORY_CH3_STAR_SPIRIT_RESCUED;
     }
     fp_set_global_flag(0x084, 0); // odd key collected
     fp_set_global_flag(0x083, 1); // lock opened
-    remove_key_item(KEY_ITEM_ODD_KEY);
+    remove_key_item(ITEM_ODD_KEY);
     fp_warp(GROUP_TOAD_TOWN, 3, 3);
 }
 
 void load_early_whale_slow_music() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_ESCAPED_SPEAR_GUYS;
     fp_warp(GROUP_TOAD_TOWN, 5, 1);
 }
 
 void load_early_fuzzipede() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_ENTERED_WHALE;
     set_partner(PARTNER_WATT);
     fp_warp(GROUP_WHALE, 0x1, 0x0);
 }
 
 void load_raph_skip_kolorado() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_ESCAPED_FUZZIES;
     fp_set_enemy_defeat_flag(0x1e04, 0);
     set_partner(PARTNER_PARAKARRY);
@@ -383,14 +383,14 @@ void load_raph_skip_kolorado() {
 }
 
 void load_raph_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_SUSHIE_JOINED_PARTY;
     set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_LAVA_LAVA_ISLAND, 0x14, 0);
 }
 
 void load_piranha_first_strike() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_SUSHIE_JOINED_PARTY;
     set_partner(PARTNER_BOMBETTE);
     fp_set_global_flag(0x4f8, 0); // yellow yoshi text
@@ -399,35 +399,35 @@ void load_piranha_first_strike() {
 }
 
 void load_lava_platform_cycle() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_ENTERED_MT_LAVA_LAVA;
     fp_warp(GROUP_VOLCANO, 1, 0);
 }
 
 void load_ultra_hammer_skip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = 0x1a;
     fp_warp(GROUP_VOLCANO, 0x2, 0);
 }
 
 void load_lava_puzzle_skip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_FELL_IN_LAVA;
     set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_VOLCANO, 5, 0);
 }
 
 void load_ultra_hammer_early() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     fp_set_global_flag(0x522, 0); // block not destroyed
     fp_set_global_flag(0x523, 0); // chest closed
     fp_warp(GROUP_VOLCANO, 6, 0);
 }
 
 void load_flarakarry() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_FELL_IN_PIT;
     set_partner(PARTNER_PARAKARRY);
     for (int i = 0x524; i < 0x52b; i++) {
@@ -438,13 +438,13 @@ void load_flarakarry() {
 
 void load_heart_block_overlap() {
     STORY_PROGRESS = STORY_CH5_HIDDEN_PASSAGE_OPEN;
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     fp_warp(GROUP_VOLCANO, 0xc, 0);
 }
 
 void load_lava_piranha_skip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH5_KOLORADO_IN_TREASURE_ROOM;
     fp_set_global_flag(0x52f, 1); // talked to kolorado
     fp_warp(GROUP_VOLCANO, 0xd, 0);
@@ -458,14 +458,14 @@ void load_ch5_card_lzs() {
 
 void load_early_laki() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH6_ARRIVED_AT_FLOWER_FIELDS;
     fp_warp(GROUP_FLOWER_FIELDS, 0, 1);
 }
 
 void load_yellow_berry_skip() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH6_GOT_MAGICAL_BEAN;
     fp_set_global_flag(0x554, 0); // yellow flower gate
     fp_warp(GROUP_FLOWER_FIELDS, 0, 6);
@@ -478,7 +478,7 @@ void load_sun_tower_skip() {
 
 void load_peach_warp() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH6_LAKILESTER_JOINED_PARTY;
     set_partner(PARTNER_LAKILESTER);
     fp_warp(GROUP_VOLCANO, 0xc, 0);
@@ -486,7 +486,7 @@ void load_peach_warp() {
 
 void load_sushie_peach_warp() {
     check_for_hammer();
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH6_LAKILESTER_JOINED_PARTY;
     set_partner(PARTNER_BOMBETTE);
     pm_player.player_data.party.bombette.in_party = 1;
@@ -501,7 +501,7 @@ void load_ch6_card_lzs() {
 }
 
 void load_clippy_boots() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     fp_set_global_flag(0x18d, 1); // super block broken
     fp_set_global_flag(0x18e, 0); // ultra block unbroken
     set_partner(PARTNER_LAKILESTER);
@@ -511,7 +511,7 @@ void load_clippy_boots() {
 }
 
 void load_murder_solved_early() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_LAKILESTER);
     STORY_PROGRESS = STORY_CH7_ARRIVED_AT_SHIVER_CITY;
     fp_warp(GROUP_SHIVER_REGION, 0xa, 0);
@@ -519,43 +519,43 @@ void load_murder_solved_early() {
 
 void load_attack_fx_e_clip() {
     set_partner(PARTNER_LAKILESTER);
-    remove_badge(BADGE_ATTACK_FX_E);
+    remove_badge(ITEM_ATTACK_FX_E);
     fp_set_global_flag(0x59b, 0); // attack fx e chest
     fp_warp(GROUP_SHIVER_REGION, 0x0, 0);
 }
 
 void load_sushie_glitch() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_SUSHIE);
     STORY_PROGRESS = STORY_CH7_MAYOR_MURDER_SOLVED;
     fp_warp(GROUP_SHIVER_REGION, 0xa, 0);
 }
 
 void load_ice_staircase_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_LAKILESTER);
     STORY_PROGRESS = STORY_CH7_DEFEATED_FIRST_DUPLIGHOST;
     fp_set_global_flag(0x5b7, 0); // mega jump block
-    remove_badge(BADGE_MEGA_JUMP);
+    remove_badge(ITEM_MEGA_JUMP);
     fp_warp(GROUP_SHIVER_REGION, 9, 0);
 }
 
 void load_mirror_clip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_LAKILESTER);
     STORY_PROGRESS = STORY_CH7_ARRIVED_AT_CRYSTAL_PALACE;
     fp_warp(GROUP_CRYSTAL_PALACE, 1, 1);
 }
 
 void load_kooper_puzzle_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_KOOPER);
     STORY_PROGRESS = STORY_CH7_DEFEATED_CLUBBAS;
     fp_warp(GROUP_CRYSTAL_PALACE, 0xf, 0);
 }
 
 void load_fast_basement_first() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_flag(0x60e, 0); // first switch
     fp_set_global_flag(0x60f, 0); // second switch
@@ -567,7 +567,7 @@ void load_fast_basement_first() {
 }
 
 void load_fast_basement_second() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_flag(0x60e, 0); // first switch
     fp_set_global_flag(0x60f, 0); // second switch
@@ -579,7 +579,7 @@ void load_fast_basement_second() {
 }
 
 void load_basement_skip() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     pm_player.player_data.boots_upgrade = 2;
     set_partner(PARTNER_PARAKARRY);
     fp_set_global_flag(0x614, 1); // hardened lava
@@ -587,13 +587,13 @@ void load_basement_skip() {
 }
 
 void load_blind_basement() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_PARAKARRY);
     fp_warp(GROUP_BOWSERS_CASTLE, 0, 0);
 }
 
 void load_fast_flood_room() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     pm_player.player_data.boots_upgrade = 2;
     set_partner(PARTNER_LAKILESTER);
     pm_player.player_data.party.kooper.in_party = 1;
@@ -602,12 +602,12 @@ void load_fast_flood_room() {
     fp_set_global_flag(0x633, 0); // spring still in wall
     fp_set_global_byte(0x129, 0); // water level 0
     fp_set_area_flag(0x8, 0);     // blue switch not pressed
-    remove_key_item(KEY_ITEM_CASTLE_KEY_2);
+    remove_key_item(ITEM_BOWSER_CASTLE_KEY);
     fp_warp(GROUP_BOWSERS_CASTLE, 0x31, 0);
 }
 
 void load_cannonless() {
-    equip_badge(BADGE_SPEEDY_SPIN);
+    equip_badge(ITEM_SPEEDY_SPIN);
     set_partner(PARTNER_LAKILESTER);
     fp_warp(GROUP_BOWSERS_CASTLE, 0x2f, 0);
 }

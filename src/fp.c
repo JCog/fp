@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "settings.h"
 #include "watchlist.h"
+#include "item_icons.h"
 #include "crash_screen.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
@@ -229,6 +230,7 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     if (pm_status.load_menu_state > 0) {
+        item_icon_draw(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255);
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
         gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
@@ -740,11 +742,7 @@ ENTRY void fp_draw_entry(void) {
 }
 
 ENTRY void fp_after_draw_entry(void) {
-#if PM64_VERSION == JP
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
-#else
-    crash_screen_set_draw_info(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
-#endif
 }
 
 #include <startup.c>
