@@ -18,5 +18,6 @@ typedef struct {
 } IconEntry;
 
 void item_icon_draw(u32 item_id, s32 x, s32 y, u8 alpha, u8 mode);
+void item_icon_free_all(void);
 
 #endif
