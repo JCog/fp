@@ -1,17 +1,14 @@
 #include <stdlib.h>
 #include "item_icons.h"
 
-// note: currently space allocated for the textures and palettes are not freed.
-// once an icon has been used once, the texture and palette stay in memory for use later.
-// if memory becomes a concern we can iterate through the entries and free all the space
-// when leaving a menu that uses icons.
+IconEntry gIconEntries[337][2];
 
-IconEntry gIconEntries[337];
+#define PAL_SIZE 32
 
 // parse the icon scripts to get size and address information
-void item_icon_parse_script(u32 item_id, IconEntry *entry) {
+void item_icon_parse_script(u32 item_id, IconEntry *entry, u8 mode) {
     StaticItem *item = &gItemTable[item_id];
-    u32 *script = pm_IconScripts[item->iconID][0];
+    u32 *script = pm_IconScripts[item->iconID][mode];
     u32 cur_cmd = *script;
     u32 prev_cmd = cur_cmd;
 
@@ -48,30 +45,48 @@ void item_icon_parse_script(u32 item_id, IconEntry *entry) {
 }
 
 // allocate space for texture+palette and dma them
-void item_icon_load(u32 item_id) {
-    IconEntry *entry = &gIconEntries[item_id];
+void item_icon_load(u32 item_id, u8 mode) {
+    IconEntry *entry = &gIconEntries[item_id][mode];
 
-    item_icon_parse_script(item_id, entry);
+    item_icon_parse_script(item_id, entry, mode);
 
-    u32 size = (entry->width * entry->height) / 2;
+    u32 size = (entry->width * entry->height) / 2; // divide by 2 for 4b texture
 
     entry->texture = malloc(size);
-    entry->palette = malloc(32);
+    entry->palette = malloc(PAL_SIZE);
 
     dma_copy(entry->tex_rom, entry->tex_rom + size, entry->texture);
-    dma_copy(entry->pal_rom, entry->pal_rom + 32, entry->palette);
+    dma_copy(entry->pal_rom, entry->pal_rom + PAL_SIZE, entry->palette);
 
-    PRINTF("item_icon_load: texture:%8X palette:%8X  tex_rom:%8X pal_rom:%8X size:%d\n", entry->texture, entry->palette,
-           entry->tex_rom, entry->pal_rom, size);
+    PRINTF("item_icon_load: texture:%8X palette:%8X  tex_rom:%8X pal_rom:%8X size:%d mode:%d\n", entry->texture,
+           entry->palette, entry->tex_rom, entry->pal_rom, size, mode);
 }
 
-void item_icon_draw(u32 item_id, s32 x, s32 y, u8 alpha) {
-    IconEntry *entry = &gIconEntries[item_id];
+void item_icon_draw(u32 item_id, s32 x, s32 y, u8 alpha, u8 mode) {
+    IconEntry *entry = &gIconEntries[item_id][mode];
 
     if (entry->texture == NULL) {
-        item_icon_load(item_id);
+        item_icon_load(item_id, mode);
     } else {
         draw_ci_image_with_clipping(entry->texture, entry->width, entry->height, G_IM_FMT_CI, G_IM_SIZ_4b,
                                     entry->palette, x, y, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, alpha);
+    }
+}
+
+// iterates through all entries and frees the memory used by textures and palettes
+// note: this function is untested and should be profiled when a menu is created that actually uses icons
+void item_icon_free_all(void) {
+    for (s32 i = 0; i < 337; i++) {
+        IconEntry *entry = gIconEntries[i];
+
+        free(entry[ICON_COLOR].texture);
+        free(entry[ICON_COLOR].palette);
+        free(entry[ICON_GRAYSCALE].texture);
+        free(entry[ICON_GRAYSCALE].palette);
+
+        entry[ICON_COLOR].texture = NULL;
+        entry[ICON_COLOR].palette = NULL;
+        entry[ICON_GRAYSCALE].texture = NULL;
+        entry[ICON_GRAYSCALE].palette = NULL;
     }
 }

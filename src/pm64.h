@@ -1003,7 +1003,7 @@ void pm_SetGameMode(int32_t mode);
 void pm_RemoveEffect(EffectInstance *effect);
 void pm_FioReadFlash(int32_t slot, void *buffer, uint32_t size);
 void pm_FioWriteFlash(int32_t slot, void *buffer, uint32_t size);
-s32 draw_ci_image_with_clipping(u8 *texture, s32 width, s32 height, s32 fmt, s32 size, u8 *palette, s16 posX, s16 posY,
+s32 draw_ci_image_with_clipping(u8 *texture, s32 width, s32 height, s32 fmt, s32 size, u16 *palette, s16 posX, s16 posY,
                                 u16 clipULx, u16 clipULy, u16 clipLRx, u16 clipRLy, u8 opacity);
 int32_t pm_SetMapTransitionEffect(int32_t transition);
 void pm_PlaySfx(int32_t sound_id);
