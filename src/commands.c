@@ -202,7 +202,7 @@ void command_toggle_watches_proc() {
 }
 
 void command_import_save_proc() {
-    if (strcmp(fp.last_imported_save_path, "")) {
+    if (fp.last_imported_save_path) {
         fp_import_file(fp.last_imported_save_path, NULL);
     }
 }

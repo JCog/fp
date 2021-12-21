@@ -210,6 +210,9 @@ int fp_import_file(const char *path, void *data) {
         menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
         return 1;
     } else {
+        if (fp.last_imported_save_path == NULL) {
+            fp.last_imported_save_path = malloc(PATH_MAX);
+        }
         strcpy(fp.last_imported_save_path, path);
         fp_log("external save loaded");
         return 0;

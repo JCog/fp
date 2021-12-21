@@ -88,8 +88,7 @@ void fp_init() {
     fp.warp_delay = 0;
     fp.frames_since_battle = 0;
     fp.clippy_status = 0;
-    fp.last_imported_save_path = malloc(PATH_MAX);
-    strcpy(fp.last_imported_save_path, "");
+    fp.last_imported_save_path = NULL;
 
     io_init();
 
