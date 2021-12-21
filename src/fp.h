@@ -47,7 +47,6 @@ typedef struct {
     float saved_z;
     float saved_facing_angle;
     float saved_movement_angle;
-    int8_t saved_trick;
     uint16_t saved_group;
     uint16_t saved_room;
     uint16_t saved_entrance;
@@ -71,6 +70,7 @@ typedef struct {
     uint16_t frames_since_battle;
     uint8_t clippy_status;
     _Bool clippy_trainer_enabled;
+    char *last_imported_save_path;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
@@ -81,6 +81,7 @@ void fp_set_global_flag(int flag_index, _Bool value);
 void fp_set_area_flag(int flag_index, _Bool value);
 void fp_set_enemy_defeat_flag(int flag_index, _Bool value);
 void fp_set_global_byte(int byte_index, int8_t value);
+int fp_import_file(const char *path, void *data);
 
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();

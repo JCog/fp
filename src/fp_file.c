@@ -3,10 +3,8 @@
 #include "menu.h"
 #include "settings.h"
 #include "fp.h"
-#include "commands.h"
 #include "files.h"
 #include "sys.h"
-#include "pm64.h"
 #include "resource.h"
 
 static void save_slot_dec_proc(struct menu_item *item, void *data) {
@@ -163,7 +161,7 @@ static int do_export_file(const char *path, void *data) {
     }
 }
 
-static int do_import_file(const char *path, void *data) {
+int fp_import_file(const char *path, void *data) {
     const char *s_invalid = "invalid or corrupt file";
     const char *s_memory = "out of memory";
     const char *err_str = NULL;
@@ -212,7 +210,8 @@ static int do_import_file(const char *path, void *data) {
         menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
         return 1;
     } else {
-        fp_log("loaded file from disk");
+        strcpy(fp.last_imported_save_path, path);
+        fp_log("external save loaded");
         return 0;
     }
 }
@@ -231,7 +230,7 @@ static void export_file_proc(struct menu_item *item, void *data) {
 }
 
 static void import_file_proc(struct menu_item *item, void *data) {
-    menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", do_import_file, NULL);
+    menu_get_file(fp.main_menu, GETFILE_LOAD, NULL, ".pmsave", fp_import_file, NULL);
 }
 
 struct menu *create_file_menu(void) {
