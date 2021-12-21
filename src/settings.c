@@ -58,7 +58,7 @@ void settings_load_default(void) {
     d->binds[COMMAND_RELOAD] = bind_make(2, BUTTON_R, BUTTON_D_DOWN);
     d->binds[COMMAND_RELOAD_LAST_WARP] = bind_make(0);
     d->binds[COMMAND_TOGGLE_WATCHES] = bind_make(2, BUTTON_R, BUTTON_D_RIGHT);
-    d->binds[COMMAND_TRICK] = bind_make(2, BUTTON_R, BUTTON_Z);
+    d->binds[COMMAND_REIMPORT_SAVE] = bind_make(2, BUTTON_R, BUTTON_Z);
     d->binds[COMMAND_SAVE_GAME] = bind_make(2, BUTTON_L, BUTTON_D_LEFT);
     d->binds[COMMAND_LOAD_GAME] = bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
     d->binds[COMMAND_START_TIMER] = bind_make(0);

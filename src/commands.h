@@ -13,7 +13,7 @@ enum commands {
     COMMAND_RELOAD,
     COMMAND_RELOAD_LAST_WARP,
     COMMAND_TOGGLE_WATCHES,
-    COMMAND_TRICK,
+    COMMAND_REIMPORT_SAVE,
     COMMAND_SAVE_GAME,
     COMMAND_LOAD_GAME,
     COMMAND_START_TIMER,
@@ -46,7 +46,7 @@ void command_lzs_proc();
 void command_reload_proc();
 void command_reload_last_warp_proc();
 void command_toggle_watches_proc();
-void command_trick_proc();
+void command_import_save_proc();
 void command_save_game_proc();
 void command_load_game_proc();
 void command_start_timer_proc();

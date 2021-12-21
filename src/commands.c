@@ -1,13 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdarg.h>
-#include <string.h>
 #include "commands.h"
 #include "input.h"
 #include "fp.h"
-#include "settings.h"
-#include "tricks.h"
 #include "watchlist.h"
 
 struct command fp_commands[COMMAND_MAX] = {
@@ -21,7 +17,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"reload room",      COMMAND_PRESS_ONCE, 0, command_reload_proc          },
     {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
     {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
-    {"load trick",       COMMAND_PRESS_ONCE, 0, command_trick_proc           },
+    {"reimport save",    COMMAND_PRESS_ONCE, 0, command_import_save_proc     },
     {"save game",        COMMAND_PRESS_ONCE, 0, command_save_game_proc       },
     {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
     {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
@@ -205,8 +201,10 @@ void command_toggle_watches_proc() {
     }
 }
 
-void command_trick_proc() {
-    load_trick(fp.saved_trick);
+void command_import_save_proc() {
+    if (fp.last_imported_save_path) {
+        fp_import_file(fp.last_imported_save_path, NULL);
+    }
 }
 
 void command_save_game_proc() {

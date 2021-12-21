@@ -1,22 +1,16 @@
 #include <stdlib.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <string.h>
-#include <math.h>
 #include <startup.h>
-#include <mips.h>
 #include <n64.h>
 #include "commands.h"
 #include "fp.h"
-#include "gfx.h"
-#include "input.h"
 #include "io.h"
-#include "menu.h"
 #include "resource.h"
-#include "settings.h"
 #include "watchlist.h"
 #include "item_icons.h"
 #include "crash_screen.h"
+#include "sys.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -78,7 +72,6 @@ void fp_init() {
     fp.saved_group = 0x1c;
     fp.saved_room = 0;
     fp.saved_entrance = 0;
-    fp.saved_trick = -1;
     fp.turbo = 0;
     fp.ace_last_timer = 0;
     fp.ace_last_flag_status = 0;
@@ -95,6 +88,7 @@ void fp_init() {
     fp.warp_delay = 0;
     fp.frames_since_battle = 0;
     fp.clippy_status = 0;
+    fp.last_imported_save_path = NULL;
 
     io_init();
 
