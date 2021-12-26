@@ -62,6 +62,12 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
+void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y) {
+    fp.input_mask.buttons = pad;
+    fp.input_mask.x_cardinal = x;
+    fp.input_mask.y_cardinal = y;
+}
+
 _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs

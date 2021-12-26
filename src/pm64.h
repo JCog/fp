@@ -882,6 +882,49 @@ typedef struct {
     /* 0xFB4 */ char unk_FB4[4];
 } encounter_status_ctxt_t; // size = 0xFB8
 
+typedef struct Camera {
+    /* 0x000 */ u16 flags;
+    /* 0x002 */ s16 moveFlags;
+    /* 0x004 */ s16 updateMode;
+    /* 0x006 */ s16 unk_06;
+    /* 0x008 */ s16 changingMap;
+    /* 0x00A */ s16 viewportW;
+    /* 0x00C */ s16 viewportH;
+    /* 0x00E */ s16 viewportStartX;
+    /* 0x010 */ s16 viewportStartY;
+    /* 0x012 */ s16 nearClip;
+    /* 0x014 */ s16 farClip;
+    /* 0x016 */ char unk_16[2];
+    /* 0x018 */ f32 vfov;
+    /* 0x01C */ s16 unk_1C;
+    /* 0x01E */ s16 unk_1E;
+    /* 0x020 */ s16 unk_20;
+    /* 0x022 */ s16 unk_22;
+    /* 0x024 */ s16 unk_24;
+    /* 0x026 */ s16 unk_26;
+    /* 0x028 */ s16 unk_28;
+    /* 0x02A */ s16 zoomPercent;
+    /* 0x02C */ s16 bgColor[3];
+    /* 0x032 */ vec3s_t targetScreenCoords;
+    /* 0x038 */ u16 perspNorm;
+    /* 0x03A */ char unk_3A[2];
+    /* 0x03C */ vec3f_t lookAt_eye;
+    /* 0x048 */ vec3f_t lookAt_obj;
+    /* 0x054 */ f32 unk_54;
+    /* 0x058 */ f32 unk_58;
+    /* 0x05C */ f32 unk_5C;
+    /* 0x060 */ vec3f_t targetPos;
+    /* 0x06C */ f32 currentYaw;
+    /* 0x070 */ f32 unk_70;
+    /* 0x074 */ f32 currentBoomYaw;
+    /* 0x078 */ f32 currentBoomLength;
+    /* 0x07C */ f32 currentYOffset;
+    /* 0x080 */ char unk_80[4];
+    /* 0x084 */ vec3f_t trueRotation;
+    /* 0x090 */ f32 currentBlendedYawNegated;
+    /* 0x094 */ f32 currentPitch;
+} Camera; // size = 0x558
+
 typedef struct {
     /* 0x00 */ int32_t flags;
     /* 0x04 */ int32_t effectIndex;
@@ -980,6 +1023,8 @@ extern_data player_ctxt_t pm_player;
 extern_data ActionCommandStatus pm_ActionCommandStatus;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 extern_data encounter_status_ctxt_t pm_encounter_status;
+extern_data Camera pm_gCameras[4];
+extern_data s32 pm_gCurrentCameraID;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
@@ -1027,6 +1072,8 @@ OSThread *osGetActiveQueue(void);
 void state_render_frontUI(void);
 void step_game_loop(void);
 void pm_disable_player_input(void);
+void update_camera_mode_6(Camera *camera);
+void update_player_input(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

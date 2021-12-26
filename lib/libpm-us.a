@@ -29,6 +29,7 @@ osViBlack = 0x80067380;
 osViRepeatLine = 0x800673E0;
 pm_status = 0x80074024;
 pm_RandSeed = 0x80074410;
+pm_gCurrentCameraID = 0x80077410;
 gItemTable = 0x800878E0;
 pm_IconScripts = 0x8008A680;
 pm_ViFrames = 0x80093B94;
@@ -40,6 +41,7 @@ pm_save_info = 0x8009BA30;
 pm_RoomChangeState = 0x800A0944;
 pm_encounter_status = 0x800B0F10;
 pm_enemy_defeat_flags = 0x800B0FC0;
+pm_gCameras = 0x800B1D80;
 pm_effects = 0x800B4398;
 __osEventStateTab = 0x800D9F80;
 pm_save_data = 0x800DACC0;
@@ -72,3 +74,9 @@ state_render_frontUI = 0x80112FC4;
 
 after_draw_hook = 0x80026DC0;
 crash_screen_set_draw_info = 0x8002C890;
+
+update_camera_mode_6_hook = 0x8002D4F8;
+update_camera_mode_6 = 0x8002F990;
+
+update_player_input_rom_hook = 0x8009D934;
+update_player_input = 0x800E1F90;

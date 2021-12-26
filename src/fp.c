@@ -5,6 +5,8 @@
 #include <n64.h>
 #include "commands.h"
 #include "fp.h"
+#include "geometry.h"
+#include "gu.h"
 #include "io.h"
 #include "resource.h"
 #include "watchlist.h"
@@ -89,6 +91,17 @@ void fp_init() {
     fp.frames_since_battle = 0;
     fp.clippy_status = 0;
     fp.last_imported_save_path = NULL;
+    fp.free_cam = 0;
+    fp.lock_cam = 0;
+    fp.cam_bhv = CAMBHV_MANUAL;
+    fp.cam_dist_min = 100;
+    fp.cam_dist_max = 400;
+    fp.cam_yaw = 0;
+    fp.cam_pitch = 0;
+    fp.cam_pos.x = 0;
+    fp.cam_pos.y = 0;
+    fp.cam_pos.z = 0;
+    fp.cam_enabled_before = 0;
 
     io_init();
 
@@ -115,6 +128,7 @@ void fp_init() {
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
+    menu_add_submenu(fp.main_menu, 0, menu_index++, create_camera_menu(), "camera");
     menu_add_submenu(fp.main_menu, 0, menu_index++, &watches, "watches");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
     menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
@@ -599,6 +613,27 @@ void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu
     }
 }
 
+void fp_cam_update() {
+    if (fp.free_cam) {
+        if (!fp.cam_enabled_before) {
+            fp.cam_pos.x = pm_gCameras->lookAt_eye.x;
+            fp.cam_pos.y = pm_gCameras->lookAt_eye.y;
+            fp.cam_pos.z = pm_gCameras->lookAt_eye.z;
+            fp.cam_enabled_before = 1;
+        } else {
+            fp_update_cam();
+        }
+        vec3f_t *camera_at = &pm_gCameras->lookAt_obj;
+        vec3f_t *camera_eye = &pm_gCameras->lookAt_eye;
+
+        *camera_eye = fp.cam_pos;
+
+        vec3f_t vf;
+        vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
+        vec3f_add(camera_at, camera_eye, &vf);
+    }
+}
+
 /**
  * fp's main update function
  * This runs after the base games full update loop every frame
@@ -673,6 +708,12 @@ void fp_update(void) {
 
     fp_update_warps();
 
+    // Override updateMode so update_cameras switch always defaults
+    if (fp.free_cam) {
+        pm_gCameras[pm_gCurrentCameraID].updateMode = 7;
+    }
+    fp_cam_update();
+
     while (fp.menu_active && menu_think(fp.main_menu)) {
         // wait
     }
@@ -737,6 +778,24 @@ ENTRY void fp_draw_entry(void) {
 
 ENTRY void fp_after_draw_entry(void) {
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
+HOOK void fp_update_camera_mode_6(Camera *cam) {
+    if (!fp.free_cam) {
+        update_camera_mode_6(cam);
+    }
+}
+
+HOOK void fp_update_input(void) {
+    update_player_input();
+    controller_t *mask = &fp.input_mask;
+
+    pm_player.raw.buttons &= ~mask->buttons;
+    pm_player.previous.buttons &= ~mask->buttons;
+    pm_player.pad_held.buttons &= ~mask->buttons;
+
+    pm_player.pad_x &= ~mask->x_cardinal;
+    pm_player.pad_y &= ~mask->y_cardinal;
 }
 
 #include <startup.c>
