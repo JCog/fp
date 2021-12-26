@@ -319,7 +319,6 @@ struct menu *create_player_menu(void) {
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&star_power, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    ;
     menu_init(&peach, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
