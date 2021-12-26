@@ -19,8 +19,10 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH     320
+#define SCREEN_HEIGHT    240
+
+#define ARRAY_COUNT(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #if PM64_VERSION == US
 #define ITEM_ICONS_ROM_START 0x1CC310
@@ -98,16 +100,16 @@ typedef union {
 } __OSfp;
 
 typedef struct {
-    /* 0x0000 */ float x;
-    /* 0x0004 */ float y;
-    /* 0x0008 */ float z;
-} xyz_t; // size: 0x000C
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+} vec3f_t; // size = 0x0C
 
 typedef struct {
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} vec3s_t;
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 z;
+} vec3s_t; // size = 0x06
 
 typedef struct {
     /* 0x0000 */ int8_t x_cardinal;
@@ -183,7 +185,7 @@ typedef struct {
     /* 0x0090 */ uint16_t unk_0x90;
     /* 0x0092 */ uint16_t unk_0x92;
     /* 0x0094 */ float loading_zone_tangent;
-    /* 0x0098 */ xyz_t player_position_copy;
+    /* 0x0098 */ vec3f_t player_position_copy;
     /* 0x00A4 */ float player_angle_copy;
     /* 0x00A8 */ char unk_A8[0x04];
     /* 0x00AC */ int8_t load_menu_state;
@@ -195,7 +197,7 @@ typedef struct {
     /* 0x00BA */ int16_t boot_green;
     /* 0x00BC */ int16_t boot_red;
     /* 0x00BE */ char unk_BE[0x6A];
-    /* 0x0128 */ xyz_t player_trace_normal;
+    /* 0x0128 */ vec3f_t player_trace_normal;
     /* 0x0134 */ uint16_t frame_counter;
     /* 0x0136 */ char unk_136[0x02];
     /* 0x0138 */ int32_t next_rng;
@@ -380,7 +382,7 @@ typedef struct {
     /* 0x0018 */ int16_t truncated_y;
     /* 0x001A */ int16_t truncated_z; /*used for hazard respawns*/
     /* 0x001C */ char unk_0x1C[0x0C];
-    /* 0x0028 */ xyz_t position;
+    /* 0x0028 */ vec3f_t position;
     /* 0x0034 */ char unk_0x34[0x08];
     /* 0x003C */ float jumped_from_x;
     /* 0x0040 */ float jumped_from_z;
@@ -533,9 +535,9 @@ typedef struct {
 } actor_desc_t; // size = 0x28
 
 typedef struct {
-    /* 0x00 */ xyz_t current_pos;
-    /* 0x0C */ xyz_t goal_pos;
-    /* 0x18 */ xyz_t unk_18;
+    /* 0x00 */ vec3f_t current_pos;
+    /* 0x0C */ vec3f_t goal_pos;
+    /* 0x18 */ vec3f_t unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ float acceleration;
     /* 0x40 */ float speed;
@@ -545,9 +547,9 @@ typedef struct {
 } actor_movement_t; // size = 0x50;
 
 typedef struct {
-    /* 0x00 */ xyz_t current_pos;
-    /* 0x0C */ xyz_t goal_pos;
-    /* 0x18 */ xyz_t unk_18;
+    /* 0x00 */ vec3f_t current_pos;
+    /* 0x0C */ vec3f_t goal_pos;
+    /* 0x18 */ vec3f_t unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ float acceleration;
     /* 0x40 */ float speed;
@@ -591,21 +593,21 @@ typedef struct {
     /* 0x135 */ uint8_t foot_step_counter;
     /* 0x136 */ uint8_t actor_type;
     /* 0x137 */ char unk_137;
-    /* 0x138 */ xyz_t home_pos;
-    /* 0x144 */ xyz_t current_pos;
+    /* 0x138 */ vec3f_t home_pos;
+    /* 0x144 */ vec3f_t current_pos;
     /* 0x150 */ int16_t head_offset_x;
     /* 0x152 */ int16_t head_offset_y;
     /* 0x154 */ int16_t head_offset_z;
     /* 0x156 */ int16_t health_bar_position_x;
     /* 0x158 */ int16_t health_bar_position_y;
     /* 0x15A */ int16_t health_bar_position_z;
-    /* 0x15C */ xyz_t rotation;
+    /* 0x15C */ vec3f_t rotation;
     /* 0x168 */ int16_t rotation_pivot_offset_x;
     /* 0x16A */ int16_t rotation_pivot_offset_y;
     /* 0x16C */ int16_t rotation_pivot_offset_z;
     /* 0x16E */ char unk_16E[2];
-    /* 0x170 */ xyz_t scale;
-    /* 0x17C */ xyz_t scale_modifier; /* multiplies normal scale factors componentwise */
+    /* 0x170 */ vec3f_t scale;
+    /* 0x17C */ vec3f_t scale_modifier; /* multiplies normal scale factors componentwise */
     /* 0x188 */ float scaling_factor;
     /* 0x18C */ float yaw;
     /* 0x190 */ uint8_t size_x;
