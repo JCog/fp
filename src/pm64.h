@@ -19,8 +19,8 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#define SCREEN_WIDTH     320
-#define SCREEN_HEIGHT    240
+#define SCREEN_WIDTH  320
+#define SCREEN_HEIGHT 240
 
 #if PM64_VERSION == US
 #define ITEM_ICONS_ROM_START 0x1CC310
