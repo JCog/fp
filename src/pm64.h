@@ -98,16 +98,16 @@ typedef union {
 } __OSfp;
 
 typedef struct {
-    /* 0x0000 */ float x;
-    /* 0x0004 */ float y;
-    /* 0x0008 */ float z;
-} xyz_t; // size: 0x000C
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+} vec3f_t; // size = 0x0C
 
 typedef struct {
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} vec3s_t;
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 z;
+} vec3s_t; // size = 0x06
 
 typedef struct {
     /* 0x0000 */ int8_t x_cardinal;
@@ -183,7 +183,7 @@ typedef struct {
     /* 0x0090 */ uint16_t unk_0x90;
     /* 0x0092 */ uint16_t unk_0x92;
     /* 0x0094 */ float loading_zone_tangent;
-    /* 0x0098 */ xyz_t player_position_copy;
+    /* 0x0098 */ vec3f_t player_position_copy;
     /* 0x00A4 */ float player_angle_copy;
     /* 0x00A8 */ char unk_A8[0x04];
     /* 0x00AC */ int8_t load_menu_state;
@@ -195,7 +195,7 @@ typedef struct {
     /* 0x00BA */ int16_t boot_green;
     /* 0x00BC */ int16_t boot_red;
     /* 0x00BE */ char unk_BE[0x6A];
-    /* 0x0128 */ xyz_t player_trace_normal;
+    /* 0x0128 */ vec3f_t player_trace_normal;
     /* 0x0134 */ uint16_t frame_counter;
     /* 0x0136 */ char unk_136[0x02];
     /* 0x0138 */ int32_t next_rng;
@@ -380,7 +380,7 @@ typedef struct {
     /* 0x0018 */ int16_t truncated_y;
     /* 0x001A */ int16_t truncated_z; /*used for hazard respawns*/
     /* 0x001C */ char unk_0x1C[0x0C];
-    /* 0x0028 */ xyz_t position;
+    /* 0x0028 */ vec3f_t position;
     /* 0x0034 */ char unk_0x34[0x08];
     /* 0x003C */ float jumped_from_x;
     /* 0x0040 */ float jumped_from_z;
@@ -533,9 +533,9 @@ typedef struct {
 } actor_desc_t; // size = 0x28
 
 typedef struct {
-    /* 0x00 */ xyz_t current_pos;
-    /* 0x0C */ xyz_t goal_pos;
-    /* 0x18 */ xyz_t unk_18;
+    /* 0x00 */ vec3f_t current_pos;
+    /* 0x0C */ vec3f_t goal_pos;
+    /* 0x18 */ vec3f_t unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ float acceleration;
     /* 0x40 */ float speed;
@@ -545,9 +545,9 @@ typedef struct {
 } actor_movement_t; // size = 0x50;
 
 typedef struct {
-    /* 0x00 */ xyz_t current_pos;
-    /* 0x0C */ xyz_t goal_pos;
-    /* 0x18 */ xyz_t unk_18;
+    /* 0x00 */ vec3f_t current_pos;
+    /* 0x0C */ vec3f_t goal_pos;
+    /* 0x18 */ vec3f_t unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ float acceleration;
     /* 0x40 */ float speed;
@@ -591,21 +591,21 @@ typedef struct {
     /* 0x135 */ uint8_t foot_step_counter;
     /* 0x136 */ uint8_t actor_type;
     /* 0x137 */ char unk_137;
-    /* 0x138 */ xyz_t home_pos;
-    /* 0x144 */ xyz_t current_pos;
+    /* 0x138 */ vec3f_t home_pos;
+    /* 0x144 */ vec3f_t current_pos;
     /* 0x150 */ int16_t head_offset_x;
     /* 0x152 */ int16_t head_offset_y;
     /* 0x154 */ int16_t head_offset_z;
     /* 0x156 */ int16_t health_bar_position_x;
     /* 0x158 */ int16_t health_bar_position_y;
     /* 0x15A */ int16_t health_bar_position_z;
-    /* 0x15C */ xyz_t rotation;
+    /* 0x15C */ vec3f_t rotation;
     /* 0x168 */ int16_t rotation_pivot_offset_x;
     /* 0x16A */ int16_t rotation_pivot_offset_y;
     /* 0x16C */ int16_t rotation_pivot_offset_z;
     /* 0x16E */ char unk_16E[2];
-    /* 0x170 */ xyz_t scale;
-    /* 0x17C */ xyz_t scale_modifier; /* multiplies normal scale factors componentwise */
+    /* 0x170 */ vec3f_t scale;
+    /* 0x17C */ vec3f_t scale_modifier; /* multiplies normal scale factors componentwise */
     /* 0x188 */ float scaling_factor;
     /* 0x18C */ float yaw;
     /* 0x190 */ uint8_t size_x;
@@ -880,6 +880,49 @@ typedef struct {
     /* 0xFB4 */ char unk_FB4[4];
 } encounter_status_ctxt_t; // size = 0xFB8
 
+typedef struct Camera {
+    /* 0x000 */ u16 flags;
+    /* 0x002 */ s16 moveFlags;
+    /* 0x004 */ s16 updateMode;
+    /* 0x006 */ s16 unk_06;
+    /* 0x008 */ s16 changingMap;
+    /* 0x00A */ s16 viewportW;
+    /* 0x00C */ s16 viewportH;
+    /* 0x00E */ s16 viewportStartX;
+    /* 0x010 */ s16 viewportStartY;
+    /* 0x012 */ s16 nearClip;
+    /* 0x014 */ s16 farClip;
+    /* 0x016 */ char unk_16[2];
+    /* 0x018 */ f32 vfov;
+    /* 0x01C */ s16 unk_1C;
+    /* 0x01E */ s16 unk_1E;
+    /* 0x020 */ s16 unk_20;
+    /* 0x022 */ s16 unk_22;
+    /* 0x024 */ s16 unk_24;
+    /* 0x026 */ s16 unk_26;
+    /* 0x028 */ s16 unk_28;
+    /* 0x02A */ s16 zoomPercent;
+    /* 0x02C */ s16 bgColor[3];
+    /* 0x032 */ vec3s_t targetScreenCoords;
+    /* 0x038 */ u16 perspNorm;
+    /* 0x03A */ char unk_3A[2];
+    /* 0x03C */ vec3f_t lookAt_eye;
+    /* 0x048 */ vec3f_t lookAt_obj;
+    /* 0x054 */ f32 unk_54;
+    /* 0x058 */ f32 unk_58;
+    /* 0x05C */ f32 unk_5C;
+    /* 0x060 */ vec3f_t targetPos;
+    /* 0x06C */ f32 currentYaw;
+    /* 0x070 */ f32 unk_70;
+    /* 0x074 */ f32 currentBoomYaw;
+    /* 0x078 */ f32 currentBoomLength;
+    /* 0x07C */ f32 currentYOffset;
+    /* 0x080 */ char unk_80[4];
+    /* 0x084 */ vec3f_t trueRotation;
+    /* 0x090 */ f32 currentBlendedYawNegated;
+    /* 0x094 */ f32 currentPitch;
+} Camera; // size = 0x558
+
 typedef struct {
     /* 0x00 */ int32_t flags;
     /* 0x04 */ int32_t effectIndex;
@@ -978,6 +1021,8 @@ extern_data player_ctxt_t pm_player;
 extern_data ActionCommandStatus pm_ActionCommandStatus;
 extern_data script_list_ctxt_t pm_curr_script_lst;
 extern_data encounter_status_ctxt_t pm_encounter_status;
+extern_data Camera pm_gCameras[4];
+extern_data s32 pm_gCurrentCameraID;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
@@ -1025,6 +1070,8 @@ OSThread *osGetActiveQueue(void);
 void state_render_frontUI(void);
 void step_game_loop(void);
 void pm_disable_player_input(void);
+void update_camera_mode_6(Camera *camera);
+void update_player_input(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

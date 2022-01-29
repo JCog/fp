@@ -5,6 +5,17 @@
 #include "pm64.h"
 #include "settings.h"
 
+enum cam_mode {
+    CAMMODE_CAMERA,
+    CAMMODE_VIEW,
+};
+
+enum cam_bhv {
+    CAMBHV_MANUAL,
+    CAMBHV_BIRDSEYE,
+    CAMBHV_RADIAL,
+};
+
 struct log_entry {
     char *msg;
     int age;
@@ -71,6 +82,16 @@ typedef struct {
     uint8_t clippy_status;
     _Bool clippy_trainer_enabled;
     char *last_imported_save_path;
+    _Bool free_cam;
+    _Bool lock_cam;
+    enum cam_bhv cam_bhv;
+    int16_t cam_dist_min;
+    int16_t cam_dist_max;
+    float cam_pitch;
+    float cam_yaw;
+    vec3f_t cam_pos;
+    controller_t input_mask;
+    _Bool cam_enabled_before;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
@@ -82,6 +103,8 @@ void fp_set_area_flag(int flag_index, _Bool value);
 void fp_set_enemy_defeat_flag(int flag_index, _Bool value);
 void fp_set_global_byte(int byte_index, int8_t value);
 int fp_import_file(const char *path, void *data);
+void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y);
+void fp_update_cam(void);
 
 struct menu *create_warps_menu();
 struct menu *create_cheats_menu();
@@ -90,6 +113,7 @@ struct menu *create_file_menu();
 struct menu *create_practice_menu();
 struct menu *create_debug_menu();
 struct menu *create_settings_menu();
+struct menu *create_camera_menu();
 
 #ifdef NDEBUG
 #define PRINTF(...) ((void)0)
