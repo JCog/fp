@@ -65,6 +65,8 @@ struct settings_data {
     int16_t watch_x[SETTINGS_WATCHES_MAX];
     int16_t watch_y[SETTINGS_WATCHES_MAX];
     uint16_t binds[SETTINGS_BIND_MAX];
+    int8_t control_stick_range;
+    uint8_t control_stick;
     struct watch_info watch_info[SETTINGS_WATCHES_MAX];
     uint8_t n_watches;
 };

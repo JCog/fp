@@ -48,6 +48,8 @@ void settings_load_default(void) {
     d->timer_y = 68;
     d->n_watches = 0;
     d->cheats = 0;
+    d->control_stick = 0;
+    d->control_stick_range = 90;
     d->binds[COMMAND_MENU] = bind_make(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bind_make(1, BUTTON_D_UP);

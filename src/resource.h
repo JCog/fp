@@ -22,6 +22,7 @@ enum resource_id {
     RES_ICON_SAVE,
     RES_ICON_OSK,
     RES_TEXTURE_CROSSHAIR,
+    RES_TEXTURE_CONTROL_STICK,
     RES_MAX,
 };
 
