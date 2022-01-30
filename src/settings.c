@@ -32,7 +32,6 @@ void settings_load_default(void) {
     d->bits.font_resource = RES_FONT_PRESSSTART2P;
     d->bits.drop_shadow = 1;
     d->bits.input_display = 0;
-    d->bits.control_stick = 0;
     d->bits.log = 1;
     d->bits.timer_logging = 0;
     d->bits.timer_show = 0;
@@ -49,6 +48,7 @@ void settings_load_default(void) {
     d->timer_y = 68;
     d->n_watches = 0;
     d->cheats = 0;
+    d->control_stick = 0;
     d->binds[COMMAND_MENU] = bind_make(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bind_make(1, BUTTON_D_UP);

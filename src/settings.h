@@ -41,7 +41,6 @@ struct settings_bits {
     uint32_t font_resource   : 4;
     uint32_t drop_shadow     : 1;
     uint32_t input_display   : 1;
-    uint32_t control_stick   : 1;
     uint32_t log             : 1;
     uint32_t timer_show      : 1;
     uint32_t timer_logging   : 1;
@@ -68,6 +67,7 @@ struct settings_data {
     uint16_t binds[SETTINGS_BIND_MAX];
     struct watch_info watch_info[SETTINGS_WATCHES_MAX];
     uint8_t n_watches;
+    uint8_t control_stick;
 };
 
 struct settings_header {

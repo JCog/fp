@@ -11,6 +11,18 @@ static uint16_t font_options[] = {
     RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
+static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p) {
+            menu_option_set(item, *p);
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        *p = menu_option_get(item);
+    }
+    return 0;
+}
+
 static void profile_dec_proc(struct menu_item *item, void *data) {
     fp.profile += SETTINGS_PROFILE_MAX - 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
@@ -101,17 +113,6 @@ static int input_display_proc(struct menu_item *item, enum menu_callback_reason 
         settings->bits.input_display = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, settings->bits.input_display);
-    }
-    return 0;
-}
-
-static int control_stick_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.control_stick = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.control_stick = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, settings->bits.control_stick);
     }
     return 0;
 }
@@ -207,7 +208,11 @@ struct menu *create_settings_menu(void) {
     menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);
     menu_add_static(&menu, 1, y, "control stick", 0xC0C0C0);
-    menu_add_checkbox(&menu, MENU_X, y++, control_stick_proc, NULL);
+    menu_add_option(&menu, MENU_X, y++,
+                    "numerical\0"
+                    "graphical\0"
+                    "both\0",
+                    byte_optionmod_proc, &settings->control_stick);
     menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);
