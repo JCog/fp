@@ -23,6 +23,22 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
+static int control_stick_range_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    uint8_t *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_intinput_get(item) != *p) {
+            menu_intinput_set(item, *p);
+        }
+    } else if (reason == MENU_CALLBACK_CHANGED) {
+        if (menu_intinput_get(item) > 127) {
+            *p = 127;
+        } else {
+            *p = menu_intinput_get(item);
+        }
+    }
+    return 0;
+}
+
 static void profile_dec_proc(struct menu_item *item, void *data) {
     fp.profile += SETTINGS_PROFILE_MAX - 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
@@ -213,6 +229,8 @@ struct menu *create_settings_menu(void) {
                     "graphical\0"
                     "both\0",
                     byte_optionmod_proc, &settings->control_stick);
+    menu_add_static(&menu, 1, y, "range", 0xC0C0C0);
+    menu_add_intinput(&menu, MENU_X, y++, 10, 3, control_stick_range_proc, &settings->control_stick_range);
     menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);

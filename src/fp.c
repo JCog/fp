@@ -259,17 +259,20 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
     if (settings->control_stick == 1 || settings->control_stick == 2) {
         int image_range = control_stick->tile_width / 2;
-        int control_range = 90;
         int image_dx, image_dy;
-        if (d_x > control_range) {
+        if (d_x > settings->control_stick_range) {
             image_dx = image_range;
+        } else if (d_x < -settings->control_stick_range) {
+            image_dx = -image_range;
         } else {
-            image_dx = d_x * image_range / control_range;
+            image_dx = d_x * image_range / settings->control_stick_range;
         }
-        if (d_y > control_range) {
+        if (d_y > settings->control_stick_range) {
             image_dy = -image_range;
+        } else if (d_y < -settings->control_stick_range) {
+            image_dy = image_range;
         } else {
-            image_dy = -d_y * image_range / control_range;
+            image_dy = -d_y * image_range / settings->control_stick_range;
         }
         struct gfx_sprite in_background = {
             control_stick, 0,   settings->input_display_x, settings->input_display_y - control_stick->tile_height,
