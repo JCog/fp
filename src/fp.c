@@ -254,15 +254,41 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     int8_t d_x = pm_status.control_x;
     int8_t d_y = pm_status.control_y;
 
-    struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
-    gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
+    if (settings->bits.control_stick) {
+        int x_offset = 24;
+        int control_range = 90;
+        int image_range = 24;
+        if (d_x > control_range) {
+            d_x = image_range;
+        } else {
+            d_x = d_x * image_range / control_range;
+        }
+        if (d_y > control_range) {
+            d_y = -image_range;
+        } else {
+            d_y = -d_y * image_range / control_range;
+        }
+        struct gfx_texture *input_display = resource_get(RES_TEXTURE_CONTROL_STICK);
+        struct gfx_sprite in_background = {
+            input_display, 0, settings->input_display_x + x_offset, settings->input_display_y - 48, 1.f, 1.f,
+        };
+        struct gfx_sprite in_stick = {
+            input_display, 1,   settings->input_display_x + x_offset + d_x, settings->input_display_y - 48 + d_y,
+            1.f,           1.f,
+        };
+        gfx_sprite_draw(&in_background);
+        gfx_sprite_draw(&in_stick);
+    } else {
+        gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
+    }
 
     // clang-format off
     static const s32 buttons[] = {
         15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
     };
     // clang-format on
+    struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
 
     for (s32 i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
         s32 b = buttons[i];

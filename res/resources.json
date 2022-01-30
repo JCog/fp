@@ -171,5 +171,12 @@
     "name":         "crosshair",
     "format":       "i4",
     "tile_height":  32
+  },
+  "control_stick.png":
+  {
+    "type":         "texture",
+    "name":         "control_stick",
+    "format":       "i4",
+    "tile_height":  48
   }
 }

@@ -41,6 +41,7 @@ struct settings_bits {
     uint32_t font_resource   : 4;
     uint32_t drop_shadow     : 1;
     uint32_t input_display   : 1;
+    uint32_t control_stick   : 1;
     uint32_t log             : 1;
     uint32_t timer_show      : 1;
     uint32_t timer_logging   : 1;

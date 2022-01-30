@@ -105,6 +105,17 @@ static int input_display_proc(struct menu_item *item, enum menu_callback_reason 
     return 0;
 }
 
+static int control_stick_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->bits.control_stick = 1;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->bits.control_stick = 0;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menu_checkbox_set(item, settings->bits.control_stick);
+    }
+    return 0;
+}
+
 static int log_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.log = 1;
@@ -195,6 +206,8 @@ struct menu *create_settings_menu(void) {
     menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);
+    menu_add_static(&menu, 1, y, "control stick", 0xC0C0C0);
+    menu_add_checkbox(&menu, MENU_X, y++, control_stick_proc, NULL);
     menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
     menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);

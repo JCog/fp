@@ -125,6 +125,10 @@ static void *rc_texture_crosshair(void) {
     return resource_load_grc_texture("crosshair");
 }
 
+static void *rc_texture_control_stick(void) {
+    return resource_load_grc_texture("control_stick");
+}
+
 /* resource destructors */
 static void rd_font_generic(void *data) {
     struct gfx_font *font = data;
@@ -137,7 +141,7 @@ static void *(*res_ctor[RES_MAX])(void) = {
     rc_font_fipps,        rc_font_notalot35, rc_font_origamimommy,  rc_font_pcsenior,     rc_font_pixelintv,
     rc_font_pressstart2p, rc_font_smwtextnc, rc_font_werdnasreturn, rc_font_pixelzim,     rc_icon_check,
     rc_icon_buttons,      rc_icon_pause,     rc_icon_macro,         rc_icon_movie,        rc_icon_arrow,
-    rc_icon_file,         rc_icon_save,      rc_icon_osk,           rc_texture_crosshair,
+    rc_icon_file,         rc_icon_save,      rc_icon_osk,           rc_texture_crosshair, rc_texture_control_stick,
 };
 
 static void (*res_dtor[RES_MAX])() = {
