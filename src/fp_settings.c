@@ -195,7 +195,7 @@ struct menu *create_settings_menu(void) {
 
     /*build menu*/
     int y = 0;
-    int MENU_X = 16;
+    int MENU_X = 17;
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
     menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
@@ -203,7 +203,7 @@ struct menu *create_settings_menu(void) {
     menu_add_watch(&menu, MENU_X + 2, y, (uint32_t)&fp.profile, WATCH_TYPE_U8);
     menu_add_button(&menu, MENU_X + 4, y++, "+", profile_inc_proc, NULL);
     menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
-    menu_add_option(&menu, 16, y++,
+    menu_add_option(&menu, MENU_X, y++,
                     "fipps\0"
                     "notalot35\0"
                     "origami mommy\0"
@@ -229,7 +229,7 @@ struct menu *create_settings_menu(void) {
                     "graphical\0"
                     "both\0",
                     byte_optionmod_proc, &settings->control_stick);
-    menu_add_static(&menu, 1, y, "range", 0xC0C0C0);
+    menu_add_static(&menu, 1, y, "graphical range", 0xC0C0C0);
     menu_add_intinput(&menu, MENU_X, y++, 10, 3, control_stick_range_proc, &settings->control_stick_range);
     menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
     menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
