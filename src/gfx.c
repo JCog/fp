@@ -16,15 +16,15 @@ static Gfx *gfx_disp_p;
 static Gfx *gfx_disp_d;
 
 #define GFX_STACK_LENGTH 8
-static uint64_t gfx_modes[GFX_MODE_ALL];
-static uint64_t gfx_mode_stack[GFX_MODE_ALL][GFX_STACK_LENGTH];
+static u64 gfx_modes[GFX_MODE_ALL];
+static u64 gfx_mode_stack[GFX_MODE_ALL][GFX_STACK_LENGTH];
 static int gfx_mode_stack_pos[GFX_MODE_ALL];
 static _Bool gfx_synced;
 
 #define CHAR_TILE_MAX 8
 struct gfx_char {
     int tile_char;
-    uint32_t color;
+    u32 color;
     int x;
     int y;
 };
@@ -75,7 +75,7 @@ void gfx_mode_init(void) {
     gfx_mode_apply(GFX_MODE_ALL);
 }
 
-void gfx_mode_configure(enum gfx_mode mode, uint64_t value) {
+void gfx_mode_configure(enum gfx_mode mode, u64 value) {
     gfx_modes[mode] = value;
 }
 
@@ -97,7 +97,7 @@ void gfx_mode_apply(enum gfx_mode mode) {
             }
         }
         case GFX_MODE_COLOR: {
-            uint32_t c = gfx_modes[GFX_MODE_COLOR];
+            u32 c = gfx_modes[GFX_MODE_COLOR];
             gDPSetPrimColor(pdl++, 0, 0, (c >> 24) & 0xFF, (c >> 16) & 0xFF, (c >> 8) & 0xFF, (c >> 0) & 0xFF);
             if (mode != GFX_MODE_ALL) {
                 break;
@@ -113,7 +113,7 @@ void gfx_mode_apply(enum gfx_mode mode) {
     }
 }
 
-void gfx_mode_set(enum gfx_mode mode, uint64_t value) {
+void gfx_mode_set(enum gfx_mode mode, u64 value) {
     gfx_mode_configure(mode, value);
     gfx_mode_apply(mode);
 }
@@ -146,7 +146,7 @@ void gfx_mode_pop(enum gfx_mode mode) {
     }
 }
 
-void gfx_mode_replace(enum gfx_mode mode, uint64_t value) {
+void gfx_mode_replace(enum gfx_mode mode, u64 value) {
     gfx_mode_push(mode);
     gfx_mode_configure(mode, value);
     gfx_mode_apply(mode);
@@ -287,7 +287,7 @@ void gfx_texture_free(struct gfx_texture *texture) {
     free(texture);
 }
 
-void *gfx_texture_data(const struct gfx_texture *texture, int16_t tile) {
+void *gfx_texture_data(const struct gfx_texture *texture, s16 tile) {
     return (char *)texture->data + texture->tile_size * tile;
 }
 
@@ -320,10 +320,10 @@ void gfx_texture_copy_tile(struct gfx_texture *dest, int dest_tile, const struct
         dest->im_siz != src->im_siz || dest->tile_width != src->tile_width || dest->tile_height != src->tile_height)
         return;
     struct rgba32 {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
     };
     size_t tile_pixels = src->tile_width * src->tile_height;
     struct rgba32 *p_dest = gfx_texture_data(dest, dest_tile);
@@ -346,10 +346,10 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
     if (texture->im_fmt != G_IM_FMT_RGBA || texture->im_siz != G_IM_SIZ_32b)
         return;
     struct rgba32 {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
     };
     size_t texture_pixels = texture->tile_width * texture->tile_height * texture->tiles_x * texture->tiles_y;
     struct rgba32 *pixel_data = texture->data;
@@ -378,7 +378,7 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
     }
 }
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, int16_t texture_tile) {
+void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile) {
     if (texture->im_siz == G_IM_SIZ_4b) {
         gDPLoadTextureTile_4b((*disp)++, gfx_texture_data(texture, texture_tile), texture->im_fmt, texture->tile_width,
                               texture->tile_height, 0, 0, texture->tile_width - 1, texture->tile_height - 1, 0,
@@ -392,7 +392,7 @@ void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, int16
     }
 }
 
-void gfx_rdp_load_tile(const struct gfx_texture *texture, int16_t texture_tile) {
+void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile) {
     gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile);
     gfx_synced = 1;
 }
@@ -401,7 +401,7 @@ void gfx_sprite_draw(const struct gfx_sprite *sprite) {
     struct gfx_texture *texture = sprite->texture;
     gfx_rdp_load_tile(texture, sprite->texture_tile);
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        uint8_t a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
         gfx_mode_replace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
         gSPScisTextureRectangle(gfx_disp_p++, qs102(sprite->x + 1) & ~3, qs102(sprite->y + 1) & ~3,
@@ -464,7 +464,7 @@ static void draw_chars(const struct gfx_font *font, int x, int y, const char *bu
         int cx = 0;
         int cy = 0;
         for (int j = 0; j < l; ++j, cx += font->char_width + font->letter_spacing) {
-            uint8_t c = buf[j];
+            u8 c = buf[j];
             if (c < font->code_start || c >= font->code_start + n_chars) {
                 continue;
             }
@@ -488,7 +488,7 @@ static void draw_chars(const struct gfx_font *font, int x, int y, const char *bu
 
 static void flush_chars(void) {
     const struct gfx_font *font = gfx_char_font;
-    uint32_t color = 0;
+    u32 color = 0;
     _Bool first = 1;
     for (int i = 0; i < CHAR_TILE_MAX; ++i) {
         struct vector *tile_vect = &gfx_chars[i];
@@ -522,7 +522,7 @@ static void gfx_printf_n_va(const struct gfx_font *font, int x, int y, const cha
         l = bufsize - 1;
     }
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        uint8_t a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
         gfx_mode_replace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
         draw_chars(font, x + 1, y + 1, buf, l);
@@ -545,13 +545,13 @@ static void gfx_printf_f_va(const struct gfx_font *font, int x, int y, const cha
     int n_tiles = texture->tiles_x * texture->tiles_y;
     int n_chars = chars_per_tile * n_tiles;
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        uint8_t a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
-        uint32_t color = GPACK_RGBA8888(0x00, 0x00, 0x00, a);
+        u32 color = GPACK_RGBA8888(0x00, 0x00, 0x00, a);
         int cx = x + 1;
         int cy = y + 1;
         for (int i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
-            uint8_t c = buf[i];
+            u8 c = buf[i];
             if (c < font->code_start || c >= font->code_start + n_chars) {
                 continue;
             }
@@ -570,7 +570,7 @@ static void gfx_printf_f_va(const struct gfx_font *font, int x, int y, const cha
     int cx = x;
     int cy = y;
     for (int i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
-        uint8_t c = buf[i];
+        u8 c = buf[i];
         if (c < font->code_start || c >= font->code_start + n_chars) {
             continue;
         }

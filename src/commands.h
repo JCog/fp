@@ -32,7 +32,7 @@ enum activation_type {
 struct command {
     const char *text;
     enum activation_type command_type;
-    uint16_t bind;
+    u16 bind;
     void (*proc)();
 };
 

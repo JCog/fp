@@ -2,6 +2,7 @@
 #define GU_H
 #include <stdint.h>
 #include <n64.h>
+#include "pm64.h"
 
 // clang-format off
 #define M_PI 3.14159265358979323846
@@ -22,7 +23,7 @@ typedef union {
 
 void guMtxIdent(Mtx *m);
 void guMtxIdentF(MtxF *mf);
-void guPerspectiveF(MtxF *mf, uint16_t *perspNorm, float fovy, float aspect, float near, float far, float scale);
+void guPerspectiveF(MtxF *mf, u16 *perspNorm, float fovy, float aspect, float near, float far, float scale);
 void guMtxCatF(const MtxF *m, const MtxF *n, MtxF *r);
 void guRotateF(MtxF *mf, float a, float x, float y, float z);
 void guRotateRPYF(MtxF *mf, float r, float p, float h);

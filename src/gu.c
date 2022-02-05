@@ -11,7 +11,7 @@ void guMtxIdentF(MtxF *mf) {
     *mf = (MtxF)guDefMtxF(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
 }
 
-void guPerspectiveF(MtxF *mf, uint16_t *perspNorm, float fovy, float aspect, float near, float far, float scale) {
+void guPerspectiveF(MtxF *mf, u16 *perspNorm, float fovy, float aspect, float near, float far, float scale) {
     float cot = cos(fovy / 2.f) / sin(fovy / 2.f);
     mf->xx = cot / aspect * scale;
     mf->xy = 0.f;

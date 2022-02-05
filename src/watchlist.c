@@ -153,8 +153,8 @@ static int position_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static void remove_button_proc(struct menu_item *item, void *data);
-static int add_member(struct item_data *data, uint32_t address, enum watch_type type, int position, _Bool anchored,
-                      int x, int y, _Bool position_set) {
+static int add_member(struct item_data *data, u32 address, enum watch_type type, int position, _Bool anchored, int x,
+                      int y, _Bool position_set) {
     if (data->members.size >= SETTINGS_WATCHES_MAX || position < 0 || position > data->members.size) {
         return 0;
     }
@@ -224,7 +224,7 @@ static int remove_member(struct item_data *data, int position) {
 
 static void add_button_proc(struct menu_item *item, void *data) {
     struct item_data *item_data = data;
-    uint32_t address = 0x80000000;
+    u32 address = 0x80000000;
     enum watch_type type = WATCH_TYPE_U8;
     if (item_data->members.size > 0) {
         struct member_data *member_data = get_member(item_data, item_data->members.size - 1);
@@ -311,7 +311,7 @@ struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release,
     return item;
 }
 
-int watchlist_add(struct menu_item *item, uint32_t address, enum watch_type type) {
+int watchlist_add(struct menu_item *item, u32 address, enum watch_type type) {
     struct item_data *list = item->data;
     int pos = list->members.size;
     if (add_member(list, address, type, pos, 1, 0, 0, 0)) {
@@ -420,7 +420,7 @@ static int entry_activate_proc(struct menu_item *item) {
     int row = (int)item->data;
     struct watchfile_entry *entry = vector_at(&watchfile_entries, watchfile_scroll + row);
     entry->anim_state = 1;
-    uint32_t address;
+    u32 address;
     enum adex_error e = adex_eval(&entry->adex, &address);
     if (!e && (address < 0x80000000 || address >= 0x80800000 || address % watch_type_size[entry->type] != 0)) {
         e = ADEX_ERROR_ADDRESS;

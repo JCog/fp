@@ -26,7 +26,7 @@ static void load_proc() {
 }
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int8_t *p = data;
+    s8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -38,7 +38,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -50,7 +50,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
 }
 
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -67,10 +67,10 @@ static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
     int x = draw_params->x;
     int y = draw_params->y;
 
-    int8_t chapter_starts[] = {-128, -98, -74, -51, -12, 8, 40, 60, 90, 97};
-    uint8_t chapter = 0;
-    int8_t chapter_progress = 0;
-    int8_t chapter_max = 0;
+    s8 chapter_starts[] = {-128, -98, -74, -51, -12, 8, 40, 60, 90, 97};
+    u8 chapter = 0;
+    s8 chapter_progress = 0;
+    s8 chapter_max = 0;
     for (int i = 1; i < 10; i++) {
         if (STORY_PROGRESS >= chapter_starts[i]) {
             chapter++;
@@ -251,7 +251,7 @@ struct menu *create_file_menu(void) {
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
     menu_add_button(&menu, 11, y, "-", save_slot_dec_proc, NULL);
-    menu_add_watch(&menu, 13, y, (uint32_t)&pm_status.save_slot, WATCH_TYPE_U8);
+    menu_add_watch(&menu, 13, y, (u32)&pm_status.save_slot, WATCH_TYPE_U8);
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     y++;
     item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0xFFFFFF, save_proc, NULL);

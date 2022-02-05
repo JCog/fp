@@ -4,7 +4,7 @@
 #include "commands.h"
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -16,7 +16,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -64,8 +64,8 @@ static int timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     int y = draw_params->y;
     int chHeight = menu_get_cell_height(item->owner, 1);
 
-    int64_t timer_count = 0;
-    int32_t lag_frames = 0;
+    s64 timer_count = 0;
+    s32 lag_frames = 0;
     switch (fp.timer.state) {
         case 2:
             timer_count = fp.cpu_counter - fp.timer.start;

@@ -102,8 +102,7 @@ static int draw_text_proc(struct menu_item *item, struct menu_draw_params *draw_
     return 0;
 }
 
-static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_params, uint16_t bind,
-                          const char *desc) {
+static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_params, u16 bind, const char *desc) {
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     int cw = menu_get_cell_width(item->owner, 1);
     int x = draw_params->x + (cw - texture->tile_width) / 2;
@@ -111,7 +110,7 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
 
     int n;
     for (n = 0; n < 4; ++n) {
-        uint16_t c = bind_get_component(bind, n);
+        u16 c = bind_get_component(bind, n);
         if (c == BIND_END) {
             break;
         }

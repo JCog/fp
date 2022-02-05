@@ -8,10 +8,10 @@ struct item_data {
     void *callback_data;
     struct gfx_texture *texture_on;
     int texture_tile_on;
-    uint32_t color_on;
+    u32 color_on;
     struct gfx_texture *texture_off;
     int texture_tile_off;
-    uint32_t color_off;
+    u32 color_off;
     float scale;
     _Bool disable_shadow;
     int anim_state;
@@ -39,7 +39,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     }
     struct gfx_texture *texture;
     int texture_tile;
-    uint32_t color;
+    u32 color;
     if ((data->anim_state > 0) != data->state) {
         texture = data->texture_on;
         texture_tile = data->texture_tile_on;
@@ -99,9 +99,9 @@ static int activate_proc(struct menu_item *item) {
 }
 
 struct menu_item *menu_add_switch(struct menu *menu, int x, int y, struct gfx_texture *texture_on, int texture_tile_on,
-                                  uint32_t color_on, struct gfx_texture *texture_off, int texture_tile_off,
-                                  uint32_t color_off, float scale, _Bool disable_shadow,
-                                  menu_generic_callback callback_proc, void *callback_data) {
+                                  u32 color_on, struct gfx_texture *texture_off, int texture_tile_off, u32 color_off,
+                                  float scale, _Bool disable_shadow, menu_generic_callback callback_proc,
+                                  void *callback_data) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0x808080);
     struct item_data *data = malloc(sizeof(*data));
     data->state = 0;

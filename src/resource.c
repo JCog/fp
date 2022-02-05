@@ -43,7 +43,7 @@ static void *rc_grc_font_generic(const char *grc_resource_name, int char_width, 
     }
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        t->im_fmt,     t->im_siz, (u32)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
         GFX_FILE_DRAM, 0,
     };
     return rc_font_generic(&td, char_width, char_height, code_start, letter_spacing, line_spacing, baseline, median, x);
@@ -172,7 +172,7 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
     }
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        t->im_fmt,     t->im_siz, (u32)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
         GFX_FILE_DRAM, 0,
     };
     return gfx_texture_load(&td, NULL);

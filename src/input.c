@@ -8,14 +8,14 @@
 #include "settings.h"
 #include "pm64.h"
 
-static int8_t joy_x;
-static int8_t joy_y;
-static uint16_t pad;
+static s8 joy_x;
+static s8 joy_y;
+static u16 pad;
 static int button_time[16];
-static uint16_t pad_pressed_raw;
-static uint16_t pad_pressed;
-static uint16_t pad_released;
-static uint16_t pad_reserved;
+static u16 pad_pressed_raw;
+static u16 pad_pressed;
+static u16 pad_released;
+static u16 pad_reserved;
 static int button_reserve_count[16];
 static int bind_component_state[COMMAND_MAX];
 static int bind_time[COMMAND_MAX];
@@ -25,7 +25,7 @@ static _Bool bind_disable[COMMAND_MAX];
 static _Bool bind_override[COMMAND_MAX];
 static _Bool input_enabled = 1;
 
-static int bitmask_button_index(uint16_t bitmask) {
+static int bitmask_button_index(u16 bitmask) {
     for (int i = 0; i < 16; ++i) {
         if (bitmask & (1 << i)) {
             return i;
@@ -34,8 +34,8 @@ static int bitmask_button_index(uint16_t bitmask) {
     return -1;
 }
 
-uint16_t bind_make(int length, ...) {
-    uint16_t bind = 0;
+u16 bind_make(int length, ...) {
+    u16 bind = 0;
     va_list vl;
     va_start(vl, length);
     for (int i = 0; i < length; ++i) {
@@ -48,12 +48,12 @@ uint16_t bind_make(int length, ...) {
     return bind;
 }
 
-int bind_get_component(uint16_t bind, int index) {
+int bind_get_component(u16 bind, int index) {
     return (bind >> (4 * index)) & 0x000F;
 }
 
-uint16_t bind_get_bitmask(uint16_t bind) {
-    uint16_t p = 0;
+u16 bind_get_bitmask(u16 bind) {
+    u16 p = 0;
     for (int i = 0; i < 4; ++i) {
         int c = bind_get_component(bind, i);
         if (c == BIND_END) {
@@ -65,7 +65,7 @@ uint16_t bind_get_bitmask(uint16_t bind) {
 }
 
 // clang-format off
-const uint32_t input_button_color[] = {
+const u32 input_button_color[] = {
     0xFFA000, 0xFFA000, 0xFFA000, 0xFFA000, 0xC0C0C0, 0xC0C0C0, 0x000000, 0x000000,
     0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC80000, 0xC0C0C0, 0x009600, 0x5A5AFF,
 };
@@ -74,13 +74,13 @@ const uint32_t input_button_color[] = {
 void input_update(void) {
     joy_x = pm_status.control_x;
     joy_y = pm_status.control_y;
-    uint16_t pm_pad = pm_status.raw.buttons;
+    u16 pm_pad = pm_status.raw.buttons;
     pad_pressed_raw = (pad ^ pm_pad) & pm_pad;
     pad_released = (pad ^ pm_pad) & ~pm_pad;
     pad = pm_pad;
     pad_pressed = 0;
     for (int i = 0; i < 16; ++i) {
-        uint16_t p = 1 << i;
+        u16 p = 1 << i;
         if (pad & p) {
             ++button_time[i];
         } else {
@@ -90,14 +90,14 @@ void input_update(void) {
             pad_pressed |= p;
         }
     }
-    uint16_t bind_pad[SETTINGS_BIND_MAX];
+    u16 bind_pad[SETTINGS_BIND_MAX];
     _Bool bind_state[SETTINGS_BIND_MAX];
     for (int i = 0; i < SETTINGS_BIND_MAX; ++i) {
-        uint16_t *b = &settings->binds[i];
+        u16 *b = &settings->binds[i];
         bind_pad[i] = bind_get_bitmask(*b);
         int *cs = &bind_component_state[i];
         int j;
-        uint16_t c;
+        u16 c;
         if (!input_enabled || bind_disable[i] || (!bind_override[i] && (pad_reserved & bind_pad[i]))) {
             *cs = 0;
         } else {
@@ -107,7 +107,7 @@ void input_update(void) {
                 if (c == BIND_END) {
                     break;
                 }
-                uint8_t csm = 1 << j;
+                u8 csm = 1 << j;
                 if (*cs & csm) {
                     if (pad & (1 << c)) {
                         continue;
@@ -133,12 +133,12 @@ void input_update(void) {
         bind_state[i] = (*cs && (j == 4 || c == BIND_END));
     }
     for (int i = 0; i < SETTINGS_BIND_MAX; ++i) {
-        uint16_t pi = bind_pad[i];
+        u16 pi = bind_pad[i];
         for (int j = 0; bind_state[i] && j < SETTINGS_BIND_MAX; ++j) {
             if (!bind_state[j]) {
                 continue;
             }
-            uint16_t pj = bind_pad[j];
+            u16 pj = bind_pad[j];
             if (pi != pj && (pi & pj) == pi) {
                 bind_component_state[i] = 0;
                 bind_state[i] = 0;
@@ -154,15 +154,15 @@ void input_update(void) {
     }
 }
 
-int8_t input_x(void) {
+s8 input_x(void) {
     return joy_x;
 }
 
-int8_t input_y(void) {
+s8 input_y(void) {
     return joy_y;
 }
 
-uint16_t input_pad(void) {
+u16 input_pad(void) {
     if (input_enabled) {
         return pad;
     } else {
@@ -170,7 +170,7 @@ uint16_t input_pad(void) {
     }
 }
 
-uint16_t input_pressed_raw(void) {
+u16 input_pressed_raw(void) {
     if (input_enabled) {
         return pad_pressed_raw;
     } else {
@@ -178,7 +178,7 @@ uint16_t input_pressed_raw(void) {
     }
 }
 
-uint16_t input_pressed(void) {
+u16 input_pressed(void) {
     if (input_enabled) {
         return pad_pressed;
     } else {
@@ -186,7 +186,7 @@ uint16_t input_pressed(void) {
     }
 }
 
-uint16_t input_released(void) {
+u16 input_released(void) {
     if (input_enabled) {
         return pad_released;
     } else {
@@ -194,7 +194,7 @@ uint16_t input_released(void) {
     }
 }
 
-void input_reserve(uint16_t bitmask) {
+void input_reserve(u16 bitmask) {
     for (int i = 0; i < 16; ++i) {
         if (bitmask & (1 << i)) {
             ++button_reserve_count[i];
@@ -203,9 +203,9 @@ void input_reserve(uint16_t bitmask) {
     pad_reserved |= bitmask;
 }
 
-void input_free(uint16_t bitmask) {
+void input_free(u16 bitmask) {
     for (int i = 0; i < 16; ++i) {
-        uint16_t b = 1 << i;
+        u16 b = 1 << i;
         if (bitmask & b) {
             --button_reserve_count[i];
             if (button_reserve_count[i] == 0) {
@@ -242,7 +242,7 @@ struct item_data {
 
 static int think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    uint16_t *b = &settings->binds[data->bind_index];
+    u16 *b = &settings->binds[data->bind_index];
     if (data->state == 1) {
         if (!pad) {
             data->state = 2;
@@ -260,13 +260,13 @@ static int think_proc(struct menu_item *item) {
         }
     }
     if (data->state == 3) {
-        uint16_t p = bind_get_bitmask(*b);
+        u16 p = bind_get_bitmask(*b);
         if (pad == 0) {
             item->animate_highlight = 0;
             data->state = 0;
             input_enabled = 1;
         } else {
-            uint16_t pp = pad_pressed_raw & ~p;
+            u16 pp = pad_pressed_raw & ~p;
             for (int i = 0; pp && i < 4; ++i) {
                 int c = bind_get_component(*b, i);
                 if (c != BIND_END) {
@@ -290,10 +290,10 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     int cw = menu_get_cell_width(item->owner, 1);
     int x = draw_params->x + (cw - texture->tile_width) / 2;
     int y = draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2;
-    uint16_t b = settings->binds[data->bind_index];
+    u16 b = settings->binds[data->bind_index];
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     for (int i = 0; i < 4; ++i) {
-        uint16_t c = bind_get_component(b, i);
+        u16 c = bind_get_component(b, i);
         if (c == BIND_END) {
             if (i == 0) {
                 gfx_printf(draw_params->font, draw_params->x, draw_params->y, "unbound");

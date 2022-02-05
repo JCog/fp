@@ -31,49 +31,49 @@ enum cheats {
 };
 
 struct watch_info {
-    uint8_t type         : 4;
-    uint8_t anchored     : 1;
-    uint8_t position_set : 1;
+    u8 type         : 4;
+    u8 anchored     : 1;
+    u8 position_set : 1;
 };
 
 struct settings_bits {
-    uint32_t font_resource   : 4;
-    uint32_t drop_shadow     : 1;
-    uint32_t input_display   : 1;
-    uint32_t log             : 1;
-    uint32_t timer_show      : 1;
-    uint32_t timer_logging   : 1;
-    uint32_t battle_debug    : 3;
-    uint32_t quizmo_debug    : 1;
-    uint32_t watches_visible : 1;
+    u32 font_resource   : 4;
+    u32 drop_shadow     : 1;
+    u32 input_display   : 1;
+    u32 log             : 1;
+    u32 timer_show      : 1;
+    u32 timer_logging   : 1;
+    u32 battle_debug    : 3;
+    u32 quizmo_debug    : 1;
+    u32 watches_visible : 1;
 };
 
 struct settings_data {
     /* order elements by size for space-efficient packing */
-    uint32_t watch_address[SETTINGS_WATCHES_MAX];
-    uint32_t cheats;
+    u32 watch_address[SETTINGS_WATCHES_MAX];
+    u32 cheats;
     struct settings_bits bits;
-    int16_t menu_x;
-    int16_t menu_y;
-    int16_t input_display_x;
-    int16_t input_display_y;
-    int16_t log_x;
-    int16_t log_y;
-    int16_t timer_x;
-    int16_t timer_y;
-    int16_t watch_x[SETTINGS_WATCHES_MAX];
-    int16_t watch_y[SETTINGS_WATCHES_MAX];
-    uint16_t binds[SETTINGS_BIND_MAX];
-    int8_t control_stick_range;
-    uint8_t control_stick;
+    s16 menu_x;
+    s16 menu_y;
+    s16 input_display_x;
+    s16 input_display_y;
+    s16 log_x;
+    s16 log_y;
+    s16 timer_x;
+    s16 timer_y;
+    s16 watch_x[SETTINGS_WATCHES_MAX];
+    s16 watch_y[SETTINGS_WATCHES_MAX];
+    u16 binds[SETTINGS_BIND_MAX];
+    s8 control_stick_range;
+    u8 control_stick;
     struct watch_info watch_info[SETTINGS_WATCHES_MAX];
-    uint8_t n_watches;
+    u8 n_watches;
 };
 
 struct settings_header {
-    uint16_t version;
-    uint16_t data_size;
-    uint16_t data_checksum;
+    u16 version;
+    u16 data_size;
+    u16 data_checksum;
 };
 
 struct settings {

@@ -9,7 +9,7 @@ struct static_icon_data {
     float scale;
 };
 
-struct menu_item *menu_add_static(struct menu *menu, int x, int y, const char *text, uint32_t color) {
+struct menu_item *menu_add_static(struct menu *menu, int x, int y, const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
     item->selectable = 0;
     return item;
@@ -38,7 +38,7 @@ static int static_icon_draw_proc(struct menu_item *item, struct menu_draw_params
 }
 
 struct menu_item *menu_add_static_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
-                                       uint32_t color, float scale) {
+                                       u32 color, float scale) {
     struct static_icon_data *data = malloc(sizeof(*data));
     data->texture = texture;
     data->texture_tile = texture_tile;
@@ -52,7 +52,7 @@ struct menu_item *menu_add_static_icon(struct menu *menu, int x, int y, struct g
 
 struct menu_item *menu_add_static_custom(struct menu *menu, int x, int y,
                                          int (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
-                                         const char *text, uint32_t color) {
+                                         const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
     item->selectable = 0;
     item->draw_proc = draw_proc;
@@ -76,7 +76,7 @@ static int tooltip_destroy_proc(struct menu_item *item) {
     return 0;
 }
 
-struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu *tool_menu, uint32_t color) {
+struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu *tool_menu, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
     item->data = tool_menu;
     item->selectable = 0;

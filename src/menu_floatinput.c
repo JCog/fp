@@ -217,7 +217,7 @@ struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y, int sig_p
     item->navigate_proc = navigate_proc;
     item->activate_proc = activate_proc;
     item->destroy_proc = destroy_proc;
-    uint32_t color = data->imenu->highlight_color_static;
+    u32 color = data->imenu->highlight_color_static;
     menu_item_add(data->imenu, 2, 0, ".", color)->selectable = 0;
     menu_item_add(data->imenu, 2 + sig_precis, 0, "e", color)->selectable = 0;
     for (int i = 0; i < 2; ++i) {

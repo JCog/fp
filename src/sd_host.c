@@ -4,9 +4,9 @@
 #include "sd.h"
 #include "sd_host.h"
 
-static uint8_t crc7(void *data, int size) {
-    uint8_t *p = data;
-    uint8_t crc = 0;
+static u8 crc7(void *data, int size) {
+    u8 *p = data;
+    u8 crc = 0;
 
     while (size != 0) {
         crc = crc ^ *p++;
@@ -23,7 +23,7 @@ static uint8_t crc7(void *data, int size) {
     return crc | 1;
 }
 
-static void crc16_wide(const void *data, int size, uint16_t (*crc_buf)[4]) {
+static void crc16_wide(const void *data, int size, u16 (*crc_buf)[4]) {
 #if defined(__mips) && __mips >= 3
     int crc;
     int t0;
@@ -67,10 +67,10 @@ static void crc16_wide(const void *data, int size, uint16_t (*crc_buf)[4]) {
               [t1] "=r"(t1));
 #else
     /* CRC-16 CCITT/XMODEM (0x1021) stretched to 64 bits */
-    const uint64_t poly = 0x0001000000100001;
-    uint64_t crc = 0;
-    uint64_t x;
-    const uint8_t *p = data;
+    const u64 poly = 0x0001000000100001;
+    u64 crc = 0;
+    u64 x;
+    const u8 *p = data;
 
     for (int i = 0; i < size; i += 2) {
         x = (p[i] << 8) | p[i + 1];
@@ -80,7 +80,7 @@ static void crc16_wide(const void *data, int size, uint16_t (*crc_buf)[4]) {
     }
 
     /* store result in big endian byte order */
-    uint8_t *crc_p = (void *)*crc_buf;
+    u8 *crc_p = (void *)*crc_buf;
     for (int i = 0; i < 8; i++) {
         *crc_p++ = crc >> 56;
         crc = crc << 8;
@@ -88,7 +88,7 @@ static void crc16_wide(const void *data, int size, uint16_t (*crc_buf)[4]) {
 #endif
 }
 
-static int cs_err(uint32_t cs) {
+static int cs_err(u32 cs) {
     if ((cs & CS_ERR_BITS) == 0) {
         return 0;
     } else if (cs & CS_CC_ERROR) {
@@ -167,7 +167,7 @@ static void set_spd(struct sd_host *host, int spd) {
     host->set_spd(spd);
 }
 
-static int card_cmd_sd(struct sd_host *host, int cmd, const uint8_t *tx_buf, uint8_t *rx_buf) {
+static int card_cmd_sd(struct sd_host *host, int cmd, const u8 *tx_buf, u8 *rx_buf) {
     int resp_type = sd_resp_type(cmd);
     int resp_size = sd_resp_size(resp_type);
 
@@ -196,7 +196,7 @@ static int card_cmd_sd(struct sd_host *host, int cmd, const uint8_t *tx_buf, uin
 
     if (resp_type != 0 && resp_type != R3) {
         /* verify response crc */
-        uint8_t crc;
+        u8 crc;
         if (resp_type == R2) {
             crc = crc7(&rx_buf[1], resp_size - 2);
         } else {
@@ -216,7 +216,7 @@ static int card_cmd_sd(struct sd_host *host, int cmd, const uint8_t *tx_buf, uin
     }
 }
 
-static int card_cmd_spi(struct sd_host *host, int cmd, const uint8_t *tx_buf, uint8_t *rx_buf) {
+static int card_cmd_spi(struct sd_host *host, int cmd, const u8 *tx_buf, u8 *rx_buf) {
     int resp_type = spi_resp_type(cmd);
     int resp_size = spi_resp_size(resp_type);
 
@@ -253,9 +253,9 @@ static int card_cmd_spi(struct sd_host *host, int cmd, const uint8_t *tx_buf, ui
     }
 }
 
-static int card_cmd(struct sd_host *host, int cmd, uint32_t arg, void *resp) {
-    uint8_t tx_buf[17];
-    uint8_t *rx_buf;
+static int card_cmd(struct sd_host *host, int cmd, u32 arg, void *resp) {
+    u8 tx_buf[17];
+    u8 *rx_buf;
 
     if (resp != NULL) {
         rx_buf = resp;
@@ -295,11 +295,11 @@ static int rx_blk_sd(struct sd_host *host, void *buf, size_t blk_size) {
     host->dat_rx_buf(buf, blk_size);
 
     /* receive crc */
-    uint16_t rx_crc[4];
+    u16 rx_crc[4];
     host->dat_rx_buf(rx_crc, sizeof(rx_crc));
 
     /* compute crc */
-    uint16_t crc[4];
+    u16 crc[4];
     crc16_wide(buf, blk_size, &crc);
 
     /* verify crc */
@@ -333,7 +333,7 @@ static int rx_blk_spi(struct sd_host *host, void *buf, size_t blk_size) {
     host->spi_rx_buf(buf, blk_size);
 
     /* receive crc */
-    uint16_t rx_crc;
+    u16 rx_crc;
     host->spi_rx_buf(&rx_crc, sizeof(rx_crc));
 
     /* skip crc verification for SPI Bus */
@@ -350,7 +350,7 @@ static int rx_blk(struct sd_host *host, void *buf, size_t blk_size) {
 
 static int tx_blk_sd(struct sd_host *host, const void *buf, size_t blk_size) {
     /* compute crc */
-    uint16_t crc[4];
+    u16 crc[4];
     if (buf != NULL) {
         crc16_wide(buf, blk_size, &crc);
     } else {
@@ -554,7 +554,7 @@ static int tx_mblk(struct sd_host *host, const void *buf, size_t blk_size, size_
 
 int sd_init(struct sd_host *host) {
     int ret;
-    uint8_t dat[64];
+    u8 dat[64];
 
     /* acquire the host device */
     host->lock();
@@ -591,7 +591,7 @@ int sd_init(struct sd_host *host) {
         }
 
         /* 3.2V - 3.4V */
-        uint32_t op_cond = OCR_3V2_3V3 | OCR_3V3_3V4;
+        u32 op_cond = OCR_3V2_3V3 | OCR_3V3_3V4;
         if (host->card_type & SD_CARD_V2) {
             /* Host Capacity Support */
             op_cond = op_cond | OCR_CCS;
@@ -602,7 +602,7 @@ int sd_init(struct sd_host *host) {
         }
 
         if (host->proto == SD_PROTO_SDBUS) {
-            uint32_t ocr = r3_ocr(dat);
+            u32 ocr = r3_ocr(dat);
             /* check card power up status bit */
             if (ocr & OCR_BUSY) {
                 if (host->card_type & SD_CARD_V2) {
@@ -639,7 +639,7 @@ int sd_init(struct sd_host *host) {
         if (ret != 0) {
             goto exit;
         }
-        uint32_t rca = r6_rca(dat);
+        u32 rca = r6_rca(dat);
         ret = card_cmd(host, SELECT_CARD, rca << 16, NULL);
         if (ret != 0) {
             goto exit;

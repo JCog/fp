@@ -9,7 +9,7 @@ struct item_data {
     int length;
     menu_generic_callback callback_proc;
     void *callback_data;
-    uint32_t value;
+    u32 value;
     _Bool active;
     struct menu *imenu;
     struct menu_item *item;
@@ -81,8 +81,8 @@ static int activate_proc(struct menu_item *item) {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
             return 1;
         }
-        uint32_t value = 0;
-        uint32_t mul = 1;
+        u32 value = 0;
+        u32 mul = 1;
         int sign = data->signed_ && data->digits[0]->text[0] == '-' ? -1 : 1;
         for (int i = data->length - 1; i >= 0; --i) {
             int n = data->digits[i]->text[0];
@@ -184,7 +184,7 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
     item->activate_proc = activate_proc;
     item->destroy_proc = destroy_proc;
     for (int i = 0; i < length; ++i) {
-        uint32_t color = data->imenu->highlight_color_static;
+        u32 color = data->imenu->highlight_color_static;
         struct menu_item *digit = menu_item_add(data->imenu, i, 0, NULL, color);
         data->digits[i] = digit;
         digit->text = malloc(2);
@@ -208,20 +208,20 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
     return item;
 }
 
-uint32_t menu_intinput_get(struct menu_item *item) {
+u32 menu_intinput_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-int32_t menu_intinput_gets(struct menu_item *item) {
+s32 menu_intinput_gets(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-void menu_intinput_set(struct menu_item *item, uint32_t value) {
+void menu_intinput_set(struct menu_item *item, u32 value) {
     struct item_data *data = item->data;
     data->value = value;
-    int sign = data->signed_ && (int32_t)value < 0 ? -1 : 1;
+    int sign = data->signed_ && (s32)value < 0 ? -1 : 1;
     value *= sign;
     for (int i = data->length - 1; i >= 0; --i) {
         int c;

@@ -7,6 +7,6 @@ void watchlist_store(struct menu_item *item);
 void watchlist_fetch(struct menu_item *item);
 void watchlist_show(struct menu_item *item);
 void watchlist_hide(struct menu_item *item);
-int watchlist_add(struct menu_item *item, uint32_t address, enum watch_type type);
+int watchlist_add(struct menu_item *item, u32 address, enum watch_type type);
 
 #endif

@@ -251,8 +251,8 @@ void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 
 
 void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     u16 d_pad = pm_status.raw.buttons;
-    int8_t d_x = pm_status.control_x;
-    int8_t d_y = pm_status.control_y;
+    s8 d_x = pm_status.control_x;
+    s8 d_y = pm_status.control_y;
 
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     struct gfx_texture *control_stick = resource_get(RES_TEXTURE_CONTROL_STICK);

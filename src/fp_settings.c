@@ -6,13 +6,13 @@
 #include "fp.h"
 #include "watchlist.h"
 
-static uint16_t font_options[] = {
+static u16 font_options[] = {
     RES_FONT_FIPPS,        RES_FONT_NOTALOT35, RES_FONT_ORIGAMIMOMMY,  RES_FONT_PCSENIOR, RES_FONT_PIXELINTV,
     RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -24,7 +24,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
 }
 
 static int control_stick_range_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -88,8 +88,8 @@ static int drop_shadow_proc(struct menu_item *item, enum menu_callback_reason re
 }
 
 static int generic_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int16_t *x = data;
-    int16_t *y = x + 1;
+    s16 *x = data;
+    s16 *y = x + 1;
     int dist = 2;
     if (input_pad() & BUTTON_Z) {
         dist *= 2;
@@ -200,7 +200,7 @@ struct menu *create_settings_menu(void) {
     /* appearance controls */
     menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
     menu_add_button(&menu, MENU_X, y, "-", profile_dec_proc, NULL);
-    menu_add_watch(&menu, MENU_X + 2, y, (uint32_t)&fp.profile, WATCH_TYPE_U8);
+    menu_add_watch(&menu, MENU_X + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
     menu_add_button(&menu, MENU_X + 4, y++, "+", profile_inc_proc, NULL);
     menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
     menu_add_option(&menu, MENU_X, y++,

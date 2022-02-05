@@ -64,7 +64,7 @@ const char *ITEM_LIST = "-\0""Jump\0""Spin Jump\0""Tornado Jump\0""Hammer\0""Sup
 // clang-format on
 
 static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint16_t *p = data;
+    u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -76,7 +76,7 @@ static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason r
 }
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -88,7 +88,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -100,7 +100,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
 }
 
 static int halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint16_t *p = data;
+    u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -112,7 +112,7 @@ static int halfword_optionmod_proc(struct menu_item *item, enum menu_callback_re
 }
 
 static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -148,13 +148,13 @@ static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason,
 }
 
 static int hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t menu_hammer = menu_option_get(item) - 1;
+    u8 menu_hammer = menu_option_get(item) - 1;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_hammer != pm_player.player_data.hammer_upgrade) {
-            menu_option_set(item, (uint8_t)pm_player.player_data.hammer_upgrade + 1);
+            menu_option_set(item, (u8)pm_player.player_data.hammer_upgrade + 1);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_player.player_data.hammer_upgrade = (uint8_t)menu_option_get(item) - 1;
+        pm_player.player_data.hammer_upgrade = (u8)menu_option_get(item) - 1;
     }
     return 0;
 }
@@ -184,7 +184,7 @@ static int rank_proc(struct menu_item *item, enum menu_callback_reason reason, v
 }
 
 static int item_int_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint16_t *p = data;
+    u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -200,7 +200,7 @@ static int item_int_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static int star_power_full_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -220,7 +220,7 @@ static int star_power_full_proc(struct menu_item *item, enum menu_callback_reaso
 }
 
 static int star_power_partial_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -273,19 +273,19 @@ static int peach_parasol_proc(struct menu_item *item, enum menu_callback_reason 
 }
 
 static void item_up_proc(struct menu_item *item, void *data) {
-    uint16_t *start_item = (uint16_t *)data;
-    uint16_t *up_item = start_item - 1;
+    u16 *start_item = (u16 *)data;
+    u16 *up_item = start_item - 1;
 
-    uint16_t temp_item = *up_item;
+    u16 temp_item = *up_item;
     *up_item = *start_item;
     *start_item = temp_item;
 }
 
 static void item_down_proc(struct menu_item *item, void *data) {
-    uint16_t *start_item = (uint16_t *)data;
-    uint16_t *down_item = start_item + 1;
+    u16 *start_item = (u16 *)data;
+    u16 *down_item = start_item + 1;
 
-    uint16_t temp_item = *down_item;
+    u16 temp_item = *down_item;
     *down_item = *start_item;
     *start_item = temp_item;
 }

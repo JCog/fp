@@ -30,15 +30,15 @@ static struct menu_item *view_rows[MEM_VIEW_ROWS];
 static struct menu_item *view_cells[MEM_VIEW_SIZE];
 
 struct mem_domain {
-    uint32_t start;
-    uint32_t size;
+    u32 start;
+    u32 size;
     const char *name;
     int view_offset;
 };
 
 static struct vector domains;
 
-static void add_domain(uint32_t start, uint32_t size, const char *name) {
+static void add_domain(u32 start, u32 size, const char *name) {
     struct mem_domain *domain = vector_push_back(&domains, 1, NULL);
     domain->start = start;
     domain->size = size;
@@ -93,9 +93,9 @@ static int cell_proc(struct menu_item *item, enum menu_callback_reason reason, v
     struct mem_domain *d = vector_at(&domains, view_domain_index);
     switch (view_data_size) {
         case 1: {
-            uint8_t *p = (void *)(d->start + d->view_offset + cell_index);
+            u8 *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-                uint8_t v = *p;
+                u8 v = *p;
                 if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
                 }
@@ -105,9 +105,9 @@ static int cell_proc(struct menu_item *item, enum menu_callback_reason reason, v
             break;
         }
         case 2: {
-            uint16_t *p = (void *)(d->start + d->view_offset + cell_index);
+            u16 *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-                uint16_t v = *p;
+                u16 v = *p;
                 if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
                 }
@@ -117,9 +117,9 @@ static int cell_proc(struct menu_item *item, enum menu_callback_reason reason, v
             break;
         }
         case 4: {
-            uint32_t *p = (void *)(d->start + d->view_offset + cell_index);
+            u32 *p = (void *)(d->start + d->view_offset + cell_index);
             if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-                uint32_t v = *p;
+                u32 v = *p;
                 if (menu_intinput_get(item) != v) {
                     menu_intinput_set(item, v);
                 }
@@ -231,7 +231,7 @@ static void page_down_proc(struct menu_item *item, void *data) {
 static void add_watch_proc(struct menu_item *item, void *data) {
     int y = (int)data;
     struct mem_domain *d = vector_at(&domains, view_domain_index);
-    uint32_t address = d->start + d->view_offset + y * MEM_VIEW_COLS;
+    u32 address = d->start + d->view_offset + y * MEM_VIEW_COLS;
     enum watch_type type;
     if (view_data_size == 1) {
         type = WATCH_TYPE_X8;
@@ -299,7 +299,7 @@ void mem_menu_create(struct menu *menu) {
     }
 }
 
-void mem_goto(uint32_t address) {
+void mem_goto(u32 address) {
     address &= ~(view_data_size - 1);
     for (int i = 0; i < domains.size; ++i) {
         struct mem_domain *d = vector_at(&domains, i);
@@ -312,7 +312,7 @@ void mem_goto(uint32_t address) {
     update_view();
 }
 
-void mem_open_watch(struct menu *menu, struct menu *menu_mem, uint32_t address, enum watch_type type) {
+void mem_open_watch(struct menu *menu, struct menu *menu_mem, u32 address, enum watch_type type) {
     switch (type) {
         case WATCH_TYPE_U8:
         case WATCH_TYPE_S8:

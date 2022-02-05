@@ -3,7 +3,7 @@
 #include "fp.h"
 
 static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -77,7 +77,7 @@ static void crystal_king_proc(struct menu_item *item, void *data) {
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
-    uint8_t *partner = &pm_player.player_data.current_partner;
+    u8 *partner = &pm_player.player_data.current_partner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { // flying partners cause a softlock
         *partner = 1;                                                       // goombario
     }

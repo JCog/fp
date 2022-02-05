@@ -5,27 +5,27 @@
 #include "util.h"
 #include "pm64.h"
 
-typedef void io_func_t(uint32_t dev_addr, uint32_t ram_addr, size_t size);
+typedef void io_func_t(u32 dev_addr, u32 ram_addr, size_t size);
 
-static void pio_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
+static void pio_write(u32 dev_addr, u32 ram_addr, size_t size) {
     if (size == 0) {
         return;
     }
 
-    uint32_t dev_s = dev_addr & ~0x3;
-    uint32_t dev_e = (dev_addr + size + 0x3) & ~0x3;
-    uint32_t dev_p = dev_s;
+    u32 dev_s = dev_addr & ~0x3;
+    u32 dev_e = (dev_addr + size + 0x3) & ~0x3;
+    u32 dev_p = dev_s;
 
-    uint32_t ram_s = ram_addr;
-    uint32_t ram_e = ram_s + size;
-    uint32_t ram_p = ram_addr - (dev_addr - dev_s);
+    u32 ram_s = ram_addr;
+    u32 ram_e = ram_s + size;
+    u32 ram_p = ram_addr - (dev_addr - dev_s);
 
     while (dev_p < dev_e) {
-        uint32_t w = __pi_read_raw(dev_p);
+        u32 w = __pi_read_raw(dev_p);
         for (int i = 0; i < 4; i++) {
-            uint8_t b;
+            u8 b;
             if (ram_p >= ram_s && ram_p < ram_e) {
-                b = *(uint8_t *)ram_p;
+                b = *(u8 *)ram_p;
             } else {
                 b = w >> 24;
             }
@@ -37,24 +37,24 @@ static void pio_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
     }
 }
 
-static void pio_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
+static void pio_read(u32 dev_addr, u32 ram_addr, size_t size) {
     if (size == 0) {
         return;
     }
 
-    uint32_t dev_s = dev_addr & ~0x3;
-    uint32_t dev_e = (dev_addr + size + 0x3) & ~0x3;
-    uint32_t dev_p = dev_s;
+    u32 dev_s = dev_addr & ~0x3;
+    u32 dev_e = (dev_addr + size + 0x3) & ~0x3;
+    u32 dev_p = dev_s;
 
-    uint32_t ram_s = ram_addr;
-    uint32_t ram_e = ram_s + size;
-    uint32_t ram_p = ram_addr - (dev_addr - dev_s);
+    u32 ram_s = ram_addr;
+    u32 ram_e = ram_s + size;
+    u32 ram_p = ram_addr - (dev_addr - dev_s);
 
     while (dev_p < dev_e) {
-        uint32_t w = __pi_read_raw(dev_p);
+        u32 w = __pi_read_raw(dev_p);
         for (int i = 0; i < 4; i++) {
             if (ram_p >= ram_s && ram_p < ram_e) {
-                *(uint8_t *)ram_p = w >> 24;
+                *(u8 *)ram_p = w >> 24;
             }
             w <<= 8;
             ram_p++;
@@ -63,7 +63,7 @@ static void pio_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
     }
 }
 
-static void dma_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
+static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
     if (size == 0) {
         return;
     }
@@ -95,7 +95,7 @@ static void dma_write(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
     }
 }
 
-static void dma_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
+static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
     if (size == 0) {
         return;
     }
@@ -127,26 +127,26 @@ static void dma_read(uint32_t dev_addr, uint32_t ram_addr, size_t size) {
     }
 }
 
-static void do_transfer(uint32_t dev_addr, uint32_t ram_addr, size_t size, io_func_t *pio_func, io_func_t *dma_func) {
+static void do_transfer(u32 dev_addr, u32 ram_addr, size_t size, io_func_t *pio_func, io_func_t *dma_func) {
     if ((dev_addr ^ ram_addr) & 1) {
         /* Impossible alignment for DMA transfer,
          * we have to PIO the whole thing.
          */
         pio_func(dev_addr, ram_addr, size);
     } else {
-        uint32_t ram_s = ram_addr;
-        uint32_t ram_e = ram_addr + size;
-        uint32_t ram_align_s = (ram_s + 0x7) & ~0x7;
-        uint32_t dev_s = dev_addr;
+        u32 ram_s = ram_addr;
+        u32 ram_e = ram_addr + size;
+        u32 ram_align_s = (ram_s + 0x7) & ~0x7;
+        u32 dev_s = dev_addr;
 
         if (ram_e > ram_align_s) {
-            uint32_t ram_align_e = ram_e & ~0x1;
+            u32 ram_align_e = ram_e & ~0x1;
             size_t pio_s = ram_align_s - ram_s;
             size_t pio_e = ram_e - ram_align_e;
             size_t dma = size - pio_s - pio_e;
-            uint32_t dev_e = dev_addr + size;
-            uint32_t dev_align_s = dev_s + pio_s;
-            uint32_t dev_align_e = dev_e - pio_e;
+            u32 dev_e = dev_addr + size;
+            u32 dev_align_s = dev_s + pio_s;
+            u32 dev_align_e = dev_e - pio_e;
 
             pio_func(dev_s, ram_s, pio_s);
             pio_func(dev_align_e, ram_align_e, pio_e);
@@ -157,21 +157,21 @@ static void do_transfer(uint32_t dev_addr, uint32_t ram_addr, size_t size, io_fu
     }
 }
 
-void pi_write_locked(uint32_t dev_addr, const void *src, size_t size) {
-    do_transfer(dev_addr, (uint32_t)src, size, pio_write, dma_write);
+void pi_write_locked(u32 dev_addr, const void *src, size_t size) {
+    do_transfer(dev_addr, (u32)src, size, pio_write, dma_write);
 }
 
-void pi_read_locked(uint32_t dev_addr, void *dst, size_t size) {
-    do_transfer(dev_addr, (uint32_t)dst, size, pio_read, dma_read);
+void pi_read_locked(u32 dev_addr, void *dst, size_t size) {
+    do_transfer(dev_addr, (u32)dst, size, pio_read, dma_read);
 }
 
-void pi_write(uint32_t dev_addr, const void *src, size_t size) {
+void pi_write(u32 dev_addr, const void *src, size_t size) {
     __osPiGetAccess();
     pi_write_locked(dev_addr, src, size);
     __osPiRelAccess();
 }
 
-void pi_read(uint32_t dev_addr, void *dst, size_t size) {
+void pi_read(u32 dev_addr, void *dst, size_t size) {
     __osPiGetAccess();
     pi_read_locked(dev_addr, dst, size);
     __osPiRelAccess();

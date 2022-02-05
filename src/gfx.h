@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <n64.h>
 #include "gu.h"
+#include "pm64.h"
 
 #define GFX_FILE_DRAM (-1)
 #define gfx_disp(...)                                    \
@@ -25,17 +26,17 @@ enum gfx_mode {
 struct gfx_texdesc {
     g_ifmt_t im_fmt;
     g_isiz_t im_siz;
-    uint32_t address;
-    int16_t tile_width;
-    int16_t tile_height;
-    int16_t tiles_x;
-    int16_t tiles_y;
-    uint32_t file_vaddr;
+    u32 address;
+    s16 tile_width;
+    s16 tile_height;
+    s16 tiles_x;
+    s16 tiles_y;
+    u32 file_vaddr;
     size_t file_vsize;
 };
 
 struct gfx_texldr {
-    uint32_t file_vaddr;
+    u32 file_vaddr;
     void *file_data;
 };
 
@@ -43,16 +44,16 @@ struct gfx_texture {
     g_ifmt_t im_fmt;
     g_isiz_t im_siz;
     void *data;
-    int16_t tile_width;
-    int16_t tile_height;
-    int16_t tiles_x;
-    int16_t tiles_y;
+    s16 tile_width;
+    s16 tile_height;
+    s16 tiles_x;
+    s16 tiles_y;
     size_t tile_size;
 };
 
 struct gfx_sprite {
     struct gfx_texture *texture;
-    int16_t texture_tile;
+    s16 texture_tile;
     float x;
     float y;
     float xscale;
@@ -61,26 +62,26 @@ struct gfx_sprite {
 
 struct gfx_font {
     struct gfx_texture *texture;
-    int16_t char_width;
-    int16_t char_height;
-    int16_t chars_xtile;
-    int16_t chars_ytile;
-    uint8_t code_start;
-    int16_t letter_spacing;
-    int16_t line_spacing;
-    int16_t baseline;
-    int16_t median;
-    int16_t x;
+    s16 char_width;
+    s16 char_height;
+    s16 chars_xtile;
+    s16 chars_ytile;
+    u8 code_start;
+    s16 letter_spacing;
+    s16 line_spacing;
+    s16 baseline;
+    s16 median;
+    s16 x;
 };
 
 void gfx_start(void);
 void gfx_mode_init(void);
-void gfx_mode_configure(enum gfx_mode mode, uint64_t value);
+void gfx_mode_configure(enum gfx_mode mode, u64 value);
 void gfx_mode_apply(enum gfx_mode mode);
-void gfx_mode_set(enum gfx_mode mode, uint64_t value);
+void gfx_mode_set(enum gfx_mode mode, u64 value);
 void gfx_mode_push(enum gfx_mode mode);
 void gfx_mode_pop(enum gfx_mode mode);
-void gfx_mode_replace(enum gfx_mode mode, uint64_t value);
+void gfx_mode_replace(enum gfx_mode mode, u64 value);
 /* all sizes are specified in number of bytes */
 Gfx *gfx_disp_append(Gfx *disp, size_t size);
 void *gfx_data_append(void *data, size_t size);
@@ -96,14 +97,14 @@ struct gfx_texture *gfx_texture_create(g_ifmt_t im_fmt, g_isiz_t im_siz, int til
 struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct gfx_texture *texture);
 void gfx_texture_destroy(struct gfx_texture *texture);
 void gfx_texture_free(struct gfx_texture *texture);
-void *gfx_texture_data(const struct gfx_texture *texture, int16_t image);
+void *gfx_texture_data(const struct gfx_texture *texture, s16 image);
 struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_texture *dest);
 void gfx_texture_copy_tile(struct gfx_texture *dest, int dest_tile, const struct gfx_texture *src, int src_tile,
                            _Bool blend);
 void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix);
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, int16_t texture_tile);
-void gfx_rdp_load_tile(const struct gfx_texture *texture, int16_t texture_tile);
+void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile);
+void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile);
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite);
 

@@ -26,7 +26,7 @@ static int type_proc(struct menu_item *item, enum menu_callback_reason reason, v
     return 0;
 }
 
-struct menu_item *menu_add_userwatch(struct menu *menu, int x, int y, uint32_t address, enum watch_type type) {
+struct menu_item *menu_add_userwatch(struct menu *menu, int x, int y, u32 address, enum watch_type type) {
     struct menu *imenu;
     struct menu_item *item = menu_add_imenu(menu, x, y, &imenu);
     struct item_data *data = malloc(sizeof(*data));

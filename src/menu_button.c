@@ -63,7 +63,7 @@ struct menu_item *menu_add_button(struct menu *menu, int x, int y, const char *n
 }
 
 struct menu_item *menu_add_button_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
-                                       uint32_t color, menu_action_callback callback_proc, void *callback_data) {
+                                       u32 color, menu_action_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;

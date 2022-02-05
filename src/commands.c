@@ -63,13 +63,13 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y) {
+void fp_set_input_mask(u16 pad, u8 x, u8 y) {
     fp.input_mask.buttons = pad;
     fp.input_mask.x_cardinal = x;
     fp.input_mask.y_cardinal = y;
 }
 
-_Bool fp_warp(uint16_t area, uint16_t map, uint16_t entrance) {
+_Bool fp_warp(u16 area, u16 map, u16 entrance) {
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
@@ -111,7 +111,7 @@ _Bool fp_warp(uint16_t area, uint16_t map, uint16_t entrance) {
     return 1;
 }
 
-void set_flag(uint32_t *flags, int flag_index, _Bool value) {
+void set_flag(u32 *flags, int flag_index, _Bool value) {
     int word_index = flag_index / 32;
     int bit = flag_index % 32;
     if (value) {
@@ -133,7 +133,7 @@ void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
     set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
-void fp_set_global_byte(int byte_index, int8_t value) {
+void fp_set_global_byte(int byte_index, s8 value) {
     pm_save_data.global_bytes[byte_index] = value;
 }
 

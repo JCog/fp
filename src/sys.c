@@ -15,7 +15,7 @@ struct desc {
 
 struct file_desc {
     struct desc desc;
-    uint32_t pos;
+    u32 pos;
 };
 
 struct dir_desc {
@@ -233,7 +233,7 @@ int open(const char *path, int oflags, ...) {
             va_start(va, oflags);
             mode_t mode = va_arg(va, mode_t);
             va_end(va);
-            uint8_t attrib = FAT_ATTRIB_ARCHIVE;
+            u8 attrib = FAT_ATTRIB_ARCHIVE;
             if (!(mode & S_IRUSR)) {
                 attrib |= FAT_ATTRIB_HIDDEN;
             }
@@ -361,7 +361,7 @@ int read(int fildes, void *buf, unsigned int nbyte) {
         return -1;
     }
     /* read data and advance pointer */
-    uint32_t n = fat_rw(&fdesc->desc.file, FAT_READ, buf, nbyte, &fdesc->desc.file, NULL);
+    u32 n = fat_rw(&fdesc->desc.file, FAT_READ, buf, nbyte, &fdesc->desc.file, NULL);
     fdesc->pos += n;
     return n;
 }
@@ -386,23 +386,23 @@ int write(int fildes, void *buf, unsigned int nbyte) {
         fdesc->pos = desc->file.size;
     /* write zero padding if needed */
     if (fdesc->pos > desc->file.size) {
-        uint32_t size = desc->file.size;
+        u32 size = desc->file.size;
         /* resize file */
         if (fat_resize(entry, fdesc->pos + nbyte, &desc->file)) {
             return -1;
         }
         /* seek and clear */
-        uint32_t adv = size - desc->file.p_off;
+        u32 adv = size - desc->file.p_off;
         if (fat_advance(&desc->file, adv, NULL) != adv) {
             return -1;
         }
-        uint32_t n = fdesc->pos - size;
+        u32 n = fdesc->pos - size;
         if (fat_rw(&desc->file, FAT_WRITE, NULL, n, &desc->file, NULL) != n) {
             return -1;
         }
     } else {
         /* resize file if needed */
-        uint32_t new_off = fdesc->pos + nbyte;
+        u32 new_off = fdesc->pos + nbyte;
         if (new_off > desc->file.size) {
             if (fat_resize(entry, new_off, &desc->file)) {
                 return -1;
@@ -414,7 +414,7 @@ int write(int fildes, void *buf, unsigned int nbyte) {
         }
     }
     /* write data and advance pointer */
-    uint32_t n = fat_rw(&desc->file, FAT_WRITE, buf, nbyte, &desc->file, NULL);
+    u32 n = fat_rw(&desc->file, FAT_WRITE, buf, nbyte, &desc->file, NULL);
     fdesc->pos += n;
     return n;
 }
@@ -438,7 +438,7 @@ int truncate(const char *path, off_t length) {
     if (ent_access(&entry, 1)) {
         return -1;
     }
-    uint32_t size = entry.size;
+    u32 size = entry.size;
     if (fat_resize(&entry, length, NULL)) {
         return -1;
     }
@@ -452,7 +452,7 @@ int truncate(const char *path, off_t length) {
             return -1;
         }
         errno = e;
-        uint32_t n = length - size;
+        u32 n = length - size;
         if (fat_rw(&file, FAT_WRITE, NULL, n, NULL, NULL) != n) {
             return -1;
         }
@@ -498,7 +498,7 @@ int chmod(const char *path, mode_t mode) {
     if (ent_access(&entry, 1)) {
         return -1;
     }
-    uint8_t attrib = entry.attrib;
+    u8 attrib = entry.attrib;
     if (mode & S_IRUSR) {
         attrib &= ~FAT_ATTRIB_HIDDEN;
     } else {
@@ -626,7 +626,7 @@ int mkdir(const char *path, mode_t mode) {
     if (init_fat()) {
         return -1;
     }
-    uint8_t attrib = FAT_ATTRIB_DIRECTORY;
+    u8 attrib = FAT_ATTRIB_DIRECTORY;
     if (!(mode & S_IRUSR)) {
         attrib |= FAT_ATTRIB_HIDDEN;
     }

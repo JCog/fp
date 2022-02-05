@@ -4,9 +4,9 @@
 #include "warp_info.h"
 #include "fp.h"
 
-static uint16_t area;
-static uint16_t map;
-static uint16_t entrance;
+static u16 area;
+static u16 map;
+static u16 entrance;
 
 static void area_prev_proc(struct menu_item *item, void *data) {
     if (area == 0) {

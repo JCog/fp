@@ -43,8 +43,8 @@ struct menu_draw_params {
     int y;
     const char *text;
     struct gfx_font *font;
-    uint32_t color;
-    uint8_t alpha;
+    u32 color;
+    u8 alpha;
 };
 
 typedef int (*menu_generic_callback)(struct menu_item *item, enum menu_callback_reason reason, void *data);
@@ -60,7 +60,7 @@ struct menu_item {
     int pyoffset;
     char *text;
     const char *tooltip;
-    uint32_t color;
+    u32 color;
     _Bool animate_highlight;
     void *data;
     _Bool selectable;
@@ -87,8 +87,8 @@ struct menu {
     struct menu_item *selector;
     struct menu *parent;
     struct menu *child;
-    uint32_t highlight_color_static;
-    uint32_t highlight_color_animated;
+    u32 highlight_color_static;
+    u32 highlight_color_animated;
     int highlight_state[3];
 };
 
@@ -124,7 +124,7 @@ void menu_set_cell_height(struct menu *menu, int cell_height);
 struct gfx_font *menu_get_font(struct menu *menu, _Bool inherit);
 void menu_set_font(struct menu *menu, struct gfx_font *font);
 float menu_get_alpha(struct menu *menu, _Bool inherit);
-uint8_t menu_get_alpha_i(struct menu *menu, _Bool inherit);
+u8 menu_get_alpha_i(struct menu *menu, _Bool inherit);
 void menu_set_alpha(struct menu *menu, float alpha);
 int menu_cell_screen_x(struct menu *menu, int cell_x);
 int menu_cell_screen_y(struct menu *menu, int cell_y);
@@ -146,20 +146,20 @@ void menu_enter_top(struct menu *menu, struct menu *submenu);
 struct menu *menu_return_top(struct menu *menu);
 void menu_select_top(struct menu *menu, struct menu_item *item);
 
-struct menu_item *menu_item_add(struct menu *menu, int x, int y, const char *text, uint32_t color);
+struct menu_item *menu_item_add(struct menu *menu, int x, int y, const char *text, u32 color);
 void menu_item_enable(struct menu_item *item);
 void menu_item_disable(struct menu_item *item);
 void menu_item_transfer(struct menu_item *item, struct menu *menu);
 void menu_item_remove(struct menu_item *item);
 int menu_item_screen_x(struct menu_item *item);
 int menu_item_screen_y(struct menu_item *item);
-struct menu_item *menu_add_static(struct menu *menu, int x, int y, const char *text, uint32_t color);
+struct menu_item *menu_add_static(struct menu *menu, int x, int y, const char *text, u32 color);
 struct menu_item *menu_add_static_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
-                                       uint32_t color, float scale);
+                                       u32 color, float scale);
 struct menu_item *menu_add_static_custom(struct menu *menu, int x, int y,
                                          int (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
-                                         const char *text, uint32_t color);
-struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu *tool_menu, uint32_t color);
+                                         const char *text, u32 color);
+struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu *tool_menu, u32 color);
 struct menu_item *menu_add_imenu(struct menu *menu, int x, int y, struct menu **p_imenu);
 struct menu_item *menu_add_tab(struct menu *menu, int x, int y, struct menu *tabs, int n_tabs);
 void menu_tab_goto(struct menu_item *item, int tab_index);
@@ -168,9 +168,9 @@ void menu_tab_next(struct menu_item *item);
 
 struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, int length,
                                     menu_generic_callback callback_proc, void *callback_data);
-uint32_t menu_intinput_get(struct menu_item *item);
-int32_t menu_intinput_gets(struct menu_item *item);
-void menu_intinput_set(struct menu_item *item, uint32_t value);
+u32 menu_intinput_get(struct menu_item *item);
+s32 menu_intinput_gets(struct menu_item *item);
+void menu_intinput_set(struct menu_item *item, u32 value);
 struct menu_item *menu_add_floatinput(struct menu *menu, int x, int y, int sig_precis, int exp_precis,
                                       menu_generic_callback callback_proc, void *callback_data);
 float menu_floatinput_get(struct menu_item *item);
@@ -185,27 +185,27 @@ int menu_option_get(struct menu_item *item);
 void menu_option_set(struct menu_item *item, int value);
 void menu_prompt(struct menu *menu, const char *prompt, const char *options, int default_option,
                  menu_prompt_callback callback_proc, void *callback_data);
-struct menu_item *menu_add_watch(struct menu *menu, int x, int y, uint32_t address, enum watch_type type);
-uint32_t menu_watch_get_address(struct menu_item *item);
-void menu_watch_set_address(struct menu_item *item, uint32_t address);
+struct menu_item *menu_add_watch(struct menu *menu, int x, int y, u32 address, enum watch_type type);
+u32 menu_watch_get_address(struct menu_item *item);
+void menu_watch_set_address(struct menu_item *item, u32 address);
 enum watch_type menu_watch_get_type(struct menu_item *item);
 void menu_watch_set_type(struct menu_item *item, enum watch_type type);
-struct menu_item *menu_add_userwatch(struct menu *menu, int x, int y, uint32_t address, enum watch_type type);
+struct menu_item *menu_add_userwatch(struct menu *menu, int x, int y, u32 address, enum watch_type type);
 struct menu_item *menu_userwatch_address(struct menu_item *item);
 struct menu_item *menu_userwatch_type(struct menu_item *item);
 struct menu_item *menu_userwatch_watch(struct menu_item *item);
 struct menu_item *menu_add_submenu(struct menu *menu, int x, int y, struct menu *submenu, const char *name);
 struct menu_item *menu_add_switch(struct menu *menu, int x, int y, struct gfx_texture *texture_on, int texture_tile_on,
-                                  uint32_t color_on, struct gfx_texture *texture_off, int texture_tile_off,
-                                  uint32_t color_off, float scale, _Bool disable_shadow,
-                                  menu_generic_callback callback_proc, void *callback_data);
+                                  u32 color_on, struct gfx_texture *texture_off, int texture_tile_off, u32 color_off,
+                                  float scale, _Bool disable_shadow, menu_generic_callback callback_proc,
+                                  void *callback_data);
 void menu_switch_set(struct menu_item *item, _Bool state);
 _Bool menu_switch_get(struct menu_item *item);
 void menu_switch_toggle(struct menu_item *item);
 struct menu_item *menu_add_button(struct menu *menu, int x, int y, const char *name, menu_action_callback callback_proc,
                                   void *callback_data);
 struct menu_item *menu_add_button_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
-                                       uint32_t color, menu_action_callback callback_proc, void *callback_data);
+                                       u32 color, menu_action_callback callback_proc, void *callback_data);
 struct menu_item *menu_add_positioning(struct menu *menu, int x, int y, menu_generic_callback callback_proc,
                                        void *callback_data);
 struct menu_item *menu_add_checkbox(struct menu *menu, int x, int y, menu_generic_callback callback_proc,

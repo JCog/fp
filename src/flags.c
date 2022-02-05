@@ -64,13 +64,13 @@ static void add_event(int record_index, int flag_index, _Bool value) {
     sprintf(e->description, "%s[0x%0*x] := %i", r->name, r->index_length, flag_index, value);
 }
 
-static uint32_t get_flag_word(void *data, size_t word_size, int index) {
+static u32 get_flag_word(void *data, size_t word_size, int index) {
     if (word_size == 1) {
-        return ((uint8_t *)data)[index];
+        return ((u8 *)data)[index];
     } else if (word_size == 2) {
-        return ((uint16_t *)data)[index];
+        return ((u16 *)data)[index];
     } else if (word_size == 4) {
-        return ((uint32_t *)data)[index];
+        return ((u32 *)data)[index];
     }
     return 0;
 }
@@ -79,21 +79,21 @@ static void modify_flag(void *data, size_t word_size, int flag_index, _Bool valu
     int word = flag_index / (word_size * 8);
     int bit = flag_index % (word_size * 8);
     if (word_size == 1) {
-        uint8_t *p = data;
+        u8 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
             p[word] &= ~(1 << bit);
         }
     } else if (word_size == 2) {
-        uint16_t *p = data;
+        u16 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
             p[word] &= ~(1 << bit);
         }
     } else if (word_size == 4) {
-        uint32_t *p = data;
+        u32 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
@@ -106,9 +106,9 @@ static int log_think_proc(struct menu_item *item) {
     for (int i = 0; i < records.size; ++i) {
         struct flag_record *r = vector_at(&records, i);
         for (int j = 0; j < r->length; ++j) {
-            uint32_t wd = get_flag_word(r->data, r->word_size, j);
-            uint32_t wc = get_flag_word(r->comp, r->word_size, j);
-            uint32_t d = wd ^ wc;
+            u32 wd = get_flag_word(r->data, r->word_size, j);
+            u32 wc = get_flag_word(r->comp, r->word_size, j);
+            u32 d = wd ^ wc;
             if (d != 0) {
                 for (int k = 0; k < r->word_size * 8; ++k) {
                     if ((d >> k) & 1) {
@@ -126,8 +126,8 @@ static int log_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     int x = draw_params->x;
     int y = draw_params->y;
     struct gfx_font *font = draw_params->font;
-    uint32_t color = draw_params->color;
-    uint8_t alpha = draw_params->alpha;
+    u32 color = draw_params->color;
+    u8 alpha = draw_params->alpha;
     int ch = menu_get_cell_height(item->owner, 1);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     for (int i = 0; i < events.size && i < FLAG_LOG_LENGTH; ++i) {

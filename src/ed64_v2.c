@@ -8,9 +8,9 @@
 #include "util.h"
 
 static int cart_irqf;
-static uint32_t cart_lat;
-static uint32_t cart_pwd;
-static uint16_t spi_cfg;
+static u32 cart_lat;
+static u32 cart_pwd;
+static u16 spi_cfg;
 
 static void cart_lock_safe(void) {
     __osPiGetAccess();
@@ -37,12 +37,12 @@ static void cart_unlock(void) {
     set_irqf(cart_irqf);
 }
 
-static inline uint32_t reg_rd(int reg) {
-    return __pi_read_raw((uint32_t)&REGS_PTR[reg]);
+static inline u32 reg_rd(int reg) {
+    return __pi_read_raw((u32)&REGS_PTR[reg]);
 }
 
-static inline void reg_wr(int reg, uint32_t dat) {
-    return __pi_write_raw((uint32_t)&REGS_PTR[reg], dat);
+static inline void reg_wr(int reg, u32 dat) {
+    return __pi_write_raw((u32)&REGS_PTR[reg], dat);
 }
 
 static inline void spi_mode(int cfg) {
@@ -52,7 +52,7 @@ static inline void spi_mode(int cfg) {
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
-static inline void spi_tx(uint8_t dat) {
+static inline void spi_tx(u8 dat) {
     reg_wr(REG_SPI, dat);
 
     while (reg_rd(REG_STATUS) & STATUS_SPI) {
@@ -60,7 +60,7 @@ static inline void spi_tx(uint8_t dat) {
     }
 }
 
-static inline uint8_t spi_rx(void) {
+static inline u8 spi_rx(void) {
     spi_tx(0xFF);
 
     return reg_rd(REG_SPI);
@@ -99,7 +99,7 @@ static void sd_dat_tx(int dat) {
 }
 
 static void sd_cmd_rx_buf(void *buf, size_t size) {
-    uint8_t *p = buf;
+    u8 *p = buf;
 
     spi_mode(SPI_CMD | SPI_RD | SPI_BYTE);
 
@@ -109,7 +109,7 @@ static void sd_cmd_rx_buf(void *buf, size_t size) {
 }
 
 static void sd_cmd_tx_buf(const void *buf, size_t size) {
-    const uint8_t *p = buf;
+    const u8 *p = buf;
 
     spi_mode(SPI_CMD | SPI_WR | SPI_BYTE);
 
@@ -119,7 +119,7 @@ static void sd_cmd_tx_buf(const void *buf, size_t size) {
 }
 
 static void sd_dat_rx_buf(void *buf, size_t size) {
-    uint8_t *p = buf;
+    u8 *p = buf;
 
     spi_mode(SPI_DAT | SPI_RD | SPI_BYTE);
 
@@ -129,7 +129,7 @@ static void sd_dat_rx_buf(void *buf, size_t size) {
 }
 
 static void sd_dat_tx_buf(const void *buf, size_t size) {
-    const uint8_t *p = buf;
+    const u8 *p = buf;
 
     spi_mode(SPI_DAT | SPI_WR | SPI_BYTE);
 
@@ -150,7 +150,7 @@ static void sd_dat_tx_clk(int dat, size_t n_clk) {
 }
 
 static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
-    const uint32_t cart_addr = 0xB2000000;
+    const u32 cart_addr = 0xB2000000;
 
     /* dma to cart */
     spi_mode(SPI_DAT | SPI_RD | SPI_1CLK);
@@ -198,7 +198,7 @@ static int probe(void) {
     reg_wr(REG_KEY, 0x1234);
 
     /* check firmware version */
-    uint16_t fw_ver = reg_rd(REG_VER);
+    u16 fw_ver = reg_rd(REG_VER);
     if (fw_ver < 0x0116) {
         goto nodev;
     }
@@ -217,7 +217,7 @@ static int probe(void) {
             break;
         }
     }
-    uint16_t dat = reg_rd(REG_SPI);
+    u16 dat = reg_rd(REG_SPI);
     if (dat == 0x0F) {
         /* spi seems to work as expected */
         cart_unlock();
@@ -257,7 +257,7 @@ static int fifo_poll(void) {
 }
 
 static int fifo_read(void *dst, size_t n_blocks) {
-    const uint32_t cart_addr = 0xB2000000;
+    const u32 cart_addr = 0xB2000000;
     const size_t blk_size = 512;
 
     cart_lock();
@@ -289,7 +289,7 @@ static int fifo_read(void *dst, size_t n_blocks) {
 }
 
 static int fifo_write(const void *src, size_t n_blocks) {
-    const uint32_t cart_addr = 0xB2000000;
+    const u32 cart_addr = 0xB2000000;
     const size_t blk_size = 512;
 
     cart_lock();

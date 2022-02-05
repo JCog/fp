@@ -22,7 +22,7 @@ static int hb_sd_init(void) {
         ;
     }
 
-    uint32_t status = hb_regs.status;
+    u32 status = hb_regs.status;
     if ((status & HB_STATUS_SD_READY) && (status & HB_STATUS_SD_INSERTED)) {
         return 0;
     } else {
@@ -75,7 +75,7 @@ static int hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
     }
 }
 
-static int hb_reset(uint32_t dram_save_addr, uint32_t dram_save_len) {
+static int hb_reset(u32 dram_save_addr, u32 dram_save_len) {
     hb_regs.dram_save_addr = dram_save_addr;
     hb_regs.dram_save_len = dram_save_len;
     hb_regs.status = HB_STATUS_RESET;
@@ -83,8 +83,8 @@ static int hb_reset(uint32_t dram_save_addr, uint32_t dram_save_len) {
     return 0;
 }
 
-static uint64_t hb_get_timebase64(void) {
-    return ((uint64_t)hb_regs.timebase_hi << 32) | hb_regs.timebase_lo;
+static u64 hb_get_timebase64(void) {
+    return ((u64)hb_regs.timebase_hi << 32) | hb_regs.timebase_lo;
 }
 
 static unsigned int clock_ticks(void) {
@@ -97,7 +97,7 @@ static unsigned int clock_freq(void) {
 
 static void cpu_reset(void) {
     /* simulate 0.5s nmi delay */
-    uint64_t tb_wait = hb_get_timebase64() + HB_TIMEBASE_FREQ / 2;
+    u64 tb_wait = hb_get_timebase64() + HB_TIMEBASE_FREQ / 2;
     while (hb_get_timebase64() < tb_wait) {
         ;
     }

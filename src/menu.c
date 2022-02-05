@@ -128,7 +128,7 @@ float menu_get_alpha(struct menu *menu, _Bool inherit) {
     return alpha;
 }
 
-uint8_t menu_get_alpha_i(struct menu *menu, _Bool inherit) {
+u8 menu_get_alpha_i(struct menu *menu, _Bool inherit) {
     float alpha = menu_get_alpha(menu, inherit);
     if (alpha < 0.f) {
         alpha = 0.f;
@@ -195,7 +195,7 @@ void menu_draw(struct menu *menu) {
     }
     for (int i = 0; i < 3; ++i) {
         int shift = i * 8;
-        uint32_t mask = 0xFF << shift;
+        u32 mask = 0xFF << shift;
         int v = (menu->highlight_color_animated & mask) >> shift;
         v += menu->highlight_state[i];
         if (v < 0x00 || v > 0xFF) {
@@ -203,10 +203,10 @@ void menu_draw(struct menu *menu) {
             menu->highlight_state[i] = -menu->highlight_state[i];
         }
         menu->highlight_color_animated &= ~mask;
-        menu->highlight_color_animated |= (uint32_t)v << shift;
+        menu->highlight_color_animated |= (u32)v << shift;
     }
     struct gfx_font *font = menu_get_font(menu, 1);
-    uint8_t alpha = menu_get_alpha_i(menu, 1);
+    u8 alpha = menu_get_alpha_i(menu, 1);
     for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
         if (!item->enabled) {
             continue;
@@ -409,7 +409,7 @@ void menu_select_top(struct menu *menu, struct menu_item *item) {
     return menu_select(menu, item);
 }
 
-struct menu_item *menu_item_add(struct menu *menu, int x, int y, const char *text, uint32_t color) {
+struct menu_item *menu_item_add(struct menu *menu, int x, int y, const char *text, u32 color) {
     struct menu_item *item = list_push_back(&menu->items, NULL);
     if (item) {
         item->owner = menu;

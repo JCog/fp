@@ -2,6 +2,7 @@
 #define ADEX_H
 #include <stdint.h>
 #include <vector/vector.h>
+#include "pm64.h"
 
 enum adex_error {
     ADEX_ERROR_SUCCESS,
@@ -16,7 +17,7 @@ struct adex {
 };
 
 enum adex_error adex_parse(struct adex *adex, const char *str);
-enum adex_error adex_eval(struct adex *adex, uint32_t *result);
+enum adex_error adex_eval(struct adex *adex, u32 *result);
 void adex_destroy(struct adex *adex);
 
 extern const char *adex_error_name[];

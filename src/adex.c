@@ -42,7 +42,7 @@ enum brack {
 struct tok {
     enum tok_type type;
     union {
-        uint32_t value;
+        u32 value;
         char id[ID_MAX];
         enum op op;
         enum brack brack;
@@ -109,7 +109,7 @@ static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
     va_list arg;
     va_start(arg, type);
     if (type == TOK_CONST) {
-        tok->value = va_arg(arg, uint32_t);
+        tok->value = va_arg(arg, u32);
     } else if (type == TOK_ID) {
         strcpy(tok->id, va_arg(arg, char *));
     } else if (type == TOK_OP) {
@@ -228,8 +228,8 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                 free(word);
                 goto syntax_err;
             }
-            uint32_t v = 0;
-            uint32_t m = 1;
+            u32 v = 0;
+            u32 m = 1;
             for (char *word_p = word_e - 1; word_p >= word_s; --word_p) {
                 char c = *word_p;
                 int d = -1;
@@ -293,7 +293,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             //      _Bool found = 0;
             //      for (int i = 0; i < sizeof(syms) / sizeof(*syms); ++i)
             //        if (strcmp(tok.id, syms[i].id) == 0) {
-            //          make_tok(&tok, TOK_CONST, (uint32_t)syms[i].addr);
+            //          make_tok(&tok, TOK_CONST, (u32)syms[i].addr);
             //          found = 1;
             //          break;
             //        }
@@ -390,19 +390,19 @@ exit:
     return e;
 }
 
-static _Bool validate_addr(uint32_t addr, int size) {
+static _Bool validate_addr(u32 addr, int size) {
     return addr >= 0x80000000 && addr < 0x80800000 && addr % size == 0;
 }
 
-enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
+enum adex_error adex_eval(struct adex *adex, u32 *result) {
     enum adex_error e;
     /* initialize stack */
     struct vector stack;
-    vector_init(&stack, sizeof(uint32_t));
+    vector_init(&stack, sizeof(u32));
     /* evaluate sub-expressions */
     for (int i = 0; i < adex->expr.size; ++i) {
         struct tok *tok = vector_at(&adex->expr, i);
-        uint32_t value;
+        u32 value;
         if (tok->type == TOK_CONST) {
             /* push operand */
             value = tok->value;
@@ -410,7 +410,7 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
             /* compute operation */
             int op = tok->op;
             int ar = op_ar[op];
-            uint32_t *ops = vector_at(&stack, stack.size - ar);
+            u32 *ops = vector_at(&stack, stack.size - ar);
             _Bool sign = 1;
             switch (op) {
                 /* dereference operators */
@@ -419,20 +419,20 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
                     if (!validate_addr(ops[0], 1)) {
                         goto addr_err;
                     }
-                    value = (sign ? *(int8_t *)ops[0] : *(uint8_t *)ops[0]);
+                    value = (sign ? *(s8 *)ops[0] : *(u8 *)ops[0]);
                     break;
                 case OP_HZ: sign = 0;
                 case OP_H:
                     if (!validate_addr(ops[0], 2)) {
                         goto addr_err;
                     }
-                    value = (sign ? *(int16_t *)ops[0] : *(uint16_t *)ops[0]);
+                    value = (sign ? *(s16 *)ops[0] : *(u16 *)ops[0]);
                     break;
                 case OP_W:
                     if (!validate_addr(ops[0], 4)) {
                         goto addr_err;
                     }
-                    value = *(uint32_t *)ops[0];
+                    value = *(u32 *)ops[0];
                     break;
                 /* arithmetic operators */
                 case OP_ADD: value = ops[0] + ops[1]; break;
@@ -458,7 +458,7 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
         if (!vector_push_back(&stack, 1, &value))
             goto mem_err;
     }
-    uint32_t *top = vector_at(&stack, stack.size - 1);
+    u32 *top = vector_at(&stack, stack.size - 1);
     *result = *top;
     e = ADEX_ERROR_SUCCESS;
     goto exit;

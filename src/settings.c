@@ -9,10 +9,10 @@
 static _Alignas(128) struct settings settings_store;
 struct settings_data *settings = &settings_store.data;
 
-static uint16_t settings_checksum_compute(struct settings *settings) {
-    uint16_t checksum = 0;
-    uint16_t *p = (void *)&settings->data;
-    uint16_t *e = p + sizeof(settings->data) / sizeof(*p);
+static u16 settings_checksum_compute(struct settings *settings) {
+    u16 checksum = 0;
+    u16 *p = (void *)&settings->data;
+    u16 *e = p + sizeof(settings->data) / sizeof(*p);
     while (p < e) {
         checksum += *p++;
     }
@@ -85,7 +85,7 @@ void apply_menu_settings() {
 }
 
 void settings_save(int profile) {
-    uint16_t *checksum = &settings_store.header.data_checksum;
+    u16 *checksum = &settings_store.header.data_checksum;
     *checksum = settings_checksum_compute(&settings_store);
 
     // read in save file in the same slot as the profile

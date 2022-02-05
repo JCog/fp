@@ -73,7 +73,7 @@
 #define REG_CFG_DAT      17
 #define REG_MAX_MSG      18
 #define REG_CRC          19
-#define REGS_PTR         ((volatile uint32_t *)REG_BASE)
+#define REGS_PTR         ((volatile u32 *)REG_BASE)
 
 #define CFG_SDRAM_ON     0x0001
 #define CFG_SWAP         0x0002
