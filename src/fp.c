@@ -590,14 +590,6 @@ void fp_update_cheats(void) {
     if (CHEAT_ACTIVE(CHEAT_PERIL)) {
         pm_player.player_data.hp = 1;
     }
-    if (CHEAT_ACTIVE(CHEAT_BREAK)) {
-        s32 third_byte_mask = 0xFFFF00FF;
-        s32 check_mask = 0x0000FF00;
-
-        if ((pm_player.flags & check_mask) == 0x2000) {
-            pm_player.flags &= third_byte_mask;
-        }
-    }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
         if (pm_status.is_battle) {
             pm_ActionCommandStatus.barFillLevel = 10000;

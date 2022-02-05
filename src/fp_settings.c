@@ -249,7 +249,7 @@ struct menu *create_settings_menu(void) {
     for (int i = 0; i < n_pages; i++) {
         struct menu *page = &pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-        for (int j = 0; j < page_length; j++) {
+        for (int j = 0; j < page_length; ++j) {
             int n = i * page_length + j;
             if (n >= COMMAND_MAX) {
                 break;

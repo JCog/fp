@@ -22,7 +22,8 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
     {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
     {"reset timer",      COMMAND_PRESS_ONCE, 0, command_reset_timer_proc     },
-    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc }
+    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc },
+    {"break free",       COMMAND_PRESS_ONCE, 0, command_break_free_proc      },
 };
 
 void show_menu() {
@@ -259,4 +260,14 @@ void command_load_game_proc() {
         fp_log("no file in slot %d", pm_status.save_slot);
     }
     free(file);
+}
+
+void command_break_free_proc() {
+    s32 third_byte_mask = 0xFFFF00FF;
+    s32 check_mask = 0x0000FF00;
+
+    if ((pm_player.flags & check_mask) == 0x2000) {
+        pm_player.flags &= third_byte_mask;
+    }
+    fp_log("broke free");
 }
