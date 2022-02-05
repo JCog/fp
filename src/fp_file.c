@@ -189,7 +189,7 @@ int fp_import_file(const char *path, void *data) {
                     if (pm_FioValidateFileChecksum(file)) {
                         pm_save_data = *file;
                         pm_FioDeserializeState();
-                        fp_warp(file->group_id, file->room_id, file->entrance_id);
+                        fp_warp(file->area_id, file->map_id, file->entrance_id);
                     } else {
                         fp_log("save file corrupt");
                     }

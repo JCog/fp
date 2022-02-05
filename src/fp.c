@@ -71,8 +71,8 @@ void fp_init() {
     fp.saved_y = 0;
     fp.saved_z = 0;
     fp.saved_facing_angle = 0;
-    fp.saved_group = 0x1c;
-    fp.saved_room = 0;
+    fp.saved_area = 0x1c;
+    fp.saved_map = 0;
     fp.saved_entrance = 0;
     fp.turbo = 0;
     fp.ace_last_timer = 0;
@@ -390,7 +390,7 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
 void fp_bowser_block_trainer(void) {
-    if (pm_status.is_battle && pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) &&
+    if (pm_status.is_battle && pm_status.area_id == 0x4 && (pm_status.map_id == 0x7 || pm_status.map_id == 0x13) &&
         STORY_PROGRESS != STORY_INTRO && !(pm_status.peach_flags & (1 << 0))) {
 
         actor_t *bowser = pm_battle_status.enemy_actors[0];
@@ -490,7 +490,7 @@ void fp_lzs_trainer(void) {
     // log lzs status
     if (fp.lz_stored && pm_status.pressed.a) {
         if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP &&
-            pm_RoomChangeState == 0) {
+            pm_MapChangeState == 0) {
             fp_log("control early");
         } else if (pm_player.prev_action_state == ACTION_STATE_JUMP ||
                    pm_player.action_state == ACTION_STATE_SPIN_JUMP ||
@@ -504,7 +504,7 @@ void fp_lzs_trainer(void) {
             if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
                 fp_log("control early");
             }
-        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_RoomChangeState == 0) {
+        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_MapChangeState == 0) {
             fp_log("jump 1 frame late");
             fp_log("control early");
         } else if (fp.frames_since_land == 3) {
@@ -521,7 +521,7 @@ void fp_lzs_trainer(void) {
                    (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
             fp_log("jump >= 2 frames late");
             fp_log("control early");
-        } else if (fp.frames_since_land >= 5 && pm_RoomChangeState == 0) {
+        } else if (fp.frames_since_land >= 5 && pm_MapChangeState == 0) {
             fp_log("jump > 2 frames late");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
@@ -538,7 +538,7 @@ void fp_lzs_trainer(void) {
     fp.prev_pressed_y = pm_status.pressed.y_cardinal;
     fp.prev_prev_action_state = pm_player.prev_action_state;
 
-    if (pm_RoomChangeState == 1) {
+    if (pm_MapChangeState == 1) {
         fp.lz_stored = 0;
         fp.player_landed = 0;
         fp.frames_since_land = 0;

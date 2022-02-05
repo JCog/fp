@@ -14,7 +14,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"save position",    COMMAND_PRESS_ONCE, 0, command_save_pos_proc        },
     {"load position",    COMMAND_PRESS_ONCE, 0, command_load_pos_proc        },
     {"lzs",              COMMAND_PRESS_ONCE, 0, command_lzs_proc             },
-    {"reload room",      COMMAND_PRESS_ONCE, 0, command_reload_proc          },
+    {"reload map",       COMMAND_PRESS_ONCE, 0, command_reload_proc          },
     {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
     {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
     {"reimport save",    COMMAND_PRESS_ONCE, 0, command_import_save_proc     },
@@ -68,18 +68,18 @@ void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y) {
     fp.input_mask.y_cardinal = y;
 }
 
-_Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
+_Bool fp_warp(uint16_t area, uint16_t map, uint16_t entrance) {
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
     pm_SfxStopSound(0x19D);        // clear downward vine sound
     pm_disable_player_input();
     pm_status.loading_zone_tangent = 0;
-    pm_status.group_id = group;
-    pm_status.room_id = room;
+    pm_status.area_id = area;
+    pm_status.map_id = map;
     pm_status.entrance_id = entrance;
 
-    pm_RoomChangeState = 1;
+    pm_MapChangeState = 1;
 
     PRINTF("***** WARP TRIGGERED *****\n");
 
@@ -189,12 +189,12 @@ void command_lzs_proc() {
 }
 
 void command_reload_proc() {
-    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+    fp_warp(pm_status.area_id, pm_status.map_id, pm_status.entrance_id);
 }
 
 void command_reload_last_warp_proc() {
-    if (fp.saved_group != 0x1c) {
-        fp_warp(fp.saved_group, fp.saved_room, fp.saved_entrance);
+    if (fp.saved_area != 0x1c) {
+        fp_warp(fp.saved_area, fp.saved_map, fp.saved_entrance);
     }
 }
 
@@ -253,7 +253,7 @@ void command_load_game_proc() {
     if (pm_FioValidateFileChecksum(file)) {
         pm_save_data = *file;
         pm_FioDeserializeState();
-        fp_warp(file->group_id, file->room_id, file->entrance_id);
+        fp_warp(file->area_id, file->map_id, file->entrance_id);
         fp_log("loaded from slot %d", pm_status.save_slot);
     } else {
         fp_log("no file in slot %d", pm_status.save_slot);

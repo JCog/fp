@@ -175,10 +175,10 @@ typedef struct {
     /* 0x007F */ int8_t peach_disguise; /*1 = koopatrol, 2 = hammer bro, 3 = clubba */
     /* 0x0080 */ uint8_t peach_anim_idx;
     /* 0x0081 */ char unk_0x84[0x05];
-    /* 0x0086 */ uint16_t group_id;
-    /* 0x0088 */ uint16_t group_id_copy; /* used for calculating did_area_change */
+    /* 0x0086 */ uint16_t area_id;
+    /* 0x0088 */ uint16_t area_id_copy; /* used for calculating did_area_change */
     /* 0x008A */ int16_t did_area_change;
-    /* 0x008C */ uint16_t room_id;
+    /* 0x008C */ uint16_t map_id;
     /* 0x008E */ uint16_t entrance_id;
     /* 0x0090 */ uint16_t unk_0x90;
     /* 0x0092 */ uint16_t unk_0x92;
@@ -454,8 +454,8 @@ typedef struct {
     /* 0x003C */ int32_t save_count;
     /* 0x0040 */ player_data_t player_data;
     /* 0x0380 */ char unk_380[0xE8];
-    /* 0x0468 */ int16_t group_id;
-    /* 0x046A */ int16_t room_id;
+    /* 0x0468 */ int16_t area_id;
+    /* 0x046A */ int16_t map_id;
     /* 0x046C */ int16_t entrance_id;
     /* 0x046E */ char unk_46E[2];
     /* 0x0470 */ uint32_t enemy_defeat_flags[600];
@@ -1005,7 +1005,7 @@ extern_data uint32_t pm_ViFrames;
 extern_data int32_t pm_TimeFreezeMode;
 extern_data Gfx *pm_MasterGfxPos;
 extern_data save_info_ctxt_t pm_save_info;
-extern_data int16_t pm_RoomChangeState;
+extern_data int16_t pm_MapChangeState;
 extern_data uint32_t pm_enemy_defeat_flags[600];
 extern_data StaticItem gItemTable[364];
 extern_data u32 *pm_IconScripts[337][2];

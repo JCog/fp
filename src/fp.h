@@ -58,8 +58,8 @@ typedef struct {
     float saved_z;
     float saved_facing_angle;
     float saved_movement_angle;
-    uint16_t saved_group;
-    uint16_t saved_room;
+    uint16_t saved_area;
+    uint16_t saved_map;
     uint16_t saved_entrance;
     int8_t ace_frame_window;
     uint16_t ace_last_timer;
@@ -97,7 +97,7 @@ typedef struct {
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-_Bool fp_warp(Group group, uint16_t room, uint16_t entrance);
+_Bool fp_warp(Area area, uint16_t map, uint16_t entrance);
 void fp_set_global_flag(int flag_index, _Bool value);
 void fp_set_area_flag(int flag_index, _Bool value);
 void fp_set_enemy_defeat_flag(int flag_index, _Bool value);
