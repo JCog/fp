@@ -54,7 +54,7 @@ const char *ITEM_LIST = "-\0""Jump\0""Spin Jump\0""Tornado Jump\0""Hammer\0""Sup
 "Super Focus\0""Shrink Smash\0""Shell Crack\0""Kaiden\0""D-Down Jump\0""Shrink Stomp\0""Damage Dodge A\0"
 "Earthquake Jump\0""Deep Focus B\0""Deep Focus C\0""HP Plus B\0""FP Plus B\0""Happy Heart B\0""Happy Heart X\0"
 "Flower Saver B\0""Flower Saver X\0""Damage Dodge B\0""Damage Dodge X\0""Power Plus B\0""Power Plus X\0"
-"Defend Plus X\0""Defend Plus Y\0""Happy Flower A\0""Happy Flower B\0""Happy Flower X\0""Area Focus\0""Peekaboo\0"
+"Defend Plus X\0""Defend Plus Y\0""Happy Flower A\0""Happy Flower B\0""Happy Flower X\0""Group Focus\0""Peekaboo\0"
 "Attack FXD\0""Attack FXB\0""Attack FXE\0""Attack FXC\0""Attack FXF 1\0""HP Plus C\0""HP Plus X\0""HP Plus Y\0"
 "FP Plus C\0""FP Plus X\0""FP Plus Y\0""Healthy Healthy\0""Attack FXF 2\0""Attack FXF 3\0""Attack FXF 4\0"
 "Attack FXF 5\0""Partner Attack\0""Heart\0""Coin\0""Heart Piece\0""Star Point\0""Full Heal\0""Flower\0""Star Piece\0"
