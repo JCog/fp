@@ -1,15 +1,16 @@
 #ifndef IO_H
 #define IO_H
+#include "pm64.h"
 
-int io_init(void);
+s32 io_init(void);
 
-int disk_init(void);
-int disk_read(size_t lba, size_t n_blocks, void *dst);
-int disk_write(size_t lba, size_t n_blocks, const void *dst);
+s32 disk_init(void);
+s32 disk_read(size_t lba, size_t n_blocks, void *dst);
+s32 disk_write(size_t lba, size_t n_blocks, const void *dst);
 
-int fifo_poll(void);
-int fifo_read(void *dst, size_t n_blocks);
-int fifo_write(const void *src, size_t n_blocks);
+s32 fifo_poll(void);
+s32 fifo_read(void *dst, size_t n_blocks);
+s32 fifo_write(const void *src, size_t n_blocks);
 
 unsigned clock_ticks(void);
 unsigned clock_freq(void);
@@ -20,8 +21,8 @@ static inline unsigned msec_from_now(unsigned msec) {
     return clock_ticks() + clock_freq() / 1000 * msec;
 }
 
-static inline int clock_after(unsigned ticks) {
-    return (int)clock_ticks() - (int)ticks > 0;
+static inline s32 clock_after(unsigned ticks) {
+    return (s32)clock_ticks() - (s32)ticks > 0;
 }
 
 #endif

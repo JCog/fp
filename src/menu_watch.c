@@ -14,12 +14,12 @@ struct item_data {
 };
 
 // clang-format off
-static int watch_type_size[] = {
+static s32 watch_type_size[] = {
     1, 1, 1, 2, 2, 2, 4, 4, 4, 4,
 };
 // clang-format on
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     u32 address = data->address;
     if (address < 0x80000000 || address >= 0x80800000 || data->type < 0 || data->type >= WATCH_TYPE_MAX) {
@@ -37,7 +37,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         case WATCH_TYPE_S32: snprintf(item->text, 17, "%" PRIi32, *(s32 *)address); break;
         case WATCH_TYPE_X32: snprintf(item->text, 17, "0x%" PRIx32, *(u32 *)address); break;
         case WATCH_TYPE_F32: {
-            float v = *(float *)address;
+            f32 v = *(f32 *)address;
             if (is_nan(v)) {
                 strcpy(item->text, "nan");
             } else if (v == INFINITY) {
@@ -57,7 +57,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 0;
 }
 
-struct menu_item *menu_add_watch(struct menu *menu, int x, int y, u32 address, enum watch_type type) {
+struct menu_item *menu_add_watch(struct menu *menu, s32 x, s32 y, u32 address, enum watch_type type) {
     struct item_data *data = malloc(sizeof(*data));
     data->address = address;
     data->type = type;

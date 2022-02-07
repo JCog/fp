@@ -7,7 +7,7 @@
 #include "sd_host.h"
 #include "util.h"
 
-static int cart_irqf;
+static s32 cart_irqf;
 static u32 cart_lat;
 static u32 cart_pwd;
 static u16 spi_cfg;
@@ -37,11 +37,11 @@ static void cart_unlock(void) {
     set_irqf(cart_irqf);
 }
 
-static inline u32 reg_rd(int reg) {
+static inline u32 reg_rd(s32 reg) {
     return __pi_read_raw((u32)&REGS_PTR[reg]);
 }
 
-static inline void reg_wr(int reg, u32 dat) {
+static inline void reg_wr(s32 reg, u32 dat) {
     return __pi_write_raw((u32)&REGS_PTR[reg], dat);
 }
 
@@ -63,7 +63,7 @@ static inline u8 spi_rx(void) {
     return spi_io(0xFF);
 }
 
-static void sd_set_spd(int spd) {
+static void sd_set_spd(s32 spd) {
     spi_cfg &= ~SPI_SPEED;
 
     if (spd >= 50) {
@@ -77,7 +77,7 @@ static void sd_set_spd(int spd) {
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
-static void sd_spi_ss(int ss) {
+static void sd_spi_ss(s32 ss) {
     if (ss) {
         spi_cfg &= ~SPI_SS;
     } else {
@@ -87,7 +87,7 @@ static void sd_spi_ss(int ss) {
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
-static int sd_spi_io(int dat) {
+static s32 sd_spi_io(s32 dat) {
     return spi_io(dat);
 }
 
@@ -107,7 +107,7 @@ static void sd_spi_tx_buf(const void *buf, size_t size) {
     }
 }
 
-static void sd_spi_tx_clk(int dat, size_t n_clk) {
+static void sd_spi_tx_clk(s32 dat, size_t n_clk) {
     if (dat & 0x1) {
         dat = 0xFF;
     } else {
@@ -119,7 +119,7 @@ static void sd_spi_tx_clk(int dat, size_t n_clk) {
     }
 }
 
-static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
+static s32 sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
     const u32 cart_addr = 0xB2000000;
 
     /* dma to cart */
@@ -157,7 +157,7 @@ static struct sd_host sd_host = {
     .rx_mblk = sd_rx_mblk,
 };
 
-static int probe(void) {
+static s32 probe(void) {
     cart_lock_safe();
 
     /* open registers */
@@ -174,7 +174,7 @@ static int probe(void) {
      * line high */
     reg_wr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS);
     reg_wr(REG_SPI, 0x00);
-    for (int i = 0;; i++) {
+    for (s32 i = 0;; i++) {
         if (i > 32) {
             goto nodev;
         }
@@ -196,15 +196,15 @@ nodev:
     return -1;
 }
 
-static int disk_init(void) {
+static s32 disk_init(void) {
     return sd_init(&sd_host);
 }
 
-static int disk_read(size_t lba, size_t n_blocks, void *dst) {
+static s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
     return sd_read(&sd_host, lba, dst, n_blocks);
 }
 
-static int disk_write(size_t lba, size_t n_blocks, const void *src) {
+static s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
     return sd_write(&sd_host, lba, src, n_blocks);
 }
 

@@ -18,7 +18,7 @@ enum cam_bhv {
 
 struct log_entry {
     char *msg;
-    int age;
+    s32 age;
 };
 
 struct timer {
@@ -53,11 +53,11 @@ typedef struct {
     s32 lag_frames;
     _Bool menu_active;
     struct log_entry log[SETTINGS_LOG_MAX];
-    float saved_x;
-    float saved_y;
-    float saved_z;
-    float saved_facing_angle;
-    float saved_movement_angle;
+    f32 saved_x;
+    f32 saved_y;
+    f32 saved_z;
+    f32 saved_facing_angle;
+    f32 saved_movement_angle;
     u16 saved_area;
     u16 saved_map;
     u16 saved_entrance;
@@ -87,8 +87,8 @@ typedef struct {
     enum cam_bhv cam_bhv;
     s16 cam_dist_min;
     s16 cam_dist_max;
-    float cam_pitch;
-    float cam_yaw;
+    f32 cam_pitch;
+    f32 cam_yaw;
     vec3f_t cam_pos;
     controller_t input_mask;
     _Bool cam_enabled_before;
@@ -98,11 +98,11 @@ extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
 _Bool fp_warp(Area area, u16 map, u16 entrance);
-void fp_set_global_flag(int flag_index, _Bool value);
-void fp_set_area_flag(int flag_index, _Bool value);
-void fp_set_enemy_defeat_flag(int flag_index, _Bool value);
-void fp_set_global_byte(int byte_index, s8 value);
-int fp_import_file(const char *path, void *data);
+void fp_set_global_flag(s32 flag_index, _Bool value);
+void fp_set_area_flag(s32 flag_index, _Bool value);
+void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value);
+void fp_set_global_byte(s32 byte_index, s8 value);
+s32 fp_import_file(const char *path, void *data);
 void fp_set_input_mask(u16 pad, u8 x, u8 y);
 void fp_update_cam(void);
 

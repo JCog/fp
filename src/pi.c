@@ -22,7 +22,7 @@ static void pio_write(u32 dev_addr, u32 ram_addr, size_t size) {
 
     while (dev_p < dev_e) {
         u32 w = __pi_read_raw(dev_p);
-        for (int i = 0; i < 4; i++) {
+        for (s32 i = 0; i < 4; i++) {
             u8 b;
             if (ram_p >= ram_s && ram_p < ram_e) {
                 b = *(u8 *)ram_p;
@@ -52,7 +52,7 @@ static void pio_read(u32 dev_addr, u32 ram_addr, size_t size) {
 
     while (dev_p < dev_e) {
         u32 w = __pi_read_raw(dev_p);
-        for (int i = 0; i < 4; i++) {
+        for (s32 i = 0; i < 4; i++) {
             if (ram_p >= ram_s && ram_p < ram_e) {
                 *(u8 *)ram_p = w >> 24;
             }
@@ -72,7 +72,7 @@ static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
     OSMesg m;
     __OSEventState pi_event;
 
-    int irqf = get_irqf();
+    s32 irqf = get_irqf();
     if (irqf) {
         osCreateMesgQueue(&mq, &m, 1);
 
@@ -104,7 +104,7 @@ static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
     OSMesg m;
     __OSEventState pi_event;
 
-    int irqf = get_irqf();
+    s32 irqf = get_irqf();
     if (irqf) {
         osCreateMesgQueue(&mq, &m, 1);
 

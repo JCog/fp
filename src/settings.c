@@ -84,7 +84,7 @@ void apply_menu_settings() {
     pm_status.quizmo_debug = settings->bits.quizmo_debug;
 }
 
-void settings_save(int profile) {
+void settings_save(s32 profile) {
     u16 *checksum = &settings_store.header.data_checksum;
     *checksum = settings_checksum_compute(&settings_store);
 
@@ -101,7 +101,7 @@ void settings_save(int profile) {
 
 _Bool _save_file_exists() {
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
-    for (int i = 0; i < 8; i++) {
+    for (s32 i = 0; i < 8; i++) {
         pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
         if (pm_FioValidateFileChecksum(file)) {
             free(file);
@@ -112,7 +112,7 @@ _Bool _save_file_exists() {
     return 0;
 }
 
-_Bool settings_load(int profile) {
+_Bool settings_load(s32 profile) {
     // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
     // now
     if (!_save_file_exists()) {

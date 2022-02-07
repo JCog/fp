@@ -258,8 +258,8 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     struct gfx_texture *control_stick = resource_get(RES_TEXTURE_CONTROL_STICK);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
     if (settings->control_stick == 1 || settings->control_stick == 2) {
-        int image_range = control_stick->tile_width / 2;
-        int image_dx, image_dy;
+        s32 image_range = control_stick->tile_width / 2;
+        s32 image_dx, image_dy;
         if (d_x > settings->control_stick_range) {
             image_dx = image_range;
         } else if (d_x < -settings->control_stick_range) {
@@ -309,7 +309,7 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
         }
         s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
         s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-        int button_dx;
+        s32 button_dx;
         if (settings->control_stick == 0) {
             button_dx = cell_width * 10;
         } else {

@@ -11,7 +11,7 @@ static u16 font_options[] = {
     RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
-static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
@@ -23,7 +23,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static int control_stick_range_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 control_stick_range_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -49,11 +49,11 @@ static void profile_inc_proc(struct menu_item *item, void *data) {
     fp.profile %= SETTINGS_PROFILE_MAX;
 }
 
-static int font_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 font_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (settings->bits.font_resource != font_options[menu_option_get(item)]) {
-            int n_font_options = sizeof(font_options) / sizeof(*font_options);
-            for (int i = 0; i < n_font_options; ++i) {
+            s32 n_font_options = sizeof(font_options) / sizeof(*font_options);
+            for (s32 i = 0; i < n_font_options; ++i) {
                 if (settings->bits.font_resource == font_options[i]) {
                     menu_option_set(item, i);
                     break;
@@ -61,7 +61,7 @@ static int font_proc(struct menu_item *item, enum menu_callback_reason reason, v
             }
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        int font_resource = font_options[menu_option_get(item)];
+        s32 font_resource = font_options[menu_option_get(item)];
         settings->bits.font_resource = font_resource;
         if (settings->bits.font_resource == RES_FONT_FIPPS) {
             gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
@@ -77,7 +77,7 @@ static int font_proc(struct menu_item *item, enum menu_callback_reason reason, v
     return 0;
 }
 
-static int drop_shadow_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 drop_shadow_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
         settings->bits.drop_shadow = menu_checkbox_get(item);
         gfx_mode_set(GFX_MODE_DROPSHADOW, settings->bits.drop_shadow);
@@ -87,10 +87,10 @@ static int drop_shadow_proc(struct menu_item *item, enum menu_callback_reason re
     return 0;
 }
 
-static int generic_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 generic_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     s16 *x = data;
     s16 *y = x + 1;
-    int dist = 2;
+    s32 dist = 2;
     if (input_pad() & BUTTON_Z) {
         dist *= 2;
     }
@@ -106,14 +106,14 @@ static int generic_position_proc(struct menu_item *item, enum menu_callback_reas
     return 0;
 }
 
-static int menu_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int r = generic_position_proc(item, reason, &settings->menu_x);
+static s32 menu_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    s32 r = generic_position_proc(item, reason, &settings->menu_x);
     menu_set_pxoffset(fp.main_menu, settings->menu_x);
     menu_set_pyoffset(fp.main_menu, settings->menu_y);
     return r;
 }
 
-static int timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_ACTIVATE) {
         fp.timer.moving = 1;
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
@@ -122,7 +122,7 @@ static int timer_position_proc(struct menu_item *item, enum menu_callback_reason
     return generic_position_proc(item, reason, &settings->timer_x);
 }
 
-static int input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.input_display = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -133,7 +133,7 @@ static int input_display_proc(struct menu_item *item, enum menu_callback_reason 
     return 0;
 }
 
-static int log_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 log_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.log = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -144,13 +144,13 @@ static int log_proc(struct menu_item *item, enum menu_callback_reason reason, vo
     return 0;
 }
 
-static int log_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 log_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     fp_log("test log message!");
     return generic_position_proc(item, reason, &settings->log_x);
 }
 
 static void activate_command_proc(struct menu_item *item, void *data) {
-    int command_index = (int)data;
+    s32 command_index = (s32)data;
     if (fp_commands[command_index].proc) {
         fp_commands[command_index].proc();
     }
@@ -194,8 +194,8 @@ struct menu *create_settings_menu(void) {
     menu_init(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
-    int y = 0;
-    int MENU_X = 17;
+    s32 y = 0;
+    s32 MENU_X = 17;
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
     menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
@@ -242,15 +242,15 @@ struct menu *create_settings_menu(void) {
 
     /* populate commands menu */
     commands.selector = menu_add_submenu(&commands, 0, 0, NULL, "return");
-    const int page_length = 16;
-    int n_pages = (COMMAND_MAX + page_length - 1) / page_length;
+    const s32 page_length = 16;
+    s32 n_pages = (COMMAND_MAX + page_length - 1) / page_length;
     struct menu *pages = malloc(sizeof(*pages) * n_pages);
     struct menu_item *tab = menu_add_tab(&commands, 0, 1, pages, n_pages);
-    for (int i = 0; i < n_pages; i++) {
+    for (s32 i = 0; i < n_pages; i++) {
         struct menu *page = &pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-        for (int j = 0; j < page_length; ++j) {
-            int n = i * page_length + j;
+        for (s32 j = 0; j < page_length; ++j) {
+            s32 n = i * page_length + j;
             if (n >= COMMAND_MAX) {
                 break;
             }

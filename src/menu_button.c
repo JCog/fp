@@ -6,17 +6,17 @@ struct item_data {
     menu_action_callback callback_proc;
     void *callback_data;
     struct gfx_texture *texture;
-    int texture_tile;
-    int anim_state;
+    s32 texture_tile;
+    s32 anim_state;
 };
 
-static int enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
+static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
     struct item_data *data = item->data;
     data->anim_state = 0;
     return 0;
 }
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     if (data->anim_state > 0) {
         ++draw_params->x;
@@ -24,7 +24,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         data->anim_state = (data->anim_state + 1) % 3;
     }
     if (data->texture) {
-        int cw = menu_get_cell_width(item->owner, 1);
+        s32 cw = menu_get_cell_width(item->owner, 1);
         struct gfx_sprite sprite = {
             data->texture,
             data->texture_tile,
@@ -40,14 +40,14 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 0;
 }
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     data->callback_proc(item, data->callback_data);
     data->anim_state = 1;
     return 1;
 }
 
-struct menu_item *menu_add_button(struct menu *menu, int x, int y, const char *name, menu_action_callback callback_proc,
+struct menu_item *menu_add_button(struct menu *menu, s32 x, s32 y, const char *name, menu_action_callback callback_proc,
                                   void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;
@@ -62,7 +62,7 @@ struct menu_item *menu_add_button(struct menu *menu, int x, int y, const char *n
     return item;
 }
 
-struct menu_item *menu_add_button_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
+struct menu_item *menu_add_button_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
                                        u32 color, menu_action_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;

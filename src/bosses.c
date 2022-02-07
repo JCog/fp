@@ -2,7 +2,7 @@
 #include "menu.h"
 #include "fp.h"
 
-static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -239,22 +239,22 @@ static void tab_next_proc(struct menu_item *item, void *data) {
 }
 
 void create_bosses_menu(struct menu *menu) {
-    int y_main = 0;
+    s32 y_main = 0;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, y_main++, NULL, "return");
 
-    int page_count = 6;
+    s32 page_count = 6;
     struct menu *pages = malloc(sizeof(*pages) * page_count);
     struct menu_item *tab = menu_add_tab(menu, 0, y_main++, pages, page_count);
-    for (int i = 0; i < page_count; ++i) {
+    for (s32 i = 0; i < page_count; ++i) {
         struct menu *page = &pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     }
 
     /* bowser */
-    int y_tab = 0;
+    s32 y_tab = 0;
     struct menu *page = &pages[0];
     menu_add_static(page, 0, y_tab++, "bowser", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "hallway", bowser_hallway_proc, NULL);

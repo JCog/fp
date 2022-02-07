@@ -38,12 +38,12 @@ struct fat_cache {
     u32 max_lba;
     u32 load_lba;
     u32 prep_lba;
-    int n_sect;
+    s32 n_sect;
     _Alignas(0x10) char data[0x200 * FAT_MAX_CACHE_SECT];
 };
 
-typedef int (*fat_rd_proc)(size_t lba, size_t n_block, void *buf);
-typedef int (*fat_wr_proc)(size_t lba, size_t n_block, const void *buf);
+typedef s32 (*fat_rd_proc)(size_t lba, size_t n_block, void *buf);
+typedef s32 (*fat_wr_proc)(size_t lba, size_t n_block, const void *buf);
 
 /* fat context */
 struct fat {
@@ -107,7 +107,7 @@ struct fat_entry {
     char name[256];
     /* metadata */
     time_t ctime;
-    int cms;
+    s32 cms;
     time_t atime;
     time_t mtime;
     u8 attrib;
@@ -120,23 +120,23 @@ void fat_begin(struct fat_entry *entry, struct fat_file *file);
 void fat_rewind(struct fat_file *file);
 u32 fat_advance(struct fat_file *file, u32 n_byte, _Bool *eof);
 u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct fat_file *new_file, _Bool *eof);
-int fat_dir(struct fat_file *dir, struct fat_entry *entry);
-int fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fat_entry *entry);
+s32 fat_dir(struct fat_file *dir, struct fat_entry *entry);
+s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fat_entry *entry);
 struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *path, const char **tail);
 struct fat_entry *fat_path_target(struct fat_path *fp);
 struct fat_entry *fat_path_dir(struct fat_path *fp);
 void fat_free(struct fat_path *ptr);
-int fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attrib, struct fat_entry *entry);
+s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attrib, struct fat_entry *entry);
 struct fat_path *fat_create_path(struct fat *fat, struct fat_path *dir_fp, const char *path, u8 attrib);
-int fat_resize(struct fat_entry *entry, u32 size, struct fat_file *file);
-int fat_empty(struct fat *fat, struct fat_entry *dir);
-int fat_rename(struct fat *fat, struct fat_path *entry_fp, struct fat_path *dir_fp, const char *path,
+s32 fat_resize(struct fat_entry *entry, u32 size, struct fat_file *file);
+s32 fat_empty(struct fat *fat, struct fat_entry *dir);
+s32 fat_rename(struct fat *fat, struct fat_path *entry_fp, struct fat_path *dir_fp, const char *path,
                struct fat_entry *new_entry);
-int fat_remove(struct fat_entry *entry);
-int fat_attrib(struct fat_entry *entry, u8 attrib);
-int fat_atime(struct fat_entry *entry, time_t timeval);
-int fat_mtime(struct fat_entry *entry, time_t timeval);
-int fat_init(struct fat *fat, fat_rd_proc read, fat_wr_proc write, u32 rec_lba, int part);
-int fat_flush(struct fat *fat);
+s32 fat_remove(struct fat_entry *entry);
+s32 fat_attrib(struct fat_entry *entry, u8 attrib);
+s32 fat_atime(struct fat_entry *entry, time_t timeval);
+s32 fat_mtime(struct fat_entry *entry, time_t timeval);
+s32 fat_init(struct fat *fat, fat_rd_proc read, fat_wr_proc write, u32 rec_lba, s32 part);
+s32 fat_flush(struct fat *fat);
 
 #endif

@@ -63,7 +63,7 @@ const char *ITEM_LIST = "-\0""Jump\0""Spin Jump\0""Tornado Jump\0""Hammer\0""Sup
 "Boots 2 Icon\0""Boots 3 Icon\0""Items Icon\0";
 // clang-format on
 
-static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 halfword_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -75,7 +75,7 @@ static int halfword_mod_proc(struct menu_item *item, enum menu_callback_reason r
     return 0;
 }
 
-static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -87,7 +87,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
@@ -99,7 +99,7 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static int halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
@@ -111,7 +111,7 @@ static int halfword_optionmod_proc(struct menu_item *item, enum menu_callback_re
     return 0;
 }
 
-static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
@@ -123,7 +123,7 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
     return 0;
 }
 
-static int max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != pm_player.player_data.max_hp) {
             menu_intinput_set(item, pm_player.player_data.max_hp);
@@ -135,7 +135,7 @@ static int max_hp_proc(struct menu_item *item, enum menu_callback_reason reason,
     return 0;
 }
 
-static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 max_fp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != pm_player.player_data.max_fp) {
             menu_intinput_set(item, pm_player.player_data.max_fp);
@@ -147,7 +147,7 @@ static int max_fp_proc(struct menu_item *item, enum menu_callback_reason reason,
     return 0;
 }
 
-static int hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 menu_hammer = menu_option_get(item) - 1;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_hammer != pm_player.player_data.hammer_upgrade) {
@@ -159,7 +159,7 @@ static int hammer_proc(struct menu_item *item, enum menu_callback_reason reason,
     return 0;
 }
 
-static int in_party_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 in_party_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     partner_t *partner = (partner_t *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         partner->in_party = 1;
@@ -171,7 +171,7 @@ static int in_party_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     partner_t *partner = (partner_t *)data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != partner->upgrade) {
@@ -183,7 +183,7 @@ static int rank_proc(struct menu_item *item, enum menu_callback_reason reason, v
     return 0;
 }
 
-static int item_int_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 item_int_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u16 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -199,7 +199,7 @@ static int item_int_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int star_power_full_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 star_power_full_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -219,7 +219,7 @@ static int star_power_full_proc(struct menu_item *item, enum menu_callback_reaso
     return 0;
 }
 
-static int star_power_partial_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 star_power_partial_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
@@ -239,7 +239,7 @@ static int star_power_partial_proc(struct menu_item *item, enum menu_callback_re
     return 0;
 }
 
-static int peach_or_mario_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 peach_or_mario_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.peach_flags |= (1 << 0);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -250,7 +250,7 @@ static int peach_or_mario_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static int peach_transformed_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 peach_transformed_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.peach_flags |= (1 << 1);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -261,7 +261,7 @@ static int peach_transformed_proc(struct menu_item *item, enum menu_callback_rea
     return 0;
 }
 
-static int peach_parasol_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 peach_parasol_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.peach_flags |= (1 << 2);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -323,7 +323,7 @@ struct menu *create_player_menu(void) {
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     {
-        int y_value = 0;
+        s32 y_value = 0;
         menu.selector = menu_add_submenu(&menu, 0, y_value++, NULL, "return");
 
         /*build player menu*/
@@ -340,8 +340,8 @@ struct menu *create_player_menu(void) {
 
     {
         /*build status menu*/
-        const int STATS_X = 16;
-        int y_value = 0;
+        const s32 STATS_X = 16;
+        s32 y_value = 0;
 
         status.selector = menu_add_submenu(&status, 0, y_value++, NULL, "return");
 
@@ -391,9 +391,9 @@ struct menu *create_player_menu(void) {
 
     {
         /*build partners menu*/
-        const int PARTNERS_X_1 = 11;
-        const int PARTNERS_X_2 = 13;
-        int y_value = 0;
+        const s32 PARTNERS_X_1 = 11;
+        const s32 PARTNERS_X_2 = 13;
+        s32 y_value = 0;
 
         partner_t *partner_list[] = {
             &pm_player.player_data.party.goombario, &pm_player.player_data.party.kooper,
@@ -418,13 +418,13 @@ struct menu *create_player_menu(void) {
         y_value++;
         menu_add_static(&partners, PARTNERS_X_2, y_value++, "rank", 0xC0C0C0);
 
-        for (int i = 0; i < 8; i++) {
+        for (s32 i = 0; i < 8; i++) {
             menu_add_static(&partners, 0, y_value, partner_names[i], 0xC0C0C0);
             menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, partner_list[i]);
             menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, partner_list[i]);
         }
         y_value++;
-        for (int i = 8; i < 11; i++) {
+        for (s32 i = 8; i < 11; i++) {
             menu_add_static(&partners, 0, y_value, partner_names[i], 0xC0C0C0);
             menu_add_checkbox(&partners, PARTNERS_X_1, y_value, in_party_proc, partner_list[i]);
             menu_add_option(&partners, PARTNERS_X_2, y_value++, RANK, rank_proc, partner_list[i]);
@@ -433,15 +433,15 @@ struct menu *create_player_menu(void) {
 
     {
         /*build items menu*/
-        int y_value = 0;
+        s32 y_value = 0;
 
         items.selector = menu_add_submenu(&items, 0, y_value++, NULL, "return");
 
-        int i;
+        s32 i;
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
         for (i = 0; i < 10; i++) {
             char buffer[4];
-            sprintf(buffer, "%d:", i);
+            sprintf(buffer, "%ld:", i);
             menu_add_static(&items, 0, y_value, buffer, 0xC0C0C0);
             if (i != 0) {
                 menu_add_button_icon(&items, 3, y_value, t_arrow, 0, 0xFFFFFF, item_up_proc,
@@ -460,24 +460,24 @@ struct menu *create_player_menu(void) {
 
     {
         /*build stored items menu*/
-        int y_value = 0;
+        s32 y_value = 0;
 
         stored_items.selector = menu_add_submenu(&stored_items, 0, y_value++, NULL, "return");
 
-        int stored_items_page_count = 2;
+        s32 stored_items_page_count = 2;
         struct menu *stored_items_pages = malloc(sizeof(*stored_items_pages) * stored_items_page_count);
         struct menu_item *stored_items_tab =
             menu_add_tab(&stored_items, 0, y_value++, stored_items_pages, stored_items_page_count);
-        int page_size = 16;
+        s32 page_size = 16;
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        for (int i = 0; i < stored_items_page_count; ++i) {
+        for (s32 i = 0; i < stored_items_page_count; ++i) {
             struct menu *page = &stored_items_pages[i];
             menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
             y_value = 0;
-            for (int j = 0; j < page_size; ++j) {
+            for (s32 j = 0; j < page_size; ++j) {
                 char buffer[4];
-                int item_index = j + i * page_size;
-                sprintf(buffer, "%02d:", item_index);
+                s32 item_index = j + i * page_size;
+                sprintf(buffer, "%02ld:", item_index);
 
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
@@ -503,23 +503,23 @@ struct menu *create_player_menu(void) {
 
     {
         /*build key items menu*/
-        int y_value = 0;
+        s32 y_value = 0;
 
         key_items.selector = menu_add_submenu(&key_items, 0, y_value++, NULL, "return");
 
-        int key_items_page_count = 2;
-        int page_size = 16;
+        s32 key_items_page_count = 2;
+        s32 page_size = 16;
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
         struct menu *key_items_pages = malloc(sizeof(*key_items_pages) * key_items_page_count);
         struct menu_item *key_items_tab = menu_add_tab(&key_items, 0, y_value++, key_items_pages, key_items_page_count);
-        for (int i = 0; i < key_items_page_count; ++i) {
+        for (s32 i = 0; i < key_items_page_count; ++i) {
             struct menu *page = &key_items_pages[i];
             menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
             y_value = 0;
-            for (int j = 0; j < page_size; ++j) {
+            for (s32 j = 0; j < page_size; ++j) {
                 char buffer[4];
-                int item_index = j + i * page_size;
-                sprintf(buffer, "%02d:", item_index);
+                s32 item_index = j + i * page_size;
+                sprintf(buffer, "%02ld:", item_index);
 
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
@@ -544,23 +544,23 @@ struct menu *create_player_menu(void) {
 
     {
         /*build badges menu*/
-        int y_value = 0;
+        s32 y_value = 0;
 
         badges.selector = menu_add_submenu(&badges, 0, y_value++, NULL, "return");
 
-        int badge_page_count = 8;
-        int page_size = 16;
+        s32 badge_page_count = 8;
+        s32 page_size = 16;
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
         struct menu *badge_pages = malloc(sizeof(*badge_pages) * badge_page_count);
         struct menu_item *badge_tab = menu_add_tab(&badges, 0, y_value++, badge_pages, badge_page_count);
-        for (int i = 0; i < badge_page_count; ++i) {
+        for (s32 i = 0; i < badge_page_count; ++i) {
             struct menu *page = &badge_pages[i];
             menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
             y_value = 0;
-            for (int j = 0; j < page_size; ++j) {
+            for (s32 j = 0; j < page_size; ++j) {
                 char buffer[5];
-                int item_index = j + i * page_size;
-                sprintf(buffer, "%02d:", item_index);
+                s32 item_index = j + i * page_size;
+                sprintf(buffer, "%02ld:", item_index);
 
                 menu_add_static(page, 0, y_value, buffer, 0xC0C0C0);
                 if (item_index != 0) {
@@ -585,8 +585,8 @@ struct menu *create_player_menu(void) {
 
     {
         /*build star power menu*/
-        const int STAR_POWER_X = 19;
-        int y_value = 0;
+        const s32 STAR_POWER_X = 19;
+        s32 y_value = 0;
 
         star_power.selector = menu_add_submenu(&star_power, 0, y_value++, NULL, "return");
 
@@ -612,8 +612,8 @@ struct menu *create_player_menu(void) {
 
     {
         /*build peach menu*/
-        const int PEACH_X = 12;
-        int y_value = 0;
+        const s32 PEACH_X = 12;
+        s32 y_value = 0;
 
         peach.selector = menu_add_submenu(&peach, 0, y_value++, NULL, "return");
 
@@ -637,8 +637,8 @@ struct menu *create_player_menu(void) {
 
     {
         /*build merlee menu*/
-        const int MERLEE_X = 16;
-        int y_value = 0;
+        const s32 MERLEE_X = 16;
+        s32 y_value = 0;
 
         merlee.selector = menu_add_submenu(&merlee, 0, y_value++, NULL, "return");
 

@@ -5,12 +5,12 @@
 
 struct map_info {
     const char *map_name;
-    int entrance_count;
+    s32 entrance_count;
 };
 
 struct area_info {
     const char *area_name;
-    int map_count;
+    s32 map_count;
     struct map_info maps[50];
 };
 

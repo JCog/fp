@@ -5,14 +5,14 @@
 #include "geometry.h"
 #include "gu.h"
 
-static const float joy_mspeed = 0.25f;
-static const float joy_rspeed = 0.0007f;
-static const int joy_max = 60.f;
-static const float pitch_lim = M_PI / 2.f - joy_rspeed;
-static const float fol_mspeed = 1.f / 3.f;
-static const float fol_rspeed = 1.f / 3.f;
+static const f32 joy_mspeed = 0.25f;
+static const f32 joy_rspeed = 0.0007f;
+static const s32 joy_max = 60.f;
+static const f32 pitch_lim = M_PI / 2.f - joy_rspeed;
+static const f32 fol_mspeed = 1.f / 3.f;
+static const f32 fol_rspeed = 1.f / 3.f;
 
-int zu_adjust_joystick(int v) {
+s32 zu_adjust_joystick(s32 v) {
     if (v < 0) {
         if (v > -8) {
             return 0;
@@ -34,8 +34,8 @@ int zu_adjust_joystick(int v) {
 
 static void cam_manual(void) {
     if (!fp.lock_cam) {
-        int x = zu_adjust_joystick(input_x());
-        int y = zu_adjust_joystick(input_y());
+        s32 x = zu_adjust_joystick(input_x());
+        s32 y = zu_adjust_joystick(input_y());
 
         vec3f_t vf;
         vec3f_t vr;
@@ -101,24 +101,24 @@ static void cam_birdseye(void) {
     vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);
 
-    float pitch, yaw;
+    f32 pitch, yaw;
     vec3f_pyangles(&vd, &pitch, &yaw);
 
-    float d_pitch = angle_dif(pitch, fp.cam_pitch);
+    f32 d_pitch = angle_dif(pitch, fp.cam_pitch);
     if (fabsf(d_pitch) < .001f) {
         fp.cam_pitch = pitch;
     } else {
         fp.cam_pitch += d_pitch * fol_rspeed;
     }
 
-    float d_yaw = angle_dif(yaw, fp.cam_yaw);
+    f32 d_yaw = angle_dif(yaw, fp.cam_yaw);
     if (fabsf(d_yaw) < .001f) {
         fp.cam_yaw = yaw;
     } else {
         fp.cam_yaw += d_yaw * fol_rspeed;
     }
 
-    float dist = vec3f_mag(&vd);
+    f32 dist = vec3f_mag(&vd);
     if (dist < fp.cam_dist_min) {
         vec3f_t move;
         vec3f_py(&move, fp.cam_pitch, fp.cam_yaw);
@@ -146,7 +146,7 @@ static void cam_radial(void) {
     vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);
 
-    float dist = vec3f_dot(&vd, &vf);
+    f32 dist = vec3f_dot(&vd, &vf);
     vec3f_t vp;
     vec3f_scale(&vp, &vf, dist);
 
@@ -159,20 +159,20 @@ static void cam_radial(void) {
     }
 
     if (dist < fp.cam_dist_min) {
-        float norm = 1.f / dist;
+        f32 norm = 1.f / dist;
         vec3f_t move;
         vec3f_scale(&move, &vp, (dist - fp.cam_dist_min) * fol_mspeed * norm);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     } else if (dist > fp.cam_dist_max) {
-        float norm = 1.f / dist;
+        f32 norm = 1.f / dist;
         vec3f_t move;
         vec3f_scale(&move, &vp, (dist - fp.cam_dist_max) * fol_mspeed * norm);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     }
 
     if (!fp.lock_cam) {
-        int x = zu_adjust_joystick(input_x());
-        int y = zu_adjust_joystick(input_y());
+        s32 x = zu_adjust_joystick(input_x());
+        s32 y = zu_adjust_joystick(input_y());
 
         if (input_pad() & BUTTON_Z) {
             dist -= y * joy_mspeed;

@@ -13,7 +13,7 @@ static void set_cam_input_mask(void) {
     }
 }
 
-static int enable_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 enable_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         fp.free_cam = 1;
         set_cam_input_mask();
@@ -27,7 +27,7 @@ static int enable_cam_proc(struct menu_item *item, enum menu_callback_reason rea
     return 0;
 }
 
-static int lock_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 lock_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         fp.lock_cam = 1;
         set_cam_input_mask();
@@ -48,7 +48,7 @@ static void reset_cam_proc(struct menu_item *item, void *data) {
     fp.cam_pos.z = 0.f;
 }
 
-static int cam_bhv_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 cam_bhv_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
         fp.cam_bhv = menu_option_get(item);
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -59,7 +59,7 @@ static int cam_bhv_proc(struct menu_item *item, enum menu_callback_reason reason
     return 0;
 }
 
-static int cam_dist_min_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 cam_dist_min_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
         fp.cam_dist_min = menu_intinput_gets(item);
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -70,7 +70,7 @@ static int cam_dist_min_proc(struct menu_item *item, enum menu_callback_reason r
     return 0;
 }
 
-static int cam_dist_max_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 cam_dist_max_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
         fp.cam_dist_max = menu_intinput_gets(item);
     } else if (reason == MENU_CALLBACK_THINK) {

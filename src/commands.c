@@ -43,13 +43,13 @@ void fp_log(const char *fmt, ...) {
     if (ent->msg) {
         free(ent->msg);
     }
-    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
+    for (s32 i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
         fp.log[i] = fp.log[i - 1];
     }
 
     va_list va;
     va_start(va, fmt);
-    int l = vsnprintf(NULL, 0, fmt, va);
+    s32 l = vsnprintf(NULL, 0, fmt, va);
     va_end(va);
 
     ent = &fp.log[0];
@@ -111,9 +111,9 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
     return 1;
 }
 
-void set_flag(u32 *flags, int flag_index, _Bool value) {
-    int word_index = flag_index / 32;
-    int bit = flag_index % 32;
+void set_flag(u32 *flags, s32 flag_index, _Bool value) {
+    s32 word_index = flag_index / 32;
+    s32 bit = flag_index % 32;
     if (value) {
         flags[word_index] |= (1 << bit);
     } else {
@@ -121,19 +121,19 @@ void set_flag(u32 *flags, int flag_index, _Bool value) {
     }
 }
 
-void fp_set_global_flag(int flag_index, _Bool value) {
+void fp_set_global_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.global_flags, flag_index, value);
 }
 
-void fp_set_area_flag(int flag_index, _Bool value) {
+void fp_set_area_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.area_flags, flag_index, value);
 }
 
-void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
+void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
     set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
-void fp_set_global_byte(int byte_index, s8 value) {
+void fp_set_global_byte(s32 byte_index, s8 value) {
     pm_save_data.global_bytes[byte_index] = value;
 }
 

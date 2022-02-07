@@ -8,7 +8,7 @@ static const char *labels[] = {
 };
 // clang-format on
 
-static int battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != pm_status.battle_debug) {
             menu_option_set(item, pm_status.battle_debug);
@@ -20,7 +20,7 @@ static int battle_proc(struct menu_item *item, enum menu_callback_reason reason,
     return 0;
 }
 
-static int quizmo_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 quizmo_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_status.quizmo_debug = 1;
         settings->bits.quizmo_debug = 1;
@@ -33,8 +33,8 @@ static int quizmo_proc(struct menu_item *item, enum menu_callback_reason reason,
     return 0;
 }
 
-static int cheat_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int cheat_index = (int)data;
+static s32 cheat_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    s32 cheat_index = (s32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->cheats |= (1 << cheat_index);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -61,7 +61,7 @@ struct menu *create_cheats_menu(void) {
                     "auto-win\0"
                     "auto-runaway\0",
                     battle_proc, NULL);
-    int i;
+    s32 i;
     for (i = 0; i < CHEAT_MAX; ++i) {
         menu_add_checkbox(&menu, 0, 3 + i, cheat_proc, (void *)i);
         menu_add_static(&menu, 2, 3 + i, labels[i], 0xC0C0C0);

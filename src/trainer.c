@@ -8,10 +8,10 @@ char messageForASM[] = "Success";
 
 extern void setACEHook(void);
 
-int getMatrixTotal(void) {
-    int matrixCount = 0;
+s32 getMatrixTotal(void) {
+    s32 matrixCount = 0;
 
-    for (int i = 0; i < 0x60; i++) {
+    for (s32 i = 0; i < 0x60; i++) {
         if (pm_effects[i] != NULL) {
             matrixCount += pm_effects[i]->matrixTotal;
         }
@@ -19,8 +19,8 @@ int getMatrixTotal(void) {
     return matrixCount;
 }
 
-void clearAllEffectsManual(int matrixCount) {
-    int var = 0;
+void clearAllEffectsManual(s32 matrixCount) {
+    s32 var = 0;
 
     if (matrixCount == 0x215) {
         var = 1;
@@ -35,7 +35,7 @@ void clearAllEffectsManual(int matrixCount) {
     }
 
     if (var == 1) {
-        for (int i = 0; i < 0x60; i++) {
+        for (s32 i = 0; i < 0x60; i++) {
             if (pm_effects[i] != NULL) {
                 pm_RemoveEffect(pm_effects[i]);
             }
@@ -66,7 +66,7 @@ asm(".set noreorder;"
     "JR $ra;"
     "SW $t1, 0x0000 ($t0);");
 
-static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
@@ -78,7 +78,7 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
     return 0;
 }
 
-static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
@@ -90,16 +90,16 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int chHeight = menu_get_cell_height(item->owner, 1);
-    int chWidth = menu_get_cell_width(item->owner, 1);
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 chHeight = menu_get_cell_height(item->owner, 1);
+    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
 
-    int xPos = ceil(pm_player.position.x);
-    int zPos = ceil(pm_player.position.z);
+    s32 xPos = ceil(pm_player.position.x);
+    s32 zPos = ceil(pm_player.position.z);
     _Bool goodPos = 0;
     _Bool willClip = 0;
 
@@ -129,7 +129,7 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
         }
     }
 
-    int menuY = 0;
+    s32 menuY = 0;
     gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
     gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
     gfx_printf(font, x, y + chHeight * menuY, "angle: ");
@@ -152,16 +152,16 @@ static int iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     return 1;
 }
 
-static int ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int chHeight = menu_get_cell_height(item->owner, 1);
-    int chWidth = menu_get_cell_width(item->owner, 1);
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 chHeight = menu_get_cell_height(item->owner, 1);
+    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
 
-    int effect_count = 0;
-    int i;
+    s32 effect_count = 0;
+    s32 i;
     for (i = 0; i < 96; i++) {
         if (pm_effects[i]) {
             effect_count++;
@@ -245,13 +245,13 @@ static void ace_oot_instr_proc(struct menu_item *item, void *data) {
             "SW $t1, 0x0000 ($t0);");
 }
 
-static int lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int chHeight = menu_get_cell_height(item->owner, 1);
-    int chWidth = menu_get_cell_width(item->owner, 1);
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 chHeight = menu_get_cell_height(item->owner, 1);
+    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
 
     gfx_printf(font, x, y + chHeight * 1, "current lzs jumps: ");
     gfx_printf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.current_lzs_jumps);
@@ -278,7 +278,7 @@ void create_trainer_menu(struct menu *menu) {
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    int y_value = 1;
+    s32 y_value = 1;
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
     menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");

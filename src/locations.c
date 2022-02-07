@@ -68,12 +68,12 @@ static void entrance_next_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int ch = menu_get_cell_height(item->owner, 1);
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
 
     if (map >= AREAS[area].map_count) {
         map = 0;
@@ -89,12 +89,12 @@ static int warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
     return 1;
 }
 
-static int current_map_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int ch = menu_get_cell_height(item->owner, 1);
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
     gfx_printf(font, x, y + ch * 0, "current map");
     gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_status.area_id, AREAS[pm_status.area_id].area_name);
     gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_status.map_id,

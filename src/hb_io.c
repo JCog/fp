@@ -8,7 +8,7 @@
  *  emulate the CPU cache. No flushing/invalidating is done.
  */
 
-static int hb_check(void) {
+static s32 hb_check(void) {
     if (hb_regs.key == 0x1234) {
         return 0;
     } else {
@@ -16,7 +16,7 @@ static int hb_check(void) {
     }
 }
 
-static int hb_sd_init(void) {
+static s32 hb_sd_init(void) {
     hb_regs.status = HB_STATUS_SD_INIT;
     while (hb_regs.status & HB_STATUS_SD_BUSY) {
         ;
@@ -30,7 +30,7 @@ static int hb_sd_init(void) {
     }
 }
 
-static int hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
+static s32 hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
     hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(dst);
     hb_regs.sd_n_blocks = n_blocks;
     hb_regs.sd_read_lba = lba;
@@ -45,7 +45,7 @@ static int hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
     }
 }
 
-static int hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
+static s32 hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
     if (src != NULL) {
         hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(src);
         hb_regs.sd_n_blocks = n_blocks;
@@ -75,7 +75,7 @@ static int hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
     }
 }
 
-static int hb_reset(u32 dram_save_addr, u32 dram_save_len) {
+static s32 hb_reset(u32 dram_save_addr, u32 dram_save_len) {
     hb_regs.dram_save_addr = dram_save_addr;
     hb_regs.dram_save_len = dram_save_len;
     hb_regs.status = HB_STATUS_RESET;
@@ -87,11 +87,11 @@ static u64 hb_get_timebase64(void) {
     return ((u64)hb_regs.timebase_hi << 32) | hb_regs.timebase_lo;
 }
 
-static unsigned int clock_ticks(void) {
+static u32 clock_ticks(void) {
     return hb_regs.timebase_lo;
 }
 
-static unsigned int clock_freq(void) {
+static u32 clock_freq(void) {
     return HB_TIMEBASE_FREQ;
 }
 

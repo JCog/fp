@@ -160,7 +160,7 @@ static inline u32 swfn_pow(const void *dat) {
     return pow;
 }
 
-static inline u32 swfn_sup(const void *dat, int group) {
+static inline u32 swfn_sup(const void *dat, s32 group) {
     u32 sup = 0;
 
     const u8 *p = dat;
@@ -171,7 +171,7 @@ static inline u32 swfn_sup(const void *dat, int group) {
     return sup;
 }
 
-static inline u32 swfn_sel(const void *dat, int group) {
+static inline u32 swfn_sel(const void *dat, s32 group) {
     const u8 *p = dat;
     p += 17 - ((group + 1) >> 1);
     if (group & 1)
@@ -185,7 +185,7 @@ static inline u32 swfn_ver(const void *dat) {
     return p[17];
 }
 
-static inline u32 swfn_bsy(const void *dat, int group) {
+static inline u32 swfn_bsy(const void *dat, s32 group) {
     u32 bsy = 0;
 
     const u8 *p = dat;
@@ -218,7 +218,7 @@ static inline u32 swfn_bsy(const void *dat, int group) {
 /* SD Bus application specific commands */
 #define SET_BUS_WIDTH       6
 
-static inline int sd_resp_type(int cmd) {
+static inline s32 sd_resp_type(s32 cmd) {
     switch (cmd) {
         case GO_IDLE_STATE:
         case SET_DSR:
@@ -233,7 +233,7 @@ static inline int sd_resp_type(int cmd) {
     }
 }
 
-static inline int sd_resp_size(int resp_type) {
+static inline s32 sd_resp_size(s32 resp_type) {
     switch (resp_type) {
         case R1:
         case R3:
@@ -271,7 +271,7 @@ static inline int sd_resp_size(int resp_type) {
 #define SPI_MBW_START        0xFC
 #define SPI_MBW_STOP         0xFD
 
-static inline int spi_resp_type(int cmd) {
+static inline s32 spi_resp_type(s32 cmd) {
     switch (cmd) {
         case SEND_STATUS: return R2;
         case READ_OCR: return R3;
@@ -280,7 +280,7 @@ static inline int spi_resp_type(int cmd) {
     }
 }
 
-static inline int spi_resp_size(int resp_type) {
+static inline s32 spi_resp_size(s32 resp_type) {
     switch (resp_type) {
         case R1: return 1;
         case R2: return 2;

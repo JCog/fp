@@ -54,10 +54,10 @@ struct gfx_texture {
 struct gfx_sprite {
     struct gfx_texture *texture;
     s16 texture_tile;
-    float x;
-    float y;
-    float xscale;
-    float yscale;
+    f32 x;
+    f32 y;
+    f32 xscale;
+    f32 yscale;
 };
 
 struct gfx_font {
@@ -92,14 +92,14 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
                                     struct gfx_texture *texture);
 void gfx_texldr_destroy(struct gfx_texldr *texldr);
 
-struct gfx_texture *gfx_texture_create(g_ifmt_t im_fmt, g_isiz_t im_siz, int tile_width, int tile_height, int tiles_x,
-                                       int tiles_y);
+struct gfx_texture *gfx_texture_create(g_ifmt_t im_fmt, g_isiz_t im_siz, s32 tile_width, s32 tile_height, s32 tiles_x,
+                                       s32 tiles_y);
 struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct gfx_texture *texture);
 void gfx_texture_destroy(struct gfx_texture *texture);
 void gfx_texture_free(struct gfx_texture *texture);
 void *gfx_texture_data(const struct gfx_texture *texture, s16 image);
 struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_texture *dest);
-void gfx_texture_copy_tile(struct gfx_texture *dest, int dest_tile, const struct gfx_texture *src, int src_tile,
+void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct gfx_texture *src, s32 src_tile,
                            _Bool blend);
 void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix);
 
@@ -108,10 +108,10 @@ void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile);
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite);
 
-int gfx_font_xheight(const struct gfx_font *font);
-void gfx_printf(const struct gfx_font *font, int x, int y, const char *format, ...);
-void gfx_printf_n(const struct gfx_font *font, int x, int y, const char *format, ...);
-void gfx_printf_f(const struct gfx_font *font, int x, int y, const char *format, ...);
+s32 gfx_font_xheight(const struct gfx_font *font);
+void gfx_printf(const struct gfx_font *font, s32 x, s32 y, const char *format, ...);
+void gfx_printf_n(const struct gfx_font *font, s32 x, s32 y, const char *format, ...);
+void gfx_printf_f(const struct gfx_font *font, s32 x, s32 y, const char *format, ...);
 
 extern const MtxF gfx_cm_desaturate;
 
