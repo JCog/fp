@@ -281,7 +281,9 @@ void create_trainer_menu(struct menu *menu) {
     s32 y_value = 1;
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
+#if PM64_VERSION == JP
     menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
+#endif
     menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
 #if PM64_VERSION == JP
     menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace");
