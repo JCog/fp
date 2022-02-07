@@ -5,18 +5,18 @@
 
 struct item_data {
     _Bool signed_;
-    int base;
-    int length;
+    s32 base;
+    s32 length;
     menu_generic_callback callback_proc;
     void *callback_data;
-    uint32_t value;
+    u32 value;
     _Bool active;
     struct menu *imenu;
     struct menu_item *item;
     struct menu_item **digits;
 };
 
-static inline int char_to_int(int x) {
+static inline s32 char_to_int(s32 x) {
     if (x >= '0' && x <= '9') {
         return x - ('0' - 0x0);
     } else if (x >= 'a' && x <= 'f') {
@@ -25,7 +25,7 @@ static inline int char_to_int(int x) {
     return -1;
 }
 
-static inline int int_to_char(int x) {
+static inline s32 int_to_char(s32 x) {
     if (x >= 0x0 && x <= 0x9) {
         return x + ('0' - 0x0);
     } else if (x >= 0xA && x <= 0xF) {
@@ -34,16 +34,16 @@ static inline int int_to_char(int x) {
     return -1;
 }
 
-static int think_proc(struct menu_item *item) {
+static s32 think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
-        int r = menu_think(data->imenu);
+        s32 r = menu_think(data->imenu);
         if (r) {
             return r;
         }
     }
     if (data->callback_proc) {
-        int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+        s32 r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
         if (r) {
             return r;
         }
@@ -57,7 +57,7 @@ static int think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     if (data->active) {
         data->imenu->cxoffset = item->x;
@@ -67,7 +67,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return data->active;
 }
 
-static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
     if (data->active) {
         menu_navigate(data->imenu, nav);
@@ -75,17 +75,17 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     return data->active;
 }
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
             return 1;
         }
-        uint32_t value = 0;
-        uint32_t mul = 1;
-        int sign = data->signed_ && data->digits[0]->text[0] == '-' ? -1 : 1;
-        for (int i = data->length - 1; i >= 0; --i) {
-            int n = data->digits[i]->text[0];
+        u32 value = 0;
+        u32 mul = 1;
+        s32 sign = data->signed_ && data->digits[0]->text[0] == '-' ? -1 : 1;
+        for (s32 i = data->length - 1; i >= 0; --i) {
+            s32 n = data->digits[i]->text[0];
             if (data->signed_ && i == 0) {
                 if (value == 0 && sign == -1) {
                     sign = 1;
@@ -121,9 +121,9 @@ static int activate_proc(struct menu_item *item) {
     return 1;
 }
 
-static int destroy_proc(struct menu_item *item) {
+static s32 destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
-    for (int i = 0; i < data->length; ++i) {
+    for (s32 i = 0; i < data->length; ++i) {
         data->digits[i]->data = NULL;
     }
     menu_destroy(data->imenu);
@@ -131,7 +131,7 @@ static int destroy_proc(struct menu_item *item) {
     return 0;
 }
 
-static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     if (nav != MENU_NAVIGATE_UP && nav != MENU_NAVIGATE_DOWN) {
         return 0;
     }
@@ -139,9 +139,9 @@ static int sign_navigate_proc(struct menu_item *item, enum menu_navigation nav) 
     return 1;
 }
 
-static int digit_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 digit_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
-    int value = char_to_int(item->text[0]);
+    s32 value = char_to_int(item->text[0]);
     if (nav == MENU_NAVIGATE_UP) {
         ++value;
     } else if (nav == MENU_NAVIGATE_DOWN) {
@@ -154,7 +154,7 @@ static int digit_navigate_proc(struct menu_item *item, enum menu_navigation nav)
     return 1;
 }
 
-struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, int length,
+struct menu_item *menu_add_intinput(struct menu *menu, s32 x, s32 y, s32 base, s32 length,
                                     menu_generic_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     if (base < 0) {
@@ -183,8 +183,8 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
     item->navigate_proc = navigate_proc;
     item->activate_proc = activate_proc;
     item->destroy_proc = destroy_proc;
-    for (int i = 0; i < length; ++i) {
-        uint32_t color = data->imenu->highlight_color_static;
+    for (s32 i = 0; i < length; ++i) {
+        u32 color = data->imenu->highlight_color_static;
         struct menu_item *digit = menu_item_add(data->imenu, i, 0, NULL, color);
         data->digits[i] = digit;
         digit->text = malloc(2);
@@ -208,23 +208,23 @@ struct menu_item *menu_add_intinput(struct menu *menu, int x, int y, int base, i
     return item;
 }
 
-uint32_t menu_intinput_get(struct menu_item *item) {
+u32 menu_intinput_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-int32_t menu_intinput_gets(struct menu_item *item) {
+s32 menu_intinput_gets(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-void menu_intinput_set(struct menu_item *item, uint32_t value) {
+void menu_intinput_set(struct menu_item *item, u32 value) {
     struct item_data *data = item->data;
     data->value = value;
-    int sign = data->signed_ && (int32_t)value < 0 ? -1 : 1;
+    s32 sign = data->signed_ && (s32)value < 0 ? -1 : 1;
     value *= sign;
-    for (int i = data->length - 1; i >= 0; --i) {
-        int c;
+    for (s32 i = data->length - 1; i >= 0; --i) {
+        s32 c;
         if (data->signed_ && i == 0) {
             c = '+' - (sign - 1);
         } else {

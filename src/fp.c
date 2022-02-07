@@ -71,8 +71,8 @@ void fp_init() {
     fp.saved_y = 0;
     fp.saved_z = 0;
     fp.saved_facing_angle = 0;
-    fp.saved_group = 0x1c;
-    fp.saved_room = 0;
+    fp.saved_area = 0x1c;
+    fp.saved_map = 0;
     fp.saved_entrance = 0;
     fp.turbo = 0;
     fp.ace_last_timer = 0;
@@ -251,15 +251,15 @@ void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 
 
 void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     u16 d_pad = pm_status.raw.buttons;
-    int8_t d_x = pm_status.control_x;
-    int8_t d_y = pm_status.control_y;
+    s8 d_x = pm_status.control_x;
+    s8 d_y = pm_status.control_y;
 
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     struct gfx_texture *control_stick = resource_get(RES_TEXTURE_CONTROL_STICK);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
     if (settings->control_stick == 1 || settings->control_stick == 2) {
-        int image_range = control_stick->tile_width / 2;
-        int image_dx, image_dy;
+        s32 image_range = control_stick->tile_width / 2;
+        s32 image_dx, image_dy;
         if (d_x > settings->control_stick_range) {
             image_dx = image_range;
         } else if (d_x < -settings->control_stick_range) {
@@ -309,7 +309,7 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
         }
         s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
         s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-        int button_dx;
+        s32 button_dx;
         if (settings->control_stick == 0) {
             button_dx = cell_width * 10;
         } else {
@@ -390,7 +390,7 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
 void fp_bowser_block_trainer(void) {
-    if (pm_status.is_battle && pm_status.group_id == 0x4 && (pm_status.room_id == 0x7 || pm_status.room_id == 0x13) &&
+    if (pm_status.is_battle && pm_status.area_id == 0x4 && (pm_status.map_id == 0x7 || pm_status.map_id == 0x13) &&
         STORY_PROGRESS != STORY_INTRO && !(pm_status.peach_flags & (1 << 0))) {
 
         actor_t *bowser = pm_battle_status.enemy_actors[0];
@@ -490,7 +490,7 @@ void fp_lzs_trainer(void) {
     // log lzs status
     if (fp.lz_stored && pm_status.pressed.a) {
         if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP &&
-            pm_RoomChangeState == 0) {
+            pm_MapChangeState == 0) {
             fp_log("control early");
         } else if (pm_player.prev_action_state == ACTION_STATE_JUMP ||
                    pm_player.action_state == ACTION_STATE_SPIN_JUMP ||
@@ -504,7 +504,7 @@ void fp_lzs_trainer(void) {
             if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
                 fp_log("control early");
             }
-        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_RoomChangeState == 0) {
+        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_MapChangeState == 0) {
             fp_log("jump 1 frame late");
             fp_log("control early");
         } else if (fp.frames_since_land == 3) {
@@ -521,7 +521,7 @@ void fp_lzs_trainer(void) {
                    (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
             fp_log("jump >= 2 frames late");
             fp_log("control early");
-        } else if (fp.frames_since_land >= 5 && pm_RoomChangeState == 0) {
+        } else if (fp.frames_since_land >= 5 && pm_MapChangeState == 0) {
             fp_log("jump > 2 frames late");
             if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
                 fp_log("control late");
@@ -538,7 +538,7 @@ void fp_lzs_trainer(void) {
     fp.prev_pressed_y = pm_status.pressed.y_cardinal;
     fp.prev_prev_action_state = pm_player.prev_action_state;
 
-    if (pm_RoomChangeState == 1) {
+    if (pm_MapChangeState == 1) {
         fp.lz_stored = 0;
         fp.player_landed = 0;
         fp.frames_since_land = 0;
@@ -589,14 +589,6 @@ void fp_update_cheats(void) {
     }
     if (CHEAT_ACTIVE(CHEAT_PERIL)) {
         pm_player.player_data.hp = 1;
-    }
-    if (CHEAT_ACTIVE(CHEAT_BREAK)) {
-        s32 third_byte_mask = 0xFFFF00FF;
-        s32 check_mask = 0x0000FF00;
-
-        if ((pm_player.flags & check_mask) == 0x2000) {
-            pm_player.flags &= third_byte_mask;
-        }
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
         if (pm_status.is_battle) {

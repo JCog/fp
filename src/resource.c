@@ -9,8 +9,8 @@
 static void *res_data[RES_MAX] = {NULL};
 
 /* resource constructors */
-static void *rc_font_generic(struct gfx_texdesc *texdesc, int char_width, int char_height, int code_start,
-                             int letter_spacing, int line_spacing, int baseline, int median, int x) {
+static void *rc_font_generic(struct gfx_texdesc *texdesc, s32 char_width, s32 char_height, s32 code_start,
+                             s32 letter_spacing, s32 line_spacing, s32 baseline, s32 median, s32 x) {
     struct gfx_font *font = malloc(sizeof(*font));
     if (!font) {
         return font;
@@ -34,8 +34,8 @@ static void *rc_font_generic(struct gfx_texdesc *texdesc, int char_width, int ch
     return font;
 }
 
-static void *rc_grc_font_generic(const char *grc_resource_name, int char_width, int char_height, int code_start,
-                                 int letter_spacing, int line_spacing, int baseline, int median, int x) {
+static void *rc_grc_font_generic(const char *grc_resource_name, s32 char_width, s32 char_height, s32 code_start,
+                                 s32 letter_spacing, s32 line_spacing, s32 baseline, s32 median, s32 x) {
     void *p_t;
     grc_resource_get(grc_resource_name, &p_t, NULL);
     if (!p_t) {
@@ -43,7 +43,7 @@ static void *rc_grc_font_generic(const char *grc_resource_name, int char_width, 
     }
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        t->im_fmt,     t->im_siz, (u32)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
         GFX_FILE_DRAM, 0,
     };
     return rc_font_generic(&td, char_width, char_height, code_start, letter_spacing, line_spacing, baseline, median, x);
@@ -172,7 +172,7 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
     }
     struct grc_texture *t = p_t;
     struct gfx_texdesc td = {
-        t->im_fmt,     t->im_siz, (uint32_t)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
+        t->im_fmt,     t->im_siz, (u32)&t->texture_data, t->tile_width, t->tile_height, t->tiles_x, t->tiles_y,
         GFX_FILE_DRAM, 0,
     };
     return gfx_texture_load(&td, NULL);

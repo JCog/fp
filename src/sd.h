@@ -1,6 +1,7 @@
 #ifndef SD_H
 #define SD_H
 #include <stdint.h>
+#include "pm64.h"
 
 /* Common commands */
 #define GO_IDLE_STATE          0
@@ -96,10 +97,10 @@
 #define IF_COND_PCIE_VDD3      0x00002000
 
 /* Response fields */
-static inline uint32_t sd_r1_cs(const void *resp) {
-    uint32_t cs = 0;
+static inline u32 sd_r1_cs(const void *resp) {
+    u32 cs = 0;
 
-    const uint8_t *p = resp;
+    const u8 *p = resp;
     p++;
     cs = (cs << 8) | *p++;
     cs = (cs << 8) | *p++;
@@ -109,10 +110,10 @@ static inline uint32_t sd_r1_cs(const void *resp) {
     return cs;
 }
 
-static inline uint32_t r3_ocr(const void *resp) {
-    uint32_t ocr = 0;
+static inline u32 r3_ocr(const void *resp) {
+    u32 ocr = 0;
 
-    const uint8_t *p = resp;
+    const u8 *p = resp;
     p++;
     ocr = (ocr << 8) | *p++;
     ocr = (ocr << 8) | *p++;
@@ -122,10 +123,10 @@ static inline uint32_t r3_ocr(const void *resp) {
     return ocr;
 }
 
-static inline uint32_t r6_rca(const void *resp) {
-    uint32_t rca = 0;
+static inline u32 r6_rca(const void *resp) {
+    u32 rca = 0;
 
-    const uint8_t *p = resp;
+    const u8 *p = resp;
     p++;
     rca = (rca << 8) | *p++;
     rca = (rca << 8) | *p++;
@@ -133,10 +134,10 @@ static inline uint32_t r6_rca(const void *resp) {
     return rca;
 }
 
-static inline uint32_t r6_status(const void *resp) {
-    uint32_t st = 0;
+static inline u32 r6_status(const void *resp) {
+    u32 st = 0;
 
-    const uint8_t *p = resp;
+    const u8 *p = resp;
     p += 3;
     st = (st << 8) | *p++;
     st = (st << 8) | *p++;
@@ -149,20 +150,20 @@ static inline uint32_t r6_status(const void *resp) {
 #define SWFN_SET      0x80000000
 #define SWFN_DAT_SIZE 64
 
-static inline uint32_t swfn_pow(const void *dat) {
-    uint32_t pow = 0;
+static inline u32 swfn_pow(const void *dat) {
+    u32 pow = 0;
 
-    const uint8_t *p = dat;
+    const u8 *p = dat;
     pow = (pow << 8) | *p++;
     pow = (pow << 8) | *p++;
 
     return pow;
 }
 
-static inline uint32_t swfn_sup(const void *dat, int group) {
-    uint32_t sup = 0;
+static inline u32 swfn_sup(const void *dat, s32 group) {
+    u32 sup = 0;
 
-    const uint8_t *p = dat;
+    const u8 *p = dat;
     p += 14 - (group << 1);
     sup = (sup << 8) | *p++;
     sup = (sup << 8) | *p++;
@@ -170,8 +171,8 @@ static inline uint32_t swfn_sup(const void *dat, int group) {
     return sup;
 }
 
-static inline uint32_t swfn_sel(const void *dat, int group) {
-    const uint8_t *p = dat;
+static inline u32 swfn_sel(const void *dat, s32 group) {
+    const u8 *p = dat;
     p += 17 - ((group + 1) >> 1);
     if (group & 1)
         return *p & 0xF;
@@ -179,15 +180,15 @@ static inline uint32_t swfn_sel(const void *dat, int group) {
         return *p >> 4;
 }
 
-static inline uint32_t swfn_ver(const void *dat) {
-    const uint8_t *p = dat;
+static inline u32 swfn_ver(const void *dat) {
+    const u8 *p = dat;
     return p[17];
 }
 
-static inline uint32_t swfn_bsy(const void *dat, int group) {
-    uint32_t bsy = 0;
+static inline u32 swfn_bsy(const void *dat, s32 group) {
+    u32 bsy = 0;
 
-    const uint8_t *p = dat;
+    const u8 *p = dat;
     p += 30 - (group << 1);
     bsy = (bsy << 8) | *p++;
     bsy = (bsy << 8) | *p++;
@@ -217,7 +218,7 @@ static inline uint32_t swfn_bsy(const void *dat, int group) {
 /* SD Bus application specific commands */
 #define SET_BUS_WIDTH       6
 
-static inline int sd_resp_type(int cmd) {
+static inline s32 sd_resp_type(s32 cmd) {
     switch (cmd) {
         case GO_IDLE_STATE:
         case SET_DSR:
@@ -232,7 +233,7 @@ static inline int sd_resp_type(int cmd) {
     }
 }
 
-static inline int sd_resp_size(int resp_type) {
+static inline s32 sd_resp_size(s32 resp_type) {
     switch (resp_type) {
         case R1:
         case R3:
@@ -270,7 +271,7 @@ static inline int sd_resp_size(int resp_type) {
 #define SPI_MBW_START        0xFC
 #define SPI_MBW_STOP         0xFD
 
-static inline int spi_resp_type(int cmd) {
+static inline s32 spi_resp_type(s32 cmd) {
     switch (cmd) {
         case SEND_STATUS: return R2;
         case READ_OCR: return R3;
@@ -279,7 +280,7 @@ static inline int spi_resp_type(int cmd) {
     }
 }
 
-static inline int spi_resp_size(int resp_type) {
+static inline s32 spi_resp_size(s32 resp_type) {
     switch (resp_type) {
         case R1: return 1;
         case R2: return 2;

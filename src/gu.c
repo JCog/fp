@@ -11,8 +11,8 @@ void guMtxIdentF(MtxF *mf) {
     *mf = (MtxF)guDefMtxF(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
 }
 
-void guPerspectiveF(MtxF *mf, uint16_t *perspNorm, float fovy, float aspect, float near, float far, float scale) {
-    float cot = cos(fovy / 2.f) / sin(fovy / 2.f);
+void guPerspectiveF(MtxF *mf, u16 *perspNorm, f32 fovy, f32 aspect, f32 near, f32 far, f32 scale) {
+    f32 cot = cos(fovy / 2.f) / sin(fovy / 2.f);
     mf->xx = cot / aspect * scale;
     mf->xy = 0.f;
     mf->xz = 0.f;
@@ -52,9 +52,9 @@ void guMtxCatF(const MtxF *m, const MtxF *n, MtxF *r) {
     *r = t;
 }
 
-void guRotateF(MtxF *mf, float a, float x, float y, float z) {
-    float s = sin(a);
-    float c = cos(a);
+void guRotateF(MtxF *mf, f32 a, f32 x, f32 y, f32 z) {
+    f32 s = sin(a);
+    f32 c = cos(a);
     mf->xx = x * x + c * (1.f - x * x);
     mf->xy = x * y * (1.f - c) + z * s;
     mf->xz = x * z * (1.f - c) - y * s;
@@ -73,13 +73,13 @@ void guRotateF(MtxF *mf, float a, float x, float y, float z) {
     mf->ww = 1.f;
 }
 
-void guRotateRPYF(MtxF *mf, float r, float p, float h) {
-    float sr = sin(r);
-    float cr = cos(r);
-    float sp = sin(p);
-    float cp = cos(p);
-    float sh = sin(h);
-    float ch = cos(h);
+void guRotateRPYF(MtxF *mf, f32 r, f32 p, f32 h) {
+    f32 sr = sin(r);
+    f32 cr = cos(r);
+    f32 sp = sin(p);
+    f32 cp = cos(p);
+    f32 sh = sin(h);
+    f32 ch = cos(h);
     mf->xx = cp * ch;
     mf->xy = cp * sh;
     mf->xz = -sp;
@@ -98,16 +98,16 @@ void guRotateRPYF(MtxF *mf, float r, float p, float h) {
     mf->ww = 1.f;
 }
 
-void guScaleF(MtxF *mf, float x, float y, float z) {
+void guScaleF(MtxF *mf, f32 x, f32 y, f32 z) {
     *mf = (MtxF)guDefMtxF(x, 0.f, 0.f, 0.f, 0.f, y, 0.f, 0.f, 0.f, 0.f, z, 0.f, 0.f, 0.f, 0.f, 1.f);
 }
 
-void guTranslateF(MtxF *mf, float x, float y, float z) {
+void guTranslateF(MtxF *mf, f32 x, f32 y, f32 z) {
     *mf = (MtxF)guDefMtxF(1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, x, y, z, 1.f);
 }
 
 void guMtxF2L(const MtxF *mf, Mtx *m) {
-    for (int i = 0; i < 16; ++i) {
+    for (s32 i = 0; i < 16; ++i) {
         qs1616_t n = qs1616(mf->f[i]);
         m->i[i] = (n >> 16) & 0x0000FFFF;
         m->f[i] = (n >> 0) & 0x0000FFFF;

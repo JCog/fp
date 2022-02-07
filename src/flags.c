@@ -13,7 +13,7 @@
 #define FLAG_LOG_LENGTH 16
 #define FLAG_VIEW_ROWS  16
 
-static int view_record_index;
+static s32 view_record_index;
 static struct menu_item *view_record_name;
 static struct menu_item *view_pageup;
 static struct menu_item *view_pagedown;
@@ -21,18 +21,18 @@ static struct menu_item *view_rows[FLAG_VIEW_ROWS];
 static struct menu_item *view_cells[FLAG_VIEW_ROWS * 0x10];
 
 struct flag_record {
-    int word_size;
-    int length;
+    s32 word_size;
+    s32 length;
     void *data;
     void *comp;
-    int index_length;
+    s16 index_length;
     const char *name;
-    int view_offset;
+    s32 view_offset;
 };
 
 struct flag_event {
-    int record_index;
-    int flag_index;
+    s32 record_index;
+    s32 flag_index;
     _Bool value;
     char description[32];
 };
@@ -47,12 +47,12 @@ static void add_record(size_t word_size, size_t length, void *data, const char *
     record->data = data;
     record->name = name;
     record->comp = calloc(length, word_size);
-    int n_flags = word_size * 8 * length;
-    record->index_length = ((int)(ceilf(log2f(n_flags))) + 3) / 4;
+    s32 n_flags = word_size * 8 * length;
+    record->index_length = ((s32)(ceilf(log2f(n_flags))) + 3) / 4;
     record->view_offset = 0;
 }
 
-static void add_event(int record_index, int flag_index, _Bool value) {
+static void add_event(s32 record_index, s32 flag_index, _Bool value) {
     if (events.size >= FLAG_LOG_LENGTH) {
         vector_erase(&events, 0, 1);
     }
@@ -61,39 +61,39 @@ static void add_event(int record_index, int flag_index, _Bool value) {
     e->record_index = record_index;
     e->flag_index = flag_index;
     e->value = value;
-    sprintf(e->description, "%s[0x%0*x] := %i", r->name, r->index_length, flag_index, value);
+    sprintf(e->description, "%s[0x%0*lx] := %i", r->name, r->index_length, flag_index, value);
 }
 
-static uint32_t get_flag_word(void *data, size_t word_size, int index) {
+static u32 get_flag_word(void *data, size_t word_size, s32 index) {
     if (word_size == 1) {
-        return ((uint8_t *)data)[index];
+        return ((u8 *)data)[index];
     } else if (word_size == 2) {
-        return ((uint16_t *)data)[index];
+        return ((u16 *)data)[index];
     } else if (word_size == 4) {
-        return ((uint32_t *)data)[index];
+        return ((u32 *)data)[index];
     }
     return 0;
 }
 
-static void modify_flag(void *data, size_t word_size, int flag_index, _Bool value) {
-    int word = flag_index / (word_size * 8);
-    int bit = flag_index % (word_size * 8);
+static void modify_flag(void *data, size_t word_size, s32 flag_index, _Bool value) {
+    s32 word = flag_index / (word_size * 8);
+    s32 bit = flag_index % (word_size * 8);
     if (word_size == 1) {
-        uint8_t *p = data;
+        u8 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
             p[word] &= ~(1 << bit);
         }
     } else if (word_size == 2) {
-        uint16_t *p = data;
+        u16 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
             p[word] &= ~(1 << bit);
         }
     } else if (word_size == 4) {
-        uint32_t *p = data;
+        u32 *p = data;
         if (value) {
             p[word] |= (1 << bit);
         } else {
@@ -102,15 +102,15 @@ static void modify_flag(void *data, size_t word_size, int flag_index, _Bool valu
     }
 }
 
-static int log_think_proc(struct menu_item *item) {
-    for (int i = 0; i < records.size; ++i) {
+static s32 log_think_proc(struct menu_item *item) {
+    for (s32 i = 0; i < records.size; ++i) {
         struct flag_record *r = vector_at(&records, i);
-        for (int j = 0; j < r->length; ++j) {
-            uint32_t wd = get_flag_word(r->data, r->word_size, j);
-            uint32_t wc = get_flag_word(r->comp, r->word_size, j);
-            uint32_t d = wd ^ wc;
+        for (s32 j = 0; j < r->length; ++j) {
+            u32 wd = get_flag_word(r->data, r->word_size, j);
+            u32 wc = get_flag_word(r->comp, r->word_size, j);
+            u32 d = wd ^ wc;
             if (d != 0) {
-                for (int k = 0; k < r->word_size * 8; ++k) {
+                for (s32 k = 0; k < r->word_size * 8; ++k) {
                     if ((d >> k) & 1) {
                         add_event(i, r->word_size * 8 * j + k, (wd >> k) & 1);
                     }
@@ -122,15 +122,15 @@ static int log_think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int log_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    int x = draw_params->x;
-    int y = draw_params->y;
+static s32 log_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
     struct gfx_font *font = draw_params->font;
-    uint32_t color = draw_params->color;
-    uint8_t alpha = draw_params->alpha;
-    int ch = menu_get_cell_height(item->owner, 1);
+    u32 color = draw_params->color;
+    u8 alpha = draw_params->alpha;
+    s32 ch = menu_get_cell_height(item->owner, 1);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
-    for (int i = 0; i < events.size && i < FLAG_LOG_LENGTH; ++i) {
+    for (s32 i = 0; i < events.size && i < FLAG_LOG_LENGTH; ++i) {
         struct flag_event *e = vector_at(&events, events.size - i - 1);
         gfx_printf(font, x, y + ch * i, "%s", e->description);
     }
@@ -155,16 +155,16 @@ static void log_clear_proc(struct menu_item *item, void *data) {
 static void update_view(void) {
     struct flag_record *r = vector_at(&records, view_record_index);
     strcpy(view_record_name->text, r->name);
-    int n_flags = r->word_size * 8 * r->length;
+    s32 n_flags = r->word_size * 8 * r->length;
     view_pageup->enabled = view_pagedown->enabled = (n_flags > FLAG_VIEW_ROWS * 0x10);
-    for (int y = 0; y < FLAG_VIEW_ROWS; ++y) {
+    for (s32 y = 0; y < FLAG_VIEW_ROWS; ++y) {
         struct menu_item *row = view_rows[y];
         row->enabled = (r->view_offset + y * 0x10 < n_flags);
         if (row->enabled) {
-            sprintf(view_rows[y]->text, "%04x", r->view_offset + y * 0x10);
+            sprintf(view_rows[y]->text, "%04lx", r->view_offset + y * 0x10);
         }
-        for (int x = 0; x < 0x10; ++x) {
-            int n = y * 0x10 + x;
+        for (s32 x = 0; x < 0x10; ++x) {
+            s32 n = y * 0x10 + x;
             struct menu_item *cell = view_cells[n];
             cell->enabled = (r->view_offset + n < n_flags);
             if (cell->enabled) {
@@ -174,7 +174,7 @@ static void update_view(void) {
     }
 }
 
-static void goto_record(int record_index) {
+static void goto_record(s32 record_index) {
     view_record_index = record_index;
     update_view();
 }
@@ -197,20 +197,20 @@ static void page_up_proc(struct menu_item *item, void *data) {
 
 static void page_down_proc(struct menu_item *item, void *data) {
     struct flag_record *r = vector_at(&records, view_record_index);
-    int n_flags = r->word_size * 8 * r->length;
+    s32 n_flags = r->word_size * 8 * r->length;
     if (r->view_offset + FLAG_VIEW_ROWS * 0x10 < n_flags) {
         r->view_offset += 0x10;
         update_view();
     }
 }
 
-static int flag_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int flag_index = (int)data;
+static s32 flag_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    s32 flag_index = (s32)data;
     struct flag_record *r = vector_at(&records, view_record_index);
     flag_index += r->view_offset;
     if (reason == MENU_CALLBACK_THINK) {
-        int word = flag_index / (r->word_size * 8);
-        int bit = flag_index % (r->word_size * 8);
+        s32 word = flag_index / (r->word_size * 8);
+        s32 bit = flag_index % (r->word_size * 8);
         _Bool v = (get_flag_word(r->data, r->word_size, word) >> bit) & 1;
         menu_switch_set(item, v);
     } else if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -257,11 +257,11 @@ void flag_menu_create(struct menu *menu) {
         if (!t_flag) {
             t_flag = resource_load_grc_texture("flag_icons");
         }
-        for (int y = 0; y < FLAG_VIEW_ROWS; ++y) {
+        for (s32 y = 0; y < FLAG_VIEW_ROWS; ++y) {
             view_rows[y] = menu_add_static(menu, 0, 3 + y, NULL, 0xC0C0C0);
             view_rows[y]->text = malloc(5);
-            for (int x = 0; x < 0x10; ++x) {
-                int n = y * 0x10 + x;
+            for (s32 x = 0; x < 0x10; ++x) {
+                s32 n = y * 0x10 + x;
                 view_cells[n] = menu_add_switch(menu, 4 + x, 3 + y, t_flag, 1, 0xFFFFFF, t_flag, 0, 0xFFFFFF, 0.75f, 1,
                                                 flag_proc, (void *)n);
             }
@@ -271,7 +271,7 @@ void flag_menu_create(struct menu *menu) {
 }
 
 void update_flag_records(void) {
-    for (int i = 0; i < records.size; ++i) {
+    for (s32 i = 0; i < records.size; ++i) {
         struct flag_record *r = vector_at(&records, i);
         memcpy(r->comp, r->data, r->word_size * r->length);
     }

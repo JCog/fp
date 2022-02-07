@@ -7,14 +7,14 @@ struct item_data {
     struct vector options;
     menu_generic_callback callback_proc;
     void *callback_data;
-    int value;
+    s32 value;
     _Bool active;
 };
 
-static int think_proc(struct menu_item *item) {
+static s32 think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->callback_proc) {
-        int r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+        s32 r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
         if (r) {
             return r;
         }
@@ -28,21 +28,21 @@ static int think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
     if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data)) {
         return 1;
     }
-    int value = data->value;
+    s32 value = data->value;
     switch (nav) {
         case MENU_NAVIGATE_UP: value += 1; break;
         case MENU_NAVIGATE_DOWN: value -= 1; break;
         case MENU_NAVIGATE_LEFT: value -= 3; break;
         case MENU_NAVIGATE_RIGHT: value += 3; break;
     }
-    value %= (int)data->options.size;
+    value %= (s32)data->options.size;
     if (value < 0) {
-        value += (int)data->options.size;
+        value += (s32)data->options.size;
     }
     data->value = value;
     char **option = vector_at(&data->options, data->value);
@@ -53,7 +53,7 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     return 1;
 };
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->active) {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
@@ -72,7 +72,7 @@ static int activate_proc(struct menu_item *item) {
     return 1;
 }
 
-static int destroy_proc(struct menu_item *item) {
+static s32 destroy_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     item->text = NULL;
     for (size_t i = 0; i < data->options.size; ++i) {
@@ -83,7 +83,7 @@ static int destroy_proc(struct menu_item *item) {
     return 0;
 }
 
-struct menu_item *menu_add_option(struct menu *menu, int x, int y, const char *options,
+struct menu_item *menu_add_option(struct menu *menu, s32 x, s32 y, const char *options,
                                   menu_generic_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     vector_init(&data->options, sizeof(char *));
@@ -108,12 +108,12 @@ struct menu_item *menu_add_option(struct menu *menu, int x, int y, const char *o
     return item;
 }
 
-int menu_option_get(struct menu_item *item) {
+s32 menu_option_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->value;
 }
 
-void menu_option_set(struct menu_item *item, int value) {
+void menu_option_set(struct menu_item *item, s32 value) {
     struct item_data *data = item->data;
     data->value = value;
     char **option = vector_at(&data->options, data->value);

@@ -9,10 +9,10 @@
 static _Alignas(128) struct settings settings_store;
 struct settings_data *settings = &settings_store.data;
 
-static uint16_t settings_checksum_compute(struct settings *settings) {
-    uint16_t checksum = 0;
-    uint16_t *p = (void *)&settings->data;
-    uint16_t *e = p + sizeof(settings->data) / sizeof(*p);
+static u16 settings_checksum_compute(struct settings *settings) {
+    u16 checksum = 0;
+    u16 *p = (void *)&settings->data;
+    u16 *e = p + sizeof(settings->data) / sizeof(*p);
     while (p < e) {
         checksum += *p++;
     }
@@ -66,6 +66,7 @@ void settings_load_default(void) {
     d->binds[COMMAND_START_TIMER] = bind_make(0);
     d->binds[COMMAND_RESET_TIMER] = bind_make(0);
     d->binds[COMMAND_SHOW_HIDE_TIMER] = bind_make(0);
+    d->binds[COMMAND_BREAK_FREE] = bind_make(2, BUTTON_L, BUTTON_D_DOWN);
 }
 
 void apply_menu_settings() {
@@ -83,8 +84,8 @@ void apply_menu_settings() {
     pm_status.quizmo_debug = settings->bits.quizmo_debug;
 }
 
-void settings_save(int profile) {
-    uint16_t *checksum = &settings_store.header.data_checksum;
+void settings_save(s32 profile) {
+    u16 *checksum = &settings_store.header.data_checksum;
     *checksum = settings_checksum_compute(&settings_store);
 
     // read in save file in the same slot as the profile
@@ -100,7 +101,7 @@ void settings_save(int profile) {
 
 _Bool _save_file_exists() {
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
-    for (int i = 0; i < 8; i++) {
+    for (s32 i = 0; i < 8; i++) {
         pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
         if (pm_FioValidateFileChecksum(file)) {
             free(file);
@@ -111,7 +112,7 @@ _Bool _save_file_exists() {
     return 0;
 }
 
-_Bool settings_load(int profile) {
+_Bool settings_load(s32 profile) {
     // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
     // now
     if (!_save_file_exists()) {

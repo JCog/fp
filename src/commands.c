@@ -14,7 +14,7 @@ struct command fp_commands[COMMAND_MAX] = {
     {"save position",    COMMAND_PRESS_ONCE, 0, command_save_pos_proc        },
     {"load position",    COMMAND_PRESS_ONCE, 0, command_load_pos_proc        },
     {"lzs",              COMMAND_PRESS_ONCE, 0, command_lzs_proc             },
-    {"reload room",      COMMAND_PRESS_ONCE, 0, command_reload_proc          },
+    {"reload map",       COMMAND_PRESS_ONCE, 0, command_reload_proc          },
     {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
     {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
     {"reimport save",    COMMAND_PRESS_ONCE, 0, command_import_save_proc     },
@@ -22,7 +22,8 @@ struct command fp_commands[COMMAND_MAX] = {
     {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
     {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
     {"reset timer",      COMMAND_PRESS_ONCE, 0, command_reset_timer_proc     },
-    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc }
+    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc },
+    {"break free",       COMMAND_PRESS_ONCE, 0, command_break_free_proc      },
 };
 
 void show_menu() {
@@ -42,13 +43,13 @@ void fp_log(const char *fmt, ...) {
     if (ent->msg) {
         free(ent->msg);
     }
-    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
+    for (s32 i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
         fp.log[i] = fp.log[i - 1];
     }
 
     va_list va;
     va_start(va, fmt);
-    int l = vsnprintf(NULL, 0, fmt, va);
+    s32 l = vsnprintf(NULL, 0, fmt, va);
     va_end(va);
 
     ent = &fp.log[0];
@@ -62,24 +63,24 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y) {
+void fp_set_input_mask(u16 pad, u8 x, u8 y) {
     fp.input_mask.buttons = pad;
     fp.input_mask.x_cardinal = x;
     fp.input_mask.y_cardinal = y;
 }
 
-_Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
+_Bool fp_warp(u16 area, u16 map, u16 entrance) {
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
     pm_SfxStopSound(0x19D);        // clear downward vine sound
     pm_disable_player_input();
     pm_status.loading_zone_tangent = 0;
-    pm_status.group_id = group;
-    pm_status.room_id = room;
+    pm_status.area_id = area;
+    pm_status.map_id = map;
     pm_status.entrance_id = entrance;
 
-    pm_RoomChangeState = 1;
+    pm_MapChangeState = 1;
 
     PRINTF("***** WARP TRIGGERED *****\n");
 
@@ -110,9 +111,9 @@ _Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
     return 1;
 }
 
-void set_flag(uint32_t *flags, int flag_index, _Bool value) {
-    int word_index = flag_index / 32;
-    int bit = flag_index % 32;
+void set_flag(u32 *flags, s32 flag_index, _Bool value) {
+    s32 word_index = flag_index / 32;
+    s32 bit = flag_index % 32;
     if (value) {
         flags[word_index] |= (1 << bit);
     } else {
@@ -120,19 +121,19 @@ void set_flag(uint32_t *flags, int flag_index, _Bool value) {
     }
 }
 
-void fp_set_global_flag(int flag_index, _Bool value) {
+void fp_set_global_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.global_flags, flag_index, value);
 }
 
-void fp_set_area_flag(int flag_index, _Bool value) {
+void fp_set_area_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.area_flags, flag_index, value);
 }
 
-void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
+void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
     set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
-void fp_set_global_byte(int byte_index, int8_t value) {
+void fp_set_global_byte(s32 byte_index, s8 value) {
     pm_save_data.global_bytes[byte_index] = value;
 }
 
@@ -189,12 +190,12 @@ void command_lzs_proc() {
 }
 
 void command_reload_proc() {
-    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+    fp_warp(pm_status.area_id, pm_status.map_id, pm_status.entrance_id);
 }
 
 void command_reload_last_warp_proc() {
-    if (fp.saved_group != 0x1c) {
-        fp_warp(fp.saved_group, fp.saved_room, fp.saved_entrance);
+    if (fp.saved_area != 0x1c) {
+        fp_warp(fp.saved_area, fp.saved_map, fp.saved_entrance);
     }
 }
 
@@ -253,10 +254,20 @@ void command_load_game_proc() {
     if (pm_FioValidateFileChecksum(file)) {
         pm_save_data = *file;
         pm_FioDeserializeState();
-        fp_warp(file->group_id, file->room_id, file->entrance_id);
+        fp_warp(file->area_id, file->map_id, file->entrance_id);
         fp_log("loaded from slot %d", pm_status.save_slot);
     } else {
         fp_log("no file in slot %d", pm_status.save_slot);
     }
     free(file);
+}
+
+void command_break_free_proc() {
+    s32 third_byte_mask = 0xFFFF00FF;
+    s32 check_mask = 0x0000FF00;
+
+    if ((pm_player.flags & check_mask) == 0x2000) {
+        pm_player.flags &= third_byte_mask;
+    }
+    fp_log("broke free");
 }

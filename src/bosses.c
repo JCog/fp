@@ -2,8 +2,8 @@
 #include "menu.h"
 #include "fp.h"
 
-static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -17,7 +17,7 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 static void bowser_hallway_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fa, 0); // hallway not defeated
-    fp_warp(GROUP_PEACHS_CASTLE, 0x7, 0x0);
+    fp_warp(AREA_PEACHS_CASTLE, 0x7, 0x0);
 }
 
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
@@ -25,208 +25,208 @@ static void bowser_phase1_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x1fc, 0); // bridge not broken
     fp_set_global_flag(0x1fd, 0); // not sure, but prevents a crash
     fp_set_global_flag(0x1fe, 1); // skip camera zoom in
-    fp_warp(GROUP_PEACHS_CASTLE, 0x13, 0x0);
+    fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x0);
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fp_set_global_flag(0x1fc, 1); // bridge broken
-    fp_warp(GROUP_PEACHS_CASTLE, 0x13, 0x1);
+    fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x1);
 }
 
 static void goomba_king_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_DEFEATED_GOOMBA_BROS;
     fp_set_global_flag(0x02d, 1); // skip cutscene
-    fp_warp(GROUP_GOOMBA_VILLAGE, 0x9, 0x0);
+    fp_warp(AREA_GOOMBA_VILLAGE, 0x9, 0x0);
 }
 
 static void koopa_bros_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH1_KOOPA_BROS_FIRING_BLASTERS;
-    fp_warp(GROUP_KOOPA_BROS_FORTRESS, 0xa, 0x0);
+    fp_warp(AREA_KOOPA_BROS_FORTRESS, 0xa, 0x0);
 }
 
 static void tutankoopa_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH2_SOLVED_ARTIFACT_PUZZLE;
-    fp_warp(GROUP_DRY_DRY_RUINS, 0xe, 0x0);
+    fp_warp(AREA_DRY_DRY_RUINS, 0xe, 0x0);
 }
 
 static void tubba_blubba_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH3_HEART_ESCAPED_WINDY_MILL;
-    fp_warp(GROUP_GUSTY_GULCH, 0x4, 0x0);
+    fp_warp(AREA_GUSTY_GULCH, 0x4, 0x0);
 }
 
 static void general_guy_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH4_OPENED_GENERAL_GUY_ROOM;
-    fp_warp(GROUP_SHY_GUYS_TOY_BOX, 0xe, 0x0);
+    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xe, 0x0);
 }
 
 static void lava_piranha_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH5_KOLORADO_IN_TREASURE_ROOM;
-    fp_warp(GROUP_VOLCANO, 0xd, 0x1);
+    fp_warp(AREA_VOLCANO, 0xd, 0x1);
 }
 
 static void huff_n_puff_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH6_GREW_MAGIC_BEANSTALK;
-    fp_warp(GROUP_FLOWER_FIELDS, 0xf, 0x0);
+    fp_warp(AREA_FLOWER_FIELDS, 0xf, 0x0);
 }
 
 static void crystal_king_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH7_SOLVED_ALBINO_DINO_PUZZLE;
-    fp_warp(GROUP_CRYSTAL_PALACE, 0x17, 0x0);
+    fp_warp(AREA_CRYSTAL_PALACE, 0x17, 0x0);
 }
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
-    uint8_t *partner = &pm_player.player_data.current_partner;
+    u8 *partner = &pm_player.player_data.current_partner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { // flying partners cause a softlock
         *partner = 1;                                                       // goombario
     }
-    fp_warp(GROUP_GOOMBA_VILLAGE, 0x3, 0x0);
+    fp_warp(AREA_GOOMBA_VILLAGE, 0x3, 0x0);
 }
 
 static void jr_pleasant_path_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH1_STAR_SPRIT_DEPARTED;
-    fp_warp(GROUP_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x1);
+    fp_warp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x1);
 }
 
 static void jr_forever_forest_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH3_STAR_SPRIT_DEPARTED;
     fp_set_global_flag(0x39f, 0); // jr not defeated
-    fp_warp(GROUP_FOREVER_FOREST, 0x6, 0x3);
+    fp_warp(AREA_FOREVER_FOREST, 0x6, 0x3);
 }
 
 static void jr_toad_town_port_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH5_STAR_SPIRIT_DEPARTED;
     fp_set_global_flag(0x4c2, 0); // jr not defeated
-    fp_warp(GROUP_TOAD_TOWN, 0x6, 0x1);
+    fp_warp(AREA_TOAD_TOWN, 0x6, 0x1);
 }
 
 static void jr_shiver_snowfield_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH7_MAYOR_MURDER_SOLVED;
-    fp_warp(GROUP_SHIVER_REGION, 0x2, 0x0);
+    fp_warp(AREA_SHIVER_REGION, 0x2, 0x0);
 }
 
 static void jr_bowsers_castle_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_byte(0x12c, 0);
-    fp_warp(GROUP_BOWSERS_CASTLE, 0x1c, 0x0);
+    fp_warp(AREA_BOWSERS_CASTLE, 0x1c, 0x0);
 }
 
 static void goomba_bros_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_SMASHED_GATE_BLOCK;
-    fp_warp(GROUP_GOOMBA_VILLAGE, 0x6, 0x0);
+    fp_warp(AREA_GOOMBA_VILLAGE, 0x6, 0x0);
 }
 
 static void tubbas_heart_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH3_WENT_DOWN_THE_WELL;
-    fp_warp(GROUP_GUSTY_GULCH, 0x8, 0x0);
+    fp_warp(AREA_GUSTY_GULCH, 0x8, 0x0);
 }
 
 static void lantern_ghost_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH4_SOLVED_COLOR_PUZZLE;
-    fp_warp(GROUP_SHY_GUYS_TOY_BOX, 0xb, 0x0);
+    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xb, 0x0);
 }
 
 static void fuzzipede_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH5_ENTERED_WHALE;
-    fp_warp(GROUP_WHALE, 0x1, 0x0);
+    fp_warp(AREA_WHALE, 0x1, 0x0);
 }
 
 static void lakilester_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH6_SPOKE_WITH_THE_SUN;
-    fp_warp(GROUP_FLOWER_FIELDS, 0x8, 0x1);
+    fp_warp(AREA_FLOWER_FIELDS, 0x8, 0x1);
 }
 
 static void monstar_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH7_DEFEATED_JR_TROOPA;
-    fp_warp(GROUP_SHIVER_REGION, 0x4, 0x0);
+    fp_warp(AREA_SHIVER_REGION, 0x4, 0x0);
 }
 
 static void blooper_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x1ab, 0); // blooper not defeated
     fp_set_global_flag(0x1ac, 0); // electro blooper not defeated
     fp_set_global_flag(0x1af, 0); // ch5 pipe switch
-    fp_warp(GROUP_SEWERS, 0x7, 0x1);
+    fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void electro_blooper_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x1ab, 1); // blooper defeated
     fp_set_global_flag(0x1ac, 0); // electro blooper not defeated
     fp_set_global_flag(0x1af, 0); // ch5 pipe switch
-    fp_warp(GROUP_SEWERS, 0x7, 0x1);
+    fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void super_blooper_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x1ab, 1); // blooper defeated
     fp_set_global_flag(0x1ac, 1); // electro blooper defeated
     fp_set_global_flag(0x1af, 0); // ch5 pipe switch
-    fp_warp(GROUP_SEWERS, 0x7, 0x1);
+    fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void buzzar_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x2c4, 0); // buzzar not defeated
-    fp_warp(GROUP_MT_RUGGED, 0x4, 0x1);
+    fp_warp(AREA_MT_RUGGED, 0x4, 0x1);
 }
 
 static void anti_guy_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x451, 0); // anti guy not defeated
-    fp_warp(GROUP_SHY_GUYS_TOY_BOX, 0xc, 0x1);
+    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xc, 0x1);
 }
 
 static void kent_c_koopa_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH6_RETURNED_TO_TOAD_TOWN;
     fp_set_global_flag(0x262, 0); // kent not defeated
-    fp_warp(GROUP_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
+    fp_warp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
 }
 
 static void anti_guys_unit_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
     fp_set_global_byte(0x12b, 0);
-    fp_warp(GROUP_BOWSERS_CASTLE, 0x1b, 0x0);
+    fp_warp(AREA_BOWSERS_CASTLE, 0x1b, 0x0);
 }
 
 static void chan_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 0);
-    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
         fp_log("dojo set to chan");
     } else {
-        fp_warp(GROUP_TOAD_TOWN, 0x1, 0x1);
+        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
 static void lee_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 1);
-    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
         fp_log("dojo set to lee");
     } else {
-        fp_warp(GROUP_TOAD_TOWN, 0x1, 0x1);
+        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
 static void master1_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 2);
-    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
         fp_log("dojo set to master 1");
     } else {
-        fp_warp(GROUP_TOAD_TOWN, 0x1, 0x1);
+        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
 static void master2_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 3);
-    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
         fp_log("dojo set to master 2");
     } else {
-        fp_warp(GROUP_TOAD_TOWN, 0x1, 0x1);
+        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
 static void master3_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 4);
-    if (pm_status.group_id == 0x1 && pm_status.room_id == 0x1 && !pm_status.is_battle) {
+    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
         fp_log("dojo set to master 3");
     } else {
-        fp_warp(GROUP_TOAD_TOWN, 0x1, 0x1);
+        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
@@ -239,22 +239,22 @@ static void tab_next_proc(struct menu_item *item, void *data) {
 }
 
 void create_bosses_menu(struct menu *menu) {
-    int y_main = 0;
+    s32 y_main = 0;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, y_main++, NULL, "return");
 
-    int page_count = 6;
+    s32 page_count = 6;
     struct menu *pages = malloc(sizeof(*pages) * page_count);
     struct menu_item *tab = menu_add_tab(menu, 0, y_main++, pages, page_count);
-    for (int i = 0; i < page_count; ++i) {
+    for (s32 i = 0; i < page_count; ++i) {
         struct menu *page = &pages[i];
         menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     }
 
     /* bowser */
-    int y_tab = 0;
+    s32 y_tab = 0;
     struct menu *page = &pages[0];
     menu_add_static(page, 0, y_tab++, "bowser", 0xC0C0C0);
     menu_add_button(page, 0, y_tab++, "hallway", bowser_hallway_proc, NULL);

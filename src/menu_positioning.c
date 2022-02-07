@@ -9,12 +9,12 @@ struct item_data {
     _Bool active;
 };
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     static struct gfx_texture *texture = NULL;
     if (!texture) {
         texture = resource_load_grc_texture("move_icon");
     }
-    int cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, 1);
     struct gfx_sprite sprite = {
         texture,
         0,
@@ -28,7 +28,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 1;
 }
 
-static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     struct item_data *data = item->data;
     if (data->active && data->callback_proc) {
         data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data);
@@ -36,7 +36,7 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     return data->active;
 }
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (!data->callback_proc ||
         !data->callback_proc(item, data->active ? MENU_CALLBACK_DEACTIVATE : MENU_CALLBACK_ACTIVATE,
@@ -47,7 +47,7 @@ static int activate_proc(struct menu_item *item) {
     return 1;
 }
 
-struct menu_item *menu_add_positioning(struct menu *menu, int x, int y, menu_generic_callback callback_proc,
+struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                        void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;

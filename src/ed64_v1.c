@@ -7,10 +7,10 @@
 #include "sd_host.h"
 #include "util.h"
 
-static int cart_irqf;
-static uint32_t cart_lat;
-static uint32_t cart_pwd;
-static uint16_t spi_cfg;
+static s32 cart_irqf;
+static u32 cart_lat;
+static u32 cart_pwd;
+static u16 spi_cfg;
 
 static void cart_lock_safe(void) {
     __osPiGetAccess();
@@ -37,15 +37,15 @@ static void cart_unlock(void) {
     set_irqf(cart_irqf);
 }
 
-static inline uint32_t reg_rd(int reg) {
-    return __pi_read_raw((uint32_t)&REGS_PTR[reg]);
+static inline u32 reg_rd(s32 reg) {
+    return __pi_read_raw((u32)&REGS_PTR[reg]);
 }
 
-static inline void reg_wr(int reg, uint32_t dat) {
-    return __pi_write_raw((uint32_t)&REGS_PTR[reg], dat);
+static inline void reg_wr(s32 reg, u32 dat) {
+    return __pi_write_raw((u32)&REGS_PTR[reg], dat);
 }
 
-static inline void spi_tx(uint8_t dat) {
+static inline void spi_tx(u8 dat) {
     reg_wr(REG_SPI, dat);
 
     while (reg_rd(REG_STATUS) & STATUS_SPI) {
@@ -53,17 +53,17 @@ static inline void spi_tx(uint8_t dat) {
     }
 }
 
-static inline uint8_t spi_io(uint8_t dat) {
+static inline u8 spi_io(u8 dat) {
     spi_tx(dat);
 
     return reg_rd(REG_SPI);
 }
 
-static inline uint8_t spi_rx(void) {
+static inline u8 spi_rx(void) {
     return spi_io(0xFF);
 }
 
-static void sd_set_spd(int spd) {
+static void sd_set_spd(s32 spd) {
     spi_cfg &= ~SPI_SPEED;
 
     if (spd >= 50) {
@@ -77,7 +77,7 @@ static void sd_set_spd(int spd) {
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
-static void sd_spi_ss(int ss) {
+static void sd_spi_ss(s32 ss) {
     if (ss) {
         spi_cfg &= ~SPI_SS;
     } else {
@@ -87,12 +87,12 @@ static void sd_spi_ss(int ss) {
     reg_wr(REG_SPI_CFG, spi_cfg);
 }
 
-static int sd_spi_io(int dat) {
+static s32 sd_spi_io(s32 dat) {
     return spi_io(dat);
 }
 
 static void sd_spi_rx_buf(void *buf, size_t size) {
-    uint8_t *p = buf;
+    u8 *p = buf;
 
     for (size_t i = 0; i < size; i++) {
         *p++ = spi_rx();
@@ -100,14 +100,14 @@ static void sd_spi_rx_buf(void *buf, size_t size) {
 }
 
 static void sd_spi_tx_buf(const void *buf, size_t size) {
-    const uint8_t *p = buf;
+    const u8 *p = buf;
 
     for (size_t i = 0; i < size; i++) {
         spi_tx(*p++);
     }
 }
 
-static void sd_spi_tx_clk(int dat, size_t n_clk) {
+static void sd_spi_tx_clk(s32 dat, size_t n_clk) {
     if (dat & 0x1) {
         dat = 0xFF;
     } else {
@@ -119,8 +119,8 @@ static void sd_spi_tx_clk(int dat, size_t n_clk) {
     }
 }
 
-static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
-    const uint32_t cart_addr = 0xB2000000;
+static s32 sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
+    const u32 cart_addr = 0xB2000000;
 
     /* dma to cart */
     reg_wr(REG_DMA_LEN, n_blk - 1);
@@ -157,14 +157,14 @@ static struct sd_host sd_host = {
     .rx_mblk = sd_rx_mblk,
 };
 
-static int probe(void) {
+static s32 probe(void) {
     cart_lock_safe();
 
     /* open registers */
     reg_wr(REG_KEY, 0x1234);
 
     /* check firmware version */
-    uint16_t fw_ver = reg_rd(REG_VER);
+    u16 fw_ver = reg_rd(REG_VER);
     if (fw_ver < 0x0100 || fw_ver >= 0x0116) {
         goto nodev;
     }
@@ -174,7 +174,7 @@ static int probe(void) {
      * line high */
     reg_wr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS);
     reg_wr(REG_SPI, 0x00);
-    for (int i = 0;; i++) {
+    for (s32 i = 0;; i++) {
         if (i > 32) {
             goto nodev;
         }
@@ -183,7 +183,7 @@ static int probe(void) {
             break;
         }
     }
-    uint16_t dat = reg_rd(REG_SPI);
+    u16 dat = reg_rd(REG_SPI);
     if (dat == 0xFF) {
         /* spi seems to work as expected */
         cart_unlock();
@@ -196,15 +196,15 @@ nodev:
     return -1;
 }
 
-static int disk_init(void) {
+static s32 disk_init(void) {
     return sd_init(&sd_host);
 }
 
-static int disk_read(size_t lba, size_t n_blocks, void *dst) {
+static s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
     return sd_read(&sd_host, lba, dst, n_blocks);
 }
 
-static int disk_write(size_t lba, size_t n_blocks, const void *src) {
+static s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
     return sd_write(&sd_host, lba, src, n_blocks);
 }
 

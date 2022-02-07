@@ -25,8 +25,8 @@ static void load_proc() {
     command_load_game_proc();
 }
 
-static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    int8_t *p = data;
+static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    s8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != *p) {
             menu_intinput_set(item, *p);
@@ -37,8 +37,8 @@ static int byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
     return 0;
 }
 
-static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_option_get(item) != *p) {
             menu_option_set(item, *p);
@@ -49,8 +49,8 @@ static int byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    uint8_t *p = data;
+static s32 checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -61,17 +61,17 @@ static int checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason r
     return 0;
 }
 
-static int story_progress_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 story_progress_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    int x = draw_params->x;
-    int y = draw_params->y;
+    s32 x = draw_params->x;
+    s32 y = draw_params->y;
 
-    int8_t chapter_starts[] = {-128, -98, -74, -51, -12, 8, 40, 60, 90, 97};
-    uint8_t chapter = 0;
-    int8_t chapter_progress = 0;
-    int8_t chapter_max = 0;
-    for (int i = 1; i < 10; i++) {
+    s8 chapter_starts[] = {-128, -98, -74, -51, -12, 8, 40, 60, 90, 97};
+    u8 chapter = 0;
+    s8 chapter_progress = 0;
+    s8 chapter_max = 0;
+    for (s32 i = 1; i < 10; i++) {
         if (STORY_PROGRESS >= chapter_starts[i]) {
             chapter++;
         } else {
@@ -110,7 +110,7 @@ static void open_pipes_proc(struct menu_item *item, void *data) {
 }
 
 static void restore_enemies_proc(struct menu_item *item, void *data) {
-    for (int i = 0; i < 600; i++) {
+    for (s32 i = 0; i < 600; i++) {
         pm_enemy_defeat_flags[i] = 0;
     }
 }
@@ -129,9 +129,9 @@ static void restore_letters_proc(struct menu_item *item, void *data) {
     fp_set_global_flag(0x5a9, 0);
 }
 
-static int do_export_file(const char *path, void *data) {
+static s32 do_export_file(const char *path, void *data) {
     const char *err_str = NULL;
-    int f = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    s32 f = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     save_data_ctxt_t *file = data;
     if (f != -1) {
         if (write(f, file, sizeof(*file)) != sizeof(*file)) {
@@ -161,12 +161,12 @@ static int do_export_file(const char *path, void *data) {
     }
 }
 
-int fp_import_file(const char *path, void *data) {
+s32 fp_import_file(const char *path, void *data) {
     const char *s_invalid = "invalid or corrupt file";
     const char *s_memory = "out of memory";
     const char *err_str = NULL;
     save_data_ctxt_t *file = NULL;
-    int f = open(path, O_RDONLY);
+    s32 f = open(path, O_RDONLY);
     if (f != -1) {
         struct stat st;
         if (fstat(f, &st)) {
@@ -189,7 +189,7 @@ int fp_import_file(const char *path, void *data) {
                     if (pm_FioValidateFileChecksum(file)) {
                         pm_save_data = *file;
                         pm_FioDeserializeState();
-                        fp_warp(file->group_id, file->room_id, file->entrance_id);
+                        fp_warp(file->area_id, file->map_id, file->entrance_id);
                     } else {
                         fp_log("save file corrupt");
                     }
@@ -244,14 +244,14 @@ struct menu *create_file_menu(void) {
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
-    int y = 0;
-    const int MENU_X = 17;
+    s32 y = 0;
+    const s32 MENU_X = 17;
     struct gfx_texture *t_save = resource_get(RES_ICON_SAVE);
 
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
     menu_add_button(&menu, 11, y, "-", save_slot_dec_proc, NULL);
-    menu_add_watch(&menu, 13, y, (uint32_t)&pm_status.save_slot, WATCH_TYPE_U8);
+    menu_add_watch(&menu, 13, y, (u32)&pm_status.save_slot, WATCH_TYPE_U8);
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     y++;
     item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0xFFFFFF, save_proc, NULL);

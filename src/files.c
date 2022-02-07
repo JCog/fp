@@ -14,7 +14,7 @@
 /* params */
 static enum get_file_mode gf_mode;
 static char *gf_suffix;
-static int gf_suffix_length;
+static s32 gf_suffix_length;
 static get_file_callback_t gf_callback_proc;
 static void *gf_callback_data;
 /* data */
@@ -35,16 +35,16 @@ static struct menu_item *gf_scroll_down;
 static struct menu_item *gf_files[FILE_VIEW_ROWS];
 
 struct dir_state {
-    int scroll;
-    int index;
+    s32 scroll;
+    s32 index;
 };
 
 struct dir_entry {
     char name[256];
     _Bool dir;
-    int tile;
+    s32 tile;
     char text[32];
-    int anim_state;
+    s32 anim_state;
 };
 
 static _Bool stricmp(const char *a, const char *b) {
@@ -89,8 +89,8 @@ static _Bool update_list(void) {
             continue;
         }
         _Bool dir = ((dirent->mode & S_IFMT) == S_IFDIR);
-        int nl = strlen(dirent->d_name);
-        int sl = gf_suffix_length;
+        s32 nl = strlen(dirent->d_name);
+        s32 sl = gf_suffix_length;
         if (!dir && (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix))) {
             continue;
         }
@@ -120,7 +120,7 @@ static _Bool update_list(void) {
 
 static void update_view(_Bool enable, _Bool select) {
     if (enable) {
-        int y = 3;
+        s32 y = 3;
         if (gf_mode == GETFILE_SAVE || gf_mode == GETFILE_SAVE_PREFIX_INC) {
             menu_item_enable(gf_name);
             menu_item_enable(gf_mkdir);
@@ -140,8 +140,8 @@ static void update_view(_Bool enable, _Bool select) {
         gf_scroll_down->y = y + FILE_VIEW_ROWS - 1;
         struct dir_state *ds = vector_at(&gf_dir_state, 0);
         _Bool selected = 0;
-        for (int i = 0; i < FILE_VIEW_ROWS; ++i) {
-            int index = ds->scroll + i;
+        for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
+            s32 index = ds->scroll + i;
             struct menu_item *item = gf_files[i];
             if (index < gf_dir_entries.container.size) {
                 item->y = y++;
@@ -168,7 +168,7 @@ static void update_view(_Bool enable, _Bool select) {
         menu_item_disable(gf_clear);
         menu_item_disable(gf_scroll_up);
         menu_item_disable(gf_scroll_down);
-        for (int i = 0; i < FILE_VIEW_ROWS; ++i) {
+        for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
             menu_item_disable(gf_files[i]);
         }
         if (select) {
@@ -177,14 +177,14 @@ static void update_view(_Bool enable, _Bool select) {
     }
 }
 
-static int get_next_prefix_number() {
+static s32 get_next_prefix_number() {
     DIR *dir = opendir(".");
     if (!dir) {
         return 0;
     }
 
-    int max_num_found = -1;
-    int sl = strlen(gf_suffix);
+    s32 max_num_found = -1;
+    s32 sl = strlen(gf_suffix);
 
     /* enumerate entries */
     struct dirent *dirent;
@@ -192,13 +192,13 @@ static int get_next_prefix_number() {
         if (!(dirent->mode & S_IRUSR)) {
             continue;
         }
-        int nl = strlen(dirent->d_name);
+        s32 nl = strlen(dirent->d_name);
         if (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix)) {
             continue;
         }
 
-        int cur_num;
-        int ret = sscanf(dirent->d_name, "%d", &cur_num);
+        s32 cur_num;
+        s32 ret = sscanf(dirent->d_name, "%ld", &cur_num);
         if (ret == EOF || ret < 1) {
             continue;
         }
@@ -220,17 +220,17 @@ static void set_name(const char *name, _Bool dirty) {
         if (gf_dirty_name || gf_mode != GETFILE_SAVE_PREFIX_INC) {
             strncpy(gf_name->text, name, 31);
         } else {
-            int ignore, prefix_length;
-            sscanf(name, "%d%n", &ignore, &prefix_length);
-            int prefix = get_next_prefix_number();
-            snprintf(gf_name->text, 32, "%03d%s", prefix, name + prefix_length);
+            s32 ignore, prefix_length;
+            sscanf(name, "%ld%ln", &ignore, &prefix_length);
+            s32 prefix = get_next_prefix_number();
+            snprintf(gf_name->text, 32, "%03ld%s", prefix, name + prefix_length);
         }
         gf_name->text[31] = 0;
         gf_untitled = 0;
     }
 }
 
-static int overwrite_prompt_proc(int option_index, void *data) {
+static s32 overwrite_prompt_proc(s32 option_index, void *data) {
     char *path = data;
     if (option_index != -1) {
         menu_return(&gf_menu);
@@ -245,8 +245,8 @@ static int overwrite_prompt_proc(int option_index, void *data) {
 static void return_path(const char *name) {
     char *path = malloc(PATH_MAX);
     if (getcwd(path, PATH_MAX)) {
-        int dl = strlen(path);
-        int nl = strlen(name);
+        s32 dl = strlen(path);
+        s32 nl = strlen(name);
         if (dl + 1 + nl + gf_suffix_length < PATH_MAX) {
             path[dl] = '/';
             strcpy(&path[dl + 1], name);
@@ -268,10 +268,10 @@ static void return_path(const char *name) {
     free(path);
 }
 
-static int file_enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
-    int row = (int)item->data;
+static s32 file_enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
+    s32 row = (s32)item->data;
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
-    int index = ds->scroll + row;
+    s32 index = ds->scroll + row;
     if (index < gf_dir_entries.container.size) {
         struct dir_entry *entry = set_at(&gf_dir_entries, index);
         entry->anim_state = 0;
@@ -279,8 +279,8 @@ static int file_enter_proc(struct menu_item *item, enum menu_switch_reason reaso
     return 0;
 }
 
-static int file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    int row = (int)item->data;
+static s32 file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    s32 row = (s32)item->data;
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
     struct dir_entry *entry = set_at(&gf_dir_entries, ds->scroll + row);
     if (entry->anim_state > 0) {
@@ -288,7 +288,7 @@ static int file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_
         ++draw_params->y;
         entry->anim_state = (entry->anim_state + 1) % 3;
     }
-    int cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, 1);
     struct gfx_texture *texture = resource_get(RES_ICON_FILE);
     struct gfx_sprite sprite = {
         texture,
@@ -305,10 +305,10 @@ static int file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_
     return 1;
 }
 
-static int file_activate_proc(struct menu_item *item) {
-    int row = (int)item->data;
+static s32 file_activate_proc(struct menu_item *item) {
+    s32 row = (s32)item->data;
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
-    int index = ds->scroll + row;
+    s32 index = ds->scroll + row;
     struct dir_entry *entry = set_at(&gf_dir_entries, index);
     entry->anim_state = 1;
     if (entry->dir) {
@@ -334,7 +334,7 @@ static int file_activate_proc(struct menu_item *item) {
     } else {
         struct dir_state *ds = vector_at(&gf_dir_state, 0);
         ds->index = index;
-        int l = strlen(entry->name) - gf_suffix_length;
+        s32 l = strlen(entry->name) - gf_suffix_length;
         char *name = malloc(l + 1);
         memcpy(name, entry->name, l);
         name[l] = 0;
@@ -349,9 +349,9 @@ static int file_activate_proc(struct menu_item *item) {
     return 1;
 }
 
-static int file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
-    int row = (int)item->data;
-    int n_entries = gf_dir_entries.container.size;
+static s32 file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
+    s32 row = (s32)item->data;
+    s32 n_entries = gf_dir_entries.container.size;
     if (row == 0 && nav == MENU_NAVIGATE_UP) {
         struct dir_state *ds = vector_at(&gf_dir_state, 0);
         --ds->scroll;
@@ -371,7 +371,7 @@ static int file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
     } else if ((row == FILE_VIEW_ROWS - 1 || row == gf_dir_entries.container.size - 1) && nav == MENU_NAVIGATE_DOWN) {
         struct dir_state *ds = vector_at(&gf_dir_state, 0);
         ++ds->scroll;
-        int index = ds->scroll + row;
+        s32 index = ds->scroll + row;
         if (index == gf_dir_entries.container.size) {
             ds->scroll = 0;
             menu_select(item->owner, gf_files[0]);
@@ -395,7 +395,7 @@ static _Bool dir_entry_comp(void *a, void *b) {
     }
     char *sa = da->name;
     char *sb = db->name;
-    int d;
+    s32 d;
     while (*sa && *sb) {
         char ca = *sa++;
         char cb = *sb++;
@@ -463,13 +463,13 @@ static _Bool dir_entry_comp(void *a, void *b) {
     }
 }
 
-static int osk_callback_proc(const char *str, void *data) {
+static s32 osk_callback_proc(const char *str, void *data) {
     set_name(str, strcmp(str, gf_name->text) != 0);
     gf_menu.selector = gf_accept;
     return 0;
 }
 
-static int name_activate_proc(struct menu_item *item) {
+static s32 name_activate_proc(struct menu_item *item) {
     menu_get_osk_string(item->owner, gf_untitled ? NULL : item->text, osk_callback_proc, NULL);
     return 1;
 }
@@ -502,7 +502,7 @@ static void scroll_up_proc(struct menu_item *item, void *data) {
 static void scroll_down_proc(struct menu_item *item, void *data) {
     struct dir_state *ds = vector_at(&gf_dir_state, 0);
     ++ds->scroll;
-    int n_entries = gf_dir_entries.container.size;
+    s32 n_entries = gf_dir_entries.container.size;
     if (ds->scroll + FILE_VIEW_ROWS > n_entries) {
         ds->scroll = n_entries - FILE_VIEW_ROWS;
     }
@@ -511,7 +511,7 @@ static void scroll_down_proc(struct menu_item *item, void *data) {
     }
 }
 
-static int mkdir_osk_callback_proc(const char *str, void *data) {
+static s32 mkdir_osk_callback_proc(const char *str, void *data) {
     if (*str == '\0') {
         return 0;
     } else if (mkdir(str, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) {
@@ -553,7 +553,7 @@ static void gf_menu_init(void) {
         gf_name->activate_proc = name_activate_proc;
         gf_accept = menu_add_button(menu, 0, 4, "accept", accept_proc, NULL);
         gf_clear = menu_add_button(menu, 7, 4, "clear", clear_proc, NULL);
-        for (int i = 0; i < FILE_VIEW_ROWS; ++i) {
+        for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
             struct menu_item *item = menu_item_add(menu, 2, 5 + i, NULL, 0xFFFFFF);
             item->data = (void *)i;
             item->enter_proc = file_enter_proc;

@@ -1,9 +1,15 @@
 URL           ?= github.com/jcog/fp
 ifeq ($(origin FP_VERSION), undefined)
-FP_VERSION    := $(shell git tag 2>/dev/null)-DEV
-ifeq ('$(FP_VERSION)', '')
-FP_VERSION     = Unknown version
-endif
+  TAG_COMMIT    := $(shell git rev-list --abbrev-commit --tags --max-count=1)
+  TAG           := $(shell git describe --abbrev=0 --tags ${TAG_COMMIT} 2>/dev/null || true)
+  COMMIT 	    := $(shell git rev-parse --short HEAD)
+  DATE          := $(shell git log -1 --format=%cd --date=format:"%m-%d-%y")
+  FP_VERSION := $(COMMIT)-$(DATE)
+  ifeq ('$(TAG_COMMIT)', '$(COMMIT)')
+    ifneq ('$(TAG)', '')
+      FP_VERSION := $(TAG)
+    endif
+  endif
 endif
 CC             = mips64-gcc
 LD             = mips64-g++

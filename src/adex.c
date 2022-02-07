@@ -42,7 +42,7 @@ enum brack {
 struct tok {
     enum tok_type type;
     union {
-        uint32_t value;
+        u32 value;
         char id[ID_MAX];
         enum op op;
         enum brack brack;
@@ -51,7 +51,7 @@ struct tok {
 
 static const char *op_s[] = {"b.", "bz.", "h.", "hz.", "w.", "*", "/", "%", "+", "-"};
 
-static int op_prec[] = {
+static s32 op_prec[] = {
     /* modes */
     0,
     0,
@@ -67,7 +67,7 @@ static int op_prec[] = {
     2,
 };
 
-static int op_ar[] = {
+static s32 op_ar[] = {
     /* modes */
     1,
     1,
@@ -109,7 +109,7 @@ static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
     va_list arg;
     va_start(arg, type);
     if (type == TOK_CONST) {
-        tok->value = va_arg(arg, uint32_t);
+        tok->value = va_arg(arg, u32);
     } else if (type == TOK_ID) {
         strcpy(tok->id, va_arg(arg, char *));
     } else if (type == TOK_OP) {
@@ -125,9 +125,9 @@ static _Bool is_func_tok(struct tok *tok) {
     return tok->type == TOK_OP && op_ar[tok->op] == 1;
 }
 
-static _Bool parse_op(const char **p, int *op) {
-    for (int i = 0; i < OP_MAX; ++i) {
-        int l = strlen(op_s[i]);
+static _Bool parse_op(const char **p, s32 *op) {
+    for (s32 i = 0; i < OP_MAX; ++i) {
+        s32 l = strlen(op_s[i]);
         if (strncmp(*p, op_s[i], l) == 0) {
             *p += l;
             *op = i;
@@ -146,7 +146,7 @@ static char *parse_word(const char **p) {
     while (is_word_char(*e)) {
         ++e;
     }
-    int l = e - *p;
+    s32 l = e - *p;
     char *s = malloc(l + 1);
     if (!s) {
         return NULL;
@@ -191,7 +191,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
     while (*p) {
         char c = *p;
         struct tok tok;
-        int op;
+        s32 op;
         /* parse whitespace */
         if (c == ' ' || c == '\t') {
             ++p;
@@ -211,7 +211,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             }
             char *word_s = word;
             char *word_e = word_s + strlen(word_s);
-            int base;
+            s32 base;
             if (strncmp(word, "0x", 2) == 0 || strncmp(word, "0X", 2) == 0) {
                 base = 16;
                 word_s += 2;
@@ -228,11 +228,11 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                 free(word);
                 goto syntax_err;
             }
-            uint32_t v = 0;
-            uint32_t m = 1;
+            u32 v = 0;
+            u32 m = 1;
             for (char *word_p = word_e - 1; word_p >= word_s; --word_p) {
                 char c = *word_p;
-                int d = -1;
+                s32 d = -1;
                 if (c >= '0' && c <= '9') {
                     d = c - '0';
                 } else if (c >= 'A' && c <= 'F') {
@@ -291,9 +291,9 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
         if (tok.type == TOK_ID) {
             // TODO: figure out what this is even doing
             //      _Bool found = 0;
-            //      for (int i = 0; i < sizeof(syms) / sizeof(*syms); ++i)
+            //      for (s32 i = 0; i < sizeof(syms) / sizeof(*syms); ++i)
             //        if (strcmp(tok.id, syms[i].id) == 0) {
-            //          make_tok(&tok, TOK_CONST, (uint32_t)syms[i].addr);
+            //          make_tok(&tok, TOK_CONST, (u32)syms[i].addr);
             //          found = 1;
             //          break;
             //        }
@@ -357,13 +357,13 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
             goto mem_err;
     }
     /* check syntax */
-    int n_ops = 0;
-    for (int i = 0; i < adex->expr.size; ++i) {
+    s32 n_ops = 0;
+    for (s32 i = 0; i < adex->expr.size; ++i) {
         struct tok *tok = vector_at(&adex->expr, i);
         if (tok->type == TOK_CONST || tok->type == TOK_ID) {
             ++n_ops;
         } else if (tok->type == TOK_OP) {
-            int ar = op_ar[tok->op];
+            s32 ar = op_ar[tok->op];
             if (n_ops < ar) {
                 goto syntax_err;
             }
@@ -390,27 +390,27 @@ exit:
     return e;
 }
 
-static _Bool validate_addr(uint32_t addr, int size) {
+static _Bool validate_addr(u32 addr, s32 size) {
     return addr >= 0x80000000 && addr < 0x80800000 && addr % size == 0;
 }
 
-enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
+enum adex_error adex_eval(struct adex *adex, u32 *result) {
     enum adex_error e;
     /* initialize stack */
     struct vector stack;
-    vector_init(&stack, sizeof(uint32_t));
+    vector_init(&stack, sizeof(u32));
     /* evaluate sub-expressions */
-    for (int i = 0; i < adex->expr.size; ++i) {
+    for (s32 i = 0; i < adex->expr.size; ++i) {
         struct tok *tok = vector_at(&adex->expr, i);
-        uint32_t value;
+        u32 value;
         if (tok->type == TOK_CONST) {
             /* push operand */
             value = tok->value;
         } else if (tok->type == TOK_OP) {
             /* compute operation */
-            int op = tok->op;
-            int ar = op_ar[op];
-            uint32_t *ops = vector_at(&stack, stack.size - ar);
+            s32 op = tok->op;
+            s32 ar = op_ar[op];
+            u32 *ops = vector_at(&stack, stack.size - ar);
             _Bool sign = 1;
             switch (op) {
                 /* dereference operators */
@@ -419,20 +419,20 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
                     if (!validate_addr(ops[0], 1)) {
                         goto addr_err;
                     }
-                    value = (sign ? *(int8_t *)ops[0] : *(uint8_t *)ops[0]);
+                    value = (sign ? *(s8 *)ops[0] : *(u8 *)ops[0]);
                     break;
                 case OP_HZ: sign = 0;
                 case OP_H:
                     if (!validate_addr(ops[0], 2)) {
                         goto addr_err;
                     }
-                    value = (sign ? *(int16_t *)ops[0] : *(uint16_t *)ops[0]);
+                    value = (sign ? *(s16 *)ops[0] : *(u16 *)ops[0]);
                     break;
                 case OP_W:
                     if (!validate_addr(ops[0], 4)) {
                         goto addr_err;
                     }
-                    value = *(uint32_t *)ops[0];
+                    value = *(u32 *)ops[0];
                     break;
                 /* arithmetic operators */
                 case OP_ADD: value = ops[0] + ops[1]; break;
@@ -458,7 +458,7 @@ enum adex_error adex_eval(struct adex *adex, uint32_t *result) {
         if (!vector_push_back(&stack, 1, &value))
             goto mem_err;
     }
-    uint32_t *top = vector_at(&stack, stack.size - 1);
+    u32 *top = vector_at(&stack, stack.size - 1);
     *result = *top;
     e = ADEX_ERROR_SUCCESS;
     goto exit;

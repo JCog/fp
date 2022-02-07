@@ -7,16 +7,16 @@ struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
     _Bool state;
-    int anim_state;
+    s32 anim_state;
 };
 
-static int enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
+static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
     struct item_data *data = item->data;
     data->anim_state = 0;
     return 0;
 }
 
-static int think_proc(struct menu_item *item) {
+static s32 think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->callback_proc) {
         return data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
@@ -24,14 +24,14 @@ static int think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     static struct gfx_texture *texture = NULL;
     if (!texture) {
         texture = resource_load_grc_texture("checkbox");
     }
-    int cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, 1);
     struct gfx_sprite sprite = {
         texture,
         data->anim_state == 0 ? 0 : 1,
@@ -52,7 +52,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 1;
 }
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (!data->callback_proc ||
         !data->callback_proc(item, data->state ? MENU_CALLBACK_SWITCH_OFF : MENU_CALLBACK_SWITCH_ON,
@@ -66,7 +66,7 @@ static int activate_proc(struct menu_item *item) {
     return 1;
 }
 
-struct menu_item *menu_add_checkbox(struct menu *menu, int x, int y, menu_generic_callback callback_proc,
+struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                     void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;

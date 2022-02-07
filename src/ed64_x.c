@@ -7,10 +7,10 @@
 #include "sd_host.h"
 #include "util.h"
 
-static int cart_irqf;
-static uint32_t cart_lat;
-static uint32_t cart_pwd;
-static uint16_t spi_cfg;
+static s32 cart_irqf;
+static u32 cart_lat;
+static u32 cart_pwd;
+static u16 spi_cfg;
 
 static void cart_lock_safe(void) {
     __osPiGetAccess();
@@ -37,22 +37,22 @@ static void cart_unlock(void) {
     set_irqf(cart_irqf);
 }
 
-static inline uint32_t reg_rd(int reg) {
-    return __pi_read_raw((uint32_t)&REGS_PTR[reg]);
+static inline u32 reg_rd(s32 reg) {
+    return __pi_read_raw((u32)&REGS_PTR[reg]);
 }
 
-static inline void reg_wr(int reg, uint32_t dat) {
-    return __pi_write_raw((uint32_t)&REGS_PTR[reg], dat);
+static inline void reg_wr(s32 reg, u32 dat) {
+    return __pi_write_raw((u32)&REGS_PTR[reg], dat);
 }
 
-static inline void spi_nclk(int bitlen) {
+static inline void spi_nclk(s32 bitlen) {
     spi_cfg &= ~SD_CFG_BITLEN;
     spi_cfg |= bitlen;
 
     reg_wr(REG_SD_STATUS, spi_cfg);
 }
 
-static inline void cmd_tx(uint8_t dat) {
+static inline void cmd_tx(u8 dat) {
     reg_wr(REG_SD_CMD_WR, dat);
 
     while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
@@ -60,7 +60,7 @@ static inline void cmd_tx(uint8_t dat) {
     }
 }
 
-static inline uint8_t cmd_rx(void) {
+static inline u8 cmd_rx(void) {
     reg_wr(REG_SD_CMD_RD, 0xFF);
 
     while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
@@ -70,7 +70,7 @@ static inline uint8_t cmd_rx(void) {
     return reg_rd(REG_SD_CMD_RD);
 }
 
-static inline void dat_tx(uint16_t dat) {
+static inline void dat_tx(u16 dat) {
     reg_wr(REG_SD_DAT_WR, dat);
 
     while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
@@ -78,7 +78,7 @@ static inline void dat_tx(uint16_t dat) {
     }
 }
 
-static inline uint16_t dat_rx(void) {
+static inline u16 dat_rx(void) {
     reg_wr(REG_SD_DAT_RD, 0xFFFF);
 
     while (reg_rd(REG_SD_STATUS) & SD_STA_BUSY) {
@@ -88,7 +88,7 @@ static inline uint16_t dat_rx(void) {
     return reg_rd(REG_SD_DAT_RD);
 }
 
-static void sd_set_spd(int spd) {
+static void sd_set_spd(s32 spd) {
     /* The ED64-X IO don't seem to support Default Speed (25MHz), so I guess
      * we'd better hope that the card supports High Speed (50MHz).
      */
@@ -101,26 +101,26 @@ static void sd_set_spd(int spd) {
     reg_wr(REG_SD_STATUS, spi_cfg);
 }
 
-static int sd_cmd_rx(void) {
+static s32 sd_cmd_rx(void) {
     spi_nclk(1);
 
     return cmd_rx() & 0x1;
 }
 
-static int sd_dat_rx(void) {
+static s32 sd_dat_rx(void) {
     spi_nclk(1);
 
     return dat_rx() & 0xF;
 }
 
-static void sd_dat_tx(int dat) {
+static void sd_dat_tx(s32 dat) {
     spi_nclk(1);
 
     dat_tx((dat << 12) | 0x0FFF);
 }
 
 static void sd_cmd_rx_buf(void *buf, size_t size) {
-    uint8_t *p = buf;
+    u8 *p = buf;
 
     spi_nclk(8);
 
@@ -130,7 +130,7 @@ static void sd_cmd_rx_buf(void *buf, size_t size) {
 }
 
 static void sd_cmd_tx_buf(const void *buf, size_t size) {
-    const uint8_t *p = buf;
+    const u8 *p = buf;
 
     spi_nclk(8);
 
@@ -140,31 +140,31 @@ static void sd_cmd_tx_buf(const void *buf, size_t size) {
 }
 
 static void sd_dat_rx_buf(void *buf, size_t size) {
-    uint8_t *p = buf;
+    u8 *p = buf;
 
     spi_nclk(4);
 
     for (size_t i = 0; i < size / 2; i++) {
-        uint16_t dat = dat_rx();
+        u16 dat = dat_rx();
         *p++ = dat >> 8;
         *p++ = dat >> 0;
     }
 }
 
 static void sd_dat_tx_buf(const void *buf, size_t size) {
-    const uint8_t *p = buf;
+    const u8 *p = buf;
 
     spi_nclk(4);
 
     for (size_t i = 0; i < size / 2; i++) {
-        uint16_t dat = 0;
+        u16 dat = 0;
         dat = (dat << 8) | *p++;
         dat = (dat << 8) | *p++;
         dat_tx(dat);
     }
 }
 
-static void sd_dat_tx_clk(int dat, size_t n_clk) {
+static void sd_dat_tx_clk(s32 dat, size_t n_clk) {
     dat = dat & 0xF;
     dat = (dat << 4) | dat;
     dat = (dat << 8) | dat;
@@ -176,8 +176,8 @@ static void sd_dat_tx_clk(int dat, size_t n_clk) {
     }
 }
 
-static int sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
-    const uint32_t cart_addr = 0xB2000000;
+static s32 sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
+    const u32 cart_addr = 0xB2000000;
 
     /* dma to cart */
     reg_wr(REG_DMA_ADDR, cart_addr);
@@ -216,7 +216,7 @@ static struct sd_host sd_host = {
     .rx_mblk = sd_rx_mblk,
 };
 
-static int probe(void) {
+static s32 probe(void) {
     cart_lock_safe();
 
     /* open registers */
@@ -236,20 +236,20 @@ nodev:
     return -1;
 }
 
-static int disk_init(void) {
+static s32 disk_init(void) {
     return sd_init(&sd_host);
 }
 
-static int disk_read(size_t lba, size_t n_blocks, void *dst) {
+static s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
     return sd_read(&sd_host, lba, dst, n_blocks);
 }
 
-static int disk_write(size_t lba, size_t n_blocks, const void *src) {
+static s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
     return sd_write(&sd_host, lba, src, n_blocks);
 }
 
-static int fifo_poll(void) {
-    int ret;
+static s32 fifo_poll(void) {
+    s32 ret;
 
     cart_lock();
     if ((reg_rd(REG_USB_CFG) & (USB_STA_PWR | USB_STA_RXF)) == USB_STA_PWR) {
@@ -262,7 +262,7 @@ static int fifo_poll(void) {
     return ret;
 }
 
-static int fifo_read(void *dst, size_t n_blocks) {
+static s32 fifo_read(void *dst, size_t n_blocks) {
     const size_t blk_size = 512;
 
     cart_lock();
@@ -282,7 +282,7 @@ static int fifo_read(void *dst, size_t n_blocks) {
 
         /* copy from rx buffer */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_RD);
-        pi_read_locked((uint32_t)&REGS_PTR[REG_USB_DAT], p, blk_size);
+        pi_read_locked((u32)&REGS_PTR[REG_USB_DAT], p, blk_size);
 
         p += blk_size;
         n_blocks--;
@@ -292,7 +292,7 @@ static int fifo_read(void *dst, size_t n_blocks) {
     return 0;
 }
 
-static int fifo_write(const void *src, size_t n_blocks) {
+static s32 fifo_write(const void *src, size_t n_blocks) {
     const size_t blk_size = 512;
 
     cart_lock();
@@ -306,7 +306,7 @@ static int fifo_write(const void *src, size_t n_blocks) {
 
         /* copy to tx buffer */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_WR);
-        pi_write_locked((uint32_t)&REGS_PTR[REG_USB_DAT], p, blk_size);
+        pi_write_locked((u32)&REGS_PTR[REG_USB_DAT], p, blk_size);
 
         /* transmit */
         reg_wr(REG_USB_CFG, USB_LE_CFG | USB_LE_CTR | USB_CFG_WR | USB_CFG_ACT);

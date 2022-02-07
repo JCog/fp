@@ -22,38 +22,38 @@
 #define SD_ERR_GEN      11
 
 struct sd_host {
-    int proto;
+    s32 proto;
 
     void (*lock)(void);
     void (*unlock)(void);
-    void (*set_spd)(int spd);
+    void (*set_spd)(s32 spd);
     union {
         struct {
-            void (*spi_ss)(int ss);
-            int (*spi_io)(int dat);
+            void (*spi_ss)(s32 ss);
+            s32 (*spi_io)(s32 dat);
             void (*spi_rx_buf)(void *buf, size_t size);
             void (*spi_tx_buf)(const void *buf, size_t size);
-            void (*spi_tx_clk)(int dat, size_t n_clk);
+            void (*spi_tx_clk)(s32 dat, size_t n_clk);
         };
         struct {
-            int (*cmd_rx)(void);
-            int (*dat_rx)(void);
-            void (*dat_tx)(int dat);
+            s32 (*cmd_rx)(void);
+            s32 (*dat_rx)(void);
+            void (*dat_tx)(s32 dat);
             void (*cmd_rx_buf)(void *buf, size_t size);
             void (*cmd_tx_buf)(const void *buf, size_t size);
             void (*dat_rx_buf)(void *buf, size_t size);
             void (*dat_tx_buf)(const void *buf, size_t size);
-            void (*dat_tx_clk)(int dat, size_t n_clk);
+            void (*dat_tx_clk)(s32 dat, size_t n_clk);
         };
     };
-    int (*rx_mblk)(void *buf, size_t blk_size, size_t n_blk);
-    int (*tx_mblk)(const void *buf, size_t blk_size, size_t n_blk);
+    s32 (*rx_mblk)(void *buf, size_t blk_size, size_t n_blk);
+    s32 (*tx_mblk)(const void *buf, size_t blk_size, size_t n_blk);
 
-    int card_type;
+    s32 card_type;
 };
 
-int sd_init(struct sd_host *host);
-int sd_read(struct sd_host *host, size_t lba, void *dst, size_t n_blk);
-int sd_write(struct sd_host *host, size_t lba, const void *src, size_t n_blk);
+s32 sd_init(struct sd_host *host);
+s32 sd_read(struct sd_host *host, size_t lba, void *dst, size_t n_blk);
+s32 sd_write(struct sd_host *host, size_t lba, const void *src, size_t n_blk);
 
 #endif

@@ -7,23 +7,23 @@ struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
     struct gfx_texture *texture_on;
-    int texture_tile_on;
-    uint32_t color_on;
+    s32 texture_tile_on;
+    u32 color_on;
     struct gfx_texture *texture_off;
-    int texture_tile_off;
-    uint32_t color_off;
-    float scale;
+    s32 texture_tile_off;
+    u32 color_off;
+    f32 scale;
     _Bool disable_shadow;
-    int anim_state;
+    s32 anim_state;
 };
 
-static int enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
+static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
     struct item_data *data = item->data;
     data->anim_state = 0;
     return 0;
 }
 
-static int think_proc(struct menu_item *item) {
+static s32 think_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->callback_proc) {
         return data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
@@ -31,15 +31,15 @@ static int think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     if (data->anim_state > 0) {
         ++draw_params->x;
         ++draw_params->y;
     }
     struct gfx_texture *texture;
-    int texture_tile;
-    uint32_t color;
+    s32 texture_tile;
+    u32 color;
     if ((data->anim_state > 0) != data->state) {
         texture = data->texture_on;
         texture_tile = data->texture_tile_on;
@@ -49,11 +49,11 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         texture_tile = data->texture_tile_off;
         color = data->color_off;
     }
-    int cw = menu_get_cell_width(item->owner, 1);
-    int w = texture->tile_width * data->scale;
-    int h = texture->tile_height * data->scale;
-    int x = draw_params->x + (cw - w) / 2;
-    int y = draw_params->y - (gfx_font_xheight(draw_params->font) + h) / 2;
+    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 w = texture->tile_width * data->scale;
+    s32 h = texture->tile_height * data->scale;
+    s32 x = draw_params->x + (cw - w) / 2;
+    s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h) / 2;
     if (item->owner->selector == item) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha * 0x80 / 0xFF));
         gfx_mode_replace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
@@ -84,7 +84,7 @@ static int draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 1;
 }
 
-static int activate_proc(struct menu_item *item) {
+static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (!data->callback_proc ||
         !data->callback_proc(item, data->state ? MENU_CALLBACK_SWITCH_OFF : MENU_CALLBACK_SWITCH_ON,
@@ -98,10 +98,10 @@ static int activate_proc(struct menu_item *item) {
     return 1;
 }
 
-struct menu_item *menu_add_switch(struct menu *menu, int x, int y, struct gfx_texture *texture_on, int texture_tile_on,
-                                  uint32_t color_on, struct gfx_texture *texture_off, int texture_tile_off,
-                                  uint32_t color_off, float scale, _Bool disable_shadow,
-                                  menu_generic_callback callback_proc, void *callback_data) {
+struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture_on, s32 texture_tile_on,
+                                  u32 color_on, struct gfx_texture *texture_off, s32 texture_tile_off, u32 color_off,
+                                  f32 scale, _Bool disable_shadow, menu_generic_callback callback_proc,
+                                  void *callback_data) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0x808080);
     struct item_data *data = malloc(sizeof(*data));
     data->state = 0;

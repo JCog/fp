@@ -5,21 +5,21 @@
 
 struct static_icon_data {
     struct gfx_texture *texture;
-    int texture_tile;
-    float scale;
+    s32 texture_tile;
+    f32 scale;
 };
 
-struct menu_item *menu_add_static(struct menu *menu, int x, int y, const char *text, uint32_t color) {
+struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
     item->selectable = 0;
     return item;
 }
 
-static int static_icon_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 static_icon_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct static_icon_data *data = item->data;
-    int cw = menu_get_cell_width(item->owner, 1);
-    int w = data->texture->tile_width * data->scale;
-    int h = data->texture->tile_height * data->scale;
+    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 w = data->texture->tile_width * data->scale;
+    s32 h = data->texture->tile_height * data->scale;
     struct gfx_sprite sprite = {
         data->texture,
         data->texture_tile,
@@ -37,8 +37,8 @@ static int static_icon_draw_proc(struct menu_item *item, struct menu_draw_params
     return 1;
 }
 
-struct menu_item *menu_add_static_icon(struct menu *menu, int x, int y, struct gfx_texture *texture, int texture_tile,
-                                       uint32_t color, float scale) {
+struct menu_item *menu_add_static_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
+                                       u32 color, f32 scale) {
     struct static_icon_data *data = malloc(sizeof(*data));
     data->texture = texture;
     data->texture_tile = texture_tile;
@@ -50,16 +50,16 @@ struct menu_item *menu_add_static_icon(struct menu *menu, int x, int y, struct g
     return item;
 }
 
-struct menu_item *menu_add_static_custom(struct menu *menu, int x, int y,
-                                         int (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
-                                         const char *text, uint32_t color) {
+struct menu_item *menu_add_static_custom(struct menu *menu, s32 x, s32 y,
+                                         s32 (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
+                                         const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
     item->selectable = 0;
     item->draw_proc = draw_proc;
     return item;
 }
 
-static int tooltip_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 tooltip_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct menu *tool_menu = item->data;
     while (tool_menu->child) {
         tool_menu = tool_menu->child;
@@ -71,12 +71,12 @@ static int tooltip_draw_proc(struct menu_item *item, struct menu_draw_params *dr
     return 1;
 }
 
-static int tooltip_destroy_proc(struct menu_item *item) {
+static s32 tooltip_destroy_proc(struct menu_item *item) {
     item->data = NULL;
     return 0;
 }
 
-struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu *tool_menu, uint32_t color) {
+struct menu_item *menu_add_tooltip(struct menu *menu, s32 x, s32 y, struct menu *tool_menu, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
     item->data = tool_menu;
     item->selectable = 0;
@@ -85,7 +85,7 @@ struct menu_item *menu_add_tooltip(struct menu *menu, int x, int y, struct menu 
     return item;
 }
 
-static int imenu_think_proc(struct menu_item *item) {
+static s32 imenu_think_proc(struct menu_item *item) {
     if (item->imenu) {
         item->imenu->cxoffset = item->x;
         item->imenu->cyoffset = item->y;
@@ -95,7 +95,7 @@ static int imenu_think_proc(struct menu_item *item) {
     return 0;
 }
 
-static int imenu_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 imenu_navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     if (item->imenu) {
         menu_navigate(item->imenu, nav);
         return 1;
@@ -103,7 +103,7 @@ static int imenu_navigate_proc(struct menu_item *item, enum menu_navigation nav)
     return 0;
 }
 
-static int imenu_activate_proc(struct menu_item *item) {
+static s32 imenu_activate_proc(struct menu_item *item) {
     if (item->imenu) {
         menu_activate(item->imenu);
         return 1;
@@ -111,7 +111,7 @@ static int imenu_activate_proc(struct menu_item *item) {
     return 0;
 }
 
-struct menu_item *menu_add_imenu(struct menu *menu, int x, int y, struct menu **p_imenu) {
+struct menu_item *menu_add_imenu(struct menu *menu, s32 x, s32 y, struct menu **p_imenu) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0);
     item->selectable = 0;
     item->think_proc = imenu_think_proc;
@@ -129,16 +129,16 @@ struct menu_item *menu_add_imenu(struct menu *menu, int x, int y, struct menu **
 
 struct tab_data {
     struct menu *tabs;
-    int n_tabs;
-    int current_tab;
+    s32 n_tabs;
+    s32 current_tab;
 };
 
-static int tab_destroy_proc(struct menu_item *item) {
+static s32 tab_destroy_proc(struct menu_item *item) {
     item->imenu = NULL;
     return 0;
 }
 
-struct menu_item *menu_add_tab(struct menu *menu, int x, int y, struct menu *tabs, int n_tabs) {
+struct menu_item *menu_add_tab(struct menu *menu, s32 x, s32 y, struct menu *tabs, s32 n_tabs) {
     struct tab_data *data = malloc(sizeof(*data));
     data->tabs = tabs;
     data->n_tabs = n_tabs;
@@ -153,7 +153,7 @@ struct menu_item *menu_add_tab(struct menu *menu, int x, int y, struct menu *tab
     return item;
 }
 
-void menu_tab_goto(struct menu_item *item, int tab_index) {
+void menu_tab_goto(struct menu_item *item, s32 tab_index) {
     struct tab_data *data = item->data;
     if (data->tabs) {
         if (data->current_tab >= 0) {
@@ -177,7 +177,7 @@ void menu_tab_goto(struct menu_item *item, int tab_index) {
 void menu_tab_previous(struct menu_item *item) {
     struct tab_data *data = item->data;
     if (data->n_tabs >= 0) {
-        int tab_index = (data->current_tab + data->n_tabs - 1) % data->n_tabs;
+        s32 tab_index = (data->current_tab + data->n_tabs - 1) % data->n_tabs;
         menu_tab_goto(item, tab_index);
     }
 }
@@ -185,7 +185,7 @@ void menu_tab_previous(struct menu_item *item) {
 void menu_tab_next(struct menu_item *item) {
     struct tab_data *data = item->data;
     if (data->n_tabs >= 0) {
-        int tab_index = (data->current_tab + 1) % data->n_tabs;
+        s32 tab_index = (data->current_tab + 1) % data->n_tabs;
         menu_tab_goto(item, tab_index);
     }
 }

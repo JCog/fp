@@ -10,7 +10,7 @@ static struct menu osk_menu;
 static struct menu_item *osk_text;
 static struct menu_item *osk_letters[26];
 static struct menu_item *osk_minus;
-static int osk_cursor_pos;
+static s32 osk_cursor_pos;
 static _Bool osk_shift_state;
 
 static void insert_char(char c) {
@@ -29,12 +29,12 @@ static void space_proc(struct menu_item *item, void *data) {
     insert_char(' ');
 }
 
-static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     if (input_pad() & BUTTON_Z) {
         switch (nav) {
             case MENU_NAVIGATE_UP: {
                 osk_shift_state = !osk_shift_state;
-                for (int i = 0; i < 26; ++i) {
+                for (s32 i = 0; i < 26; ++i) {
                     osk_letters[i]->text[0] += (osk_shift_state ? 'A' - 'a' : 'a' - 'A');
                 }
                 osk_minus->text[0] = (osk_shift_state ? '_' : '-');
@@ -65,14 +65,14 @@ static int navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     }
 }
 
-static int activate_text_proc(struct menu_item *item) {
+static s32 activate_text_proc(struct menu_item *item) {
     if (!osk_callback_proc || !osk_callback_proc(osk_buf, osk_callback_data)) {
         menu_return(&osk_menu);
     }
     return 1;
 }
 
-static int navigate_text_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 navigate_text_proc(struct menu_item *item, enum menu_navigation nav) {
     if (navigate_proc(item, nav)) {
         return 1;
     } else {
@@ -94,24 +94,23 @@ static int navigate_text_proc(struct menu_item *item, enum menu_navigation nav) 
     }
 }
 
-static int draw_text_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    int cw = menu_get_cell_width(item->owner, 1);
+static s32 draw_text_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    s32 cw = menu_get_cell_width(item->owner, 1);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     gfx_printf(draw_params->font, draw_params->x, draw_params->y, "%s", osk_buf);
     gfx_printf(draw_params->font, draw_params->x + osk_cursor_pos * cw, draw_params->y + 3, "_");
     return 0;
 }
 
-static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_params, uint16_t bind,
-                          const char *desc) {
+static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_params, u16 bind, const char *desc) {
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
-    int cw = menu_get_cell_width(item->owner, 1);
-    int x = draw_params->x + (cw - texture->tile_width) / 2;
-    int y = draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2;
+    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 x = draw_params->x + (cw - texture->tile_width) / 2;
+    s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2;
 
-    int n;
+    s32 n;
     for (n = 0; n < 4; ++n) {
-        uint16_t c = bind_get_component(bind, n);
+        u16 c = bind_get_component(bind, n);
         if (c == BIND_END) {
             break;
         }
@@ -126,8 +125,8 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
     gfx_printf(draw_params->font, draw_params->x + (n + 1) * 10, draw_params->y, "%s", desc);
 }
 
-static int draw_tooltip_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    int ch = menu_get_cell_height(item->owner, 1);
+static s32 draw_tooltip_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+    s32 ch = menu_get_cell_height(item->owner, 1);
 
     draw_shortcut(item, draw_params, bind_make(2, BUTTON_Z, BUTTON_D_UP), "shift");
     draw_params->y += ch;
@@ -218,7 +217,7 @@ static void create_osk_menu(void) {
         item = menu_add_button(&osk_menu, 18, 8, ".", key_proc, NULL);
         item->navigate_proc = navigate_proc;
 
-        for (int i = 0; i < 26; ++i) {
+        for (s32 i = 0; i < 26; ++i) {
             osk_letters[i]->navigate_proc = navigate_proc;
         }
 

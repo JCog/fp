@@ -18,21 +18,21 @@ enum cam_bhv {
 
 struct log_entry {
     char *msg;
-    int age;
+    s32 age;
 };
 
 struct timer {
-    int64_t start;
-    int64_t end;
-    uint32_t lag_start;
-    uint32_t lag_end;
-    uint16_t frame_start;
-    uint16_t frame_end;
+    s64 start;
+    s64 end;
+    u32 lag_start;
+    u32 lag_end;
+    u16 frame_start;
+    u16 frame_end;
     _Bool prev_cutscene_state;
-    uint8_t mode;  /* 0 = auto, 1 = manual; */
-    uint8_t state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
-    uint8_t cutscene_target;
-    uint8_t cutscene_count;
+    u8 mode;  /* 0 = auto, 1 = manual; */
+    u8 state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
+    u8 cutscene_target;
+    u8 cutscene_count;
     _Bool moving;
 };
 
@@ -43,52 +43,52 @@ typedef struct {
     struct menu *menu_mem;
     struct menu *menu_watches;
     struct menu_item *menu_watchlist;
-    uint8_t profile;
+    u8 profile;
     _Bool settings_loaded;
     _Bool version_shown;
-    int64_t cpu_counter;
-    int32_t cpu_counter_freq;
+    s64 cpu_counter;
+    s32 cpu_counter_freq;
     struct timer timer;
     s64 timer_count;
     s32 lag_frames;
     _Bool menu_active;
     struct log_entry log[SETTINGS_LOG_MAX];
-    float saved_x;
-    float saved_y;
-    float saved_z;
-    float saved_facing_angle;
-    float saved_movement_angle;
-    uint16_t saved_group;
-    uint16_t saved_room;
-    uint16_t saved_entrance;
-    int8_t ace_frame_window;
-    uint16_t ace_last_timer;
+    f32 saved_x;
+    f32 saved_y;
+    f32 saved_z;
+    f32 saved_facing_angle;
+    f32 saved_movement_angle;
+    u16 saved_area;
+    u16 saved_map;
+    u16 saved_entrance;
+    s8 ace_frame_window;
+    u16 ace_last_timer;
     _Bool ace_last_flag_status;
     _Bool ace_last_jump_status;
     _Bool turbo;
     _Bool bowser_blocks_enabled;
-    int8_t bowser_block;
+    s8 bowser_block;
     _Bool lzs_trainer_enabled;
-    int8_t prev_pressed_y;
-    uint8_t prev_prev_action_state;
+    s8 prev_pressed_y;
+    u8 prev_prev_action_state;
     _Bool lz_stored;
     _Bool player_landed;
-    uint16_t frames_since_land;
+    u16 frames_since_land;
     _Bool warp;
-    uint8_t warp_delay;
-    uint16_t current_lzs_jumps;
-    uint16_t record_lzs_jumps;
-    uint16_t frames_since_battle;
-    uint8_t clippy_status;
+    u8 warp_delay;
+    u16 current_lzs_jumps;
+    u16 record_lzs_jumps;
+    u16 frames_since_battle;
+    u8 clippy_status;
     _Bool clippy_trainer_enabled;
     char *last_imported_save_path;
     _Bool free_cam;
     _Bool lock_cam;
     enum cam_bhv cam_bhv;
-    int16_t cam_dist_min;
-    int16_t cam_dist_max;
-    float cam_pitch;
-    float cam_yaw;
+    s16 cam_dist_min;
+    s16 cam_dist_max;
+    f32 cam_pitch;
+    f32 cam_yaw;
     vec3f_t cam_pos;
     controller_t input_mask;
     _Bool cam_enabled_before;
@@ -97,13 +97,13 @@ typedef struct {
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-_Bool fp_warp(Group group, uint16_t room, uint16_t entrance);
-void fp_set_global_flag(int flag_index, _Bool value);
-void fp_set_area_flag(int flag_index, _Bool value);
-void fp_set_enemy_defeat_flag(int flag_index, _Bool value);
-void fp_set_global_byte(int byte_index, int8_t value);
-int fp_import_file(const char *path, void *data);
-void fp_set_input_mask(uint16_t pad, uint8_t x, uint8_t y);
+_Bool fp_warp(Area area, u16 map, u16 entrance);
+void fp_set_global_flag(s32 flag_index, _Bool value);
+void fp_set_area_flag(s32 flag_index, _Bool value);
+void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value);
+void fp_set_global_byte(s32 byte_index, s8 value);
+s32 fp_import_file(const char *path, void *data);
+void fp_set_input_mask(u16 pad, u8 x, u8 y);
 void fp_update_cam(void);
 
 struct menu *create_warps_menu();

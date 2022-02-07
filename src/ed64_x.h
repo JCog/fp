@@ -62,7 +62,7 @@
 #define REG_SDIO_ARD  0x2080
 #define REG_IOM_DAT   0x2100
 #define REG_DD_TBL    0x2200
-#define REGS_PTR      ((volatile uint32_t *)REG_BASE)
+#define REGS_PTR      ((volatile u32 *)REG_BASE)
 
 #define FPG_CFG_NCFG  0x0001
 #define FPG_STA_CDON  0x0001

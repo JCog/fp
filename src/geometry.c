@@ -2,7 +2,7 @@
 #include "pm64.h"
 #include "gu.h"
 
-vec3f_t *vec3f_py(vec3f_t *r, float p, float y) {
+vec3f_t *vec3f_py(vec3f_t *r, f32 p, f32 y) {
     vec3f_t v = {
         -sin(y) * cos(p),
         -sin(p),
@@ -12,7 +12,7 @@ vec3f_t *vec3f_py(vec3f_t *r, float p, float y) {
     return r;
 }
 
-void vec3f_pyangles(vec3f_t *a, float *p, float *y) {
+void vec3f_pyangles(vec3f_t *a, f32 *p, f32 *y) {
     if (p) {
         *p = atan2f(-a->y, sqrtf(a->x * a->x + a->z * a->z));
     }
@@ -51,7 +51,7 @@ vec3f_t *vec3f_mul(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
     return r;
 }
 
-vec3f_t *vec3f_scale(vec3f_t *r, vec3f_t *a, float s) {
+vec3f_t *vec3f_scale(vec3f_t *r, vec3f_t *a, f32 s) {
     vec3f_t v = {
         a->x * s,
         a->y * s,
@@ -71,19 +71,19 @@ vec3f_t *vec3f_cross(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
     return r;
 }
 
-float vec3f_dot(vec3f_t *a, vec3f_t *b) {
+f32 vec3f_dot(vec3f_t *a, vec3f_t *b) {
     return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
-float vec3f_mag(vec3f_t *a) {
+f32 vec3f_mag(vec3f_t *a) {
     return sqrtf(vec3f_dot(a, a));
 }
 
-float vec3f_cos(vec3f_t *a, vec3f_t *b) {
+f32 vec3f_cos(vec3f_t *a, vec3f_t *b) {
     return vec3f_dot(a, b) / vec3f_mag(a) / vec3f_mag(b);
 }
 
-float vec3f_angle(vec3f_t *a, vec3f_t *b) {
+f32 vec3f_angle(vec3f_t *a, vec3f_t *b) {
     return acosf(vec3f_cos(a, b));
 }
 
@@ -103,8 +103,8 @@ vec3f_t *vec3f_rej(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
     return r;
 }
 
-float angle_dif(float a, float b) {
-    float d = fmodf(a - b, M_PI * 2.f);
+f32 angle_dif(f32 a, f32 b) {
+    f32 d = fmodf(a - b, M_PI * 2.f);
     if (d < -M_PI) {
         d += M_PI * 2.f;
     }
@@ -114,7 +114,7 @@ float angle_dif(float a, float b) {
     return d;
 }
 
-vec3f_t *vec3f_xfmw(vec3f_t *r, vec3f_t *a, float w, MtxF *b) {
+vec3f_t *vec3f_xfmw(vec3f_t *r, vec3f_t *a, f32 w, MtxF *b) {
     vec3f_t v = {
         a->x * b->xx + a->y * b->yx + a->z * b->zx + w * b->wx,
         a->x * b->xy + a->y * b->yy + a->z * b->zy + w * b->wy,
