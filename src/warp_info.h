@@ -984,7 +984,7 @@ struct area_info AREAS[] =
                     0x2
                 },
                 {
-                    "stair piece on small table",
+                    "star piece on small table",
                     0x1
                 },
                 {
