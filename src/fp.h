@@ -126,4 +126,6 @@ struct menu *create_camera_menu();
 
 #define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
 
+#define ARRAY_COUNT(arr)    (s32)(sizeof(arr) / sizeof(arr[0]))
+
 #endif
