@@ -62,8 +62,9 @@ s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
         if (current_dev->disk_read(lba, n_blocks, dst)) {
             errno = EIO;
             return -1;
-        } else
+        } else {
             return 0;
+        }
     } else {
         errno = ENODEV;
         return -1;
@@ -75,8 +76,9 @@ s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
         if (current_dev->disk_write(lba, n_blocks, src)) {
             errno = EIO;
             return -1;
-        } else
+        } else {
             return 0;
+        }
     } else {
         errno = ENODEV;
         return -1;
@@ -97,8 +99,9 @@ s32 fifo_read(void *dst, size_t n_blocks) {
         if (current_dev->fifo_read(dst, n_blocks)) {
             errno = EIO;
             return -1;
-        } else
+        } else {
             return 0;
+        }
     } else {
         errno = ENODEV;
         return -1;
@@ -110,8 +113,9 @@ s32 fifo_write(const void *src, size_t n_blocks) {
         if (current_dev->fifo_write(src, n_blocks)) {
             errno = EIO;
             return -1;
-        } else
+        } else {
             return 0;
+        }
     } else {
         errno = ENODEV;
         return -1;

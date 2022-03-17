@@ -317,8 +317,9 @@ struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_t
 void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct gfx_texture *src, s32 src_tile,
                            _Bool blend) {
     if (src->im_fmt != G_IM_FMT_RGBA || src->im_siz != G_IM_SIZ_32b || dest->im_fmt != src->im_fmt ||
-        dest->im_siz != src->im_siz || dest->tile_width != src->tile_width || dest->tile_height != src->tile_height)
+        dest->im_siz != src->im_siz || dest->tile_width != src->tile_width || dest->tile_height != src->tile_height) {
         return;
+    }
     struct rgba32 {
         u8 r;
         u8 g;
@@ -343,8 +344,9 @@ void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct
 }
 
 void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix) {
-    if (texture->im_fmt != G_IM_FMT_RGBA || texture->im_siz != G_IM_SIZ_32b)
+    if (texture->im_fmt != G_IM_FMT_RGBA || texture->im_siz != G_IM_SIZ_32b) {
         return;
+    }
     struct rgba32 {
         u8 r;
         u8 g;
