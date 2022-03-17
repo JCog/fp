@@ -49,6 +49,7 @@ pm_battle_status = 0x800DC050;
 pm_battle_state_2 = 0x800DC4BC;
 pm_disable_player_input = 0x800E0158;
 pm_AddBadge = 0x800E76DC;
+pm_is_ability_active = 0x800E9CE8;
 pm_HidePopupMenu = 0x800F1340;
 pm_DestroyPopupMenu = 0x800F14C8;
 pm_popup_menu_var = 0x8010D800;
@@ -80,3 +81,6 @@ update_camera_mode_6 = 0x8002F620;
 
 update_player_input_rom_hook = 0x8009D914;
 update_player_input = 0x800E1F70;
+
+check_block_input_hook1 = 0x801D3134;
+check_block_input_hook2 = 0x801D3180;

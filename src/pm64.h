@@ -19,8 +19,9 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH     320
+#define SCREEN_HEIGHT    240
+#define ARRAY_COUNT(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #if PM64_VERSION == US
 #define ITEM_ICONS_ROM_START 0x1CC310
@@ -1072,6 +1073,8 @@ void step_game_loop(void);
 void pm_disable_player_input(void);
 void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
+s32 pm_is_ability_active(s32 arg0);
+void disable_player_static_collisions(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

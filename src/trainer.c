@@ -267,6 +267,7 @@ void create_trainer_menu(struct menu *menu) {
     static struct menu aceMenu;
     static struct menu lzsMenu;
     static struct menu clippyMenu;
+    static struct menu actionCommandMenu;
 
     /* initialize menu */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -275,10 +276,12 @@ void create_trainer_menu(struct menu *menu) {
     menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&actionCommandMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
     s32 y_value = 1;
+    menu_add_submenu(menu, 0, y_value++, &actionCommandMenu, "action commands");
     menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
     menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
 #if PM64_VERSION == JP
@@ -323,4 +326,9 @@ void create_trainer_menu(struct menu *menu) {
     clippyMenu.selector = menu_add_submenu(&clippyMenu, 0, 0, NULL, "return");
     menu_add_static(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
     menu_add_checkbox(&clippyMenu, 8, 1, checkbox_mod_proc, &fp.clippy_trainer_enabled);
+
+    /*build action command menu*/
+    actionCommandMenu.selector = menu_add_submenu(&actionCommandMenu, 0, 0, NULL, "return");
+    menu_add_static(&actionCommandMenu, 0, 1, "enabled", 0xC0C0C0);
+    menu_add_checkbox(&actionCommandMenu, 8, 1, checkbox_mod_proc, &fp.action_command_trainer_enabled);
 }

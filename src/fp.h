@@ -92,6 +92,9 @@ typedef struct {
     vec3f_t cam_pos;
     controller_t input_mask;
     _Bool cam_enabled_before;
+    _Bool action_command_trainer_enabled;
+    u16 last_a_press;
+    u16 last_valid_frame;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
