@@ -1073,7 +1073,6 @@ void pm_disable_player_input(void);
 void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
-void disable_player_static_collisions(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
