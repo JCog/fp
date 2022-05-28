@@ -579,14 +579,16 @@ void fp_action_command_trainer(void) {
             fp.last_a_press = pm_status.frame_counter;
         } else if (pm_ActionCommandStatus.state == 11) {
             if (fp.last_a_press) {
-                fp_log("pressed A %d frames early", pm_status.frame_counter - fp.last_a_press);
+                u16 frames_early = pm_status.frame_counter - fp.last_a_press;
+                fp_log("pressed A %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
                 fp.last_a_press = 0;
             }
             fp.last_valid_frame = pm_status.frame_counter;
             // check for a press up to 10 frames late
         } else if (pm_ActionCommandStatus.state == 12 && pm_status.pressed.a &&
                    pm_status.frame_counter - fp.last_valid_frame <= 10) {
-            fp_log("pressed A %d frames late", pm_status.frame_counter - fp.last_valid_frame);
+            u16 frames_late = pm_status.frame_counter - fp.last_valid_frame;
+            fp_log("pressed A %d frame%s late", frames_late, frames_late > 1 ? "s" : "");
         }
     }
 }
@@ -907,7 +909,8 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
 
         if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
             if (fp.action_command_trainer_enabled) {
-                fp_log("blocked %d frames early", mashWindow - i);
+                s32 frames_early = mashWindow - i;
+                fp_log("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
             }
             mash = 1;
             break;
