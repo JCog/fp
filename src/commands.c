@@ -70,10 +70,15 @@ void fp_set_input_mask(u16 pad, u8 x, u8 y) {
 }
 
 _Bool fp_warp(u16 area, u16 map, u16 entrance) {
-    pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
+    if (pm_GameMode == 0xA || pm_GameMode == 0xB) { // paused/unpausing
+        fp_log("can't warp while paused");
+        return 0;
+    }
+
+    pm_PlayAmbientSounds(-1, 0); // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
-    pm_SfxStopSound(0x19C);        // clear upward vine sound
-    pm_SfxStopSound(0x19D);        // clear downward vine sound
+    pm_SfxStopSound(0x19C); // clear upward vine sound
+    pm_SfxStopSound(0x19D); // clear downward vine sound
     pm_disable_player_input();
     pm_status.loading_zone_tangent = 0;
     pm_status.area_id = area;

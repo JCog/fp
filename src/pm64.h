@@ -1023,6 +1023,7 @@ extern_data script_list_ctxt_t pm_curr_script_lst;
 extern_data encounter_status_ctxt_t pm_encounter_status;
 extern_data Camera pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
+extern_data s16 pm_GameMode;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;

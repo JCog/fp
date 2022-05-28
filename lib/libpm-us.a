@@ -38,6 +38,7 @@ pm_GameState = 0x8009A600;
 nuGfxCfb_ptr = 0x8009A64C;
 pm_MasterGfxPos = 0x8009A66C;
 pm_save_info = 0x8009BA30;
+pm_GameMode = 0x800A08F0;
 pm_MapChangeState = 0x800A0944;
 pm_encounter_status = 0x800B0F10;
 pm_enemy_defeat_flags = 0x800B0FC0;
