@@ -102,6 +102,7 @@ void fp_init() {
     fp.cam_pos.y = 0;
     fp.cam_pos.z = 0;
     fp.cam_enabled_before = 0;
+    fp.action_command_trainer_enabled = 0;
 
     io_init();
 
@@ -570,6 +571,28 @@ void fp_clippy_trainer(void) {
     }
 }
 
+void fp_action_command_trainer(void) {
+    // Either goombario or mario attacking
+    if ((pm_battle_state_2 == 3 && pm_player.player_data.current_partner == PARTNER_GOOMBARIO) ||
+        pm_battle_state_2 == 4) {
+        if (pm_ActionCommandStatus.state == 10 && pm_status.pressed.a) {
+            fp.last_a_press = pm_status.frame_counter;
+        } else if (pm_ActionCommandStatus.state == 11) {
+            if (fp.last_a_press) {
+                u16 frames_early = pm_status.frame_counter - fp.last_a_press;
+                fp_log("pressed A %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
+                fp.last_a_press = 0;
+            }
+            fp.last_valid_frame = pm_status.frame_counter;
+            // check for a press up to 10 frames late
+        } else if (pm_ActionCommandStatus.state == 12 && pm_status.pressed.a &&
+                   pm_status.frame_counter - fp.last_valid_frame <= 10) {
+            u16 frames_late = pm_status.frame_counter - fp.last_valid_frame;
+            fp_log("pressed A %d frame%s late", frames_late, frames_late > 1 ? "s" : "");
+        }
+    }
+}
+
 void fp_update_cheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_player.player_data.hp = pm_player.player_data.max_hp;
@@ -723,6 +746,10 @@ void fp_update(void) {
         fp_clippy_trainer();
     }
 
+    if (fp.action_command_trainer_enabled) {
+        fp_action_command_trainer();
+    }
+
     fp_update_cheats();
 
     if (fp.turbo) {
@@ -835,6 +862,113 @@ HOOK void fp_update_input(void) {
 
     pm_player.pad_x &= ~mask->x_cardinal;
     pm_player.pad_y &= ~mask->y_cardinal;
+}
+
+HOOK s32 fp_check_block_input(s32 buttonMask) {
+    s32 mashWindow;
+    s32 blockWindow;
+    s32 block;
+    s32 mash = 0;
+    s32 bufferPos;
+    s32 i;
+
+    pm_battle_status.block_result = 0; // Fail
+
+    if (pm_battle_status.unk_83 == -1 && (pm_battle_status.flags1 & 0x2000000)) {
+        pm_battle_status.block_result = 1;
+        return 1;
+    }
+
+    if (!pm_battle_status.unk_83 || (pm_status.demo_flag & 1)) {
+        return 0;
+    }
+
+    if (pm_player.player_data.hits_taken < 9999) {
+        pm_player.player_data.hits_taken += 1;
+        pm_ActionCommandStatus.hitsTakenIsMax = 0;
+    } else {
+        pm_ActionCommandStatus.hitsTakenIsMax = 1;
+    }
+
+    block = 0;
+    blockWindow = 3;
+    mashWindow = 10;
+
+    if (!(pm_battle_status.flags1 & 0x80000) && pm_is_ability_active(0)) {
+        blockWindow = 5;
+    }
+
+    // Pre-window mashing check
+    bufferPos = pm_battle_status.input_buffer_pos;
+    bufferPos -= mashWindow + blockWindow;
+
+    if (bufferPos < 0) {
+        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+    }
+    for (i = 0; i < mashWindow; i++) {
+        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        }
+
+        if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
+            if (fp.action_command_trainer_enabled) {
+                s32 frames_early = mashWindow - i;
+                fp_log("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
+            }
+            mash = 1;
+            break;
+        }
+        bufferPos++;
+    }
+
+    // Block check
+    bufferPos = pm_battle_status.input_buffer_pos;
+    bufferPos -= blockWindow;
+    if (bufferPos < 0) {
+        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+    }
+    for (i = 0; i < blockWindow; i++) {
+        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        }
+
+        if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
+            if (!mash && fp.action_command_trainer_enabled) {
+                fp_log("blocked frame %d out of %d", i + 1, blockWindow);
+            }
+            pm_battle_status.block_result = 1; // Block
+            block = 1;
+            break;
+        }
+        bufferPos++;
+    }
+
+    if (mash) {
+        pm_battle_status.block_result = -1; // Mash
+        block = 0;
+    }
+
+    // Ignore inputs until another mash window has passed, so check_block_input() can be called in quick succession
+    if (block) {
+        bufferPos = pm_battle_status.input_buffer_pos;
+        bufferPos -= mashWindow + blockWindow + 20;
+        if (bufferPos < 0) {
+            bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        }
+
+        for (i = 0; i < mashWindow + blockWindow + 20; i++) {
+            if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
+                bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+            }
+            pm_battle_status.push_input_buffer[bufferPos] = 0;
+            bufferPos++;
+        }
+    }
+    if (block && !pm_ActionCommandStatus.hitsTakenIsMax) {
+        pm_player.player_data.hits_blocked += 1;
+    }
+
+    return block;
 }
 
 #include <startup.c>

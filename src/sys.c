@@ -224,8 +224,9 @@ int open(const char *path, int oflags, ...) {
             errno = EISDIR;
             goto error;
         }
-        if (ent_access(entry, flags & _FWRITE))
+        if (ent_access(entry, flags & _FWRITE)) {
             goto error;
+        }
         errno = e;
     } else {
         if (errno == ENOENT && (oflags & O_CREAT)) {
@@ -382,8 +383,9 @@ int write(int fildes, void *buf, unsigned int nbyte) {
         return 0;
     }
     /* seek to end if FAPPEND is set */
-    if (desc->flags & _FAPPEND)
+    if (desc->flags & _FAPPEND) {
         fdesc->pos = desc->file.size;
+    }
     /* write zero padding if needed */
     if (fdesc->pos > desc->file.size) {
         u32 size = desc->file.size;

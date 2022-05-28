@@ -1072,6 +1072,7 @@ void step_game_loop(void);
 void pm_disable_player_input(void);
 void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
+s32 pm_is_ability_active(s32 arg0);
 void set_screen_overlay_alpha(s32, f32);
 
 /* Convenience Values */

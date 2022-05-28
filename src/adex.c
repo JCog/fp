@@ -305,15 +305,17 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                 goto mem_err;
             }
         } else if (tok.type == TOK_BRACK_L || is_func_tok(&tok)) {
-            if (!stack_push(&stack, &tok))
+            if (!stack_push(&stack, &tok)) {
                 goto mem_err;
+            }
             if (tok.type == TOK_OP && tok.op >= OP_B && tok.op <= OP_W) {
                 mode_op = 1;
             }
         } else if (tok.type == TOK_BRACK_R) {
             while (1) {
-                if (!stack_peek(&stack))
+                if (!stack_peek(&stack)) {
                     goto syntax_err;
+                }
                 struct tok pop;
                 stack_pop(&stack, &pop);
                 if (pop.type == TOK_BRACK_L && pop.brack == tok.brack) {
@@ -343,18 +345,21 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                     goto mem_err;
                 }
             }
-            if (!stack_push(&stack, &tok))
+            if (!stack_push(&stack, &tok)) {
                 goto mem_err;
+            }
         }
     }
     /* push remaining ops */
     while (stack_peek(&stack)) {
         struct tok pop;
         stack_pop(&stack, &pop);
-        if (pop.type != TOK_OP)
+        if (pop.type != TOK_OP) {
             goto syntax_err;
-        if (!stack_push(&adex->expr, &pop))
+        }
+        if (!stack_push(&adex->expr, &pop)) {
             goto mem_err;
+        }
     }
     /* check syntax */
     s32 n_ops = 0;
@@ -455,8 +460,9 @@ enum adex_error adex_eval(struct adex *adex, u32 *result) {
             vector_erase(&stack, stack.size - ar, ar);
         }
         /* push result */
-        if (!vector_push_back(&stack, 1, &value))
+        if (!vector_push_back(&stack, 1, &value)) {
             goto mem_err;
+        }
     }
     u32 *top = vector_at(&stack, stack.size - 1);
     *result = *top;
