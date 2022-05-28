@@ -1012,6 +1012,7 @@ extern_data u32 *pm_IconScripts[337][2];
 extern_data s32 pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
+extern_data s32 pm_battle_state;
 extern_data s32 pm_battle_state_2;
 extern_data battle_status_ctxt_t pm_battle_status;
 extern_data s32 pm_popup_menu_var;

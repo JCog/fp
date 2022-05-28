@@ -46,6 +46,7 @@ pm_gCameras = 0x800B1D80;
 pm_effects = 0x800B4398;
 __osEventStateTab = 0x800D9F80;
 pm_save_data = 0x800DACC0;
+pm_battle_state = 0x800DC068;
 pm_battle_status = 0x800DC070;
 pm_battle_state_2 = 0x800DC4DC;
 pm_disable_player_input = 0x800E0178;
