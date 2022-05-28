@@ -1072,6 +1072,7 @@ void step_game_loop(void);
 void pm_disable_player_input(void);
 void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
+void set_screen_overlay_alpha(s32, f32);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

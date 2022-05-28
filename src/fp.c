@@ -595,6 +595,9 @@ void fp_update_cheats(void) {
             pm_ActionCommandStatus.barFillLevel = 10000;
         }
     }
+    if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
+        set_screen_overlay_alpha(1, 0);
+    }
     if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
         pm_ActionCommandStatus.autoSucceed = 1;
     }
