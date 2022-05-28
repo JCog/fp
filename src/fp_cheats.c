@@ -4,7 +4,7 @@
 // clang-format off
 static const char *labels[] = {
     "hp", "fp", "coins", "star power", "star pieces",
-    "peril", "auto mash", "auto action command"
+    "peril", "auto mash", "auto action command", "brighten room"
 };
 // clang-format on
 

@@ -188,6 +188,7 @@ s32 fp_import_file(const char *path, void *data) {
                 } else {
                     if (pm_FioValidateFileChecksum(file)) {
                         pm_save_data = *file;
+                        pm_FioDeserializeState();
                         fp_warp(file->area_id, file->map_id, file->entrance_id);
                     } else {
                         fp_log("save file corrupt");

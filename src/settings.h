@@ -27,6 +27,7 @@ enum cheats {
     CHEAT_PERIL,
     CHEAT_AUTO_MASH,
     CHEAT_AUTO_ACTION_CMD,
+    CHEAT_BRIGHTEN_ROOM,
     CHEAT_MAX
 };
 

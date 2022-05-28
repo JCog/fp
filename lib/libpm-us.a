@@ -57,6 +57,7 @@ pm_overworld = 0x8010EBB0;
 pm_hud = 0x8010EF58;
 pm_player = 0x8010EFC8;
 draw_ci_image_with_clipping = 0x8012E9A0;
+set_screen_overlay_alpha = 0x801380D4;
 pm_SetMapTransitionEffect = 0x801382A0;
 pm_PlayAmbientSounds = 0x80147368;
 pm_PlaySfx = 0x80149CB4;
