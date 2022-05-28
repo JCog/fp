@@ -583,6 +583,11 @@ void fp_action_command_trainer(void) {
                 fp_log("pressed A %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
                 fp.last_a_press = 0;
             }
+            if (pm_status.pressed.a) {
+                fp_log("pressed A frame %d out of %d",
+                       pm_battle_status.unk_434[pm_ActionCommandStatus.unk_50] - pm_ActionCommandStatus.unk_54,
+                       pm_battle_status.unk_434[pm_ActionCommandStatus.unk_50]);
+            }
             fp.last_valid_frame = pm_status.frame_counter;
             // check for a press up to 10 frames late
         } else if (pm_ActionCommandStatus.state == 12 && pm_status.pressed.a &&
