@@ -818,7 +818,7 @@ typedef struct {
     /* 0x431 */ u8 input_buffer_pos;
     /* 0x432 */ s8 unk_432;
     /* 0x433 */ char unk_433;
-    /* 0x434 */ s32 unk_434;
+    /* 0x434 */ s32 *unk_434;
     /* 0x438 */ void *foreground_model_data;
     /* 0x43C */ void *unk_43C;
     /* 0x440 */ u8 tattle_flags[27];
