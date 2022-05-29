@@ -89,6 +89,12 @@
     "format":       "ia16",
     "tile_height":  8
   },
+  "wrench.png": {
+    "type": "texture",
+    "name": "wrench",
+    "format": "ia16",
+    "tile_height": 8
+  },
   "check_icons.png":
   {
     "type":         "texture",
@@ -152,11 +158,25 @@
     "format":       "rgba16",
     "tile_height":  15
   },
+  "osk_icons.png":
+  {
+    "type":         "texture",
+    "name":         "osk_icons",
+    "format":       "i4",
+    "tile_height":  8
+  },
   "crosshair.png":
   {
     "type":         "texture",
     "name":         "crosshair",
     "format":       "i4",
     "tile_height":  32
+  },
+  "control_stick.png":
+  {
+    "type":         "texture",
+    "name":         "control_stick",
+    "format":       "i4",
+    "tile_height":  48
   }
 }

@@ -1,20 +1,21 @@
 #ifndef WARP_INFO_H
 #define WARP_INFO_H
 
-#define GROUP_COUNT 0x1c
+#define AREA_COUNT 0x1c
 
-struct room_info {
-    const char  *room_name;
-    int         entrance_count;
+struct map_info {
+    const char *map_name;
+    s32 entrance_count;
 };
 
-struct group_info {
-    const char          *group_name;
-    int                 room_count;
-    struct room_info    rooms[50];
+struct area_info {
+    const char *area_name;
+    s32 map_count;
+    struct map_info maps[50];
 };
 
-struct group_info GROUPS[] =
+// clang-format off
+struct area_info AREAS[] =
     {
         {
             "goomba village",
@@ -983,7 +984,7 @@ struct group_info GROUPS[] =
                     0x2
                 },
                 {
-                    "stair piece on small table",
+                    "star piece on small table",
                     0x1
                 },
                 {
@@ -1869,5 +1870,6 @@ struct group_info GROUPS[] =
             }
         }
     };
+// clang-format on
 
 #endif

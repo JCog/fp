@@ -1,45 +1,41 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdarg.h>
-#include <string.h>
 #include "commands.h"
 #include "input.h"
 #include "fp.h"
-#include "settings.h"
-#include "tricks.h"
+#include "watchlist.h"
 
 struct command fp_commands[COMMAND_MAX] = {
-    {"show/hide menu",   COMMAND_PRESS_ONCE,  0,   NULL},
-    {"return from menu", COMMAND_PRESS_ONCE,  0,   NULL},
-    {"levitate",         COMMAND_HOLD,        0,   command_levitate_proc},
-    {"turbo",            COMMAND_PRESS_ONCE,  0,   command_turbo_proc},
-    {"save position",    COMMAND_PRESS_ONCE,  0,   command_save_pos_proc},
-    {"load position",    COMMAND_PRESS_ONCE,  0,   command_load_pos_proc},
-    {"lzs",              COMMAND_PRESS_ONCE,  0,   command_lzs_proc},
-    {"reload room",      COMMAND_PRESS_ONCE,  0,   command_reload_proc},
-    {"reload last warp", COMMAND_PRESS_ONCE,  0,   command_reload_last_warp_proc},
-    {"show coordinates", COMMAND_PRESS_ONCE,  0,   command_coords_proc},
-    {"load trick",       COMMAND_PRESS_ONCE,  0,   command_trick_proc},
-    {"save game",        COMMAND_PRESS_ONCE,  0,   command_save_game_proc},
-    {"load game",        COMMAND_PRESS_ONCE,  0,   command_load_game_proc},
-    {"start/stop timer", COMMAND_PRESS_ONCE,  0,   command_start_timer_proc},
-    {"reset timer",      COMMAND_PRESS_ONCE,  0,   command_reset_timer_proc},
-    {"show/hide timer",  COMMAND_PRESS_ONCE,  0,   command_show_hide_timer_proc}
+    {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                         },
+    {"return from menu", COMMAND_PRESS_ONCE, 0, NULL                         },
+    {"levitate",         COMMAND_HOLD,       0, command_levitate_proc        },
+    {"turbo",            COMMAND_PRESS_ONCE, 0, command_turbo_proc           },
+    {"save position",    COMMAND_PRESS_ONCE, 0, command_save_pos_proc        },
+    {"load position",    COMMAND_PRESS_ONCE, 0, command_load_pos_proc        },
+    {"lzs",              COMMAND_PRESS_ONCE, 0, command_lzs_proc             },
+    {"reload map",       COMMAND_PRESS_ONCE, 0, command_reload_proc          },
+    {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
+    {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
+    {"reimport save",    COMMAND_PRESS_ONCE, 0, command_import_save_proc     },
+    {"save game",        COMMAND_PRESS_ONCE, 0, command_save_game_proc       },
+    {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
+    {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
+    {"reset timer",      COMMAND_PRESS_ONCE, 0, command_reset_timer_proc     },
+    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc },
+    {"break free",       COMMAND_PRESS_ONCE, 0, command_break_free_proc      },
 };
 
 void show_menu() {
     menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
     fp.menu_active = 1;
     input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
-    input_reservation_set(1);
 }
 
 void hide_menu() {
     menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
     fp.menu_active = 0;
     input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
-    input_reservation_set(0);
 }
 
 void fp_log(const char *fmt, ...) {
@@ -47,13 +43,13 @@ void fp_log(const char *fmt, ...) {
     if (ent->msg) {
         free(ent->msg);
     }
-    for (int i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
+    for (s32 i = SETTINGS_LOG_MAX - 1; i > 0; --i) {
         fp.log[i] = fp.log[i - 1];
     }
-      
+
     va_list va;
     va_start(va, fmt);
-    int l = vsnprintf(NULL, 0, fmt, va);
+    s32 l = vsnprintf(NULL, 0, fmt, va);
     va_end(va);
 
     ent = &fp.log[0];
@@ -67,64 +63,100 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-_Bool fp_warp(uint16_t group, uint16_t room, uint16_t entrance) {
-    //this should prevent most warp crashes, but eventually it'd be ideal to figure out how to warp properly
-    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        fp_log("can't warp with menu open");
+void fp_set_input_mask(u16 pad, u8 x, u8 y) {
+    fp.input_mask.buttons = pad;
+    fp.input_mask.x_cardinal = x;
+    fp.input_mask.y_cardinal = y;
+}
+
+_Bool fp_warp(u16 area, u16 map, u16 entrance) {
+    if (pm_GameMode == 0xA || pm_GameMode == 0xB) { // paused/unpausing
+        fp_log("can't warp while paused");
         return 0;
-    }
-    //would be nice to know why warping from this room crashes
-    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        fp_log("can't warp from here");
+    } else if ((pm_battle_state == 0xD &&
+                (pm_battle_state_2 == 0xC9 || pm_battle_state_2 == 0x1F || pm_battle_state_2 == 0x29 ||
+                 pm_battle_state_2 == 0x2 || pm_battle_state_2 == 0x3D)) ||
+               (pm_battle_state == 0xE &&
+                (pm_battle_state_2 == 0xB || pm_battle_state_2 == 0xC9 || pm_battle_state_2 == 0x1F)) ||
+               pm_battle_state == 0x11) {
+        // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
+        // but the rest aren't. at some point we should figure out how to back out of these states automatically.
+        fp_log("can't warp in battle menu");
         return 0;
+    } else if (pm_status.is_battle) {
+        D_800A0900 = 1;
+        pm_state_step_end_battle();
     }
-    pm_PlayAmbientSounds(-1, 0);
+
+    pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
+    pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
+    pm_SfxStopSound(0x19C);        // clear upward vine sound
+    pm_SfxStopSound(0x19D);        // clear downward vine sound
+    pm_disable_player_input();
     pm_status.loading_zone_tangent = 0;
-    pm_status.group_id = group;
-    pm_status.room_id = room;
+    pm_status.area_id = area;
+    pm_status.map_id = map;
     pm_status.entrance_id = entrance;
 
-    pm_unk2.room_change_state = 1;
+    pm_MapChangeState = 1;
 
-    uint32_t val = 0x80035DFC;
-    pm_warp.room_change_ptr = val;
+    PRINTF("***** WARP TRIGGERED *****\n");
+    if (pm_popup_menu_var == 1) {
+        PRINTF("overworld popup is open, setting delay and hiding menu\n");
+        fp.warp_delay = 15;
+        pm_HidePopupMenu();
+    } else {
+        fp.warp_delay = 0;
+    }
+
+    // set the global curtain to default+off state
+    // this is mainly to prevent a crash when warping from "card obtained"
+    pm_SetCurtainScaleGoal(2.0f);
+    pm_SetCurtainDrawCallback(NULL);
+    pm_SetCurtainFadeGoal(0.0f);
+
+    fp.warp = 1;
 
     return 1;
 }
 
-void set_flag(uint32_t *flags, int flag_index, _Bool value) {
-    int word_index = flag_index / 32;
-    int bit = flag_index % 32;
+void set_flag(u32 *flags, s32 flag_index, _Bool value) {
+    s32 word_index = flag_index / 32;
+    s32 bit = flag_index % 32;
     if (value) {
         flags[word_index] |= (1 << bit);
-    }
-    else {
+    } else {
         flags[word_index] &= ~(1 << bit);
     }
 }
 
-void fp_set_global_flag(int flag_index, _Bool value) {
+void fp_set_global_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.global_flags, flag_index, value);
 }
 
-void fp_set_area_flag(int flag_index, _Bool value) {
+void fp_set_area_flag(s32 flag_index, _Bool value) {
     set_flag(pm_save_data.area_flags, flag_index, value);
 }
 
-void fp_set_enemy_defeat_flag(int flag_index, _Bool value) {
-    set_flag(pm_enemy_flags.enemy_defeat_flags, flag_index, value);
+void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
+    set_flag(pm_enemy_defeat_flags, flag_index, value);
 }
 
-void fp_set_global_byte(int byte_index,  int8_t value) {
+void fp_set_global_byte(s32 byte_index, s8 value) {
     pm_save_data.global_bytes[byte_index] = value;
 }
 
 void command_levitate_proc() {
+    // TODO: figure out how to get some version of this working for peach
     if (!(pm_status.peach_flags & (1 << 0))) {
-        pm_player.flags |= 3;
+        pm_player.flags |= 1 << 1;
+        pm_player.flags &= ~(1 << 2);
         pm_player.y_speed = 11;
-        pm_player.y_snap = -0.75;
         pm_player.frames_in_air = 1;
+        // these are the default starting values for when you fall
+        pm_player.y_acceleration = -0.350080013275f;
+        pm_player.y_jerk = -0.182262003422f;
+        pm_player.y_snap = 0.0115200001746f;
     }
 }
 
@@ -132,8 +164,7 @@ void command_turbo_proc() {
     if (fp.turbo) {
         fp.turbo = 0;
         fp_log("turbo disabled");
-    }
-    else {
+    } else {
         fp.turbo = 1;
         fp_log("turbo enabled");
     }
@@ -158,32 +189,38 @@ void command_load_pos_proc() {
 }
 
 void command_lzs_proc() {
-    if (pm_unk1.saveblock_freeze == 0) {
-        pm_unk1.saveblock_freeze = 1;
+    if (pm_TimeFreezeMode == 0) {
+        pm_TimeFreezeMode = 1;
         fp_log("easy lzs enabled");
-    }
-    else if (pm_unk1.saveblock_freeze == 1) {
-        pm_unk1.saveblock_freeze = 0;
+    } else if (pm_TimeFreezeMode == 1) {
+        pm_TimeFreezeMode = 0;
         fp_log("easy lzs disabled");
     }
 }
 
 void command_reload_proc() {
-    fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+    fp_warp(pm_status.area_id, pm_status.map_id, pm_status.entrance_id);
 }
 
 void command_reload_last_warp_proc() {
-    if (fp.saved_group != 0x1c) {
-        fp_warp(fp.saved_group, fp.saved_room, fp.saved_entrance);
+    if (fp.saved_area != 0x1c) {
+        fp_warp(fp.saved_area, fp.saved_map, fp.saved_entrance);
     }
 }
 
-void command_coords_proc() {
-    fp.coord_active = !fp.coord_active;
+void command_toggle_watches_proc() {
+    settings->bits.watches_visible = !settings->bits.watches_visible;
+    if (settings->bits.watches_visible) {
+        watchlist_show(fp.menu_watchlist);
+    } else {
+        watchlist_hide(fp.menu_watchlist);
+    }
 }
 
-void command_trick_proc() {
-    load_trick(fp.saved_trick);
+void command_import_save_proc() {
+    if (fp.last_imported_save_path) {
+        fp_import_file(fp.last_imported_save_path, NULL);
+    }
 }
 
 void command_save_game_proc() {
@@ -198,11 +235,9 @@ void command_start_timer_proc() {
         if (fp.timer.mode == 0) {
             fp_log("timer set to start");
         }
-    }
-    else if (fp.timer.state == 2 && fp.timer.mode == 1) {
+    } else if (fp.timer.state == 2 && fp.timer.mode == 1) {
         fp.timer.cutscene_count = fp.timer.cutscene_target;
-    }
-    else if (fp.timer.state == 3) {
+    } else if (fp.timer.state == 3) {
         fp.timer.state = 1;
         fp.timer.cutscene_count = 0;
         if (fp.timer.mode == 0) {
@@ -221,34 +256,27 @@ void command_show_hide_timer_proc() {
     settings->bits.timer_show = !settings->bits.timer_show;
 }
 
-int _save_not_empty(int slot) {
-    save_data_ctxt_t *file = malloc(SETTINGS_SAVE_FILE_SIZE);
-    for (int i = 0; i < 8; i++) {
-        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
-        if (pm_FioValidateFileChecksum(file) && file->save_slot == slot) {
-            free(file);
-            return 1;
-        }
-    }
-    free(file);
-    return 0;
-}
-
 void command_load_game_proc() {
-    if ((pm_player.flags & (1 << 5)) || (pm_status.is_battle && pm_unk6.menu_open)) {
-        fp_log("can't load with menu open");
-        return;
-    }
-    if (pm_status.group_id == 0 && pm_status.room_id == 0xe) {
-        fp_log("can't load from here");
-        return;
-    }
-    if (_save_not_empty(pm_status.save_slot)) {
-        pm_LoadGame(pm_status.save_slot);
-        fp_warp(pm_status.group_id, pm_status.room_id, pm_status.entrance_id);
+    save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_FioFetchSavedFileInfo();
+    pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
+    if (pm_FioValidateFileChecksum(file)) {
+        pm_save_data = *file;
+        pm_FioDeserializeState();
+        fp_warp(file->area_id, file->map_id, file->entrance_id);
         fp_log("loaded from slot %d", pm_status.save_slot);
-    }
-    else {
+    } else {
         fp_log("no file in slot %d", pm_status.save_slot);
     }
+    free(file);
+}
+
+void command_break_free_proc() {
+    s32 third_byte_mask = 0xFFFF00FF;
+    s32 check_mask = 0x0000FF00;
+
+    if ((pm_player.flags & check_mask) == 0x2000) {
+        pm_player.flags &= third_byte_mask;
+    }
+    fp_log("broke free");
 }
