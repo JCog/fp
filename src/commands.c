@@ -70,6 +70,24 @@ void fp_set_input_mask(u16 pad, u8 x, u8 y) {
 }
 
 _Bool fp_warp(u16 area, u16 map, u16 entrance) {
+    if (pm_GameMode == 0xA || pm_GameMode == 0xB) { // paused/unpausing
+        fp_log("can't warp while paused");
+        return 0;
+    } else if ((pm_battle_state == 0xD &&
+                (pm_battle_state_2 == 0xC9 || pm_battle_state_2 == 0x1F || pm_battle_state_2 == 0x29 ||
+                 pm_battle_state_2 == 0x2 || pm_battle_state_2 == 0x3D)) ||
+               (pm_battle_state == 0xE &&
+                (pm_battle_state_2 == 0xB || pm_battle_state_2 == 0xC9 || pm_battle_state_2 == 0x1F)) ||
+               pm_battle_state == 0x11) {
+        // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
+        // but the rest aren't. at some point we should figure out how to back out of these states automatically.
+        fp_log("can't warp in battle menu");
+        return 0;
+    } else if (pm_status.is_battle) {
+        D_800A0900 = 1;
+        pm_state_step_end_battle();
+    }
+
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
@@ -83,21 +101,12 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
     pm_MapChangeState = 1;
 
     PRINTF("***** WARP TRIGGERED *****\n");
-
-    if (pm_status.is_battle) {
-        if (pm_battle_state_2 == 0xC9) {
-            PRINTF("battle popup is open, destroying menu\n");
-            pm_func_802A472C();
-        }
-        fp.warp_delay = 0;
+    if (pm_popup_menu_var == 1) {
+        PRINTF("overworld popup is open, setting delay and hiding menu\n");
+        fp.warp_delay = 15;
+        pm_HidePopupMenu();
     } else {
-        if (pm_popup_menu_var == 1) {
-            PRINTF("overworld popup is open, setting delay and hiding menu\n");
-            fp.warp_delay = 15;
-            pm_HidePopupMenu();
-        } else {
-            fp.warp_delay = 0;
-        }
+        fp.warp_delay = 0;
     }
 
     // set the global curtain to default+off state

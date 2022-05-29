@@ -1012,6 +1012,7 @@ extern_data u32 *pm_IconScripts[337][2];
 extern_data s32 pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
+extern_data s32 pm_battle_state;
 extern_data s32 pm_battle_state_2;
 extern_data battle_status_ctxt_t pm_battle_status;
 extern_data s32 pm_popup_menu_var;
@@ -1023,6 +1024,8 @@ extern_data script_list_ctxt_t pm_curr_script_lst;
 extern_data encounter_status_ctxt_t pm_encounter_status;
 extern_data Camera pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
+extern_data s16 pm_GameMode;
+extern_data s8 D_800A0900;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
@@ -1074,6 +1077,7 @@ void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
 void set_screen_overlay_alpha(s32, f32);
+void pm_state_step_end_battle(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
