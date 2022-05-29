@@ -1078,6 +1078,7 @@ void update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
 void set_screen_overlay_alpha(s32, f32);
 void pm_state_step_end_battle(void);
+s32 pm_func_800554A4(s32);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

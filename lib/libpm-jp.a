@@ -11,6 +11,7 @@ pm_SetCurtainDrawCallback = 0x8002BEC4;
 pm_SetCurtainFadeGoal = 0x8002BED4;
 pm_SetGameMode = 0x80033180;
 pm_state_step_end_battle = 0x80033850;
+pm_func_800554A4 = 0x80055154;
 pm_RemoveEffect = 0x8005A100;
 __osPiGetAccess = 0x80061474;
 __osPiRelAccess = 0x800614E0;
