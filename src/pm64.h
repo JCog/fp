@@ -1025,6 +1025,7 @@ extern_data encounter_status_ctxt_t pm_encounter_status;
 extern_data Camera pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
 extern_data s16 pm_GameMode;
+extern_data s8 D_800A0900;
 
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
@@ -1076,6 +1077,7 @@ void update_camera_mode_6(Camera *camera);
 void update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
 void set_screen_overlay_alpha(s32, f32);
+void pm_state_step_end_battle(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]

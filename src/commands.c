@@ -83,6 +83,9 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
         // but the rest aren't. at some point we should figure out how to back out of these states automatically.
         fp_log("can't warp in battle menu");
         return 0;
+    } else if (pm_status.is_battle) {
+        D_800A0900 = 1;
+        pm_state_step_end_battle();
     }
 
     pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
