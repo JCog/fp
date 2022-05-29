@@ -260,5 +260,6 @@ aren't related to menuing are disabled while the utility menu is active.
 ## 3 Known Issues
 There are a few known issues with fp without an easy fix:
 
--   At least one save file (even an empty one) must exist for profile saving/loading to work.
--   When using the automatic timer, riding Laki or Sushie counts as one long cutscene. This means things that would normally increment the cutscene counter, such as going through a loading zone, no longer will.
+- At least one save file (even an empty one) must exist for profile saving/loading to work.
+- When using the automatic timer, riding Laki or Sushie counts as one long cutscene. This means things that would normally increment the cutscene counter, such as going through a loading zone, no longer will.
+- In rare circumstances when using the free camera, the game may crash.
