@@ -88,7 +88,10 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
         pm_state_step_end_battle();
     }
 
-    pm_PlayAmbientSounds(-1, 0);   // clear ambient sounds
+    pm_func_800554A4(0); // stop koopa village radio from playing
+    pm_func_800554A4(1);
+    pm_func_800554A4(2);
+    pm_func_800554A4(3);
     pm_BgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
     pm_SfxStopSound(0x19C);        // clear upward vine sound
     pm_SfxStopSound(0x19D);        // clear downward vine sound

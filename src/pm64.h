@@ -1057,7 +1057,6 @@ s32 pm_SetMapTransitionEffect(s32 transition);
 void pm_PlaySfx(s32 sound_id);
 void pm_BgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);
 void pm_SfxStopSound(s32 sound_id);
-void pm_PlayAmbientSounds(s32 sounds_id, s32 fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
 void osSetTime(u64);
@@ -1078,6 +1077,7 @@ void update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
 void set_screen_overlay_alpha(s32, f32);
 void pm_state_step_end_battle(void);
+s32 pm_func_800554A4(s32);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_save_data.global_bytes[0]
