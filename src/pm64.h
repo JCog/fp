@@ -1057,7 +1057,6 @@ s32 pm_SetMapTransitionEffect(s32 transition);
 void pm_PlaySfx(s32 sound_id);
 void pm_BgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);
 void pm_SfxStopSound(s32 sound_id);
-void pm_PlayAmbientSounds(s32 sounds_id, s32 fade_time);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
 void osSetTime(u64);
