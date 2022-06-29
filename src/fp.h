@@ -37,18 +37,6 @@ struct timer {
     _Bool moving;
 };
 
-struct hud_cache_entry {
-    s32 id;
-    s32 data_size;
-    u8 *data;
-};
-
-struct hud_elements {
-    HudElement *hud_element_list[HUD_ELEMENT_LIST_SIZE];
-    struct hud_cache_entry raster_cache[RASTER_CACHE_SIZE];
-    struct hud_cache_entry palette_cache[PALETTE_CACHE_SIZE];
-};
-
 typedef struct {
     _Bool ready;
     struct menu *main_menu;
@@ -108,7 +96,7 @@ typedef struct {
     _Bool action_command_trainer_enabled;
     u16 last_a_press;
     u16 last_valid_frame;
-    struct hud_elements hud_elements;
+    Icon *fp_icon;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;
@@ -132,14 +120,6 @@ struct menu *create_debug_menu();
 struct menu *create_settings_menu();
 struct menu *create_camera_menu();
 
-#ifdef NDEBUG
-#define PRINTF(...) ((void)0)
-#else
-#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
-#endif
-
 #define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
-
-#define ARRAY_COUNT(arr)    (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #endif

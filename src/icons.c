@@ -1,5 +1,105 @@
 #include <stdlib.h>
 #include "icons.h"
+#include "util.h"
+
+#define HUD_ELEMENT_LIST_SIZE               200
+#define RASTER_CACHE_SIZE                   300
+#define PALETTE_CACHE_SIZE                  300
+#define CUSTOM_SCRIPT_LIST_SIZE             200
+
+#define HS_PTR(sym)                         (s32) & sym
+
+#define hs_End                              HUD_ELEMENT_OP_End,
+#define hs_SetRGBA(time, image)             HUD_ELEMENT_OP_SetRGBA, time, (s32)image,
+#define hs_SetCI(time, raster, palette)     HUD_ELEMENT_OP_SetCI, time, raster, palette,
+#define hs_Restart                          HUD_ELEMENT_OP_Restart,
+#define hs_Loop                             HUD_ELEMENT_OP_Loop,
+#define hs_SetTileSize(size)                HUD_ELEMENT_OP_SetTileSize, size,
+#define hs_SetSizesAutoScale(size1, size2)  HUD_ELEMENT_OP_SetSizesAutoScale, size1, size2,
+#define hs_SetSizesFixedScale(size1, size2) HUD_ELEMENT_OP_SetSizesFixedScale, size1, size2,
+#define hs_SetVisible                       HUD_ELEMENT_OP_SetVisible,
+#define hs_SetHidden                        HUD_ELEMENT_OP_SetHidden,
+#define hs_AddTexelOffsetX(x)               HUD_ELEMENT_OP_AddTexelOffsetX, x,
+#define hs_AddTexelOffsetY(y)               HUD_ELEMENT_OP_AddTexelOffsetY, y,
+#define hs_SetTexelOffset(x, y)             HUD_ELEMENT_OP_SetTexelOffset, x, y,
+#define hs_SetIcon(time, icon)              HUD_ELEMENT_OP_SetImage, time, ICON_##icon##_raster, ICON_##icon##_palette, 0, 0,
+#define hs_SetScale(scale)                  HUD_ELEMENT_OP_SetScale, (s32)(scale * 65536.0f),
+#define hs_SetAlpha(alpha)                  HUD_ELEMENT_OP_SetAlpha, alpha,
+#define hs_RandomDelay(arg0, arg1)          HUD_ELEMENT_OP_RandomDelay, arg0, arg1,
+#define hs_Delete                           HUD_ELEMENT_OP_Delete,
+#define hs_UseIA8                           HUD_ELEMENT_OP_UseIA8,
+#define hs_SetCustomSize(arg0, arg1)        HUD_ELEMENT_OP_SetCustomSize, arg0, arg1,
+
+/// Restarts the loop if cutoff < rand_int(max)
+#define hs_RandomRestart(max, cutoff)       HUD_ELEMENT_OP_RandomRestart, max, cutoff,
+
+#define hs_op_15(arg0)                      HUD_ELEMENT_OP_op_15, arg0,
+#define hs_RandomBranch(...)                HUD_ELEMENT_OP_RandomBranch, (sizeof((s32[]){__VA_ARGS__}) / sizeof(s32)), __VA_ARGS__,
+#define hs_SetFlags(arg0)                   HUD_ELEMENT_OP_SetFlags, arg0,
+#define hs_ClearFlags(arg0)                 HUD_ELEMENT_OP_ClearFlags, arg0,
+#define hs_PlaySound(arg0)                  HUD_ELEMENT_OP_PlaySound, arg0,
+#define hs_SetPivot(arg0, arg1)             HUD_ELEMENT_OP_SetPivot, arg0, arg1,
+
+// clang-format off
+/// Basic HudScript used for static CI images, setting size with hs_SetTileSize
+#define HES_TEMPLATE_CI_ENUM_SIZE(raster, palette, sizeX, sizeY) {  \
+    hs_SetVisible                                                   \
+    hs_SetTileSize(HUD_ELEMENT_SIZE_##sizeX##x##sizeY)              \
+        hs_Loop hs_SetCI(60, raster, palette)                       \
+    hs_Restart                                                      \
+    hs_End                                                          \
+}
+
+/// Basic HudScript used for static CI images, setting size with hs_SetCustomSize
+#define HES_TEMPLATE_CI_CUSTOM_SIZE(raster, palette, sizeX, sizeY) { \
+    hs_SetVisible                                                    \
+    hs_SetCustomSize(sizeX, sizeY)                                   \
+    hs_Loop                                                          \
+        hs_SetCI(60, raster, palette)                                \
+    hs_Restart                                                       \
+    hs_End                                                           \
+}
+// clang-format on
+
+enum hud_script_type {
+    SCRIPT_TYPE_ITEM,
+    SCRIPT_TYPE_PARTNER
+};
+
+struct hud_cache_entry {
+    s32 id;
+    u8 *data;
+};
+
+struct element_script_pair {
+    HudElement *hud_element; // used to id correct hud_script to free()
+    HudScript *hud_script;
+};
+
+static u16 custom_hud_script_count;
+static HudElement *hud_element_list[HUD_ELEMENT_LIST_SIZE];
+static struct hud_cache_entry raster_cache[RASTER_CACHE_SIZE];
+static struct hud_cache_entry palette_cache[PALETTE_CACHE_SIZE];
+static struct element_script_pair custom_hud_script_list[CUSTOM_SCRIPT_LIST_SIZE];
+
+void icons_init() {
+    custom_hud_script_count = 0;
+    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
+        hud_element_list[i] = NULL;
+    }
+    for (s32 i = 0; i < RASTER_CACHE_SIZE; i++) {
+        raster_cache[i].id = 0;
+        raster_cache[i].data = NULL;
+    }
+    for (s32 i = 0; i < PALETTE_CACHE_SIZE; i++) {
+        palette_cache[i].id = 0;
+        palette_cache[i].data = NULL;
+    }
+    for (s32 i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
+        custom_hud_script_list[i].hud_element = NULL;
+        custom_hud_script_list[i].hud_script = NULL;
+    }
+}
 
 // image_address can be either ROM or RAM
 u8 *get_cache_entry_image(s32 image_address, s32 image_size, struct hud_cache_entry *cache, s32 cache_size) {
@@ -13,10 +113,9 @@ u8 *get_cache_entry_image(s32 image_address, s32 image_size, struct hud_cache_en
         // load in data and place in cache
         if (cache[idx].id == 0) {
             cache[idx].id = image_address;
-            cache[idx].data_size = image_size;
             cache[idx].data = malloc(image_size);
             // memcpy instead of dma if image_address is a pointer to ram
-            if ((uintptr_t)image_address >> 24 == 0x80) {
+            if (image_address >> 24 == 0x80) {
                 memcpy(cache[idx].data, (const void *)image_address, image_size);
             } else {
                 nuPiReadRom(image_address, cache[idx].data, image_size);
@@ -28,11 +127,23 @@ u8 *get_cache_entry_image(s32 image_address, s32 image_size, struct hud_cache_en
 }
 
 u8 *get_cached_raster(s32 addr, s32 size) {
-    return get_cache_entry_image(addr, size, fp.hud_elements.raster_cache, RASTER_CACHE_SIZE);
+    return get_cache_entry_image(addr, size, raster_cache, RASTER_CACHE_SIZE);
 }
 
 u8 *get_cached_palette(s32 addr) {
-    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, fp.hud_elements.palette_cache, PALETTE_CACHE_SIZE);
+    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, palette_cache, PALETTE_CACHE_SIZE);
+}
+
+void free_custom_hud_script(HudElement *hud_element) {
+    for (s32 i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
+        if (custom_hud_script_list[i].hud_element == hud_element) {
+            free(custom_hud_script_list[i].hud_script);
+            custom_hud_script_list[i].hud_element = NULL;
+            custom_hud_script_list[i].hud_script = NULL;
+            custom_hud_script_count--;
+            return;
+        }
+    }
 }
 
 /*
@@ -80,33 +191,33 @@ HudScript *create_hud_script(enum hud_script_type type, s32 data[]) {
     }
 }
 
-void hud_element_set_render_pos(HudElement *hudElement, s32 x, s32 y) {
-    hudElement->renderPosX = x;
-    hudElement->renderPosY = y;
+void hud_element_set_render_pos(HudElement *hud_element, s32 x, s32 y) {
+    hud_element->renderPosX = x;
+    hud_element->renderPosY = y;
 }
-void hud_element_set_scale(HudElement *hudElement, f32 scale) {
+void hud_element_set_scale(HudElement *hud_element, f32 scale) {
     s32 drawSizeX;
     s32 drawSizeY;
     s32 imgSizeX;
     s32 imgSizeY;
     f32 xScaled, yScaled;
 
-    hudElement->uniformScale = scale;
-    if (!(hudElement->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-        imgSizeX = gHudElementSizes[hudElement->tileSizePreset].width;
-        imgSizeY = gHudElementSizes[hudElement->tileSizePreset].height;
-        drawSizeX = gHudElementSizes[hudElement->drawSizePreset].width;
-        drawSizeY = gHudElementSizes[hudElement->drawSizePreset].height;
+    hud_element->uniformScale = scale;
+    if (!(hud_element->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+        imgSizeX = gHudElementSizes[hud_element->tileSizePreset].width;
+        imgSizeY = gHudElementSizes[hud_element->tileSizePreset].height;
+        drawSizeX = gHudElementSizes[hud_element->drawSizePreset].width;
+        drawSizeY = gHudElementSizes[hud_element->drawSizePreset].height;
     } else {
-        imgSizeX = hudElement->customImageSize.x;
-        imgSizeY = hudElement->customImageSize.y;
-        drawSizeX = hudElement->customDrawSize.x;
-        drawSizeY = hudElement->customDrawSize.y;
+        imgSizeX = hud_element->customImageSize.x;
+        imgSizeY = hud_element->customImageSize.y;
+        drawSizeX = hud_element->customDrawSize.x;
+        drawSizeY = hud_element->customDrawSize.y;
     }
-    hudElement->sizeX = drawSizeX * scale;
-    hudElement->sizeY = drawSizeY * scale;
-    hudElement->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
-    hudElement->flags |= HUD_ELEMENT_FLAGS_REPEATED | HUD_ELEMENT_FLAGS_SCALED;
+    hud_element->sizeX = drawSizeX * scale;
+    hud_element->sizeY = drawSizeY * scale;
+    hud_element->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
+    hud_element->flags |= HUD_ELEMENT_FLAGS_REPEATED | HUD_ELEMENT_FLAGS_SCALED;
 
     xScaled = ((f32)drawSizeX / (f32)imgSizeX) * scale;
     yScaled = ((f32)drawSizeY / (f32)imgSizeY) * scale;
@@ -114,8 +225,8 @@ void hud_element_set_scale(HudElement *hudElement, f32 scale) {
     xScaled = 1.0f / xScaled;
     yScaled = 1.0f / yScaled;
 
-    hudElement->widthScale = X10(xScaled);
-    hudElement->heightScale = X10(yScaled);
+    hud_element->widthScale = X10(xScaled);
+    hud_element->heightScale = X10(yScaled);
 }
 
 void hud_element_set_alpha(HudElement *hudElement, s32 opacity) {
@@ -127,7 +238,15 @@ void hud_element_set_alpha(HudElement *hudElement, s32 opacity) {
     }
 }
 
-void hud_element_script_init(HudElement *hudElement, HudScript *script) {
+void hud_element_set_flags(HudElement *hud_element, s32 flags) {
+    hud_element->flags |= flags;
+}
+
+void hud_element_clear_flags(HudElement *hud_element, s32 flags) {
+    hud_element->flags &= ~flags;
+}
+
+void hud_element_script_init(HudElement *hud_element, HudScript *script) {
     s32 *script_step = (s32 *)script;
     s32 raster;
     s32 palette;
@@ -147,18 +266,18 @@ void hud_element_script_init(HudElement *hudElement, HudScript *script) {
             case HUD_ELEMENT_OP_SetCI: script_step += 3; break;
             case HUD_ELEMENT_OP_SetTileSize:
                 preset = *script_step++;
-                hudElement->drawSizePreset = hudElement->tileSizePreset = preset;
+                hud_element->drawSizePreset = hud_element->tileSizePreset = preset;
                 break;
             case HUD_ELEMENT_OP_SetSizesAutoScale:
             case HUD_ELEMENT_OP_SetSizesFixedScale:
                 preset = *script_step;
                 script_step += 2;
-                hudElement->drawSizePreset = hudElement->tileSizePreset = preset;
+                hud_element->drawSizePreset = hud_element->tileSizePreset = preset;
                 break;
             case HUD_ELEMENT_OP_SetCustomSize:
-                hudElement->customDrawSize.x = hudElement->customImageSize.x = *script_step++;
-                hudElement->customDrawSize.y = hudElement->customImageSize.y = *script_step++;
-                hudElement->flags |= HUD_ELEMENT_FLAGS_CUSTOM_SIZE;
+                hud_element->customDrawSize.x = hud_element->customImageSize.x = *script_step++;
+                hud_element->customDrawSize.y = hud_element->customImageSize.y = *script_step++;
+                hud_element->flags |= HUD_ELEMENT_FLAGS_CUSTOM_SIZE;
                 break;
             case HUD_ELEMENT_OP_AddTexelOffsetX:
             case HUD_ELEMENT_OP_AddTexelOffsetY:
@@ -197,7 +316,7 @@ s32 hud_element_update(HudElement *hud_element) {
     HudTransform *hudTransform = hud_element->hudTransform;
     s32 *script_step = (s32 *)hud_element->readPos;
     if (script_step == NULL) {
-        PRINTF("ERROR: HudElement at 0x%8X returned NULL readPos\n", hud_element);
+        PRINTF("HudElement at 0x%8X returned NULL readPos\n", hud_element);
         return 0;
     }
 
@@ -321,8 +440,9 @@ s32 hud_element_update(HudElement *hud_element) {
             break;
         case HUD_ELEMENT_OP_SetImage:
             hud_element->updateTimer = *script_step++;
-        
-            hud_element->rasterAddr = get_cached_raster(ICONS_ITEMS_ROM_START + *script_step++, gHudElementSizes[hud_element->tileSizePreset].size);
+
+            hud_element->rasterAddr = get_cached_raster(ICONS_ITEMS_ROM_START + *script_step++,
+                                                        gHudElementSizes[hud_element->tileSizePreset].size);
             hud_element->paletteAddr = get_cached_palette(ICONS_ITEMS_ROM_START + *script_step++);
             script_step += 3;
             hud_element->readPos = (HudScript *)script_step;
@@ -540,45 +660,63 @@ s32 hud_element_update(HudElement *hud_element) {
     return 0;
 }
 
-HudElement *hud_element_create(HudScript *hud_script) {
-    HudElement *hudElement = malloc(sizeof(*hudElement));
+HudElement *hud_element_create(HudElement *hud_element, HudScript *hud_script) {
+    if ((uintptr_t)hud_script > 0x80400000) {
+        s32 i;
+        for (i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
+            if (custom_hud_script_list[i].hud_element == NULL) {
+                custom_hud_script_list[i].hud_element = hud_element;
+                custom_hud_script_list[i].hud_script = hud_script;
+                break;
+            }
+        }
+        if (i == CUSTOM_SCRIPT_LIST_SIZE) {
+            PRINTF("custom script list full, unable to create icon\n");
+            return NULL;
+        }
+    }
+    hud_element->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
+    hud_element->readPos = hud_script;
+    hud_element->updateTimer = 1;
+    hud_element->drawSizePreset = -1;
+    hud_element->tileSizePreset = -1;
+    hud_element->renderPosX = 0;
+    hud_element->renderPosY = 0;
+    hud_element->loopStartPos = hud_script;
+    hud_element->widthScale = X10(1.0f);
+    hud_element->heightScale = X10(1.0f);
+    hud_element->anim = hud_element->readPos;
+    hud_element->uniformScale = 1.0f;
+    hud_element->screenPosOffset.x = 0;
+    hud_element->screenPosOffset.y = 0;
+    hud_element->worldPosOffset.x = 0;
+    hud_element->worldPosOffset.y = 0;
+    hud_element->worldPosOffset.z = 0;
+    hud_element->opacity = 255;
+    hud_element->tint.r = 255;
+    hud_element->tint.g = 255;
+    hud_element->tint.b = 255;
 
-    hudElement->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
-    hudElement->readPos = hud_script;
-    hudElement->updateTimer = 1;
-    hudElement->drawSizePreset = -1;
-    hudElement->tileSizePreset = -1;
-    hudElement->renderPosX = 0;
-    hudElement->renderPosY = 0;
-    hudElement->loopStartPos = hud_script;
-    hudElement->widthScale = X10(1.0f);
-    hudElement->heightScale = X10(1.0f);
-    hudElement->anim = hudElement->readPos;
-    hudElement->uniformScale = 1.0f;
-    hudElement->screenPosOffset.x = 0;
-    hudElement->screenPosOffset.y = 0;
-    hudElement->worldPosOffset.x = 0;
-    hudElement->worldPosOffset.y = 0;
-    hudElement->worldPosOffset.z = 0;
-    hudElement->opacity = 255;
-    hudElement->tint.r = 255;
-    hudElement->tint.g = 255;
-    hudElement->tint.b = 255;
-
-    hud_element_script_init(hudElement, hudElement->readPos);
-    while (hud_element_update(hudElement) != 0) {};
-    return hudElement;
+    hud_element_script_init(hud_element, hud_element->readPos);
+    while (hud_element_update(hud_element) != 0) {};
+    return hud_element;
 }
 
 HudElement *hud_element_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, f32 scale) {
-    HudElement *element = hud_element_create(hud_script);
-    hud_element_set_render_pos(element, x, y);
-    hud_element_set_alpha(element, alpha);
-    hud_element_set_scale(element, scale);
-    return element;
+    HudElement *hud_element = malloc(sizeof(*hud_element));
+    hud_element = hud_element_create(hud_element, hud_script);
+    if (hud_element == NULL) {
+        free(hud_element);
+        free(hud_script);
+        return NULL;
+    }
+    hud_element_set_render_pos(hud_element, x, y);
+    hud_element_set_alpha(hud_element, alpha);
+    hud_element_set_scale(hud_element, scale);
+    return hud_element;
 }
 
-HudElement *get_hud_element_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
+Icon *icons_create_partner(u8 partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
     u8 partner_index;
     switch (partner) {
         case PARTNER_GOOMBARIO: partner_index = 1; break;
@@ -598,9 +736,58 @@ HudElement *get_hud_element_partner(Partner partner, s32 x, s32 y, u8 alpha, f32
     return hud_element_init(hud_script, x, y, alpha, scale);
 }
 
-HudElement *get_hud_element_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
+Icon *icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
     s32 script_data[] = {item, grayscale};
     HudScript *hud_script = create_hud_script(SCRIPT_TYPE_ITEM, script_data);
-    
+
     return hud_element_init(hud_script, x, y, alpha, scale);
+}
+
+void icons_update() {
+    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
+        HudElement *hud_element = hud_element_list[i];
+
+        if (hud_element != NULL && hud_element->flags && !(hud_element->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
+            if (hud_element->flags & HUD_ELEMENT_FLAGS_DELETE) {
+                free_custom_hud_script(hud_element);
+                free(hud_element);
+                i++;
+            } else if (hud_element->readPos != NULL) {
+                hud_element->updateTimer--;
+                if (hud_element->updateTimer == 0) {
+
+                    while (hud_element_update(hud_element) != 0) {};
+                }
+                if (hud_element->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                    hud_element->unkImgScale[0] += hud_element->deltaSizeX;
+                    hud_element->unkImgScale[1] += hud_element->deltaSizeY;
+                }
+                i++;
+            } else {
+                break;
+            }
+        } else {
+            i++;
+        }
+    }
+
+    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
+        if (hud_element_list[i] != NULL) {
+            draw_hud_element(hud_element_list[i]);
+            hud_element_list[i] = NULL;
+        }
+    }
+}
+
+void icons_draw(Icon *icon) {
+    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
+        if (hud_element_list[i] == NULL) {
+            hud_element_list[i] = icon;
+            return;
+        }
+    }
+}
+
+void icons_delete(Icon *icon) {
+    hud_element_set_flags(icon, HUD_ELEMENT_FLAGS_DELETE);
 }

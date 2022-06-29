@@ -10,9 +10,9 @@
 #include "io.h"
 #include "resource.h"
 #include "watchlist.h"
-#include "icons.h"
 #include "crash_screen.h"
 #include "sys.h"
+#include "util.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -43,6 +43,8 @@ void fp_init() {
     gfx_start();
     gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
+
+    icons_init();
 
     fp.profile = 0;
     fp.settings_loaded = 0;
@@ -103,20 +105,6 @@ void fp_init() {
     fp.cam_pos.z = 0;
     fp.cam_enabled_before = 0;
     fp.action_command_trainer_enabled = 0;
-    
-    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
-        fp.hud_elements.hud_element_list[i] = NULL;
-    }
-    for (s32 i = 0; i < RASTER_CACHE_SIZE; i++) {
-        fp.hud_elements.raster_cache[i].id = 0;
-        fp.hud_elements.raster_cache[i].data_size = 0;
-        fp.hud_elements.raster_cache[i].data = NULL;
-    }
-    for (s32 i = 0; i < PALETTE_CACHE_SIZE; i++) {
-        fp.hud_elements.palette_cache[i].id = 0;
-        fp.hud_elements.palette_cache[i].data_size = 0;
-        fp.hud_elements.palette_cache[i].data = NULL;
-    }
 
     io_init();
 
@@ -252,14 +240,17 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY(S)  STRINGIFY_(S)
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    if (pm_status.load_menu_state > 0) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
-        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
+    if (fp.fp_icon == NULL) {
+        fp.fp_icon = icons_create_item(ITEM_FP_PLUS_A, 31, SCREEN_HEIGHT - 49, 255, 1.0f, 0);
     }
+    icons_draw(fp.fp_icon);
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
+    gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
+    gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
 
     if (pm_status.load_menu_state == 5) {
         fp.version_shown = 1;
+        icons_delete(fp.fp_icon);
     }
 }
 

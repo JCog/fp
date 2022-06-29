@@ -168,6 +168,7 @@ void *gfx_data_append(void *data, size_t size) {
 
 void gfx_flush(void) {
     flush_chars();
+    icons_update();
     gSPEndDisplayList(gfx_disp_p++);
     gSPDisplayList(pm_MasterGfxPos++, gfx_disp);
     Gfx *disp_w = gfx_disp_w;

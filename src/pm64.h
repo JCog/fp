@@ -5,21 +5,20 @@
 #include <stdarg.h>
 #include "enums.h"
 
-#define JP 0x00
-#define US 0x01
+#define JP                0x00
+#define US                0x01
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH      320
+#define SCREEN_HEIGHT     240
 
 #define ICON_PALETTE_SIZE 32
 #if PM64_VERSION == US
-#define ICONS_ITEMS_ROM_START      0x1CC310
-#define ICONS_PARTNERS_ROM_START   0x97890
+#define ICONS_ITEMS_ROM_START    0x1CC310
+#define ICONS_PARTNERS_ROM_START 0x97890
 #else
-#define ICONS_ITEMS_ROM_START      0x1D4720
-#define ICONS_PARTNERS_ROM_START   0x97A20
+#define ICONS_ITEMS_ROM_START    0x1D4720
+#define ICONS_PARTNERS_ROM_START 0x97A20
 #endif
-
 
 typedef s32 HudScript[0];
 
