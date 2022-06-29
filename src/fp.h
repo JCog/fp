@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector/vector.h>
 #include "pm64.h"
+#include "icons.h"
 #include "settings.h"
 
 enum cam_mode {
@@ -34,6 +35,18 @@ struct timer {
     u8 cutscene_target;
     u8 cutscene_count;
     _Bool moving;
+};
+
+struct hud_cache_entry {
+    s32 id;
+    s32 data_size;
+    u8 *data;
+};
+
+struct hud_elements {
+    HudElement *hud_element_list[HUD_ELEMENT_LIST_SIZE];
+    struct hud_cache_entry raster_cache[RASTER_CACHE_SIZE];
+    struct hud_cache_entry palette_cache[PALETTE_CACHE_SIZE];
 };
 
 typedef struct {
@@ -89,12 +102,13 @@ typedef struct {
     s16 cam_dist_max;
     f32 cam_pitch;
     f32 cam_yaw;
-    vec3f_t cam_pos;
+    Vec3f cam_pos;
     controller_t input_mask;
     _Bool cam_enabled_before;
     _Bool action_command_trainer_enabled;
     u16 last_a_press;
     u16 last_valid_frame;
+    struct hud_elements hud_elements;
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

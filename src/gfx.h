@@ -14,6 +14,9 @@
 #define GFX_TEXT_NORMAL 0
 #define GFX_TEXT_FAST   1
 
+/// X.10 fixed-point literal
+#define X10(f)          (s32)(f * 1024.0f)
+
 enum gfx_mode {
     GFX_MODE_FILTER,
     GFX_MODE_COMBINE,
@@ -114,5 +117,7 @@ void gfx_printf_n(const struct gfx_font *font, s32 x, s32 y, const char *format,
 void gfx_printf_f(const struct gfx_font *font, s32 x, s32 y, const char *format, ...);
 
 extern const MtxF gfx_cm_desaturate;
+
+void draw_hud_element(HudElement *elem);
 
 #endif

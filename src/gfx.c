@@ -590,3 +590,460 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
 
     gfx_char_font = font;
 }
+
+void hud_element_draw_rect(HudElement *hudElement, s16 texSizeX, s16 texSizeY, s16 drawSizeX, s16 drawSizeY,
+                           s16 offsetX, s16 offsetY, s32 clamp, s32 dropShadow) {
+    u32 isFmtCI4;
+    u32 isFmtIA8;
+    s32 flipX, flipY;
+    s32 fmt;
+    s32 widthScale, heightScale;
+    s32 texStartX, texStartY;
+    u32 isLastTileX, isLastTileY;
+    s32 uls, ult, lrs, lrt;
+    s32 uly, lry, ulx, lrx;
+    s32 masks, maskt;
+    s32 screenPosOffsetScaledX, screenPosOffsetScaledY;
+    u8 *imageAddr;
+    u8 *paletteAddr;
+    s16 baseX, baseY;
+    s32 tileMode;
+    u32 flags1, flags2;
+    u16 renderPosX, renderPosY;
+    s16 tempX, tempY;
+
+    imageAddr = hudElement->rasterAddr;
+    paletteAddr = hudElement->paletteAddr;
+
+    screenPosOffsetScaledX = hudElement->screenPosOffset.x * 1024;
+    screenPosOffsetScaledY = hudElement->screenPosOffset.y * 1024;
+    widthScale = hudElement->widthScale;
+    screenPosOffsetScaledX /= widthScale;
+    heightScale = hudElement->heightScale;
+    screenPosOffsetScaledY /= heightScale;
+
+    renderPosX = hudElement->worldPosOffset.x;
+    renderPosY = hudElement->worldPosOffset.y;
+    renderPosX += hudElement->renderPosX + screenPosOffsetScaledX;
+    renderPosY += hudElement->renderPosY + screenPosOffsetScaledY;
+    tempX = offsetX;
+    tempY = offsetY;
+    tempX += renderPosX;
+    tempY += renderPosY;
+
+    baseX = tempX;
+    baseY = tempY;
+
+    if (dropShadow) {
+        baseX = tempX + 2;
+        baseY = tempY + 2;
+    }
+
+    flags1 = (hudElement->flags & HUD_ELEMENT_FLAGS_FMT_CI4);
+    isFmtCI4 = flags1 != 0;
+    flags1 = (hudElement->flags & HUD_ELEMENT_FLAGS_FMT_IA8);
+    isFmtIA8 = flags1 != 0;
+    flags1 = (hudElement->flags & HUD_ELEMENT_FLAGS_FLIPX);
+    flipX = flags1 != 0;
+    flags2 = (hudElement->flags & HUD_ELEMENT_FLAGS_FLIPY);
+    flipY = flags2 != 0;
+
+    fmt = 0; // stays the same if (isFmtCI4 == 0 && isFmtIA8 == 0)
+    if (isFmtCI4 == 1 && isFmtIA8 == 1) {
+        fmt = 0; // RGBA
+    }
+    if (isFmtCI4 == 1 && isFmtIA8 == 0) {
+        fmt = 1; // CI
+    }
+    if (isFmtCI4 == 0 && isFmtIA8 == 1) {
+        fmt = 2; // IA
+    }
+    if (isFmtCI4 == 1 && isFmtIA8 == 1) {
+        fmt = 2; // IA
+    }
+
+    masks = 6;
+    maskt = 5;
+    if (!(hudElement->flags & HUD_ELEMENT_FLAGS_SCALED)) {
+        switch (drawSizeX) {
+            case 8: masks = 3; break;
+            case 16: masks = 4; break;
+            case 32: masks = 5; break;
+        }
+
+        switch (drawSizeY) {
+            case 8: maskt = 3; break;
+            case 16: maskt = 4; break;
+            case 32: maskt = 5; break;
+        }
+    }
+
+    switch (fmt) {
+        case 0:
+            gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+            gDPSetTextureLUT(gfx_disp_p++, G_TT_NONE);
+            break;
+        case 1:
+            if (!(hudElement->flags & HUD_ELEMENT_FLAGS_TRANSPARENT)) {
+                if (!(hudElement->flags & HUD_ELEMENT_FLAGS_ANTIALIASING)) {
+                    gDPSetRenderMode(gfx_disp_p++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
+                } else {
+                    gDPSetRenderMode(gfx_disp_p++, G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);
+                }
+            } else {
+                if (!(hudElement->flags & HUD_ELEMENT_FLAGS_ANTIALIASING)) {
+                    gDPSetRenderMode(gfx_disp_p++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+                } else {
+                    gDPSetRenderMode(gfx_disp_p++, G_RM_CLD_SURF | AA_EN, G_RM_CLD_SURF2 | AA_EN);
+                }
+            }
+            gDPSetTextureLUT(gfx_disp_p++, G_TT_RGBA16);
+            gDPLoadTLUT_pal16(gfx_disp_p++, 0, paletteAddr);
+            break;
+        case 2:
+            gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+            gDPSetTextureLUT(gfx_disp_p++, G_TT_NONE);
+            break;
+    }
+
+    if (hudElement->flags & HUD_ELEMENT_FLAGS_FILTER_TEX) {
+        gDPSetTextureFilter(gfx_disp_p++, G_TF_AVERAGE);
+    } else {
+        gDPSetTextureFilter(gfx_disp_p++, G_TF_POINT);
+    }
+
+    ult = 0;
+    isLastTileY = 0;
+    uly = baseY;
+    while (1) {
+        lry = uly + 1024.0 / heightScale * 32.0;
+        lrt = ult + 31;
+        if (flipY) {
+            texStartY = texSizeY;
+        } else {
+            texStartY = 0;
+        }
+
+        if (lry < 0 || uly > SCREEN_HEIGHT) {
+            break;
+        }
+
+        if (lry >= SCREEN_HEIGHT) {
+            s32 temp = ult + SCREEN_HEIGHT + 31;
+            temp -= baseY + lrt;
+            lrt = temp - 1;
+
+            lry = SCREEN_HEIGHT;
+            isLastTileY = 1;
+        }
+
+        if (lrt + 1 >= texSizeY) {
+            lrt = texSizeY - 1;
+            if (texSizeY > 16) {
+                lry = baseY + drawSizeY - 1;
+            } else {
+                lry = baseY + drawSizeY;
+            }
+            isLastTileY = 1;
+        }
+
+        isLastTileX = 0;
+        uls = 0;
+        ulx = baseX;
+        while (1) {
+            lrx = ulx + 1024.0 / widthScale * 64.0;
+            lrs = uls + 63;
+            if (flipX) {
+                texStartX = texSizeX;
+            } else {
+                texStartX = 0;
+            }
+
+            if (lrx < 0 || ulx > SCREEN_WIDTH) {
+                break;
+            }
+
+            if (lrx >= SCREEN_WIDTH) {
+                s32 temp = uls + SCREEN_WIDTH + 63;
+                temp -= baseX + lrs;
+                lrs = temp - 1;
+
+                lrx = SCREEN_WIDTH;
+                isLastTileX = 1;
+            }
+
+            if (lrs + 1 >= texSizeX) {
+                lrs = texSizeX - 1;
+                if (texSizeX > 16) {
+                    lrx = baseX + drawSizeX - 1;
+                } else {
+                    lrx = baseX + drawSizeX;
+                }
+                isLastTileX = 1;
+            }
+
+            gDPPipeSync(gfx_disp_p++);
+
+            if (isLastTileX) {
+                tileMode = !isLastTileY;
+            }
+            if (!isLastTileX && !isLastTileY) {
+                tileMode = 0;
+            }
+            if (!isLastTileX && isLastTileY) {
+                tileMode = 2;
+            }
+            if (isLastTileX && isLastTileY) {
+                tileMode = 3;
+            }
+
+            switch (fmt) {
+                case 0:
+                    gDPSetCombineMode(gfx_disp_p++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+                    if (!(hudElement->flags & HUD_ELEMENT_FLAGS_TRANSPARENT)) {
+                        gDPSetCombineMode(gfx_disp_p++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+                    } else {
+                        gDPSetCombineLERP(gfx_disp_p++, 0, 0, 0, TEXEL0, PRIMITIVE, 0, TEXEL0, 0, 0, 0, 0, TEXEL0,
+                                          TEXEL0, 0, PRIMITIVE, 0);
+                    }
+
+                    if (hudElement->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
+                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 0, 0, 0, hudElement->opacity);
+                    }
+
+                    if (!flipX && !flipY) {
+                        gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_RGBA, G_IM_SIZ_32b, texSizeX, texSizeY,
+                                           uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                           masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                    } else {
+                        gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_RGBA, G_IM_SIZ_32b, texSizeX, texSizeY,
+                                           uls, ult, lrs, lrt, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP,
+                                           masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                    }
+                    break;
+                case 1:
+                    if (!dropShadow) {
+                        if (hudElement->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
+                            gDPSetCombineLERP(gfx_disp_p++, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE,
+                                              0, TEXEL0, 0, TEXEL0, 0, PRIMITIVE, 0);
+                        } else {
+                            gDPSetCombineLERP(gfx_disp_p++, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE,
+                                              0, TEXEL0, 0, TEXEL0, 0, PRIMITIVE, 0);
+                        }
+
+                        if (hudElement->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
+                            gDPSetPrimColor(gfx_disp_p++, 0, 0, hudElement->tint.r, hudElement->tint.g,
+                                            hudElement->tint.b, hudElement->opacity);
+                        } else {
+                            gDPSetPrimColor(gfx_disp_p++, 0, 0, hudElement->tint.r, hudElement->tint.g,
+                                            hudElement->tint.b, 255);
+                        }
+                    } else {
+                        gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                        gDPSetCombineLERP(gfx_disp_p++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
+                                          TEXEL0, 0, PRIMITIVE, 0);
+                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 40, 40, 40, 72);
+                    }
+
+                    if (!flipX && !flipY) {
+                        if (!clamp) {
+                            gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls, ult,
+                                                  lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                                  masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                        } else {
+                            switch (tileMode) {
+                                case 0:
+                                    gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls,
+                                                          ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                          G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD,
+                                                          G_TX_NOLOD);
+                                    break;
+                                case 1:
+                                    gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls,
+                                                          ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                          G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD,
+                                                          G_TX_NOLOD);
+                                    break;
+                                case 2:
+                                    gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls,
+                                                          ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                          G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD,
+                                                          G_TX_NOLOD);
+                                    break;
+                                case 3:
+                                    gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls,
+                                                          ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                          G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD,
+                                                          G_TX_NOLOD);
+                                    break;
+                            }
+                        }
+                    } else {
+                        gDPLoadTextureTile_4b(gfx_disp_p++, imageAddr, G_IM_FMT_CI, texSizeX, texSizeY, uls, ult, lrs,
+                                              lrt, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP, masks, maskt,
+                                              G_TX_NOLOD, G_TX_NOLOD);
+                    }
+                    break;
+                case 2:
+                    gDPSetCombineLERP(gfx_disp_p++, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, 0, TEXEL0, 0, TEXEL0, 0,
+                                      PRIMITIVE, 0, PRIMITIVE, 0, TEXEL0, 0);
+                    gDPSetPrimColor(gfx_disp_p++, 0, 0, hudElement->tint.r, hudElement->tint.g, hudElement->tint.b,
+                                    hudElement->opacity);
+
+                    if (!flipX && !flipY) {
+                        if (!clamp) {
+                            switch (tileMode) {
+                                case 0:
+                                    gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX,
+                                                       texSizeY, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                       G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                                    break;
+                                case 1:
+                                    gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX,
+                                                       texSizeY, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                       G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                                    break;
+                                case 2:
+                                    gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX,
+                                                       texSizeY, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                       G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                                    break;
+                                case 3:
+                                    gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX,
+                                                       texSizeY, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                                       G_TX_NOMIRROR | G_TX_WRAP, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                                    break;
+                            }
+                        } else {
+                            gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX, texSizeY,
+                                               uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                                               G_TX_NOMIRROR | G_TX_CLAMP, masks, maskt, G_TX_NOLOD, G_TX_NOLOD);
+                        }
+                    } else {
+                        gDPLoadTextureTile(gfx_disp_p++, imageAddr, G_IM_FMT_IA, G_IM_SIZ_8b, texSizeX, texSizeY, uls,
+                                           ult, lrs, lrt, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP, masks,
+                                           maskt, G_TX_NOLOD, G_TX_NOLOD);
+                    }
+                    break;
+            }
+
+            if (hudElement->flags & HUD_ELEMENT_FLAGS_FILTER_TEX) {
+                gSPScisTextureRectangle(gfx_disp_p++, ulx * 4, uly * 4, lrx * 4, lry * 4, 0, texStartX * 32 + 16,
+                                        texStartY * 32 + 16, widthScale, heightScale);
+            } else {
+                gSPScisTextureRectangle(gfx_disp_p++, ulx * 4, uly * 4, lrx * 4, lry * 4, 0, texStartX * 32,
+                                        texStartY * 32, widthScale, heightScale);
+            }
+            if (isLastTileX) {
+                break;
+            }
+            ulx += 1024.0 / widthScale * 64.0;
+            uls += 64;
+        }
+
+        if (isLastTileY) {
+            break;
+        }
+
+        ult += 32;
+        uly += 1024.0 / heightScale * 32.0;
+    }
+
+    gDPPipeSync(gfx_disp_p++);
+}
+
+void draw_hud_element(HudElement *elem) {
+    s32 texSizeX, texSizeY;
+    s32 drawSizeX, drawSizeY;
+    s32 offsetX, offsetY;
+    s32 preset;
+
+    if (elem->flags && !(elem->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
+        if (!(elem->flags & (HUD_ELEMENT_FLAGS_200000 | HUD_ELEMENT_FLAGS_10000000)) && (elem->drawSizePreset >= 0)) {
+            gDPPipeSync(gfx_disp_p++);
+            gDPSetCycleType(gfx_disp_p++, G_CYC_1CYCLE);
+            gDPSetTexturePersp(gfx_disp_p++, G_TP_NONE);
+            gDPSetTextureLOD(gfx_disp_p++, G_TL_TILE);
+            gDPSetTextureDetail(gfx_disp_p++, G_TD_CLAMP);
+            gDPSetTextureConvert(gfx_disp_p++, G_TC_FILT);
+            gDPSetCombineKey(gfx_disp_p++, G_CK_NONE);
+            gDPSetAlphaCompare(gfx_disp_p++, G_AC_NONE);
+            gDPNoOp(gfx_disp_p++);
+            gDPSetColorDither(gfx_disp_p++, G_CD_DISABLE);
+            gDPSetAlphaDither(gfx_disp_p++, G_AD_DISABLE);
+            gSPTexture(gfx_disp_p++, -1, -1, 0, G_TX_RENDERTILE, G_ON);
+
+            if (!(elem->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE)) {
+                if (!(elem->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                    preset = elem->tileSizePreset;
+                    texSizeX = gHudElementSizes[preset].width;
+                    texSizeY = gHudElementSizes[preset].height;
+                } else {
+                    texSizeX = elem->customImageSize.x;
+                    texSizeY = elem->customImageSize.y;
+                }
+
+                if (!(elem->flags & HUD_ELEMENT_FLAGS_SCALED)) {
+                    if (!(elem->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                        drawSizeX = gHudElementSizes[elem->drawSizePreset].width;
+                        drawSizeY = gHudElementSizes[elem->drawSizePreset].height;
+                    } else {
+                        drawSizeX = elem->customDrawSize.x;
+                        drawSizeY = elem->customDrawSize.y;
+                    }
+                } else {
+                    drawSizeX = elem->sizeX;
+                    drawSizeY = elem->sizeY;
+                }
+
+                do {
+                    offsetX = -drawSizeX / 2;
+                    offsetY = -drawSizeY / 2;
+                } while (0); // required to match
+
+                if (!(elem->flags & HUD_ELEMENT_FLAGS_REPEATED)) {
+                    if (elem->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
+                        hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 1, 1);
+                    }
+                    hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 1, 0);
+                } else {
+                    if (elem->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
+                        hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 0, 1);
+                    }
+                    hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 0, 0);
+                }
+            } else {
+                f32 xScaled, yScaled;
+
+                if (!(elem->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                    preset = elem->tileSizePreset;
+                    texSizeX = gHudElementSizes[preset].width;
+                    texSizeY = gHudElementSizes[preset].height;
+                } else {
+                    texSizeX = elem->customImageSize.x;
+                    texSizeY = elem->customImageSize.y;
+                }
+
+                drawSizeX = elem->unkImgScale[0];
+                drawSizeY = elem->unkImgScale[1];
+
+                offsetX = -elem->unkImgScale[0] / 2;
+                offsetY = -elem->unkImgScale[1] / 2;
+
+                xScaled = (f32)drawSizeX / (f32)texSizeX;
+                yScaled = (f32)drawSizeY / (f32)texSizeY;
+
+                xScaled = 1.0f / xScaled;
+                yScaled = 1.0f / yScaled;
+
+                elem->widthScale = X10(xScaled);
+                elem->heightScale = X10(yScaled);
+
+                if (elem->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
+                    hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 0, 1);
+                }
+                hud_element_draw_rect(elem, texSizeX, texSizeY, drawSizeX, drawSizeY, offsetX, offsetY, 0, 1);
+            }
+        }
+    }
+}

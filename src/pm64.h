@@ -8,84 +8,20 @@
 #define JP 0x00
 #define US 0x01
 
-typedef uint8_t u8;
-typedef int8_t s8;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint32_t u32;
-typedef int32_t s32;
-typedef uint64_t u64;
-typedef int64_t s64;
-typedef float f32;
-typedef double f64;
-
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
+#define ICON_PALETTE_SIZE 32
 #if PM64_VERSION == US
-#define ITEM_ICONS_ROM_START 0x1CC310
+#define ICONS_ITEMS_ROM_START      0x1CC310
+#define ICONS_PARTNERS_ROM_START   0x97890
 #else
-#define ITEM_ICONS_ROM_START 0x1D4720
+#define ICONS_ITEMS_ROM_START      0x1D4720
+#define ICONS_PARTNERS_ROM_START   0x97A20
 #endif
 
-typedef enum {
-    HUD_ELEMENT_OP_End,
-    HUD_ELEMENT_OP_SetRGBA,
-    HUD_ELEMENT_OP_SetCI,
-    HUD_ELEMENT_OP_Restart,
-    HUD_ELEMENT_OP_Loop,
-    HUD_ELEMENT_OP_SetTileSize,
-    HUD_ELEMENT_OP_SetSizesAutoScale,
-    HUD_ELEMENT_OP_SetSizesFixedScale,
-    HUD_ELEMENT_OP_SetVisible,
-    HUD_ELEMENT_OP_SetHidden,
-    HUD_ELEMENT_OP_AddTexelOffsetX,
-    HUD_ELEMENT_OP_AddTexelOffsetY,
-    HUD_ELEMENT_OP_AddTexelOffset,
-    HUD_ELEMENT_OP_SetImage,
-    HUD_ELEMENT_OP_SetScale,
-    HUD_ELEMENT_OP_SetAlpha,
-    HUD_ELEMENT_OP_RandomDelay,
-    HUD_ELEMENT_OP_Delete,
-    HUD_ELEMENT_OP_UseIA8,
-    HUD_ELEMENT_OP_SetCustomSize,
-    HUD_ELEMENT_OP_RandomRestart,
-    HUD_ELEMENT_OP_op_15,
-    HUD_ELEMENT_OP_op_16,
-    HUD_ELEMENT_OP_RandomBranch,
-    HUD_ELEMENT_OP_SetFlags,
-    HUD_ELEMENT_OP_ClearFlags,
-    HUD_ELEMENT_OP_PlaySound,
-    HUD_ELEMENT_OP_op_1B,
-} HudElementAnim[0];
 
-enum {
-    HUD_ELEMENT_SIZE_8x8,
-    HUD_ELEMENT_SIZE_16x16,
-    HUD_ELEMENT_SIZE_24x24,
-    HUD_ELEMENT_SIZE_32x32,
-    HUD_ELEMENT_SIZE_48x48,
-    HUD_ELEMENT_SIZE_64x64,
-    HUD_ELEMENT_SIZE_8x16,
-    HUD_ELEMENT_SIZE_16x8,
-    HUD_ELEMENT_SIZE_16x24,
-    HUD_ELEMENT_SIZE_16x32,
-    HUD_ELEMENT_SIZE_64x32,
-    HUD_ELEMENT_SIZE_32x16,
-    HUD_ELEMENT_SIZE_12x12,
-    HUD_ELEMENT_SIZE_48x24,
-    HUD_ELEMENT_SIZE_32x8,
-    HUD_ELEMENT_SIZE_24x8,
-    HUD_ELEMENT_SIZE_64x16,
-    HUD_ELEMENT_SIZE_16x64,
-    HUD_ELEMENT_SIZE_192x32,
-    HUD_ELEMENT_SIZE_40x40,
-    HUD_ELEMENT_SIZE_24x16,
-    HUD_ELEMENT_SIZE_32x40,
-    HUD_ELEMENT_SIZE_40x16,
-    HUD_ELEMENT_SIZE_40x24,
-    HUD_ELEMENT_SIZE_32x24,
-};
+typedef s32 HudScript[0];
 
 typedef s32 OSPri;
 typedef s32 OSId;
@@ -98,16 +34,74 @@ typedef union {
 } __OSfp;
 
 typedef struct {
-    /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
-    /* 0x08 */ f32 z;
-} vec3f_t; // size = 0x0C
+    u8 r, g, b;
+} Color_RGB8;
 
-typedef struct {
+typedef struct Vec2b {
+    /* 0x00 */ s8 x;
+    /* 0x01 */ s8 y;
+} Vec2b; // size = 0x02
+
+typedef struct Vec2bu {
+    /* 0x00 */ u8 x;
+    /* 0x01 */ u8 y;
+} Vec2bu; // size = 0x02
+
+typedef struct Vec3b {
+    /* 0x00 */ s8 x;
+    /* 0x01 */ s8 y;
+    /* 0x02 */ s8 z;
+} Vec3b; // size = 0x03
+
+typedef struct Vec2s {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+} Vec2s; // size = 0x04
+
+typedef struct Vec2su {
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 y;
+} Vec2su; // size = 0x04
+
+typedef struct Vec3s {
     /* 0x00 */ s16 x;
     /* 0x02 */ s16 y;
     /* 0x04 */ s16 z;
-} vec3s_t; // size = 0x06
+} Vec3s; // size = 0x06
+
+typedef struct Vec2i {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+} Vec2i; // size = 0x08
+
+typedef struct Vec3i {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+    /* 0x08 */ s32 z;
+} Vec3i; // size = 0x0C
+
+typedef struct Vec2f {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+} Vec2f; // size = 0x08
+
+typedef struct Vec2XZf {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 z;
+} Vec2XZf; // size = 0x08
+
+typedef struct Vec3f {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+} Vec3f; // size = 0x0C
+
+typedef struct Vec4f {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 yaw;
+} Vec4f; // size = 0x10
 
 typedef struct {
     /* 0x0000 */ s8 x_cardinal;
@@ -183,7 +177,7 @@ typedef struct {
     /* 0x0090 */ u16 unk_0x90;
     /* 0x0092 */ u16 unk_0x92;
     /* 0x0094 */ f32 loading_zone_tangent;
-    /* 0x0098 */ vec3f_t player_position_copy;
+    /* 0x0098 */ Vec3f player_position_copy;
     /* 0x00A4 */ f32 player_angle_copy;
     /* 0x00A8 */ char unk_A8[0x04];
     /* 0x00AC */ s8 load_menu_state;
@@ -195,7 +189,7 @@ typedef struct {
     /* 0x00BA */ s16 boot_green;
     /* 0x00BC */ s16 boot_red;
     /* 0x00BE */ char unk_BE[0x6A];
-    /* 0x0128 */ vec3f_t player_trace_normal;
+    /* 0x0128 */ Vec3f player_trace_normal;
     /* 0x0134 */ u16 frame_counter;
     /* 0x0136 */ char unk_136[0x02];
     /* 0x0138 */ s32 next_rng;
@@ -211,7 +205,7 @@ typedef struct {
     /* 0x0158 */ void *background_palette;
     /* 0x015C */ s16 unk_15C;
     /* 0x015E */ u16 unk_15E;
-    /* 0x0160 */ vec3s_t saved_pos;
+    /* 0x0160 */ Vec3s saved_pos;
     /* 0x0166 */ u8 save_slot;
     /* 0x0167 */ u8 load_type; /* 0 = from map, 1 = from main menu */
     /* 0x0168 */ s32 save_count;
@@ -380,7 +374,7 @@ typedef struct {
     /* 0x0018 */ s16 truncated_y;
     /* 0x001A */ s16 truncated_z; /*used for hazard respawns*/
     /* 0x001C */ char unk_0x1C[0x0C];
-    /* 0x0028 */ vec3f_t position;
+    /* 0x0028 */ Vec3f position;
     /* 0x0034 */ char unk_0x34[0x08];
     /* 0x003C */ f32 jumped_from_x;
     /* 0x0040 */ f32 jumped_from_z;
@@ -465,7 +459,7 @@ typedef struct {
     /* 0x12B0 */ u32 area_flags[8];
     /* 0x12D0 */ s8 area_bytes[16];
     /* 0x12E0 */ char unk_12E0[6];
-    /* 0x12E6 */ vec3s_t position;
+    /* 0x12E6 */ Vec3s position;
     /* 0x12EC */ s32 unk_12EC;
     /* 0x12F0 */ s8 unk_12F0[12]; /* player name starts at 4th char */
     /* 0x12FC */ s32 unk_12FC;
@@ -533,9 +527,9 @@ typedef struct {
 } actor_desc_t; // size = 0x28
 
 typedef struct {
-    /* 0x00 */ vec3f_t current_pos;
-    /* 0x0C */ vec3f_t goal_pos;
-    /* 0x18 */ vec3f_t unk_18;
+    /* 0x00 */ Vec3f current_pos;
+    /* 0x0C */ Vec3f goal_pos;
+    /* 0x18 */ Vec3f unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ f32 acceleration;
     /* 0x40 */ f32 speed;
@@ -545,9 +539,9 @@ typedef struct {
 } actor_movement_t; // size = 0x50;
 
 typedef struct {
-    /* 0x00 */ vec3f_t current_pos;
-    /* 0x0C */ vec3f_t goal_pos;
-    /* 0x18 */ vec3f_t unk_18;
+    /* 0x00 */ Vec3f current_pos;
+    /* 0x0C */ Vec3f goal_pos;
+    /* 0x18 */ Vec3f unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ f32 acceleration;
     /* 0x40 */ f32 speed;
@@ -591,21 +585,21 @@ typedef struct {
     /* 0x135 */ u8 foot_step_counter;
     /* 0x136 */ u8 actor_type;
     /* 0x137 */ char unk_137;
-    /* 0x138 */ vec3f_t home_pos;
-    /* 0x144 */ vec3f_t current_pos;
+    /* 0x138 */ Vec3f home_pos;
+    /* 0x144 */ Vec3f current_pos;
     /* 0x150 */ s16 head_offset_x;
     /* 0x152 */ s16 head_offset_y;
     /* 0x154 */ s16 head_offset_z;
     /* 0x156 */ s16 health_bar_position_x;
     /* 0x158 */ s16 health_bar_position_y;
     /* 0x15A */ s16 health_bar_position_z;
-    /* 0x15C */ vec3f_t rotation;
+    /* 0x15C */ Vec3f rotation;
     /* 0x168 */ s16 rotation_pivot_offset_x;
     /* 0x16A */ s16 rotation_pivot_offset_y;
     /* 0x16C */ s16 rotation_pivot_offset_z;
     /* 0x16E */ char unk_16E[2];
-    /* 0x170 */ vec3f_t scale;
-    /* 0x17C */ vec3f_t scale_modifier; /* multiplies normal scale factors componentwise */
+    /* 0x170 */ Vec3f scale;
+    /* 0x17C */ Vec3f scale_modifier; /* multiplies normal scale factors componentwise */
     /* 0x188 */ f32 scaling_factor;
     /* 0x18C */ f32 yaw;
     /* 0x190 */ u8 size_x;
@@ -903,22 +897,22 @@ typedef struct Camera {
     /* 0x028 */ s16 unk_28;
     /* 0x02A */ s16 zoomPercent;
     /* 0x02C */ s16 bgColor[3];
-    /* 0x032 */ vec3s_t targetScreenCoords;
+    /* 0x032 */ Vec3s targetScreenCoords;
     /* 0x038 */ u16 perspNorm;
     /* 0x03A */ char unk_3A[2];
-    /* 0x03C */ vec3f_t lookAt_eye;
-    /* 0x048 */ vec3f_t lookAt_obj;
+    /* 0x03C */ Vec3f lookAt_eye;
+    /* 0x048 */ Vec3f lookAt_obj;
     /* 0x054 */ f32 unk_54;
     /* 0x058 */ f32 unk_58;
     /* 0x05C */ f32 unk_5C;
-    /* 0x060 */ vec3f_t targetPos;
+    /* 0x060 */ Vec3f targetPos;
     /* 0x06C */ f32 currentYaw;
     /* 0x070 */ f32 unk_70;
     /* 0x074 */ f32 currentBoomYaw;
     /* 0x078 */ f32 currentBoomLength;
     /* 0x07C */ f32 currentYOffset;
     /* 0x080 */ char unk_80[4];
-    /* 0x084 */ vec3f_t trueRotation;
+    /* 0x084 */ Vec3f trueRotation;
     /* 0x090 */ f32 currentBlendedYawNegated;
     /* 0x094 */ f32 currentPitch;
 } Camera; // size = 0x558
@@ -979,21 +973,75 @@ typedef struct {
     /* 0x0050 */ s32 next_available_save_page;
 } save_info_ctxt_t;
 
-typedef struct StaticItem {
+typedef struct ItemData {
     /* 0x00 */ s32 nameMsg;
-    /* 0x04 */ s16 iconID;
-    /* 0x06 */ s16 badgeSortPriority;
+    /* 0x04 */ s16 hudElemID;
+    /* 0x06 */ s16 sortValue;
     /* 0x08 */ s32 targetFlags;
     /* 0x0C */ s16 sellValue;
     /* 0x0E */ char unk_0E[2];
-    /* 0x10 */ s32 menuMsg;
-    /* 0x14 */ s32 itemMsg;
+    /* 0x10 */ s32 fullDescMsg;
+    /* 0x14 */ s32 shortDescMsg;
     /* 0x18 */ s16 typeFlags;
     /* 0x1A */ u8 moveID;
     /* 0x1B */ s8 potencyA;
     /* 0x1C */ s8 potencyB;
     /* 0x1D */ char unk_1D[3];
-} StaticItem; // size = 0x20
+} ItemData; // size = 0x20
+
+typedef struct VtxRect {
+    Vtx vtx[4];
+} VtxRect; // size = 0x40
+
+typedef struct HudTransform {
+    /* 0x00 */ s32 foldIdx;
+    /* 0x04 */ Vec3f position;
+    /* 0x10 */ Vec3f rotation;
+    /* 0x1C */ Vec3f scale;
+    /* 0x28 */ Vec2s pivot;
+    /* 0x30 */ VtxRect unk_30[3];
+} HudTransform; // size = 0xF0
+
+typedef struct HudElement {
+    /* 0x00 */ u32 flags;
+    /* 0x04 */ HudScript *readPos;
+    /* 0x08 */ HudScript *anim;
+    /* 0x0C */ HudScript *loopStartPos;
+    /* 0x10 */ u8 *rasterAddr;
+    /* 0x14 */ u8 *paletteAddr;
+    /* 0x18 */ s32 memOffset;
+    /* 0x1C */ HudTransform *hudTransform;
+    /* 0x20 */ f32 deltaSizeX;
+    /* 0x24 */ f32 deltaSizeY;
+    /* 0x28 */ f32 unkImgScale[2];
+    /* 0x30 */ f32 uniformScale;
+    /* 0x34 */ s32 widthScale;  ///< X10
+    /* 0x38 */ s32 heightScale; ///< X10
+    /* 0x3C */ s16 renderPosX;
+    /* 0x3E */ s16 renderPosY;
+    /* 0x40 */ Vec2b screenPosOffset;
+    /* 0x42 */ Vec3b worldPosOffset;
+    /* 0x45 */ s8 drawSizePreset;
+    /* 0x46 */ s8 tileSizePreset;
+    /* 0x47 */ s8 updateTimer;
+    /* 0x48 */ u8 sizeX; /* screen size? */
+    /* 0x49 */ u8 sizeY; /* screen size? */
+    /* 0x4A */ u8 opacity;
+    /* 0x4B */ Color_RGB8 tint;
+    /* 0x4E */ Vec2bu customImageSize;
+    /* 0x50 */ Vec2bu customDrawSize;
+} HudElement; // size = 0x54
+
+typedef struct HudElementSize {
+    s16 width;
+    s16 height;
+    s16 size;
+} HudElementSize;
+
+typedef struct IconHudScriptPair {
+    /* 0x00 */ HudScript *enabled;
+    /* 0x04 */ HudScript *disabled;
+} IconHudScriptPair; // size = 0x08
 
 typedef __OSEventState __osEventStateTab_t[];
 typedef void *(*PrintCallback)(void *, const char *, u32);
@@ -1007,8 +1055,9 @@ extern_data Gfx *pm_MasterGfxPos;
 extern_data save_info_ctxt_t pm_save_info;
 extern_data s16 pm_MapChangeState;
 extern_data u32 pm_enemy_defeat_flags[600];
-extern_data StaticItem gItemTable[364];
-extern_data u32 *pm_IconScripts[337][2];
+extern_data ItemData gItemTable[0x16C];
+extern_data IconHudScriptPair gItemHudScripts[337];
+extern_data HudElementSize gHudElementSizes[26];
 extern_data s32 pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
@@ -1026,7 +1075,6 @@ extern_data Camera pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
 extern_data s16 pm_GameMode;
 extern_data s8 D_800A0900;
-
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
 extern_data s32 pm_GameState;
@@ -1049,6 +1097,7 @@ void pm_HidePopupMenu(void);
 void pm_DestroyPopupMenu(void);
 void pm_SetGameMode(s32 mode);
 void pm_RemoveEffect(EffectInstance *effect);
+void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
 void pm_FioReadFlash(s32 slot, void *buffer, u32 size);
 void pm_FioWriteFlash(s32 slot, void *buffer, u32 size);
 s32 draw_ci_image_with_clipping(u8 *texture, s32 width, s32 height, s32 fmt, s32 size, u16 *palette, s16 posX, s16 posY,

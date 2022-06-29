@@ -10,7 +10,7 @@
 #include "io.h"
 #include "resource.h"
 #include "watchlist.h"
-#include "item_icons.h"
+#include "icons.h"
 #include "crash_screen.h"
 #include "sys.h"
 
@@ -103,6 +103,20 @@ void fp_init() {
     fp.cam_pos.z = 0;
     fp.cam_enabled_before = 0;
     fp.action_command_trainer_enabled = 0;
+    
+    for (s32 i = 0; i < HUD_ELEMENT_LIST_SIZE; i++) {
+        fp.hud_elements.hud_element_list[i] = NULL;
+    }
+    for (s32 i = 0; i < RASTER_CACHE_SIZE; i++) {
+        fp.hud_elements.raster_cache[i].id = 0;
+        fp.hud_elements.raster_cache[i].data_size = 0;
+        fp.hud_elements.raster_cache[i].data = NULL;
+    }
+    for (s32 i = 0; i < PALETTE_CACHE_SIZE; i++) {
+        fp.hud_elements.palette_cache[i].id = 0;
+        fp.hud_elements.palette_cache[i].data_size = 0;
+        fp.hud_elements.palette_cache[i].data = NULL;
+    }
 
     io_init();
 
@@ -239,7 +253,6 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     if (pm_status.load_menu_state > 0) {
-        item_icon_draw(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255, ICON_COLOR);
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
         gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
         gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
@@ -690,12 +703,12 @@ void fp_cam_update() {
         } else {
             fp_update_cam();
         }
-        vec3f_t *camera_at = &pm_gCameras->lookAt_obj;
-        vec3f_t *camera_eye = &pm_gCameras->lookAt_eye;
+        Vec3f *camera_at = &pm_gCameras->lookAt_obj;
+        Vec3f *camera_eye = &pm_gCameras->lookAt_eye;
 
         *camera_eye = fp.cam_pos;
 
-        vec3f_t vf;
+        Vec3f vf;
         vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
         vec3f_add(camera_at, camera_eye, &vf);
     }
@@ -835,6 +848,7 @@ ENTRY void fp_update_entry(void) {
 
     if (!fp.ready) {
         init_stack(fp_init);
+        PRINTF("\n**** fp initialized ****\n\n");
     }
 
     step_game_loop();

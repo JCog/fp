@@ -1,7 +1,18 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-typedef int8_t ActionState;
+typedef uint8_t u8;
+typedef int8_t s8;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef uint32_t u32;
+typedef int32_t s32;
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef float f32;
+typedef double f64;
+
+typedef u8 ActionState;
 enum action_state {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
@@ -46,7 +57,7 @@ enum action_state {
     ACTION_STATE_USE_SPRING,
 };
 
-typedef uint16_t Area;
+typedef u16 Area;
 enum areas {
     AREA_GOOMBA_VILLAGE,
     AREA_TOAD_TOWN,
@@ -78,7 +89,7 @@ enum areas {
     AREA_DEBUG,
 };
 
-typedef uint8_t Partner;
+typedef u8 Partner;
 enum partners {
     PARTNER_NONE,
     PARTNER_GOOMBARIO,
@@ -94,7 +105,8 @@ enum partners {
     PARTNER_TWINK,
 };
 
-enum ItemIDs {
+typedef u16 Item;
+enum items {
     /*0x000*/ ITEM_NONE,
     /*0x001*/ ITEM_JUMP,
     /*0x002*/ ITEM_SPIN_JUMP,
@@ -698,6 +710,101 @@ enum StoryProgress {
     /* 5f */ STORY_CH8_REACHED_PEACHS_CASTLE,
 
     /* 60 */ STORY_EPILOGUE,
+};
+
+typedef s32 HudScript[0];
+enum {
+    /* 0x00 */ HUD_ELEMENT_OP_End,
+    /* 0x01 */ HUD_ELEMENT_OP_SetRGBA,
+    /* 0x02 */ HUD_ELEMENT_OP_SetCI,
+    /* 0x03 */ HUD_ELEMENT_OP_Restart,
+    /* 0x04 */ HUD_ELEMENT_OP_Loop,
+    /* 0x05 */ HUD_ELEMENT_OP_SetTileSize,
+    /* 0x06 */ HUD_ELEMENT_OP_SetSizesAutoScale,
+    /* 0x07 */ HUD_ELEMENT_OP_SetSizesFixedScale,
+    /* 0x08 */ HUD_ELEMENT_OP_SetVisible,
+    /* 0x09 */ HUD_ELEMENT_OP_SetHidden,
+    /* 0x0A */ HUD_ELEMENT_OP_AddTexelOffsetX,
+    /* 0x0B */ HUD_ELEMENT_OP_AddTexelOffsetY,
+    /* 0x0C */ HUD_ELEMENT_OP_SetTexelOffset,
+    /* 0x0D */ HUD_ELEMENT_OP_SetImage,
+    /* 0x0E */ HUD_ELEMENT_OP_SetScale,
+    /* 0x0F */ HUD_ELEMENT_OP_SetAlpha,
+    /* 0x10 */ HUD_ELEMENT_OP_RandomDelay,
+    /* 0x11 */ HUD_ELEMENT_OP_Delete,
+    /* 0x12 */ HUD_ELEMENT_OP_UseIA8,
+    /* 0x13 */ HUD_ELEMENT_OP_SetCustomSize,
+    /* 0x14 */ HUD_ELEMENT_OP_RandomRestart,
+    /* 0x15 */ HUD_ELEMENT_OP_op_15,
+    /* 0x16 */ HUD_ELEMENT_OP_op_16,
+    /* 0x17 */ HUD_ELEMENT_OP_RandomBranch,
+    /* 0x18 */ HUD_ELEMENT_OP_SetFlags,
+    /* 0x19 */ HUD_ELEMENT_OP_ClearFlags,
+    /* 0x1A */ HUD_ELEMENT_OP_PlaySound,
+    /* 0x1B */ HUD_ELEMENT_OP_SetPivot,
+};
+
+enum {
+    /* 0x00 */ HUD_ELEMENT_SIZE_8x8,
+    /* 0x01 */ HUD_ELEMENT_SIZE_16x16,
+    /* 0x02 */ HUD_ELEMENT_SIZE_24x24,
+    /* 0x03 */ HUD_ELEMENT_SIZE_32x32,
+    /* 0x04 */ HUD_ELEMENT_SIZE_48x48,
+    /* 0x05 */ HUD_ELEMENT_SIZE_64x64,
+    /* 0x06 */ HUD_ELEMENT_SIZE_8x16,
+    /* 0x07 */ HUD_ELEMENT_SIZE_16x8,
+    /* 0x08 */ HUD_ELEMENT_SIZE_16x24,
+    /* 0x09 */ HUD_ELEMENT_SIZE_16x32,
+    /* 0x0A */ HUD_ELEMENT_SIZE_64x32,
+    /* 0x0B */ HUD_ELEMENT_SIZE_32x16,
+    /* 0x0C */ HUD_ELEMENT_SIZE_12x12,
+    /* 0x0D */ HUD_ELEMENT_SIZE_48x24,
+    /* 0x0E */ HUD_ELEMENT_SIZE_32x8,
+    /* 0x0F */ HUD_ELEMENT_SIZE_24x8,
+    /* 0x10 */ HUD_ELEMENT_SIZE_64x16,
+    /* 0x11 */ HUD_ELEMENT_SIZE_16x64,
+    /* 0x12 */ HUD_ELEMENT_SIZE_192x32,
+    /* 0x13 */ HUD_ELEMENT_SIZE_40x40,
+    /* 0x14 */ HUD_ELEMENT_SIZE_24x16,
+    /* 0x15 */ HUD_ELEMENT_SIZE_32x40,
+    /* 0x16 */ HUD_ELEMENT_SIZE_40x16,
+    /* 0x17 */ HUD_ELEMENT_SIZE_40x24,
+    /* 0x18 */ HUD_ELEMENT_SIZE_32x24,
+};
+
+enum HudElementFlags {
+    HUD_ELEMENT_FLAGS_INITIALIZED = 0x00000001,
+    HUD_ELEMENT_FLAGS_DISABLED = 0x00000002,
+    HUD_ELEMENT_FLAGS_ANIMATION_FINISHED = 0x00000004,
+    HUD_ELEMENT_FLAGS_8 = 0x00000008,
+    HUD_ELEMENT_FLAGS_SCALED = 0x00000010,
+    HUD_ELEMENT_FLAGS_TRANSPARENT = 0x00000020,
+    HUD_ELEMENT_FLAGS_FRONTUI = 0x00000040,
+    HUD_ELEMENT_FLAGS_80 = 0x00000080,
+    HUD_ELEMENT_FLAGS_FIXEDSCALE = 0x00000100,
+    HUD_ELEMENT_FLAGS_200 = 0x00000200,
+    HUD_ELEMENT_FLAGS_BATTLE = 0x00000400,
+    HUD_ELEMENT_FLAGS_REPEATED = 0x00000800,
+    HUD_ELEMENT_FLAGS_FLIPX = 0x00001000,
+    HUD_ELEMENT_FLAGS_FLIPY = 0x00002000,
+    HUD_ELEMENT_FLAGS_FMT_CI4 = 0x00004000,
+    HUD_ELEMENT_FLAGS_FILTER_TEX = 0x00008000,
+    HUD_ELEMENT_FLAGS_TRANSFORM = 0x00010000,
+    HUD_ELEMENT_FLAGS_NO_FOLD = 0x00020000,
+    HUD_ELEMENT_FLAGS_DELETE = 0x00040000,
+    HUD_ELEMENT_FLAGS_FMT_IA8 = 0x00080000,
+    HUD_ELEMENT_FLAGS_CUSTOM_SIZE = 0x00100000,
+    HUD_ELEMENT_FLAGS_200000 = 0x00200000,
+    HUD_ELEMENT_FLAGS_MEMOFFSET = 0x00400000,
+    HUD_ELEMENT_FLAGS_ANTIALIASING = 0x00800000,
+    HUD_ELEMENT_FLAGS_1000000 = 0x01000000,
+    HUD_ELEMENT_FLAGS_2000000 = 0x02000000,
+    HUD_ELEMENT_FLAGS_4000000 = 0x04000000,
+    HUD_ELEMENT_FLAGS_8000000 = 0x08000000,
+    HUD_ELEMENT_FLAGS_10000000 = 0x10000000,
+    HUD_ELEMENT_FLAGS_DROP_SHADOW = 0x20000000,
+    HUD_ELEMENT_FLAGS_40000000 = 0x40000000,
+    HUD_ELEMENT_FLAGS_80000000 = 0x80000000,
 };
 
 #endif
