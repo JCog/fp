@@ -97,6 +97,7 @@ typedef struct {
     u16 last_a_press;
     u16 last_valid_frame;
     Icon *fp_icon;
+    Icon *test_icons[10]; //TODO: remove before PR
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

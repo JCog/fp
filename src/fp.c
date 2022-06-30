@@ -813,6 +813,17 @@ void fp_draw(void) {
     if (!fp.version_shown) {
         fp_draw_version(font, cell_width, cell_height, menu_alpha);
     }
+    
+    //TODO: remove before PR
+    if (fp.test_icons[0] == NULL) {
+        fp.test_icons[0] = icons_create_global(Icon_MashAButton, 32, 32, 255, 1.0f);
+    } else {
+        for (u32 i = 0; i < 10; i++) {
+            if (fp.test_icons[i] != NULL) {
+                icons_draw(fp.test_icons[i]);
+            }
+        }
+    }
 
     if (settings->bits.input_display) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
