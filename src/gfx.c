@@ -8,6 +8,7 @@
 #include "gfx.h"
 #include "pm64.h"
 #include "fp.h"
+#include "game_icons.h"
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;
@@ -35,6 +36,10 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
 static void flush_chars(void);
 static void gfx_printf_n_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
 static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
+
+static void draw_game_icon(game_icon *elem);
+static void hud_element_draw_rect(game_icon *hudElement, s16 texSizeX, s16 texSizeY, s16 drawSizeX, s16 drawSizeY,
+                                  s16 offsetX, s16 offsetY, s32 clamp, s32 dropShadow);
 
 static inline void gfx_sync(void) {
     if (!gfx_synced) {
@@ -168,7 +173,11 @@ void *gfx_data_append(void *data, size_t size) {
 
 void gfx_flush(void) {
     flush_chars();
-    icons_update();
+    game_icon *next_icon = game_icons_update_next();
+    while (next_icon) {
+        draw_game_icon(next_icon);
+        next_icon = game_icons_update_next(next_icon);
+    }
     gSPEndDisplayList(gfx_disp_p++);
     gSPDisplayList(pm_MasterGfxPos++, gfx_disp);
     Gfx *disp_w = gfx_disp_w;
@@ -592,8 +601,8 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
     gfx_char_font = font;
 }
 
-void hud_element_draw_rect(HudElement *hudElement, s16 texSizeX, s16 texSizeY, s16 drawSizeX, s16 drawSizeY,
-                           s16 offsetX, s16 offsetY, s32 clamp, s32 dropShadow) {
+static void hud_element_draw_rect(game_icon *hudElement, s16 texSizeX, s16 texSizeY, s16 drawSizeX, s16 drawSizeY,
+                                  s16 offsetX, s16 offsetY, s32 clamp, s32 dropShadow) {
     u32 isFmtCI4;
     u32 isFmtIA8;
     s32 flipX, flipY;
@@ -953,7 +962,7 @@ void hud_element_draw_rect(HudElement *hudElement, s16 texSizeX, s16 texSizeY, s
     gDPPipeSync(gfx_disp_p++);
 }
 
-void draw_hud_element(HudElement *elem) {
+static void draw_game_icon(game_icon *elem) {
     s32 texSizeX, texSizeY;
     s32 drawSizeX, drawSizeY;
     s32 offsetX, offsetY;

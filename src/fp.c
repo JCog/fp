@@ -13,6 +13,7 @@
 #include "crash_screen.h"
 #include "sys.h"
 #include "util.h"
+#include "game_icons.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -43,8 +44,6 @@ void fp_init() {
     gfx_start();
     gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
-
-    icons_init();
 
     fp.profile = 0;
     fp.settings_loaded = 0;
@@ -240,17 +239,19 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY(S)  STRINGIFY_(S)
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    if (fp.fp_icon == NULL) {
-        fp.fp_icon = icons_create_item(ITEM_FP_PLUS_A, 31, SCREEN_HEIGHT - 49, 255, 1.0f, 0);
+    static game_icon *fp_icon;
+    if (fp_icon == NULL) {
+        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 31, SCREEN_HEIGHT - 49, 255, 1.0f, 0);
     }
-    icons_draw(fp.fp_icon);
+    game_icons_draw(fp_icon);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
     gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
     gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
 
     if (pm_status.load_menu_state == 5) {
         fp.version_shown = 1;
-        icons_delete(fp.fp_icon);
+        game_icons_delete(fp_icon);
+        fp_icon = NULL;
     }
 }
 

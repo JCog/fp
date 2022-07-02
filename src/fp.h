@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <vector/vector.h>
 #include "pm64.h"
-#include "icons.h"
 #include "settings.h"
 
 enum cam_mode {
@@ -96,8 +95,6 @@ typedef struct {
     _Bool action_command_trainer_enabled;
     u16 last_a_press;
     u16 last_valid_frame;
-    Icon *fp_icon;
-    Icon *test_icons[10]; // TODO: remove before PR
 } fp_ctxt_t;
 
 extern fp_ctxt_t fp;

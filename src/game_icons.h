@@ -1,9 +1,7 @@
 #ifndef ITEM_ICONS_H
 #define ITEM_ICONS_H
-
-#include "gfx.h"
-
-typedef HudElement Icon;
+#include "enums.h"
+#include "fp.h"
 
 typedef enum {
     Icon_ArrowLeft = 0x0,
@@ -206,14 +204,58 @@ typedef enum {
     Icon_MoveRedOrbDisabled = 0x4AA0
 } icon_global;
 
-Icon *icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha, f32 scale); /// note that not every icon works yet
-Icon *icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
-Icon *icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
+typedef struct {
+    /* 0x00 */ s32 foldIdx;
+    /* 0x04 */ Vec3f position;
+    /* 0x10 */ Vec3f rotation;
+    /* 0x1C */ Vec3f scale;
+    /* 0x28 */ Vec2s pivot;
+    /* 0x30 */ VtxRect unk_30[3];
+} game_icon_transform; // size = 0xF0
 
-void icons_init();
-void icons_update();
+typedef struct {
+    /* 0x00 */ u32 flags;
+    /* 0x04 */ HudScript *readPos;
+    /* 0x08 */ HudScript *anim;
+    /* 0x0C */ HudScript *loopStartPos;
+    /* 0x10 */ u8 *rasterAddr;
+    /* 0x14 */ u8 *paletteAddr;
+    /* 0x18 */ s32 memOffset;
+    /* 0x1C */ game_icon_transform *hudTransform;
+    /* 0x20 */ f32 deltaSizeX;
+    /* 0x24 */ f32 deltaSizeY;
+    /* 0x28 */ f32 unkImgScale[2];
+    /* 0x30 */ f32 uniformScale;
+    /* 0x34 */ s32 widthScale;  ///< X10
+    /* 0x38 */ s32 heightScale; ///< X10
+    /* 0x3C */ s16 renderPosX;
+    /* 0x3E */ s16 renderPosY;
+    /* 0x40 */ Vec2b screenPosOffset;
+    /* 0x42 */ Vec3b worldPosOffset;
+    /* 0x45 */ s8 drawSizePreset;
+    /* 0x46 */ s8 tileSizePreset;
+    /* 0x47 */ s8 updateTimer;
+    /* 0x48 */ u8 sizeX; /* screen size? */
+    /* 0x49 */ u8 sizeY; /* screen size? */
+    /* 0x4A */ u8 opacity;
+    /* 0x4B */ Color_RGB8 tint;
+    /* 0x4E */ Vec2bu customImageSize;
+    /* 0x50 */ Vec2bu customDrawSize;
+} game_icon; // size = 0x54
 
-void icons_draw(Icon *icon);
-void icons_delete(Icon *icon);
+game_icon *game_icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha,
+                                    f32 scale); /// note that not every icon works yet
+game_icon *game_icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
+game_icon *game_icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
+
+void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y);
+void game_icons_set_scale(game_icon *icon, f32 scale);
+void game_icons_set_alpha(game_icon *icon, s32 opacity);
+void game_icons_set_tint(game_icon *icon, u8 r, u8 g, u8 b);
+
+void game_icons_draw(game_icon *icon);
+void game_icons_delete(game_icon *icon);
+
+game_icon *game_icons_update_next();
 
 #endif

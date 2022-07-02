@@ -1,5 +1,6 @@
 #ifndef ENUMS_H
 #define ENUMS_H
+#include <stdint.h>
 
 typedef uint8_t u8;
 typedef int8_t s8;
@@ -712,7 +713,6 @@ enum StoryProgress {
     /* 60 */ STORY_EPILOGUE,
 };
 
-typedef s32 HudScript[0];
 enum {
     /* 0x00 */ HUD_ELEMENT_OP_End,
     /* 0x01 */ HUD_ELEMENT_OP_SetRGBA,

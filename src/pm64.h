@@ -24,8 +24,6 @@
 
 typedef s32 HudScript[0];
 
-typedef s32 OSPri;
-typedef s32 OSId;
 typedef union {
     struct {
         f32 f_odd;
@@ -994,45 +992,6 @@ typedef struct VtxRect {
     Vtx vtx[4];
 } VtxRect; // size = 0x40
 
-typedef struct HudTransform {
-    /* 0x00 */ s32 foldIdx;
-    /* 0x04 */ Vec3f position;
-    /* 0x10 */ Vec3f rotation;
-    /* 0x1C */ Vec3f scale;
-    /* 0x28 */ Vec2s pivot;
-    /* 0x30 */ VtxRect unk_30[3];
-} HudTransform; // size = 0xF0
-
-typedef struct HudElement {
-    /* 0x00 */ u32 flags;
-    /* 0x04 */ HudScript *readPos;
-    /* 0x08 */ HudScript *anim;
-    /* 0x0C */ HudScript *loopStartPos;
-    /* 0x10 */ u8 *rasterAddr;
-    /* 0x14 */ u8 *paletteAddr;
-    /* 0x18 */ s32 memOffset;
-    /* 0x1C */ HudTransform *hudTransform;
-    /* 0x20 */ f32 deltaSizeX;
-    /* 0x24 */ f32 deltaSizeY;
-    /* 0x28 */ f32 unkImgScale[2];
-    /* 0x30 */ f32 uniformScale;
-    /* 0x34 */ s32 widthScale;  ///< X10
-    /* 0x38 */ s32 heightScale; ///< X10
-    /* 0x3C */ s16 renderPosX;
-    /* 0x3E */ s16 renderPosY;
-    /* 0x40 */ Vec2b screenPosOffset;
-    /* 0x42 */ Vec3b worldPosOffset;
-    /* 0x45 */ s8 drawSizePreset;
-    /* 0x46 */ s8 tileSizePreset;
-    /* 0x47 */ s8 updateTimer;
-    /* 0x48 */ u8 sizeX; /* screen size? */
-    /* 0x49 */ u8 sizeY; /* screen size? */
-    /* 0x4A */ u8 opacity;
-    /* 0x4B */ Color_RGB8 tint;
-    /* 0x4E */ Vec2bu customImageSize;
-    /* 0x50 */ Vec2bu customDrawSize;
-} HudElement; // size = 0x54
-
 typedef struct HudElementSize {
     s16 width;
     s16 height;
@@ -1084,8 +1043,6 @@ extern_data s32 pm_GameState;
 void osSyncPrintf(const char *fmt, ...);
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);
-void osCreateMesgQueue(OSMesgQueue *queue, OSMesg *msg, s32 unk);
-s32 osRecvMesg(OSMesgQueue *queue, OSMesg *msg, s32 flag);
 s32 dma_copy(u32 romStart, u32 romEnd, void *vramDest);
 s32 pm_FioValidateFileChecksum(void *buffer);
 _Bool pm_FioFetchSavedFileInfo(void);

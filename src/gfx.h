@@ -118,6 +118,4 @@ void gfx_printf_f(const struct gfx_font *font, s32 x, s32 y, const char *format,
 
 extern const MtxF gfx_cm_desaturate;
 
-void draw_hud_element(HudElement *elem);
-
 #endif
