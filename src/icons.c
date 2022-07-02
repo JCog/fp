@@ -5,7 +5,6 @@
 #define HUD_ELEMENT_QUEUE_SIZE              200
 #define RASTER_CACHE_SIZE                   300
 #define PALETTE_CACHE_SIZE                  300
-#define CUSTOM_SCRIPT_LIST_SIZE             200
 
 #define HS_PTR(sym)                         (s32) & sym
 
@@ -67,87 +66,104 @@ typedef enum {
     SCRIPT_TYPE_PARTNER
 } hud_script_type;
 
-struct hud_cache_entry {
+typedef enum {
+    CACHE_RASTER,
+    CACHE_PALETTE
+} cache_type;
+
+typedef struct image_cache_entry {
     s32 id;
-    void *data;
-};
+    void *image;
+} image_cache_entry;
 
-struct element_script_pair {
-    HudElement *hud_element; // used to id correct hud_script to free()
-    HudScript *hud_script;
-};
-
-static u16 custom_hud_script_count;
 static HudElement *hud_element_queue[HUD_ELEMENT_QUEUE_SIZE];
-static struct hud_cache_entry raster_cache[RASTER_CACHE_SIZE];
-static struct hud_cache_entry palette_cache[PALETTE_CACHE_SIZE];
-static struct element_script_pair custom_hud_script_list[CUSTOM_SCRIPT_LIST_SIZE];
+static struct image_cache_entry raster_cache[RASTER_CACHE_SIZE];
+static struct image_cache_entry palette_cache[PALETTE_CACHE_SIZE];
+static u16 raster_cache_oldest_id;
+static u16 palette_cache_oldest_id;
 
 void icons_init() {
-    custom_hud_script_count = 0;
     for (s32 i = 0; i < HUD_ELEMENT_QUEUE_SIZE; i++) {
         hud_element_queue[i] = NULL;
     }
     for (s32 i = 0; i < RASTER_CACHE_SIZE; i++) {
         raster_cache[i].id = 0;
-        raster_cache[i].data = NULL;
+        raster_cache[i].image = NULL;
     }
     for (s32 i = 0; i < PALETTE_CACHE_SIZE; i++) {
         palette_cache[i].id = 0;
-        palette_cache[i].data = NULL;
+        palette_cache[i].image = NULL;
     }
-    for (s32 i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
-        custom_hud_script_list[i].hud_element = NULL;
-        custom_hud_script_list[i].hud_script = NULL;
-    }
+    raster_cache_oldest_id = 0;
+    palette_cache_oldest_id = 0;
 }
 
 // image_address can be either ROM or RAM
-u8 *get_cache_entry_image(u32 image_address, u32 image_size, struct hud_cache_entry *cache, u32 cache_size) {
+u8 *get_cache_entry_image(u32 image_address, u32 image_size, cache_type cache_type) {
+    // simply return the address if it's a pointer to RAM
+    if (image_address >> 24 == 0x80) {
+        return (u8 *)image_address;
+    }
+    
+    image_cache_entry *cache;
+    u16 *cache_oldest_id;
+    u16 cache_size;
+    if (cache_type == CACHE_RASTER) {
+        cache = raster_cache;
+        cache_oldest_id = &raster_cache_oldest_id;
+        cache_size = RASTER_CACHE_SIZE;
+    } else {
+        cache = palette_cache;
+        cache_oldest_id = &palette_cache_oldest_id;
+        cache_size = PALETTE_CACHE_SIZE;
+    }
+    
     s32 idx;
     for (idx = 0; idx < cache_size; idx++) {
         // return cached data
         if (cache[idx].id == image_address) {
-            return cache[idx].data;
+            return cache[idx].image;
         }
 
         // load in data and place in cache
         if (cache[idx].id == 0) {
             cache[idx].id = image_address;
-            cache[idx].data = malloc(image_size);
-            // dma if image_address is a pointer to ram
-            if (image_address >> 24 == 0x80) {
-                cache[idx].data = (void *)image_address;
-            } else {
-                nuPiReadRom(image_address, cache[idx].data, image_size);
-            }
-            return cache[idx].data;
+            cache[idx].image = malloc(image_size);
+            nuPiReadRom(image_address, cache[idx].image, image_size);
+            return cache[idx].image;
         }
     }
-    return NULL;
+    
+    // no cache hits, replace oldest item
+    idx = (*cache_oldest_id)++;
+    if (*cache_oldest_id == cache_size) {
+        *cache_oldest_id = 0;
+    }
+    cache[idx].id = image_address;
+    free(cache[idx].image);
+    cache[idx].image = malloc(image_size);
+    nuPiReadRom(image_address, cache[idx].image, image_size);
+    return cache[idx].image;
 }
 
 u8 *get_cached_raster(u32 addr, u32 size) {
-    return get_cache_entry_image(addr, size, raster_cache, RASTER_CACHE_SIZE);
+    u8* entry = get_cache_entry_image(addr, size, CACHE_RASTER);
+    return entry;
+    
 }
 
 u8 *get_cached_palette(u32 addr) {
-    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, palette_cache, PALETTE_CACHE_SIZE);
+    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, CACHE_PALETTE);
 }
 
-void free_custom_hud_script(HudElement *hud_element) {
-    for (s32 i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
-        if (custom_hud_script_list[i].hud_element == hud_element) {
-            free(custom_hud_script_list[i].hud_script);
-            custom_hud_script_list[i].hud_element = NULL;
-            custom_hud_script_list[i].hud_script = NULL;
-            custom_hud_script_count--;
-            return;
-        }
+void free_hud_script(HudElement *hud_element) {
+    if ((uintptr_t)hud_element->anim > 0x80400000) {
+        free(hud_element->anim);
+        hud_element->anim = NULL;
     }
 }
 
-/*
+/**
  * Many of the built-in scripts access data from RAM that we can't count on existing at any given time, so it's
  * beneficial to create our own scripts sometimes, though not always. This function takes care of deciding that.
  *
@@ -155,7 +171,6 @@ void free_custom_hud_script(HudElement *hud_element) {
  * SCRIPT_TYPE_GLOBAL:
  *  0: offset
  *
- * data[] requirements:
  * SCRIPT_TYPE_PARTNER:
  *  0: partner_index
  *  1: grayscale
@@ -260,7 +275,7 @@ void hud_element_script_init(HudElement *hud_element, HudScript *script) {
     s32 raster;
     s32 palette;
     s32 preset;
-    struct hud_cache_entry *entry;
+    struct image_cache_entry *entry;
     s32 i;
 
     if (script_step == NULL) {
@@ -403,11 +418,8 @@ s32 hud_element_update(HudElement *hud_element) {
             break;
         case HUD_ELEMENT_OP_SetCI:
             hud_element->updateTimer = *script_step++;
-            
-        
-            if (hud_element->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
-            
-            }
+
+            if (hud_element->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {}
             s32 raster_rom = (s32)*script_step++;
             s32 palette_rom = (s32)*script_step++;
             s32 raster_size;
@@ -415,14 +427,14 @@ s32 hud_element_update(HudElement *hud_element) {
                 raster_rom += hud_element->memOffset;
                 palette_rom += hud_element->memOffset;
             }
-            if (hud_element->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE){
+            if (hud_element->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE) {
                 raster_size = (hud_element->customImageSize.x * hud_element->customImageSize.y) / 2;
             } else {
                 raster_size = gHudElementSizes[hud_element->drawSizePreset].size;
             }
             hud_element->rasterAddr = get_cached_raster(raster_rom, raster_size);
             hud_element->paletteAddr = get_cached_palette(palette_rom);
-            
+
             hud_element->readPos = (HudScript *)script_step;
 
             if (hud_element->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
@@ -655,9 +667,8 @@ s32 hud_element_update(HudElement *hud_element) {
             // hud_element_load_script(hud_element, newReadPos);
             return 1;
         case HUD_ELEMENT_OP_PlaySound:
-            arg2 = *script_step++;
-            //pm_PlaySfx(arg2);
-            hud_element->readPos = (HudScript *)script_step;
+            // yeah we're not doing this lol
+            hud_element->readPos = (HudScript *)script_step++;
             return 1;
         case HUD_ELEMENT_OP_SetPivot:
             arg1 = *script_step++;
@@ -678,20 +689,6 @@ s32 hud_element_update(HudElement *hud_element) {
 }
 
 HudElement *hud_element_create(HudElement *hud_element, HudScript *hud_script) {
-    if ((uintptr_t)hud_script > 0x80400000) {
-        s32 i;
-        for (i = 0; i < CUSTOM_SCRIPT_LIST_SIZE; i++) {
-            if (custom_hud_script_list[i].hud_element == NULL) {
-                custom_hud_script_list[i].hud_element = hud_element;
-                custom_hud_script_list[i].hud_script = hud_script;
-                break;
-            }
-        }
-        if (i == CUSTOM_SCRIPT_LIST_SIZE) {
-            PRINTF("custom script list full, unable to create icon\n");
-            return NULL;
-        }
-    }
     hud_element->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
     hud_element->readPos = hud_script;
     hud_element->updateTimer = 1;
@@ -722,11 +719,6 @@ HudElement *hud_element_create(HudElement *hud_element, HudScript *hud_script) {
 HudElement *hud_element_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, f32 scale) {
     HudElement *hud_element = malloc(sizeof(*hud_element));
     hud_element = hud_element_create(hud_element, hud_script);
-    if (hud_element == NULL) {
-        free(hud_element);
-        free(hud_script);
-        return NULL;
-    }
     hud_element_set_render_pos(hud_element, x, y);
     hud_element_set_alpha(hud_element, alpha);
     hud_element_set_scale(hud_element, scale);
@@ -739,7 +731,7 @@ Icon *icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha, f32 scale) {
     return hud_element_init(hud_script, x, y, alpha, scale);
 }
 
-Icon *icons_create_partner(u8 partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
+Icon *icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
     u8 partner_index;
     switch (partner) {
         case PARTNER_GOOMBARIO: partner_index = 1; break;
@@ -767,33 +759,31 @@ Icon *icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool gray
 }
 
 void icons_update() {
-    for (s32 i = 0; i < HUD_ELEMENT_QUEUE_SIZE; i++) {
-        HudElement *hud_element = hud_element_queue[i];
-
-        if (hud_element != NULL && hud_element->flags && !(hud_element->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
-            if (hud_element->flags & HUD_ELEMENT_FLAGS_DELETE) {
-                free_custom_hud_script(hud_element);
-                free(hud_element);
-            } else if (hud_element->readPos != NULL) {
-                hud_element->updateTimer--;
-                if (hud_element->updateTimer == 0) {
-                    while (hud_element_update(hud_element) != 0) {};
+    for (u32 i = 0; i < HUD_ELEMENT_QUEUE_SIZE; i++) {
+        if (hud_element_queue[i] == NULL) {
+            // no more icons in queue
+            return;
+        } else {
+            if (hud_element_queue[i]->flags != 0 && !(hud_element_queue[i]->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
+                if (hud_element_queue[i]->flags & HUD_ELEMENT_FLAGS_DELETE) {
+                    // icon flagged for deletion, free script if we created it before freeing the hud_element
+                    free_hud_script(hud_element_queue[i]);
+                    free(hud_element_queue[i]);
+                    hud_element_queue[i] = NULL;
+                } else if (hud_element_queue[i]->readPos != NULL) {
+                    hud_element_queue[i]->updateTimer--;
+                    if (hud_element_queue[i]->updateTimer == 0) {
+                        while (hud_element_update(hud_element_queue[i]) != 0) {};
+                    }
+                    if (hud_element_queue[i]->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                        hud_element_queue[i]->unkImgScale[0] += hud_element_queue[i]->deltaSizeX;
+                        hud_element_queue[i]->unkImgScale[1] += hud_element_queue[i]->deltaSizeY;
+                    }
                 }
-                if (hud_element->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
-                    hud_element->unkImgScale[0] += hud_element->deltaSizeX;
-                    hud_element->unkImgScale[1] += hud_element->deltaSizeY;
-                }
-            } else {
-                break;
+                draw_hud_element(hud_element_queue[i]);
             }
         }
-    }
-
-    for (s32 i = 0; i < HUD_ELEMENT_QUEUE_SIZE; i++) {
-        if (hud_element_queue[i] != NULL) {
-            draw_hud_element(hud_element_queue[i]);
-            hud_element_queue[i] = NULL;
-        }
+        hud_element_queue[i] = NULL;
     }
 }
 

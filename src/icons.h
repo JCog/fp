@@ -206,9 +206,9 @@ typedef enum {
     Icon_MoveRedOrbDisabled = 0x4AA0
 } icon_global;
 
-Icon *icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha, f32 scale);
+Icon *icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha, f32 scale); /// note that not every icon works yet
 Icon *icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
-Icon *icons_create_partner(u8 partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
+Icon *icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale);
 
 void icons_init();
 void icons_update();

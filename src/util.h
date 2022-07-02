@@ -77,6 +77,6 @@ static inline void maybe_init_gp(void) {
 #define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
 #endif
 
-#define ARRAY_COUNT(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
+#define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #endif

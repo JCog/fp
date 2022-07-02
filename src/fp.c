@@ -924,11 +924,11 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     bufferPos -= mashWindow + blockWindow;
 
     if (bufferPos < 0) {
-        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
     }
     for (i = 0; i < mashWindow; i++) {
-        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
@@ -946,11 +946,11 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     bufferPos = pm_battle_status.input_buffer_pos;
     bufferPos -= blockWindow;
     if (bufferPos < 0) {
-        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
     }
     for (i = 0; i < blockWindow; i++) {
-        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
@@ -974,12 +974,12 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         bufferPos = pm_battle_status.input_buffer_pos;
         bufferPos -= mashWindow + blockWindow + 20;
         if (bufferPos < 0) {
-            bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+            bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         for (i = 0; i < mashWindow + blockWindow + 20; i++) {
-            if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-                bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+            if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+                bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
             }
             pm_battle_status.push_input_buffer[bufferPos] = 0;
             bufferPos++;
