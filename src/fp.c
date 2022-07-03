@@ -14,6 +14,7 @@
 #include "sys.h"
 #include "util.h"
 #include "game_icons.h"
+#include "input.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -241,10 +242,11 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     static game_icon *fp_icon;
     if (fp_icon == NULL) {
-        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255, 1.0f, 0);
+        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 0);
+        game_icons_set_render_pos(fp_icon, 31, SCREEN_HEIGHT - 49);
     }
     game_icons_draw(fp_icon);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
+    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));
     gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
     gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
 
@@ -721,14 +723,21 @@ void fp_update(void) {
     }
 
     // TODO: remove before PR
-    static game_icon *test_icon;
-    if (test_icon == NULL) {
-        test_icon = game_icons_create_item(ITEM_ATTACK_FX_C, 31, 49, 255, 1.0f, 0);
-    }
-    if (pm_status.frame_counter % 30 == 0) {
-        game_icons_swap_active_scripts(test_icon, !test_icon->active_script);
-    }
-    game_icons_draw(test_icon);
+    // static game_icon *test_icon;
+    // if (test_icon == NULL) {
+    //    test_icon = game_icons_create_item(ITEM_ATTACK_FX_C, 31, 49, 255, 0.670816f, 0);
+    //}
+    // if (pm_status.frame_counter % 120 == 0) {
+    //    //game_icons_swap_active_scripts(test_icon, 1);
+    //    game_icons_set_drop_shadow(test_icon, 1);
+    //    game_icons_set_render_pos(test_icon, 30, 48);
+    //}
+    // if (pm_status.frame_counter % 120 == 60) {
+    //    //game_icons_swap_active_scripts(test_icon, 0);
+    //    game_icons_set_drop_shadow(test_icon, 0);
+    //    game_icons_set_render_pos(test_icon, 31, 49);
+    //}
+    // game_icons_draw(test_icon);
 
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {

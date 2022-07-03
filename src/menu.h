@@ -2,6 +2,7 @@
 #define MENU_H
 #include <stdint.h>
 #include <list/list.h>
+#include "game_icons.h"
 #include "gfx.h"
 
 #define MENU_NOVALUE 0
@@ -156,6 +157,7 @@ s32 menu_item_screen_y(struct menu_item *item);
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color);
 struct menu_item *menu_add_static_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
                                        u32 color, f32 scale);
+struct menu_item *menu_add_static_game_icon(struct menu *menu, s32 x, s32 y, game_icon *icon);
 struct menu_item *menu_add_static_custom(struct menu *menu, s32 x, s32 y,
                                          s32 (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
                                          const char *text, u32 color);
@@ -199,6 +201,8 @@ struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_te
                                   u32 color_on, struct gfx_texture *texture_off, s32 texture_tile_off, u32 color_off,
                                   f32 scale, _Bool disable_shadow, menu_generic_callback callback_proc,
                                   void *callback_data);
+struct menu_item *menu_add_switch_game_icon(struct menu *menu, s32 x, s32 y, game_icon *icon_on, game_icon *icon_off,
+                                            menu_generic_callback callback_proc, void *callback_data);
 void menu_switch_set(struct menu_item *item, _Bool state);
 _Bool menu_switch_get(struct menu_item *item);
 void menu_switch_toggle(struct menu_item *item);
@@ -206,6 +210,8 @@ struct menu_item *menu_add_button(struct menu *menu, s32 x, s32 y, const char *n
                                   void *callback_data);
 struct menu_item *menu_add_button_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
                                        u32 color, menu_action_callback callback_proc, void *callback_data);
+struct menu_item *menu_add_button_game_icon(struct menu *menu, s32 x, s32 y, game_icon *icon,
+                                            menu_action_callback callback_proc, void *callback_data);
 struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                        void *callback_data);
 struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,

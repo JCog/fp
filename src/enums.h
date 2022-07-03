@@ -2,6 +2,9 @@
 #define ENUMS_H
 #include <stdint.h>
 
+/// X.10 fixed-point literal
+#define X10(f) (s32)(f * 1024.0f)
+
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;

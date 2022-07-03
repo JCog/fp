@@ -4,6 +4,7 @@
 #include "menu.h"
 
 struct static_icon_data {
+    game_icon *icon;
     struct gfx_texture *texture;
     s32 texture_tile;
     f32 scale;
@@ -18,32 +19,54 @@ struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *t
 static s32 static_icon_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct static_icon_data *data = item->data;
     s32 cw = menu_get_cell_width(item->owner, 1);
-    s32 w = data->texture->tile_width * data->scale;
-    s32 h = data->texture->tile_height * data->scale;
-    struct gfx_sprite sprite = {
-        data->texture,
-        data->texture_tile,
-        draw_params->x + (cw - w) / 2,
-        draw_params->y - (gfx_font_xheight(draw_params->font) + h + 1) / 2,
-        data->scale,
-        data->scale,
-    };
-    gfx_mode_replace(GFX_MODE_FILTER, G_TF_BILERP);
-    gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    gfx_sprite_draw(&sprite);
-    gfx_mode_pop(GFX_MODE_FILTER);
-    gfx_mode_pop(GFX_MODE_DROPSHADOW);
+    if (data->icon) {
+        draw_params->x += cw / 2;
+        draw_params->y -= (gfx_font_xheight(draw_params->font) + 1) / 2;
+        game_icons_set_render_pos(data->icon, draw_params->x, draw_params->y);
+        game_icons_set_alpha(data->icon, draw_params->alpha);
+        game_icons_draw(data->icon);
+    } else {
+        s32 w = data->texture->tile_width * data->scale;
+        s32 h = data->texture->tile_height * data->scale;
+        struct gfx_sprite sprite = {
+            data->texture,
+            data->texture_tile,
+            draw_params->x + (cw - w) / 2,
+            draw_params->y - (gfx_font_xheight(draw_params->font) + h + 1) / 2,
+            data->scale,
+            data->scale,
+        };
+        gfx_mode_replace(GFX_MODE_FILTER, G_TF_BILERP);
+        gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
+        gfx_sprite_draw(&sprite);
+        gfx_mode_pop(GFX_MODE_FILTER);
+        gfx_mode_pop(GFX_MODE_DROPSHADOW);
+    }
     return 1;
 }
 
 struct menu_item *menu_add_static_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
                                        u32 color, f32 scale) {
     struct static_icon_data *data = malloc(sizeof(*data));
+    data->icon = NULL;
     data->texture = texture;
     data->texture_tile = texture_tile;
     data->scale = scale;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
+    item->data = data;
+    item->selectable = 0;
+    item->draw_proc = static_icon_draw_proc;
+    return item;
+}
+
+struct menu_item *menu_add_static_game_icon(struct menu *menu, s32 x, s32 y, game_icon *icon) {
+    struct static_icon_data *data = malloc(sizeof(*data));
+    data->icon = icon;
+    data->texture = NULL;
+    data->texture_tile = 0;
+    data->scale = 1.f;
+    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
     item->data = data;
     item->selectable = 0;
     item->draw_proc = static_icon_draw_proc;

@@ -14,9 +14,6 @@
 #define GFX_TEXT_NORMAL 0
 #define GFX_TEXT_FAST   1
 
-/// X.10 fixed-point literal
-#define X10(f)          (s32)(f * 1024.0f)
-
 enum gfx_mode {
     GFX_MODE_FILTER,
     GFX_MODE_COMBINE,

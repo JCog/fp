@@ -15,6 +15,8 @@ struct item_data {
     f32 scale;
     _Bool disable_shadow;
     s32 anim_state;
+    game_icon *icon_on;
+    game_icon *icon_off;
 };
 
 static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
@@ -37,46 +39,69 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         ++draw_params->x;
         ++draw_params->y;
     }
-    struct gfx_texture *texture;
-    s32 texture_tile;
-    u32 color;
-    if ((data->anim_state > 0) != data->state) {
-        texture = data->texture_on;
-        texture_tile = data->texture_tile_on;
-        color = data->color_on;
+    if (data->icon_on) {
+        s32 cw = menu_get_cell_width(item->owner, 1);
+        draw_params->x += cw / 2;
+        draw_params->y -= (gfx_font_xheight(draw_params->font) + 1) / 2;
+
+        game_icon *icon;
+        if ((data->anim_state > 0) != data->state) {
+            icon = data->icon_on;
+        } else {
+            icon = data->icon_off;
+        }
+        if (item->owner->selector == item) {
+            game_icons_set_render_pos(icon, draw_params->x - 1, draw_params->y - 1);
+            game_icons_set_drop_shadow(icon, 1);
+        } else {
+            game_icons_set_render_pos(icon, draw_params->x, draw_params->y);
+            game_icons_set_drop_shadow(icon, 0);
+        }
+        game_icons_set_alpha(icon, draw_params->alpha);
+        game_icons_draw(icon);
     } else {
-        texture = data->texture_off;
-        texture_tile = data->texture_tile_off;
-        color = data->color_off;
-    }
-    s32 cw = menu_get_cell_width(item->owner, 1);
-    s32 w = texture->tile_width * data->scale;
-    s32 h = texture->tile_height * data->scale;
-    s32 x = draw_params->x + (cw - w) / 2;
-    s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h) / 2;
-    if (item->owner->selector == item) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha * 0x80 / 0xFF));
-        gfx_mode_replace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
-        gfx_disp(
-            gsSPScisTextureRectangle(qs102(x - 1), qs102(y - 1), qs102(x + w + 1), qs102(y + h + 1), 0, 0, 0, 0, 0));
-        gfx_mode_pop(GFX_MODE_COMBINE);
-    }
-    gfx_mode_set(GFX_MODE_COLOR,
-                 GPACK_RGBA8888((color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF, draw_params->alpha));
-    if (data->scale != 1.f)
-        gfx_mode_replace(GFX_MODE_FILTER, G_TF_BILERP);
-    else
-        gfx_mode_replace(GFX_MODE_FILTER, G_TF_POINT);
-    if (data->disable_shadow) {
-        gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
-    }
-    struct gfx_sprite sprite = {
-        texture, texture_tile, x, y, data->scale, data->scale,
-    };
-    gfx_sprite_draw(&sprite);
-    gfx_mode_pop(GFX_MODE_FILTER);
-    if (data->disable_shadow) {
-        gfx_mode_pop(GFX_MODE_DROPSHADOW);
+        struct gfx_texture *texture;
+        s32 texture_tile;
+        u32 color;
+        if ((data->anim_state > 0) != data->state) {
+            texture = data->texture_on;
+            texture_tile = data->texture_tile_on;
+            color = data->color_on;
+        } else {
+            texture = data->texture_off;
+            texture_tile = data->texture_tile_off;
+            color = data->color_off;
+        }
+        s32 cw = menu_get_cell_width(item->owner, 1);
+        s32 w = texture->tile_width * data->scale;
+        s32 h = texture->tile_height * data->scale;
+        s32 x = draw_params->x + (cw - w) / 2;
+        s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h) / 2;
+        if (item->owner->selector == item) {
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha * 0x80 / 0xFF));
+            gfx_mode_replace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+            gfx_disp(gsSPScisTextureRectangle(qs102(x - 1), qs102(y - 1), qs102(x + w + 1), qs102(y + h + 1), 0, 0, 0,
+                                              0, 0));
+            gfx_mode_pop(GFX_MODE_COMBINE);
+        }
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888((color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF,
+                                                    draw_params->alpha));
+        if (data->scale != 1.f) {
+            gfx_mode_replace(GFX_MODE_FILTER, G_TF_BILERP);
+        } else {
+            gfx_mode_replace(GFX_MODE_FILTER, G_TF_POINT);
+        }
+        if (data->disable_shadow) {
+            gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
+        }
+        struct gfx_sprite sprite = {
+            texture, texture_tile, x, y, data->scale, data->scale,
+        };
+        gfx_sprite_draw(&sprite);
+        gfx_mode_pop(GFX_MODE_FILTER);
+        if (data->disable_shadow) {
+            gfx_mode_pop(GFX_MODE_DROPSHADOW);
+        }
     }
     if (data->anim_state > 0) {
         data->anim_state = (data->anim_state + 1) % 3;
@@ -116,6 +141,33 @@ struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_te
     data->scale = scale;
     data->disable_shadow = disable_shadow;
     data->anim_state = 0;
+    data->icon_on = NULL;
+    item->data = data;
+    item->enter_proc = enter_proc;
+    item->think_proc = think_proc;
+    item->draw_proc = draw_proc;
+    item->activate_proc = activate_proc;
+    return item;
+}
+
+struct menu_item *menu_add_switch_game_icon(struct menu *menu, s32 x, s32 y, game_icon *icon_on, game_icon *icon_off,
+                                            menu_generic_callback callback_proc, void *callback_data) {
+    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0x808080);
+    struct item_data *data = malloc(sizeof(*data));
+    data->state = 0;
+    data->callback_proc = callback_proc;
+    data->callback_data = callback_data;
+    data->texture_on = NULL;
+    data->texture_tile_on = 0;
+    data->color_on = 0;
+    data->texture_off = NULL;
+    data->texture_tile_off = 0;
+    data->color_off = 0;
+    data->scale = 1.f;
+    data->disable_shadow = 1;
+    data->anim_state = 0;
+    data->icon_on = icon_on;
+    data->icon_off = icon_off;
     item->data = data;
     item->enter_proc = enter_proc;
     item->think_proc = think_proc;

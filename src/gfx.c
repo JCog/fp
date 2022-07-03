@@ -9,7 +9,6 @@
 #include "pm64.h"
 #include "fp.h"
 #include "game_icons.h"
-#include "util.h"
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;
@@ -826,7 +825,7 @@ static void draw_game_icon_rect(game_icon *icon, s16 tex_size_x, s16 tex_size_y,
                         gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
                         gDPSetCombineLERP(gfx_disp_p++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
                                           TEXEL0, 0, PRIMITIVE, 0);
-                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 40, 40, 40, 72);
+                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 40, 40, 40, 255);
                     }
 
                     if (!flip_x && !flip_y) {
@@ -981,16 +980,23 @@ static void draw_game_icon(game_icon *icon) {
                     draw_size_y = icon->size_y;
                 }
 
+                s32 offset_x = -draw_size_x / 2;
+                s32 offset_y = -draw_size_y / 2;
+
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_REPEATED)) {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 1);
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y,
+                                            1, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 0);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 1,
+                                        0);
                 } else {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y,
+                                            0, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 0);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0,
+                                        0);
                 }
             } else {
                 f32 xScaled, yScaled;
@@ -1007,6 +1013,9 @@ static void draw_game_icon(game_icon *icon) {
                 draw_size_x = icon->unk_img_scale[0];
                 draw_size_y = icon->unk_img_scale[1];
 
+                s32 offset_x = -icon->unk_img_scale[0] / 2;
+                s32 offset_y = -icon->unk_img_scale[1] / 2;
+
                 xScaled = (f32)draw_size_x / (f32)tex_size_x;
                 yScaled = (f32)draw_size_y / (f32)tex_size_y;
 
@@ -1017,9 +1026,10 @@ static void draw_game_icon(game_icon *icon) {
                 icon->height_scale = X10(yScaled);
 
                 if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0,
+                                        1);
                 }
-                draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
+                draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0, 1);
             }
         }
     }
