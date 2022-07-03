@@ -204,43 +204,50 @@ typedef enum {
     ICON_MOVE_RED_ORB_DISABLED = 0X4AA0
 } icon_global;
 
+typedef enum {
+    SCRIPT_PRIMARY,
+    SCRIPT_SECONDARY
+} active_script;
+
 typedef struct {
-    /* 0x00 */ s32 fold_idx;
-    /* 0x04 */ Vec3f position;
-    /* 0x10 */ Vec3f rotation;
-    /* 0x1C */ Vec3f scale;
-    /* 0x28 */ Vec2s pivot;
-    /* 0x30 */ VtxRect unk_30[3];
+    s32 fold_idx;
+    Vec3f position;
+    Vec3f rotation;
+    Vec3f scale;
+    Vec2s pivot;
+    VtxRect unk_30[3];
 } game_icon_transform; // size = 0xF0
 
 typedef struct {
-    /* 0x00 */ u32 flags;
-    /* 0x04 */ HudScript *read_pos;
-    /* 0x08 */ HudScript *anim;
-    /* 0x0C */ HudScript *loop_start_pos;
-    /* 0x10 */ u8 *raster_addr;
-    /* 0x14 */ u8 *palette_addr;
-    /* 0x18 */ s32 mem_offset;
-    /* 0x1C */ game_icon_transform *transform;
-    /* 0x20 */ f32 delta_size_x;
-    /* 0x24 */ f32 delta_size_y;
-    /* 0x28 */ f32 unk_img_scale[2];
-    /* 0x30 */ f32 uniform_scale;
-    /* 0x34 */ s32 width_scale;  ///< X10
-    /* 0x38 */ s32 height_scale; ///< X10
-    /* 0x3C */ s16 render_pos_x;
-    /* 0x3E */ s16 render_pos_y;
-    /* 0x40 */ Vec2b screen_pos_offset;
-    /* 0x42 */ Vec3b world_pos_offset;
-    /* 0x45 */ s8 draw_size_preset;
-    /* 0x46 */ s8 tile_size_preset;
-    /* 0x47 */ s8 update_timer;
-    /* 0x48 */ u8 size_x; /* screen size? */
-    /* 0x49 */ u8 size_y; /* screen size? */
-    /* 0x4A */ u8 alpha;
-    /* 0x4B */ Color_RGB8 tint;
-    /* 0x4E */ Vec2bu custom_image_size;
-    /* 0x50 */ Vec2bu custom_draw_size;
+    u32 flags;
+    HudScript *read_pos;
+    HudScript *primary_script;
+    HudScript *secondary_script;
+    HudScript *loop_start_pos;
+    u8 *raster_addr;
+    u8 *palette_addr;
+    s32 mem_offset;
+    game_icon_transform *transform;
+    f32 delta_size_x;
+    f32 delta_size_y;
+    f32 unk_img_scale[2];
+    f32 uniform_scale;
+    s32 width_scale;  ///< X10
+    s32 height_scale; ///< X10
+    s16 render_pos_x;
+    s16 render_pos_y;
+    Vec2b screen_pos_offset;
+    Vec3b world_pos_offset;
+    s8 draw_size_preset;
+    s8 tile_size_preset;
+    s8 update_timer;
+    u8 size_x; /* screen size? */
+    u8 size_y; /* screen size? */
+    u8 alpha;
+    Color_RGB8 tint;
+    Vec2bu custom_image_size;
+    Vec2bu custom_draw_size;
+    active_script active_script;
 } game_icon; // size = 0x54
 
 game_icon *game_icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha,
@@ -252,6 +259,7 @@ void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y);
 void game_icons_set_scale(game_icon *icon, f32 scale);
 void game_icons_set_alpha(game_icon *icon, s32 alpha);
 void game_icons_set_tint(game_icon *icon, u8 r, u8 g, u8 b);
+void game_icons_swap_active_scripts(game_icon *icon, active_script active_script);
 
 void game_icons_draw(game_icon *icon);
 void game_icons_delete(game_icon *icon);

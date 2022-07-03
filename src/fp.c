@@ -720,6 +720,16 @@ void fp_update(void) {
         pm_status.skip_intro = 1;
     }
 
+    // TODO: remove before PR
+    static game_icon *test_icon;
+    if (test_icon == NULL) {
+        test_icon = game_icons_create_item(ITEM_ATTACK_FX_C, 31, 49, 255, 1.0f, 0);
+    }
+    if (pm_status.frame_counter % 30 == 0) {
+        game_icons_swap_active_scripts(test_icon, !test_icon->active_script);
+    }
+    game_icons_draw(test_icon);
+
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
             apply_menu_settings();

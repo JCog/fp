@@ -92,8 +92,10 @@ static void game_icon_set_flags(game_icon *icon, s32 flags);
 static void game_icon_clear_flags(game_icon *icon, s32 flags);
 static void game_icon_script_init(game_icon *icon, HudScript *script);
 static s32 game_icon_update(game_icon *icon);
-static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script);
-static game_icon *game_icon_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, f32 scale);
+static game_icon *game_icon_create(game_icon *icon, HudScript(*primary_script), HudScript(*secondary_script),
+                                   active_script active_script);
+static game_icon *game_icon_init(HudScript *primary_script, HudScript *secondary_script, active_script active_script,
+                                 s32 x, s32 y, u8 alpha, f32 scale);
 
 // image_address can be either ROM or RAM
 static u8 *get_cache_entry_image(u32 image_address, u32 image_size, cache_type cache_type) {
@@ -153,9 +155,9 @@ static u8 *get_cached_palette(u32 addr) {
 }
 
 static void free_hud_script(game_icon *icon) {
-    if ((uintptr_t)icon->anim > 0x80400000) {
-        free(icon->anim);
-        icon->anim = NULL;
+    if ((uintptr_t)icon->primary_script > 0x80400000) {
+        free(icon->primary_script);
+        icon->primary_script = NULL;
     }
 }
 
@@ -211,10 +213,36 @@ static HudScript *create_hud_script(hud_script_type type, s32 data[]) {
     }
 }
 
+void game_icons_swap_active_scripts(game_icon *icon, active_script active_script) {
+    if (icon->secondary_script == NULL) {
+        PRINTF("attempted to swap scripts for 0x%X, but it only has one\n", icon);
+        return;
+    }
+    if (icon->active_script == active_script) {
+        return;
+    }
+    icon->active_script = active_script;
+
+    icon->update_timer = 1;
+    if (active_script == SCRIPT_PRIMARY) {
+        icon->read_pos = icon->primary_script;
+        icon->loop_start_pos = icon->primary_script;
+    } else {
+        icon->read_pos = icon->secondary_script;
+        icon->loop_start_pos = icon->secondary_script;
+    }
+    icon->flags &= ~HUD_ELEMENT_FLAGS_ANIMATION_FINISHED;
+    icon->flags &= ~(HUD_ELEMENT_FLAGS_SCALED | HUD_ELEMENT_FLAGS_TRANSPARENT | HUD_ELEMENT_FLAGS_FIXEDSCALE |
+                     HUD_ELEMENT_FLAGS_REPEATED);
+
+    while (game_icon_update(icon) != 0) {}
+}
+
 void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y) {
     icon->render_pos_x = x;
     icon->render_pos_y = y;
 }
+
 void game_icons_set_scale(game_icon *icon, f32 scale) {
     s32 draw_size_x;
     s32 draw_size_y;
@@ -722,18 +750,25 @@ static s32 game_icon_update(game_icon *icon) {
     return 0;
 }
 
-static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script) {
+static game_icon *game_icon_create(game_icon *icon, HudScript *primary_script, HudScript *secondary_script,
+                                   active_script active_script) {
     icon->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
-    icon->read_pos = hud_script;
+    icon->primary_script = primary_script;
+    icon->secondary_script = secondary_script;
+    if (active_script == SCRIPT_PRIMARY) {
+        icon->read_pos = primary_script;
+        icon->loop_start_pos = primary_script;
+    } else {
+        icon->read_pos = secondary_script;
+        icon->loop_start_pos = secondary_script;
+    }
     icon->update_timer = 1;
     icon->draw_size_preset = -1;
     icon->tile_size_preset = -1;
     icon->render_pos_x = 0;
     icon->render_pos_y = 0;
-    icon->loop_start_pos = hud_script;
     icon->width_scale = X10(1.0f);
     icon->height_scale = X10(1.0f);
-    icon->anim = icon->read_pos;
     icon->uniform_scale = 1.0f;
     icon->screen_pos_offset.x = 0;
     icon->screen_pos_offset.y = 0;
@@ -741,6 +776,7 @@ static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script) {
     icon->world_pos_offset.y = 0;
     icon->world_pos_offset.z = 0;
     icon->alpha = 255;
+    icon->active_script = active_script;
     icon->tint.r = 255;
     icon->tint.g = 255;
     icon->tint.b = 255;
@@ -750,9 +786,10 @@ static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script) {
     return icon;
 }
 
-static game_icon *game_icon_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, f32 scale) {
+static game_icon *game_icon_init(HudScript *primary_script, HudScript *secondary_script, active_script active_script,
+                                 s32 x, s32 y, u8 alpha, f32 scale) {
     game_icon *icon = malloc(sizeof(*icon));
-    icon = game_icon_create(icon, hud_script);
+    icon = game_icon_create(icon, primary_script, secondary_script, active_script);
     game_icons_set_render_pos(icon, x, y);
     game_icons_set_alpha(icon, alpha);
     game_icons_set_scale(icon, scale);
@@ -762,7 +799,7 @@ static game_icon *game_icon_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, 
 game_icon *game_icons_create_global(icon_global icon, s32 x, s32 y, u8 alpha, f32 scale) {
     s32 script_data[] = {icon};
     HudScript *hud_script = create_hud_script(SCRIPT_TYPE_GLOBAL, script_data);
-    return game_icon_init(hud_script, x, y, alpha, scale);
+    return game_icon_init(hud_script, NULL, SCRIPT_PRIMARY, x, y, alpha, scale);
 }
 
 game_icon *game_icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
@@ -779,17 +816,21 @@ game_icon *game_icons_create_partner(Partner partner, s32 x, s32 y, u8 alpha, f3
         default: partner_index = 0; break;
     }
 
-    s32 script_data[] = {partner_index, grayscale};
-    HudScript *hud_script = create_hud_script(SCRIPT_TYPE_PARTNER, script_data);
+    s32 primary_data[] = {partner_index, 0};
+    s32 secondary_data[] = {partner_index, 1};
+    HudScript *primary_script = create_hud_script(SCRIPT_TYPE_PARTNER, primary_data);
+    HudScript *secondary_script = create_hud_script(SCRIPT_TYPE_PARTNER, secondary_data);
 
-    return game_icon_init(hud_script, x, y, alpha, scale);
+    return game_icon_init(primary_script, secondary_script, grayscale, x, y, alpha, scale);
 }
 
 game_icon *game_icons_create_item(Item item, s32 x, s32 y, u8 alpha, f32 scale, _Bool grayscale) {
-    s32 script_data[] = {item, grayscale};
-    HudScript *hud_script = create_hud_script(SCRIPT_TYPE_ITEM, script_data);
+    s32 primary_data[] = {item, 0};
+    s32 secondary_data[] = {item, 1};
+    HudScript *primary_script = create_hud_script(SCRIPT_TYPE_ITEM, primary_data);
+    HudScript *secondary_script = create_hud_script(SCRIPT_TYPE_ITEM, secondary_data);
 
-    return game_icon_init(hud_script, x, y, alpha, scale);
+    return game_icon_init(primary_script, secondary_script, grayscale, x, y, alpha, scale);
 }
 
 void game_icons_draw(game_icon *icon) {
