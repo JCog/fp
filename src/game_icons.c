@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "enums.h"
 #include "game_icons.h"
 #include "util.h"
 
@@ -93,9 +94,6 @@ static void game_icon_script_init(game_icon *icon, HudScript *script);
 static s32 game_icon_update(game_icon *icon);
 static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script);
 static game_icon *game_icon_init(HudScript *hud_script, s32 x, s32 y, u8 alpha, f32 scale);
-
-static void game_icons_draw_rect(game_icon *icon, Gfx *gfx_disp_p, s16 texSizeX, s16 texSizeY, s16 drawSizeX,
-                                 s16 drawSizeY, s16 offsetX, s16 offsetY, s32 clamp, s32 dropShadow);
 
 // image_address can be either ROM or RAM
 static u8 *get_cache_entry_image(u32 image_address, u32 image_size, cache_type cache_type) {
@@ -214,48 +212,48 @@ static HudScript *create_hud_script(hud_script_type type, s32 data[]) {
 }
 
 void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y) {
-    icon->renderPosX = x;
-    icon->renderPosY = y;
+    icon->render_pos_x = x;
+    icon->render_pos_y = y;
 }
 void game_icons_set_scale(game_icon *icon, f32 scale) {
-    s32 drawSizeX;
-    s32 drawSizeY;
-    s32 imgSizeX;
-    s32 imgSizeY;
-    f32 xScaled, yScaled;
+    s32 draw_size_x;
+    s32 draw_size_y;
+    s32 img_size_x;
+    s32 img_size_y;
+    f32 x_scaled, y_scaled;
 
-    icon->uniformScale = scale;
+    icon->uniform_scale = scale;
     if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-        imgSizeX = gHudElementSizes[icon->tileSizePreset].width;
-        imgSizeY = gHudElementSizes[icon->tileSizePreset].height;
-        drawSizeX = gHudElementSizes[icon->drawSizePreset].width;
-        drawSizeY = gHudElementSizes[icon->drawSizePreset].height;
+        img_size_x = gHudElementSizes[icon->tile_size_preset].width;
+        img_size_y = gHudElementSizes[icon->tile_size_preset].height;
+        draw_size_x = gHudElementSizes[icon->draw_size_preset].width;
+        draw_size_y = gHudElementSizes[icon->draw_size_preset].height;
     } else {
-        imgSizeX = icon->customImageSize.x;
-        imgSizeY = icon->customImageSize.y;
-        drawSizeX = icon->customDrawSize.x;
-        drawSizeY = icon->customDrawSize.y;
+        img_size_x = icon->custom_image_size.x;
+        img_size_y = icon->custom_image_size.y;
+        draw_size_x = icon->custom_draw_size.x;
+        draw_size_y = icon->custom_draw_size.y;
     }
-    icon->sizeX = drawSizeX * scale;
-    icon->sizeY = drawSizeY * scale;
+    icon->size_x = draw_size_x * scale;
+    icon->size_y = draw_size_y * scale;
     icon->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
     icon->flags |= HUD_ELEMENT_FLAGS_REPEATED | HUD_ELEMENT_FLAGS_SCALED;
 
-    xScaled = ((f32)drawSizeX / (f32)imgSizeX) * scale;
-    yScaled = ((f32)drawSizeY / (f32)imgSizeY) * scale;
+    x_scaled = ((f32)draw_size_x / (f32)img_size_x) * scale;
+    y_scaled = ((f32)draw_size_y / (f32)img_size_y) * scale;
 
-    xScaled = 1.0f / xScaled;
-    yScaled = 1.0f / yScaled;
+    x_scaled = 1.0f / x_scaled;
+    y_scaled = 1.0f / y_scaled;
 
-    icon->widthScale = X10(xScaled);
-    icon->heightScale = X10(yScaled);
+    icon->width_scale = X10(x_scaled);
+    icon->height_scale = X10(y_scaled);
 }
 
-void game_icons_set_alpha(game_icon *icon, s32 opacity) {
+void game_icons_set_alpha(game_icon *icon, s32 alpha) {
     icon->flags |= HUD_ELEMENT_FLAGS_TRANSPARENT;
-    icon->opacity = opacity;
+    icon->alpha = alpha;
 
-    if (opacity == 255) {
+    if (alpha == 255) {
         icon->flags &= ~HUD_ELEMENT_FLAGS_TRANSPARENT;
     }
 }
@@ -276,35 +274,29 @@ static void game_icon_clear_flags(game_icon *icon, s32 flags) {
 
 static void game_icon_script_init(game_icon *icon, HudScript *script) {
     s32 *script_step = (s32 *)script;
-    s32 raster;
-    s32 palette;
-    s32 preset;
-    struct image_cache_entry *entry;
 
     if (script_step == NULL) {
         // PRINTF("attempted to initialize icon, but script was NULL\n");
         return;
     }
 
-    preset = 0;
-
     while (1) {
         switch (*script_step++) {
             case HUD_ELEMENT_OP_End: return;
             case HUD_ELEMENT_OP_SetCI: script_step += 3; break;
             case HUD_ELEMENT_OP_SetTileSize:
-                preset = *script_step++;
-                icon->drawSizePreset = icon->tileSizePreset = preset;
+                icon->draw_size_preset = icon->tile_size_preset = *script_step++;
+                ;
                 break;
             case HUD_ELEMENT_OP_SetSizesAutoScale:
             case HUD_ELEMENT_OP_SetSizesFixedScale:
-                preset = *script_step;
                 script_step += 2;
-                icon->drawSizePreset = icon->tileSizePreset = preset;
+                icon->draw_size_preset = icon->tile_size_preset = *script_step++;
+                ;
                 break;
             case HUD_ELEMENT_OP_SetCustomSize:
-                icon->customDrawSize.x = icon->customImageSize.x = *script_step++;
-                icon->customDrawSize.y = icon->customImageSize.y = *script_step++;
+                icon->custom_draw_size.x = icon->custom_image_size.x = *script_step++;
+                icon->custom_draw_size.y = icon->custom_image_size.y = *script_step++;
                 icon->flags |= HUD_ELEMENT_FLAGS_CUSTOM_SIZE;
                 break;
             case HUD_ELEMENT_OP_AddTexelOffsetX:
@@ -327,363 +319,404 @@ static void game_icon_script_init(game_icon *icon, HudScript *script) {
 }
 
 static s32 game_icon_update(game_icon *icon) {
-    s32 drawSizePreset;
-    s32 tileSizePreset;
-    u8 sizePreset;
-    f32 xScaled, yScaled;
-    s32 imageWidth, imageHeight, drawWidth, drawHeight;
-    u32 min, max;
-    u32 flags;
-    s32 s1, s2;
-    s32 arg1, arg2;
-    f32 uniformScale;
-    HudScript *newReadPos;
-
-    game_icon_transform *hudTransform = icon->hudTransform;
-    s32 *script_step = (s32 *)icon->readPos;
+    game_icon_transform *hudTransform = icon->transform;
+    s32 *script_step = (s32 *)icon->read_pos;
     if (script_step == NULL) {
-        // PRINTF("game_icon at 0x%8X returned NULL readPos\n", icon);
+        PRINTF("game_icon at 0x%8X returned NULL read_pos\n", icon);
         return 0;
     }
 
     switch (*script_step++) {
-        case HUD_ELEMENT_OP_End:
-            icon->updateTimer = 60;
-            flags = icon->flags;
-            icon->flags = flags | HUD_ELEMENT_FLAGS_ANIMATION_FINISHED;
+        case HUD_ELEMENT_OP_End: {
+            icon->update_timer = 60;
+            icon->flags |= HUD_ELEMENT_FLAGS_ANIMATION_FINISHED;
             break;
-        case HUD_ELEMENT_OP_Delete:
-            icon->updateTimer = 60;
+        }
+        case HUD_ELEMENT_OP_Delete: {
+            icon->update_timer = 60;
             icon->flags |= HUD_ELEMENT_FLAGS_DELETE;
             break;
-        case HUD_ELEMENT_OP_UseIA8:
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_UseIA8: {
             icon->flags |= HUD_ELEMENT_FLAGS_FMT_IA8;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetVisible:
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_SetVisible: {
             icon->flags |= HUD_ELEMENT_FLAGS_FMT_CI4;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetHidden:
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_SetHidden: {
             icon->flags &= ~HUD_ELEMENT_FLAGS_FMT_CI4;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetFlags:
-            s1 = *script_step++;
-            icon->readPos = (HudScript *)script_step;
-            icon->flags |= s1;
+        }
+        case HUD_ELEMENT_OP_SetFlags: {
+            icon->flags |= *script_step++;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_ClearFlags:
-            s1 = *script_step++;
-            icon->readPos = (HudScript *)script_step;
-            icon->flags &= ~s1;
+        }
+        case HUD_ELEMENT_OP_ClearFlags: {
+            icon->flags &= ~(*script_step++);
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetRGBA:
-            icon->updateTimer = *script_step++;
-            icon->rasterAddr = (u8 *)*script_step++;
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_SetRGBA: {
+            icon->update_timer = *script_step++;
+            icon->raster_addr = (u8 *)*script_step++;
 
             if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
-                icon->rasterAddr += icon->memOffset;
+                icon->raster_addr += icon->mem_offset;
             }
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                s32 image_width, image_height, draw_width, draw_height;
+
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                    tileSizePreset = icon->tileSizePreset;
-                    drawSizePreset = icon->drawSizePreset;
-                    imageWidth = gHudElementSizes[tileSizePreset].width;
-                    imageHeight = gHudElementSizes[tileSizePreset].height;
-                    drawWidth = gHudElementSizes[drawSizePreset].width;
-                    drawHeight = gHudElementSizes[drawSizePreset].height;
+                    s32 tile_size_preset = icon->tile_size_preset;
+                    s32 draw_size_preset = icon->draw_size_preset;
+
+                    image_width = gHudElementSizes[tile_size_preset].width;
+                    image_height = gHudElementSizes[tile_size_preset].height;
+                    draw_width = gHudElementSizes[draw_size_preset].width;
+                    draw_height = gHudElementSizes[draw_size_preset].height;
                 } else {
-                    imageWidth = icon->customImageSize.x;
-                    imageHeight = icon->customImageSize.y;
-                    drawWidth = icon->customDrawSize.x;
-                    drawHeight = icon->customDrawSize.y;
+                    image_width = icon->custom_image_size.x;
+                    image_height = icon->custom_image_size.y;
+                    draw_width = icon->custom_draw_size.x;
+                    draw_height = icon->custom_draw_size.y;
                 }
 
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_200)) {
                     icon->flags |= HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = imageWidth;
-                    icon->unkImgScale[1] = imageHeight;
-                    icon->deltaSizeX = ((f32)drawWidth - (f32)imageWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)drawHeight - (f32)imageHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = image_width;
+                    icon->unk_img_scale[1] = image_height;
+                    icon->delta_size_x = ((f32)draw_width - (f32)image_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)draw_height - (f32)image_height) / (f32)icon->update_timer;
                 } else {
                     icon->flags &= ~HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = drawWidth;
-                    icon->unkImgScale[1] = drawHeight;
-                    icon->deltaSizeX = ((f32)imageWidth - (f32)drawWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)imageHeight - (f32)drawHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = draw_width;
+                    icon->unk_img_scale[1] = draw_height;
+                    icon->delta_size_x = ((f32)image_width - (f32)draw_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)image_height - (f32)draw_height) / (f32)icon->update_timer;
                 }
             }
+
+            icon->read_pos = (HudScript *)script_step;
             break;
-        case HUD_ELEMENT_OP_SetCI:
-            icon->updateTimer = *script_step++;
+        }
+        case HUD_ELEMENT_OP_SetCI: {
+            icon->update_timer = *script_step++;
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {}
             s32 raster_rom = (s32)*script_step++;
             s32 palette_rom = (s32)*script_step++;
             s32 raster_size;
             if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
-                raster_rom += icon->memOffset;
-                palette_rom += icon->memOffset;
+                raster_rom += icon->mem_offset;
+                palette_rom += icon->mem_offset;
             }
             if (icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE) {
-                raster_size = (icon->customImageSize.x * icon->customImageSize.y) / 2;
+                raster_size = (icon->custom_image_size.x * icon->custom_image_size.y) / 2;
             } else {
-                raster_size = gHudElementSizes[icon->drawSizePreset].size;
+                raster_size = gHudElementSizes[icon->draw_size_preset].size;
             }
-            icon->rasterAddr = get_cached_raster(raster_rom, raster_size);
-            icon->paletteAddr = get_cached_palette(palette_rom);
-
-            icon->readPos = (HudScript *)script_step;
+            icon->raster_addr = get_cached_raster(raster_rom, raster_size);
+            icon->palette_addr = get_cached_palette(palette_rom);
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                s32 image_width, image_height, draw_width, draw_height;
+
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                    tileSizePreset = icon->tileSizePreset;
-                    drawSizePreset = icon->drawSizePreset;
-                    imageWidth = gHudElementSizes[tileSizePreset].width;
-                    imageHeight = gHudElementSizes[tileSizePreset].height;
-                    drawWidth = gHudElementSizes[drawSizePreset].width;
-                    drawHeight = gHudElementSizes[drawSizePreset].height;
+                    s32 tile_size_preset = icon->tile_size_preset;
+                    s32 draw_size_preset = icon->draw_size_preset;
+
+                    image_width = gHudElementSizes[tile_size_preset].width;
+                    image_height = gHudElementSizes[tile_size_preset].height;
+                    draw_width = gHudElementSizes[draw_size_preset].width;
+                    draw_height = gHudElementSizes[draw_size_preset].height;
                 } else {
-                    imageWidth = icon->customImageSize.x;
-                    imageHeight = icon->customImageSize.y;
-                    drawWidth = icon->customDrawSize.x;
-                    drawHeight = icon->customDrawSize.y;
+                    image_width = icon->custom_image_size.x;
+                    image_height = icon->custom_image_size.y;
+                    draw_width = icon->custom_draw_size.x;
+                    draw_height = icon->custom_draw_size.y;
                 }
 
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_200)) {
                     icon->flags |= HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = imageWidth;
-                    icon->unkImgScale[1] = imageHeight;
-                    icon->deltaSizeX = ((f32)drawWidth - (f32)imageWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)drawHeight - (f32)imageHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = image_width;
+                    icon->unk_img_scale[1] = image_height;
+                    icon->delta_size_x = ((f32)draw_width - (f32)image_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)draw_height - (f32)image_height) / (f32)icon->update_timer;
                 } else {
                     icon->flags &= ~HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = drawWidth;
-                    icon->unkImgScale[1] = drawHeight;
-                    icon->deltaSizeX = ((f32)imageWidth - (f32)drawWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)imageHeight - (f32)drawHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = draw_width;
+                    icon->unk_img_scale[1] = draw_height;
+                    icon->delta_size_x = ((f32)image_width - (f32)draw_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)image_height - (f32)draw_height) / (f32)icon->update_timer;
                 }
             }
-            break;
-        case HUD_ELEMENT_OP_SetImage:
-            icon->updateTimer = *script_step++;
 
-            icon->rasterAddr =
-                get_cached_raster(ICONS_ITEMS_ROM_START + *script_step++, gHudElementSizes[icon->tileSizePreset].size);
-            icon->paletteAddr = get_cached_palette(ICONS_ITEMS_ROM_START + *script_step++);
+            icon->read_pos = (HudScript *)script_step;
+            break;
+        }
+        case HUD_ELEMENT_OP_SetImage: {
+            icon->update_timer = *script_step++;
+            s32 raster_addr = *script_step++;
+            s32 palette_addr = *script_step++;
             script_step += 3;
-            icon->readPos = (HudScript *)script_step;
+
+            icon->raster_addr =
+                get_cached_raster(ICONS_ITEMS_ROM_START + raster_addr, gHudElementSizes[icon->tile_size_preset].size);
+            icon->palette_addr = get_cached_palette(ICONS_ITEMS_ROM_START + palette_addr);
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                s32 image_width, image_height, draw_width, draw_height;
+
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                    tileSizePreset = icon->tileSizePreset;
-                    drawSizePreset = icon->drawSizePreset;
-                    imageWidth = gHudElementSizes[tileSizePreset].width;
-                    imageHeight = gHudElementSizes[tileSizePreset].height;
-                    drawWidth = gHudElementSizes[drawSizePreset].width;
-                    drawHeight = gHudElementSizes[drawSizePreset].height;
+                    s32 tile_size_preset = icon->tile_size_preset;
+                    s32 draw_size_preset = icon->draw_size_preset;
+
+                    image_width = gHudElementSizes[tile_size_preset].width;
+                    image_height = gHudElementSizes[tile_size_preset].height;
+                    draw_width = gHudElementSizes[draw_size_preset].width;
+                    draw_height = gHudElementSizes[draw_size_preset].height;
                 } else {
-                    imageWidth = icon->customImageSize.x;
-                    imageHeight = icon->customImageSize.y;
-                    drawWidth = icon->customDrawSize.x;
-                    drawHeight = icon->customDrawSize.y;
+                    image_width = icon->custom_image_size.x;
+                    image_height = icon->custom_image_size.y;
+                    draw_width = icon->custom_draw_size.x;
+                    draw_height = icon->custom_draw_size.y;
                 }
 
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_200)) {
                     icon->flags |= HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = imageWidth;
-                    icon->unkImgScale[1] = imageHeight;
-                    icon->deltaSizeX = ((f32)drawWidth - (f32)imageWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)drawHeight - (f32)imageHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = image_width;
+                    icon->unk_img_scale[1] = image_height;
+                    icon->delta_size_x = ((f32)draw_width - (f32)image_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)draw_height - (f32)image_height) / (f32)icon->update_timer;
                 } else {
                     icon->flags &= ~HUD_ELEMENT_FLAGS_200;
-                    icon->unkImgScale[0] = drawWidth;
-                    icon->unkImgScale[1] = drawHeight;
-                    icon->deltaSizeX = ((f32)imageWidth - (f32)drawWidth) / (f32)icon->updateTimer;
-                    icon->deltaSizeY = ((f32)imageHeight - (f32)drawHeight) / (f32)icon->updateTimer;
+                    icon->unk_img_scale[0] = draw_width;
+                    icon->unk_img_scale[1] = draw_height;
+                    icon->delta_size_x = ((f32)image_width - (f32)draw_width) / (f32)icon->update_timer;
+                    icon->delta_size_y = ((f32)image_height - (f32)draw_height) / (f32)icon->update_timer;
                 }
             }
+
+            icon->read_pos = (HudScript *)script_step;
             break;
-        case HUD_ELEMENT_OP_Restart: icon->readPos = icon->loopStartPos; return 1;
-        case HUD_ELEMENT_OP_Loop:
-            icon->loopStartPos = (HudScript *)script_step;
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_Restart: {
+            icon->read_pos = icon->loop_start_pos;
             return 1;
-        case HUD_ELEMENT_OP_RandomRestart:
-            s1 = *script_step++;
-            s2 = *script_step++;
+        }
+        case HUD_ELEMENT_OP_Loop: {
+            icon->loop_start_pos = (HudScript *)script_step;
+
+            icon->read_pos = (HudScript *)script_step;
+            return 1;
+        }
+        case HUD_ELEMENT_OP_RandomRestart: {
+            s32 s1 = *script_step++;
+            s32 s2 = *script_step++;
+
             if (pm_player.timer % s1 < s2) {
-                icon->readPos = icon->loopStartPos;
+                icon->read_pos = icon->loop_start_pos;
             } else {
-                icon->readPos = (HudScript *)script_step;
+                icon->read_pos = (HudScript *)script_step;
             }
             return 1;
-        case HUD_ELEMENT_OP_SetTileSize:
-            sizePreset = *script_step++;
-            icon->widthScale = X10(1);
-            icon->heightScale = X10(1);
-            icon->readPos = (HudScript *)script_step;
-            icon->drawSizePreset = sizePreset;
-            icon->tileSizePreset = sizePreset;
+        }
+        case HUD_ELEMENT_OP_SetTileSize: {
+            u8 size_preset = *script_step++;
+            icon->width_scale = X10(1);
+            icon->height_scale = X10(1);
+            icon->draw_size_preset = size_preset;
+            icon->tile_size_preset = size_preset;
             icon->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
             icon->flags &= ~HUD_ELEMENT_FLAGS_REPEATED;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetSizesAutoScale:
-            tileSizePreset = *script_step++;
-            arg2 = *script_step++;
+        }
+        case HUD_ELEMENT_OP_SetSizesAutoScale: {
+            icon->tile_size_preset = *script_step++;
+            icon->draw_size_preset = *script_step++;
 
-            icon->readPos = (HudScript *)script_step;
-            icon->tileSizePreset = tileSizePreset;
-            icon->drawSizePreset = arg2;
+            s32 image_width = gHudElementSizes[icon->tile_size_preset].width;
+            s32 image_height = gHudElementSizes[icon->tile_size_preset].height;
+            s32 draw_width = gHudElementSizes[icon->draw_size_preset].width;
+            s32 draw_height = gHudElementSizes[icon->draw_size_preset].height;
 
-            imageWidth = gHudElementSizes[tileSizePreset].width;
-            imageHeight = gHudElementSizes[tileSizePreset].height;
-            drawWidth = gHudElementSizes[arg2].width;
-            drawHeight = gHudElementSizes[arg2].height;
+            f32 x_scaled = (f32)draw_width / (f32)image_width;
+            f32 y_scaled = (f32)draw_height / (f32)image_height;
 
-            xScaled = (f32)drawWidth / (f32)imageWidth;
-            yScaled = (f32)drawHeight / (f32)imageHeight;
+            x_scaled = 1.0f / x_scaled;
+            y_scaled = 1.0f / y_scaled;
 
-            xScaled = 1.0f / xScaled;
-            yScaled = 1.0f / yScaled;
-
-            icon->widthScale = X10(xScaled);
-            icon->heightScale = X10(yScaled);
+            icon->width_scale = X10(x_scaled);
+            icon->height_scale = X10(y_scaled);
 
             icon->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
             icon->flags |= HUD_ELEMENT_FLAGS_REPEATED;
-            return 1;
-        case HUD_ELEMENT_OP_SetSizesFixedScale:
-            tileSizePreset = *script_step++;
-            drawSizePreset = *script_step++;
 
-            icon->widthScale = X10(1);
-            icon->heightScale = X10(1);
-            icon->readPos = (HudScript *)script_step;
-            icon->tileSizePreset = tileSizePreset;
-            icon->drawSizePreset = drawSizePreset;
+            icon->read_pos = (HudScript *)script_step;
+            return 1;
+        }
+        case HUD_ELEMENT_OP_SetSizesFixedScale: {
+            s32 tile_size_preset = *script_step++;
+            s32 draw_size_preset = *script_step++;
+
+            icon->width_scale = X10(1);
+            icon->height_scale = X10(1);
+            icon->tile_size_preset = tile_size_preset;
+            icon->draw_size_preset = draw_size_preset;
             icon->flags |= HUD_ELEMENT_FLAGS_FIXEDSCALE;
             icon->flags &= ~HUD_ELEMENT_FLAGS_REPEATED;
             icon->flags &= ~HUD_ELEMENT_FLAGS_200;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_AddTexelOffsetX:
-            s1 = *script_step++;
-            icon->readPos = (HudScript *)script_step;
-            icon->screenPosOffset.x += s1;
+        }
+        case HUD_ELEMENT_OP_AddTexelOffsetX: {
+            icon->screen_pos_offset.x += *script_step++;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_AddTexelOffsetY:
-            s2 = *script_step++;
+        }
+        case HUD_ELEMENT_OP_AddTexelOffsetY: {
+            s32 offset = *script_step++;
             if (!(icon->flags & HUD_ELEMENT_FLAGS_FLIPY)) {
-                icon->screenPosOffset.y += s2;
+                icon->screen_pos_offset.y += offset;
             } else {
-                icon->screenPosOffset.y -= s2;
+                icon->screen_pos_offset.y -= offset;
             }
-            icon->readPos = (HudScript *)script_step;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetTexelOffset:
-            s1 = *script_step++;
-            s2 = *script_step++;
-            icon->screenPosOffset.x = s1;
+        }
+        case HUD_ELEMENT_OP_SetTexelOffset: {
+            s32 offset_x = *script_step++;
+            s32 offset_y = *script_step++;
+
+            icon->screen_pos_offset.x = offset_x;
             if (!(icon->flags & HUD_ELEMENT_FLAGS_FLIPY)) {
-                icon->screenPosOffset.y = s2;
+                icon->screen_pos_offset.y = offset_y;
             } else {
-                icon->screenPosOffset.y = -s2;
+                icon->screen_pos_offset.y = -offset_y;
             }
-            icon->readPos = (HudScript *)script_step;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetScale:
-            uniformScale = (f32)*script_step++;
-            uniformScale /= 65536;
-            icon->uniformScale = uniformScale;
+        }
+        case HUD_ELEMENT_OP_SetScale: {
+            s32 image_width, image_height, draw_width, draw_height;
+
+            icon->uniform_scale = ((f32)*script_step++) / 65536;
+
             if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                imageWidth = gHudElementSizes[icon->tileSizePreset].width;
-                imageHeight = gHudElementSizes[icon->tileSizePreset].height;
-                drawWidth = gHudElementSizes[icon->drawSizePreset].width;
-                drawHeight = gHudElementSizes[icon->drawSizePreset].height;
+                image_width = gHudElementSizes[icon->tile_size_preset].width;
+                image_height = gHudElementSizes[icon->tile_size_preset].height;
+                draw_width = gHudElementSizes[icon->draw_size_preset].width;
+                draw_height = gHudElementSizes[icon->draw_size_preset].height;
             } else {
-                imageWidth = icon->customImageSize.x;
-                imageHeight = icon->customImageSize.y;
-                drawWidth = icon->customDrawSize.x;
-                drawHeight = icon->customDrawSize.y;
+                image_width = icon->custom_image_size.x;
+                image_height = icon->custom_image_size.y;
+                draw_width = icon->custom_draw_size.x;
+                draw_height = icon->custom_draw_size.y;
             }
 
-            icon->sizeX = drawWidth * uniformScale;
-            icon->sizeY = drawHeight * uniformScale;
+            icon->size_x = draw_width * icon->uniform_scale;
+            icon->size_y = draw_height * icon->uniform_scale;
 
-            xScaled = (f32)drawWidth / (f32)imageWidth * uniformScale;
-            yScaled = (f32)drawHeight / (f32)imageHeight * uniformScale;
+            f32 x_scaled = 1.0f / ((f32)draw_width / (f32)image_width * icon->uniform_scale);
+            f32 y_scaled = 1.0f / ((f32)draw_height / (f32)image_height * icon->uniform_scale);
 
-            xScaled = 1.0f / xScaled;
-            yScaled = 1.0f / yScaled;
+            icon->width_scale = X10(x_scaled);
+            icon->height_scale = X10(y_scaled);
 
-            icon->widthScale = X10(xScaled);
-            icon->heightScale = X10(yScaled);
-
-            icon->readPos = (HudScript *)script_step;
             icon->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
             icon->flags |= HUD_ELEMENT_FLAGS_REPEATED | HUD_ELEMENT_FLAGS_SCALED;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetAlpha:
-            s1 = *script_step++;
-            icon->opacity = s1;
+        }
+        case HUD_ELEMENT_OP_SetAlpha: {
+            icon->alpha = *script_step++;
             icon->flags |= HUD_ELEMENT_FLAGS_TRANSPARENT;
-            if (icon->opacity == 255) {
+            if (icon->alpha == 255) {
                 icon->flags &= ~HUD_ELEMENT_FLAGS_TRANSPARENT;
             }
-            icon->readPos = (HudScript *)script_step;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_RandomDelay:
-            s1 = *script_step++;
-            s2 = *script_step++;
-            icon->updateTimer = pm_player.timer % (s2 - s1) + s1;
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_RandomDelay: {
+            s32 s1 = *script_step++;
+            s32 s2 = *script_step++;
+            icon->update_timer = pm_player.timer % (s2 - s1) + s1;
+
+            icon->read_pos = (HudScript *)script_step;
             break;
-        case HUD_ELEMENT_OP_SetCustomSize:
-            icon->customDrawSize.x = icon->customImageSize.x = *script_step++;
-            icon->customDrawSize.y = icon->customImageSize.y = *script_step++;
-            icon->readPos = (HudScript *)script_step;
-            icon->widthScale = X10(1);
-            icon->heightScale = X10(1);
-            icon->drawSizePreset = 0;
-            icon->tileSizePreset = 0;
+        }
+        case HUD_ELEMENT_OP_SetCustomSize: {
+            icon->custom_draw_size.x = icon->custom_image_size.x = *script_step++;
+            icon->custom_draw_size.y = icon->custom_image_size.y = *script_step++;
+            icon->width_scale = X10(1);
+            icon->height_scale = X10(1);
+            icon->draw_size_preset = 0;
+            icon->tile_size_preset = 0;
             icon->flags &= ~HUD_ELEMENT_FLAGS_FIXEDSCALE;
             icon->flags &= ~HUD_ELEMENT_FLAGS_REPEATED;
             icon->flags |= HUD_ELEMENT_FLAGS_CUSTOM_SIZE;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_op_15:
-            s1 = *script_step++;
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_op_15: {
+            s32 flag_var = *script_step++;
             icon->flags &= ~(HUD_ELEMENT_FLAGS_1000000 | HUD_ELEMENT_FLAGS_2000000 | HUD_ELEMENT_FLAGS_4000000 |
                              HUD_ELEMENT_FLAGS_8000000);
-            icon->flags |= s1 << 24;
+            icon->flags |= flag_var << 24;
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_RandomBranch:
-            // TODO: fix
-            // s1 = *script_step++;
-            // newReadPos = (HudScript *)script_step[pm_player.timer % (s1 - 1)];
-            // icon->readPos = newReadPos;
-            // hud_element_load_script(icon, newReadPos);
+        }
+        case HUD_ELEMENT_OP_RandomBranch: {
+            s32 s1 = *script_step++;
+
+            icon->read_pos = (HudScript *)script_step[pm_player.timer % (s1 - 1)];
+            game_icon_script_init(icon, icon->read_pos);
             return 1;
-        case HUD_ELEMENT_OP_PlaySound:
-            // yeah we're not doing this lol
-            icon->readPos = (HudScript *)script_step++;
+        }
+        case HUD_ELEMENT_OP_PlaySound: {
+            // yeah we're not playing sound from icons lol
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_SetPivot:
-            arg1 = *script_step++;
-            arg2 = *script_step++;
-            icon->readPos = (HudScript *)script_step;
+        }
+        case HUD_ELEMENT_OP_SetPivot: {
+            s32 pivot_x = *script_step++;
+            s32 pivot_y = *script_step++;
             if (icon->flags & HUD_ELEMENT_FLAGS_TRANSFORM) {
-                hudTransform->pivot.x = arg1;
-                // decomp needed to match
+                hudTransform->pivot.x = pivot_x;
+                // decomp needed to match, maybe take a look later
                 do {
-                    hudTransform->pivot.y = arg2;
+                    hudTransform->pivot.y = pivot_y;
                 } while (0);
             }
+
+            icon->read_pos = (HudScript *)script_step;
             return 1;
-        case HUD_ELEMENT_OP_op_16: break;
+        }
+        case HUD_ELEMENT_OP_op_16: {
+            break;
+        }
     }
 
     return 0;
@@ -691,28 +724,28 @@ static s32 game_icon_update(game_icon *icon) {
 
 static game_icon *game_icon_create(game_icon *icon, HudScript *hud_script) {
     icon->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
-    icon->readPos = hud_script;
-    icon->updateTimer = 1;
-    icon->drawSizePreset = -1;
-    icon->tileSizePreset = -1;
-    icon->renderPosX = 0;
-    icon->renderPosY = 0;
-    icon->loopStartPos = hud_script;
-    icon->widthScale = X10(1.0f);
-    icon->heightScale = X10(1.0f);
-    icon->anim = icon->readPos;
-    icon->uniformScale = 1.0f;
-    icon->screenPosOffset.x = 0;
-    icon->screenPosOffset.y = 0;
-    icon->worldPosOffset.x = 0;
-    icon->worldPosOffset.y = 0;
-    icon->worldPosOffset.z = 0;
-    icon->opacity = 255;
+    icon->read_pos = hud_script;
+    icon->update_timer = 1;
+    icon->draw_size_preset = -1;
+    icon->tile_size_preset = -1;
+    icon->render_pos_x = 0;
+    icon->render_pos_y = 0;
+    icon->loop_start_pos = hud_script;
+    icon->width_scale = X10(1.0f);
+    icon->height_scale = X10(1.0f);
+    icon->anim = icon->read_pos;
+    icon->uniform_scale = 1.0f;
+    icon->screen_pos_offset.x = 0;
+    icon->screen_pos_offset.y = 0;
+    icon->world_pos_offset.x = 0;
+    icon->world_pos_offset.y = 0;
+    icon->world_pos_offset.z = 0;
+    icon->alpha = 255;
     icon->tint.r = 255;
     icon->tint.g = 255;
     icon->tint.b = 255;
 
-    game_icon_script_init(icon, icon->readPos);
+    game_icon_script_init(icon, icon->read_pos);
     while (game_icon_update(icon) != 0) {};
     return icon;
 }
@@ -786,14 +819,14 @@ game_icon *game_icons_update_next() {
                     free_hud_script(game_icon_queue[idx]);
                     free(game_icon_queue[idx]);
                     game_icon_queue[idx] = NULL;
-                } else if (game_icon_queue[idx]->readPos != NULL) {
-                    game_icon_queue[idx]->updateTimer--;
-                    if (game_icon_queue[idx]->updateTimer == 0) {
+                } else if (game_icon_queue[idx]->read_pos != NULL) {
+                    game_icon_queue[idx]->update_timer--;
+                    if (game_icon_queue[idx]->update_timer == 0) {
                         while (game_icon_update(game_icon_queue[idx]) != 0) {};
                     }
                     if (game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
-                        game_icon_queue[idx]->unkImgScale[0] += game_icon_queue[idx]->deltaSizeX;
-                        game_icon_queue[idx]->unkImgScale[1] += game_icon_queue[idx]->deltaSizeY;
+                        game_icon_queue[idx]->unk_img_scale[0] += game_icon_queue[idx]->delta_size_x;
+                        game_icon_queue[idx]->unk_img_scale[1] += game_icon_queue[idx]->delta_size_y;
                     }
                     next_icon = game_icon_queue[idx];
                 }

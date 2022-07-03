@@ -13,8 +13,7 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-typedef u8 ActionState;
-enum action_state {
+typedef enum {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
     ACTION_STATE_RUN,
@@ -56,10 +55,9 @@ enum action_state {
     ACTION_STATE_24,
     ACTION_STATE_25,
     ACTION_STATE_USE_SPRING,
-};
+} ActionState;
 
-typedef u16 Area;
-enum areas {
+typedef enum {
     AREA_GOOMBA_VILLAGE,
     AREA_TOAD_TOWN,
     AREA_SEWERS,
@@ -88,10 +86,9 @@ enum areas {
     AREA_MINI_GAMES,
     AREA_GAME_OVER,
     AREA_DEBUG,
-};
+} Area;
 
-typedef u8 Partner;
-enum partners {
+typedef enum {
     PARTNER_NONE,
     PARTNER_GOOMBARIO,
     PARTNER_KOOPER,
@@ -104,10 +101,9 @@ enum partners {
     PARTNER_BOW,
     PARTNER_GOOMBARIA,
     PARTNER_TWINK,
-};
+} Partner;
 
-typedef u16 Item;
-enum items {
+typedef enum {
     /*0x000*/ ITEM_NONE,
     /*0x001*/ ITEM_JUMP,
     /*0x002*/ ITEM_SPIN_JUMP,
@@ -473,7 +469,7 @@ enum items {
     /*0x16A*/ ITEM_BOOTS2_ICON,
     /*0x16B*/ ITEM_BOOTS3_ICON,
     /*0x16C*/ ITEM_ITEMS_ICON,
-};
+} Item;
 
 enum StoryProgress {
     /* 80 */ STORY_INTRO = -128,

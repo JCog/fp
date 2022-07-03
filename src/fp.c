@@ -241,7 +241,7 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     static game_icon *fp_icon;
     if (fp_icon == NULL) {
-        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 31, SCREEN_HEIGHT - 49, 255, 1.0f, 0);
+        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255, 1.0f, 0);
     }
     game_icons_draw(fp_icon);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
@@ -814,17 +814,21 @@ void fp_draw(void) {
     if (!fp.version_shown) {
         fp_draw_version(font, cell_width, cell_height, menu_alpha);
     }
-    
-    //TODO: remove before PR
-    if (fp.test_icons[0] == NULL) {
-        fp.test_icons[0] = icons_create_global(Icon_MashAButton, 32, 32, 255, 1.0f);
-    } else {
-        for (u32 i = 0; i < 10; i++) {
-            if (fp.test_icons[i] != NULL) {
-                icons_draw(fp.test_icons[i]);
-            }
-        }
-    }
+
+    // TODO: remove before PR
+    // if (fp.test_icons[0] == NULL) {
+    //  fp.test_icons[0] = game_icons_create_global(Icon_AButton, 32 + 32 * 0, 32, 255, 1.0f);
+    //  fp.test_icons[1] = game_icons_create_partner(PARTNER_WATT, 32 + 32 * 1, 32, 255, 1.0f, 1);
+    //  fp.test_icons[2] = game_icons_create_partner(PARTNER_BOMBETTE, 32 + 32 * 2, 32, 255, 1.0f, 1);
+    //  fp.test_icons[3] = game_icons_create_item(ITEM_APPLE, 32 + 32 * 3, 32, 255, 1.0f, 1);
+    //  fp.test_icons[4] = game_icons_create_item(ITEM_DAMAGE_DODGE_A, 32 + 32 * 4, 32, 255, 1.0f, 1);
+    //} else {
+    //    for (u32 i = 0; i < 10; i++) {
+    //        if (fp.test_icons[i] != NULL) {
+    //            game_icons_draw(fp.test_icons[i]);
+    //        }
+    //    }
+    //}
 
     if (settings->bits.input_display) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
