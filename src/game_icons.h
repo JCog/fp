@@ -241,9 +241,10 @@ typedef struct {
     Color_RGB8 tint;
     Vec2bu custom_image_size;
     Vec2bu custom_draw_size;
+    _Bool custom_grayscale;
 } game_icon; // size = 0x54
 
-game_icon *game_icons_create_global(icon_global icon); /// note that not every icon works yet
+game_icon *game_icons_create_global(icon_global icon, _Bool grayscale); /// note that not every icon works yet
 game_icon *game_icons_create_item(Item item, _Bool grayscale);
 game_icon *game_icons_create_partner(Partner partner, _Bool grayscale);
 

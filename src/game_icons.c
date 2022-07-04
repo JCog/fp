@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include "enums.h"
 #include "game_icons.h"
+#include "math.h"
 #include "util.h"
 
 #define ICON_QUEUE_SIZE                     200
-#define RASTER_CACHE_SIZE                   300
+#define IMAGE_CACHE_SIZE                    300
 #define PALETTE_CACHE_SIZE                  300
 
 #define HS_PTR(sym)                         (s32) & sym
@@ -67,89 +68,108 @@ typedef enum {
     SCRIPT_TYPE_PARTNER
 } hud_script_type;
 
-typedef enum {
-    CACHE_RASTER,
-    CACHE_PALETTE
-} cache_type;
-
 typedef struct image_cache_entry {
     s32 id;
     void *image;
 } image_cache_entry;
 
-static game_icon *game_icon_queue[ICON_QUEUE_SIZE];
-static struct image_cache_entry raster_cache[RASTER_CACHE_SIZE];
-static struct image_cache_entry palette_cache[PALETTE_CACHE_SIZE];
-static u16 raster_cache_oldest_id;
-static u16 palette_cache_oldest_id;
+typedef struct {
+    u16 r : 5;
+    u16 g : 5;
+    u16 b : 5;
+    u16 a : 1;
+} rgba;
 
-static u8 *get_cache_entry_image(u32 image_address, u32 image_size, cache_type cache_type);
+static game_icon *game_icon_queue[ICON_QUEUE_SIZE];
+static struct image_cache_entry image_cache[IMAGE_CACHE_SIZE];
+static u16 image_cache_oldest_id;
+
+static void convert_image_to_grayscale(void *new_image, u32 image_address, u32 image_size);
+static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom_grayscale);
 static u8 *get_cached_raster(u32 addr, u32 size);
-static u8 *get_cached_palette(u32 addr);
+static u8 *get_cached_palette(u32 addr, _Bool custom_grayscale);
 static void free_hud_script(game_icon *icon);
 static HudScript *create_hud_script(hud_script_type type, s32 data[]);
 static void game_icon_set_flags(game_icon *icon, s32 flags);
 static void game_icon_clear_flags(game_icon *icon, s32 flags);
 static void game_icon_script_init(game_icon *icon, HudScript *script);
 static s32 game_icon_update(game_icon *icon);
-static game_icon *game_icon_create(game_icon *icon, HudScript *script);
-static game_icon *game_icon_init(HudScript *script);
+static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool custom_grayscale);
+static game_icon *game_icon_init(HudScript *script, _Bool custom_grayscale);
+
+static void convert_image_to_grayscale(void *new_image, u32 image_address, u32 image_size) {
+    // assuming CI4 RGBA palettes until I have a reason not to
+    rgba *base_image = (rgba *)get_cache_entry_image(image_address, image_size, 0);
+    u8 pixel_count = image_size / 2;
+    for (u32 i = 0; i < pixel_count; i++) {
+        rgba *old_pixel = &base_image[i];
+        rgba *new_pixel = &((rgba *)new_image)[i];
+
+        f32 lum = 0.2782f * old_pixel->r + 0.6562f * old_pixel->g + 0.0656f * old_pixel->b;
+        u16 gray = (lum * 14 / 31) + 12;
+        new_pixel->r = gray;
+        new_pixel->g = gray;
+        new_pixel->b = gray;
+        new_pixel->a = old_pixel->a;
+    }
+}
 
 // image_address can be either ROM or RAM
-static u8 *get_cache_entry_image(u32 image_address, u32 image_size, cache_type cache_type) {
+static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom_grayscale) {
     // simply return the address if it's a pointer to RAM
-    if (image_address >> 24 == 0x80) {
+    if (!custom_grayscale && image_address >> 24 == 0x80) {
         return (u8 *)image_address;
     }
 
-    image_cache_entry *cache;
-    u16 *cache_oldest_id;
-    u16 cache_size;
-    if (cache_type == CACHE_RASTER) {
-        cache = raster_cache;
-        cache_oldest_id = &raster_cache_oldest_id;
-        cache_size = RASTER_CACHE_SIZE;
-    } else {
-        cache = palette_cache;
-        cache_oldest_id = &palette_cache_oldest_id;
-        cache_size = PALETTE_CACHE_SIZE;
+    //use address as id, or id+1 for a custom grayscale
+    s32 id = image_address;
+    if (custom_grayscale) {
+        id++;
     }
 
     s32 idx;
-    for (idx = 0; idx < cache_size; idx++) {
+    for (idx = 0; idx < IMAGE_CACHE_SIZE; idx++) {
         // return cached data
-        if (cache[idx].id == image_address) {
-            return cache[idx].image;
+        if (image_cache[idx].id == id) {
+            return image_cache[idx].image;
         }
 
         // load in data and place in cache
-        if (cache[idx].id == 0) {
-            cache[idx].id = image_address;
-            cache[idx].image = malloc(image_size);
-            nuPiReadRom(image_address, cache[idx].image, image_size);
-            return cache[idx].image;
+        if (image_cache[idx].id == 0) {
+            image_cache[idx].id = id;
+            image_cache[idx].image = malloc(image_size);
+            if (custom_grayscale) {
+                convert_image_to_grayscale(image_cache[idx].image, image_address, image_size);
+            } else {
+                nuPiReadRom(image_address, image_cache[idx].image, image_size);
+            }
+            return image_cache[idx].image;
         }
     }
 
     // no cache hits, replace oldest item
-    idx = (*cache_oldest_id)++;
-    if (*cache_oldest_id == cache_size) {
-        *cache_oldest_id = 0;
+    idx = (image_cache_oldest_id)++;
+    if (image_cache_oldest_id == IMAGE_CACHE_SIZE) {
+        image_cache_oldest_id = 0;
     }
-    cache[idx].id = image_address;
-    free(cache[idx].image);
-    cache[idx].image = malloc(image_size);
-    nuPiReadRom(image_address, cache[idx].image, image_size);
-    return cache[idx].image;
+    image_cache[idx].id = id;
+    free(image_cache[idx].image);
+    image_cache[idx].image = malloc(image_size);
+    if (custom_grayscale) {
+        convert_image_to_grayscale(image_cache[idx].image, image_address, image_size);
+    } else {
+        nuPiReadRom(image_address, image_cache[idx].image, image_size);
+    }
+    return image_cache[idx].image;
 }
 
 static u8 *get_cached_raster(u32 addr, u32 size) {
-    u8 *entry = get_cache_entry_image(addr, size, CACHE_RASTER);
+    u8 *entry = get_cache_entry_image(addr, size, 0);
     return entry;
 }
 
-static u8 *get_cached_palette(u32 addr) {
-    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, CACHE_PALETTE);
+static u8 *get_cached_palette(u32 addr, _Bool custom_grayscale) {
+    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, custom_grayscale);
 }
 
 static void free_hud_script(game_icon *icon) {
@@ -437,7 +457,7 @@ static s32 game_icon_update(game_icon *icon) {
                 raster_size = gHudElementSizes[icon->draw_size_preset].size;
             }
             icon->raster_addr = get_cached_raster(raster_rom, raster_size);
-            icon->palette_addr = get_cached_palette(palette_rom);
+            icon->palette_addr = get_cached_palette(palette_rom, icon->custom_grayscale);
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
                 s32 image_width, image_height, draw_width, draw_height;
@@ -476,6 +496,7 @@ static s32 game_icon_update(game_icon *icon) {
             break;
         }
         case HUD_ELEMENT_OP_SetImage: {
+            // possibly only used with item icons?
             icon->update_timer = *script_step++;
             s32 raster_addr = *script_step++;
             s32 palette_addr = *script_step++;
@@ -731,7 +752,7 @@ static s32 game_icon_update(game_icon *icon) {
     return 0;
 }
 
-static game_icon *game_icon_create(game_icon *icon, HudScript *script) {
+static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool custom_grayscale) {
     icon->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
     icon->read_pos = script;
     icon->update_timer = 1;
@@ -753,21 +774,22 @@ static game_icon *game_icon_create(game_icon *icon, HudScript *script) {
     icon->tint.r = 255;
     icon->tint.g = 255;
     icon->tint.b = 255;
+    icon->custom_grayscale = custom_grayscale;
 
     game_icon_script_init(icon, icon->read_pos);
     while (game_icon_update(icon) != 0) {};
     return icon;
 }
 
-static game_icon *game_icon_init(HudScript *script) {
+static game_icon *game_icon_init(HudScript *script, _Bool custom_grayscale) {
     game_icon *icon = malloc(sizeof(*icon));
-    icon = game_icon_create(icon, script);
+    icon = game_icon_create(icon, script, custom_grayscale);
     return icon;
 }
 
-game_icon *game_icons_create_global(icon_global icon) {
+game_icon *game_icons_create_global(icon_global icon, _Bool grayscale) {
     s32 script_data[] = {icon};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_GLOBAL, script_data));
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_GLOBAL, script_data), grayscale);
 }
 
 game_icon *game_icons_create_partner(Partner partner, _Bool grayscale) {
@@ -785,12 +807,12 @@ game_icon *game_icons_create_partner(Partner partner, _Bool grayscale) {
     }
 
     s32 data[] = {partner_index, grayscale};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_PARTNER, data));
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_PARTNER, data), 0);
 }
 
 game_icon *game_icons_create_item(Item item, _Bool grayscale) {
     s32 data[] = {item, grayscale};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data));
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data), 0);
 }
 
 void game_icons_draw(game_icon *icon) {
