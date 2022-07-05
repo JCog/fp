@@ -613,8 +613,10 @@ static void draw_game_icon_rect(game_icon *icon, s16 tex_size_x, s16 tex_size_y,
     s32 height_scale = icon->height_scale;
     screen_pos_offset_scaled_y /= height_scale;
 
-    s16 base_x = icon->render_pos_x + icon->world_pos_offset.x + offset_x + screen_pos_offset_scaled_x;
-    s16 base_y = icon->render_pos_y + icon->world_pos_offset.y + offset_y + screen_pos_offset_scaled_y;
+    s16 base_x = icon->render_pos.x + icon->render_pos_offset.x;
+    s16 base_y = icon->render_pos.y + icon->render_pos_offset.y;
+    base_x += icon->world_pos_offset.x + offset_x + screen_pos_offset_scaled_x;
+    base_y += icon->world_pos_offset.y + offset_y + screen_pos_offset_scaled_y;
 
     if (drop_shadow) {
         base_x += 2;
@@ -980,22 +982,19 @@ static void draw_game_icon(game_icon *icon) {
                     draw_size_y = icon->size_y;
                 }
 
-                s32 offset_x = -draw_size_x / 2;
-                s32 offset_y = -draw_size_y / 2;
-
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_REPEATED)) {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y,
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0,
                                             1, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 1,
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1,
                                         0);
                 } else {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y,
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0,
                                             0, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0,
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0,
                                         0);
                 }
             } else {
@@ -1013,9 +1012,6 @@ static void draw_game_icon(game_icon *icon) {
                 draw_size_x = icon->unk_img_scale[0];
                 draw_size_y = icon->unk_img_scale[1];
 
-                s32 offset_x = -icon->unk_img_scale[0] / 2;
-                s32 offset_y = -icon->unk_img_scale[1] / 2;
-
                 xScaled = (f32)draw_size_x / (f32)tex_size_x;
                 yScaled = (f32)draw_size_y / (f32)tex_size_y;
 
@@ -1026,10 +1022,10 @@ static void draw_game_icon(game_icon *icon) {
                 icon->height_scale = X10(yScaled);
 
                 if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0,
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0,
                                         1);
                 }
-                draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, offset_x, offset_y, 0, 1);
+                draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
             }
         }
     }

@@ -6,7 +6,6 @@
 
 #define ICON_QUEUE_SIZE                     200
 #define IMAGE_CACHE_SIZE                    300
-#define PALETTE_CACHE_SIZE                  300
 
 #define HS_PTR(sym)                         (s32) & sym
 
@@ -121,7 +120,7 @@ static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom
         return (u8 *)image_address;
     }
 
-    //use address as id, or id+1 for a custom grayscale
+    // use address as id, or id+1 for a custom grayscale
     s32 id = image_address;
     if (custom_grayscale) {
         id++;
@@ -231,9 +230,14 @@ static HudScript *create_hud_script(hud_script_type type, s32 data[]) {
     }
 }
 
-void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y) {
-    icon->render_pos_x = x;
-    icon->render_pos_y = y;
+void game_icons_set_pos(game_icon *icon, s16 x, s16 y) {
+    icon->render_pos.x = x;
+    icon->render_pos.y = y;
+}
+
+void game_icons_set_pos_offset(game_icon *icon, s16 x, s16 y) {
+    icon->render_pos_offset.x = x;
+    icon->render_pos_offset.y = y;
 }
 
 void game_icons_set_scale(game_icon *icon, f32 scale) {
@@ -291,6 +295,38 @@ void game_icons_set_tint(game_icon *icon, u8 r, u8 g, u8 b) {
     icon->tint.r = r;
     icon->tint.g = g;
     icon->tint.b = b;
+}
+
+s32 game_icons_get_width(game_icon *icon) {
+    if (!(icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE)) {
+        if (!(icon->flags & HUD_ELEMENT_FLAGS_SCALED)) {
+            if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                return gHudElementSizes[icon->draw_size_preset].width;
+            } else {
+                return icon->custom_draw_size.x;
+            }
+        } else {
+            return icon->size_x;
+        }
+    } else {
+        return icon->unk_img_scale[0];
+    }
+}
+
+s32 game_icons_get_height(game_icon *icon) {
+    if (!(icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE)) {
+        if (!(icon->flags & HUD_ELEMENT_FLAGS_SCALED)) {
+            if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                return gHudElementSizes[icon->draw_size_preset].height;
+            } else {
+                return icon->custom_draw_size.y;
+            }
+        } else {
+            return icon->size_y;
+        }
+    } else {
+        return icon->unk_img_scale[1];
+    }
 }
 
 static void game_icon_set_flags(game_icon *icon, s32 flags) {
@@ -504,7 +540,7 @@ static s32 game_icon_update(game_icon *icon) {
 
             icon->raster_addr =
                 get_cached_raster(ICONS_ITEMS_ROM_START + raster_addr, gHudElementSizes[icon->tile_size_preset].size);
-            icon->palette_addr = get_cached_palette(ICONS_ITEMS_ROM_START + palette_addr);
+            icon->palette_addr = get_cached_palette(ICONS_ITEMS_ROM_START + palette_addr, icon->custom_grayscale);
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
                 s32 image_width, image_height, draw_width, draw_height;
@@ -758,8 +794,10 @@ static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool cus
     icon->update_timer = 1;
     icon->draw_size_preset = -1;
     icon->tile_size_preset = -1;
-    icon->render_pos_x = 0;
-    icon->render_pos_y = 0;
+    icon->render_pos.x = 0;
+    icon->render_pos.y = 0;
+    icon->render_pos_offset.x = 0;
+    icon->render_pos_offset.y = 0;
     icon->loop_start_pos = script;
     icon->width_scale = X10(1.0f);
     icon->height_scale = X10(1.0f);
@@ -811,8 +849,11 @@ game_icon *game_icons_create_partner(Partner partner, _Bool grayscale) {
 }
 
 game_icon *game_icons_create_item(Item item, _Bool grayscale) {
+    IconHudScriptPair *script_pair = &gItemHudScripts[gItemTable[item].hudElemID];
+    _Bool custom_grayscale = grayscale && script_pair->enabled == script_pair->disabled;
+
     s32 data[] = {item, grayscale};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data), 0);
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data), custom_grayscale);
 }
 
 void game_icons_draw(game_icon *icon) {

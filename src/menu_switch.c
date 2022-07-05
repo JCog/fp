@@ -17,6 +17,7 @@ struct item_data {
     s32 anim_state;
     game_icon *icon_on;
     game_icon *icon_off;
+    game_icon *prev_icon;
 };
 
 static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
@@ -40,23 +41,32 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         ++draw_params->y;
     }
     if (data->icon_on) {
-        s32 cw = menu_get_cell_width(item->owner, 1);
-        draw_params->x += cw / 2;
-        draw_params->y -= (gfx_font_xheight(draw_params->font) + 1) / 2;
-
         game_icon *icon;
-        if ((data->anim_state > 0) != data->state) {
+        if (data->anim_state > 0) {
+            icon = data->prev_icon;
+        } else if (data->state) {
             icon = data->icon_on;
         } else {
             icon = data->icon_off;
         }
+        data->prev_icon = icon;
+
+        s32 cw = menu_get_cell_width(item->owner, 1);
+        s32 w = game_icons_get_width(icon);
+        s32 h = game_icons_get_height(icon);
+        s32 x = draw_params->x + (cw - w) / 2;
+        s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h) / 2;
         if (item->owner->selector == item) {
-            game_icons_set_render_pos(icon, draw_params->x - 1, draw_params->y - 1);
-            game_icons_set_drop_shadow(icon, 1);
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha * 0x80 / 0xFF));
+            gfx_mode_replace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+            gfx_disp(gsSPScisTextureRectangle(qs102(x), qs102(y), qs102(x + w), qs102(y + h), 0, 0, 0, 0, 0));
+            gfx_mode_pop(GFX_MODE_COMBINE);
+            // game_icons_set_pos(icon, x - 1, y - 1);
+            // game_icons_set_drop_shadow(icon, 1);
         } else {
-            game_icons_set_render_pos(icon, draw_params->x, draw_params->y);
-            game_icons_set_drop_shadow(icon, 0);
+            // game_icons_set_drop_shadow(icon, 0);
         }
+        game_icons_set_pos(icon, x + icon->render_pos_offset.x, y + icon->render_pos_offset.y);
         game_icons_set_alpha(icon, draw_params->alpha);
         game_icons_draw(icon);
     } else {
@@ -168,6 +178,7 @@ struct menu_item *menu_add_switch_game_icon(struct menu *menu, s32 x, s32 y, gam
     data->anim_state = 0;
     data->icon_on = icon_on;
     data->icon_off = icon_off;
+    data->prev_icon = icon_off;
     item->data = data;
     item->enter_proc = enter_proc;
     item->think_proc = think_proc;

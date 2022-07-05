@@ -24,8 +24,8 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         ++draw_params->y;
         data->anim_state = (data->anim_state + 1) % 3;
     }
+    s32 cw = menu_get_cell_width(item->owner, 1);
     if (data->texture) {
-        s32 cw = menu_get_cell_width(item->owner, 1);
         struct gfx_sprite sprite = {
             data->texture,
             data->texture_tile,
@@ -37,18 +37,23 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
         gfx_sprite_draw(&sprite);
         return 1;
-    }
-    if (data->icon) {
-        s32 cw = menu_get_cell_width(item->owner, 1);
-        draw_params->x += cw / 2;
-        draw_params->y -= (gfx_font_xheight(draw_params->font) + 1) / 2;
+    } else if (data->icon) {
+        game_icon *icon = data->icon;
+        s32 w = game_icons_get_width(icon);
+        s32 h = game_icons_get_height(icon);
+        s32 x = draw_params->x + (cw - w) / 2;
+        s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h + 1) / 2;
         game_icons_set_alpha(data->icon, draw_params->alpha);
+        game_icons_set_pos(icon, x + icon->render_pos_offset.x, y + icon->render_pos_offset.y);
         if (item->owner->selector == item) {
-            game_icons_set_render_pos(data->icon, draw_params->x - 1, draw_params->y - 1);
-            game_icons_set_drop_shadow(data->icon, 1);
+            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha * 0x80 / 0xFF));
+            gfx_mode_replace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+            gfx_disp(gsSPScisTextureRectangle(qs102(x), qs102(y), qs102(x + w), qs102(y + h), 0, 0, 0, 0, 0));
+            gfx_mode_pop(GFX_MODE_COMBINE);
+            // game_icons_set_drop_shadow(data->icon, 1);
+            // game_icons_set_pos(icon, x + icon->render_pos_offset.x + 1, y + icon->render_pos_offset.y + 1);
         } else {
-            game_icons_set_render_pos(data->icon, draw_params->x, draw_params->y);
-            game_icons_set_drop_shadow(data->icon, 0);
+            // game_icons_set_drop_shadow(data->icon, 0);
         }
         game_icons_draw(data->icon);
         return 1;

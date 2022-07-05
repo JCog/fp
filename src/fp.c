@@ -243,7 +243,7 @@ void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 
     static game_icon *fp_icon;
     if (fp_icon == NULL) {
         fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 0);
-        game_icons_set_render_pos(fp_icon, 31, SCREEN_HEIGHT - 49);
+        game_icons_set_pos(fp_icon, 31, SCREEN_HEIGHT - 49);
     }
     game_icons_draw(fp_icon);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));

@@ -271,18 +271,19 @@ typedef struct {
 } partner_t; // size: 0x00008
 
 typedef struct {
-    /* 0x0000 */ partner_t goombario;
-    /* 0x0008 */ partner_t kooper;
-    /* 0x0010 */ partner_t bombette;
-    /* 0x0018 */ partner_t parakarry;
-    /* 0x0020 */ partner_t goompa;
-    /* 0x0028 */ partner_t watt;
-    /* 0x0030 */ partner_t sushie;
-    /* 0x0038 */ partner_t lakilester;
-    /* 0x0040 */ partner_t bow;
-    /* 0x0048 */ partner_t goombaria;
-    /* 0x0050 */ partner_t twink;
-} party_t; // size: 0x0058
+    /* 0x00 */ partner_t unk_partner;
+    /* 0x08 */ partner_t goombario;
+    /* 0x10 */ partner_t kooper;
+    /* 0x18 */ partner_t bombette;
+    /* 0x20 */ partner_t parakarry;
+    /* 0x28 */ partner_t goompa;
+    /* 0x30 */ partner_t watt;
+    /* 0x38 */ partner_t sushie;
+    /* 0x40 */ partner_t lakilester;
+    /* 0x48 */ partner_t bow;
+    /* 0x50 */ partner_t goombaria;
+    /* 0x58 */ partner_t twink;
+} party_t; // size: 0x60
 
 typedef struct {
     /* 0x0000 */ char unk_0x00[0x01];
@@ -321,8 +322,10 @@ typedef struct {
     /* 0x011 */ char unk_0x11[0x01];
     /* 0x012 */ u8 current_partner; /*0x00 - 0x0B*/
     /* 0x013 */ char unk_0x13[0x01];
-    /* 0x014 */ char unk_14[8];
-    /* 0x01C */ party_t party;
+    /* 0x014 */ union {
+        /* 0x014 */ party_t party;
+        /* 0x014 */ partner_t partners[12];
+    /* 0x01C */ };
     /* 0x074 */ u16 key_items[32];
     /* 0x0B4 */ u16 badges[128];
     /* 0x1B4 */ u16 items[10];

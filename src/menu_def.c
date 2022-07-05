@@ -20,10 +20,13 @@ static s32 static_icon_draw_proc(struct menu_item *item, struct menu_draw_params
     struct static_icon_data *data = item->data;
     s32 cw = menu_get_cell_width(item->owner, 1);
     if (data->icon) {
-        draw_params->x += cw / 2;
-        draw_params->y -= (gfx_font_xheight(draw_params->font) + 1) / 2;
-        game_icons_set_render_pos(data->icon, draw_params->x, draw_params->y);
-        game_icons_set_alpha(data->icon, draw_params->alpha);
+        game_icon *icon = data->icon;
+        s32 w = game_icons_get_width(icon);
+        s32 h = game_icons_get_height(icon);
+        s32 x = draw_params->x + (cw - w) / 2;
+        s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + h + 1) / 2;
+        game_icons_set_pos(icon, x + icon->render_pos_offset.x, y + icon->render_pos_offset.y);
+        game_icons_set_alpha(icon, draw_params->alpha);
         game_icons_draw(data->icon);
     } else {
         s32 w = data->texture->tile_width * data->scale;

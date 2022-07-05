@@ -228,15 +228,15 @@ typedef struct {
     f32 uniform_scale;
     s32 width_scale;  ///< X10
     s32 height_scale; ///< X10
-    s16 render_pos_x;
-    s16 render_pos_y;
+    Vec2s render_pos;
+    Vec2s render_pos_offset;
     Vec2b screen_pos_offset;
     Vec3b world_pos_offset;
     s8 draw_size_preset;
     s8 tile_size_preset;
     s8 update_timer;
-    u8 size_x; /* screen size? */
-    u8 size_y; /* screen size? */
+    u8 size_x;
+    u8 size_y;
     u8 alpha;
     Color_RGB8 tint;
     Vec2bu custom_image_size;
@@ -248,11 +248,15 @@ game_icon *game_icons_create_global(icon_global icon, _Bool grayscale); /// note
 game_icon *game_icons_create_item(Item item, _Bool grayscale);
 game_icon *game_icons_create_partner(Partner partner, _Bool grayscale);
 
-void game_icons_set_render_pos(game_icon *icon, s32 x, s32 y);
+void game_icons_set_pos(game_icon *icon, s16 x, s16 y);
+void game_icons_set_pos_offset(game_icon *icon, s16 x, s16 y);
 void game_icons_set_scale(game_icon *icon, f32 scale);
 void game_icons_set_alpha(game_icon *icon, s32 alpha);
 void game_icons_set_drop_shadow(game_icon *icon, _Bool drop_shadow);
 void game_icons_set_tint(game_icon *icon, u8 r, u8 g, u8 b);
+
+s32 game_icons_get_width(game_icon *icon);
+s32 game_icons_get_height(game_icon *icon);
 
 void game_icons_draw(game_icon *icon);
 void game_icons_delete(game_icon *icon);
