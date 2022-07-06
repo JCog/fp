@@ -205,6 +205,11 @@ typedef enum {
 } icon_global;
 
 typedef struct {
+    s32 cache_id; //-1 means not stored in the cache, -2 means uninitialized
+    void *image;
+} image_entry;
+
+typedef struct {
     s32 fold_idx;
     Vec3f position;
     Vec3f rotation;
@@ -218,8 +223,8 @@ typedef struct {
     HudScript *read_pos;
     HudScript *script;
     HudScript *loop_start_pos;
-    u8 *raster_addr;
-    u8 *palette_addr;
+    image_entry raster;
+    image_entry palette;
     s32 mem_offset;
     game_icon_transform *transform;
     f32 delta_size_x;

@@ -603,8 +603,8 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
 
 static void draw_game_icon_rect(game_icon *icon, s16 tex_size_x, s16 tex_size_y, s16 draw_size_x, s16 draw_size_y,
                                 s16 offset_x, s16 offset_y, s32 clamp, s32 drop_shadow) {
-    u8 *image_addr = icon->raster_addr;
-    u8 *palette_addr = icon->palette_addr;
+    u8 *image_addr = icon->raster.image;
+    u8 *palette_addr = icon->palette.image;
 
     s32 screen_pos_offset_scaled_x = icon->screen_pos_offset.x * 1024;
     s32 screen_pos_offset_scaled_y = icon->screen_pos_offset.y * 1024;
@@ -984,18 +984,14 @@ static void draw_game_icon(game_icon *icon) {
 
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_REPEATED)) {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0,
-                                            1, 1);
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1,
-                                        0);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 0);
                 } else {
                     if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0,
-                                            0, 1);
+                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
                     }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0,
-                                        0);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 0);
                 }
             } else {
                 f32 xScaled, yScaled;
@@ -1022,8 +1018,7 @@ static void draw_game_icon(game_icon *icon) {
                 icon->height_scale = X10(yScaled);
 
                 if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0,
-                                        1);
+                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
                 }
                 draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
             }

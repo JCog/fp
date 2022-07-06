@@ -5,7 +5,7 @@
 #include "util.h"
 
 #define ICON_QUEUE_SIZE                     200
-#define IMAGE_CACHE_SIZE                    300
+#define IMAGE_CACHE_SIZE                    2 * ICON_QUEUE_SIZE
 
 #define HS_PTR(sym)                         (s32) & sym
 
@@ -67,11 +67,6 @@ typedef enum {
     SCRIPT_TYPE_PARTNER
 } hud_script_type;
 
-typedef struct image_cache_entry {
-    s32 id;
-    void *image;
-} image_cache_entry;
-
 typedef struct {
     u16 r : 5;
     u16 g : 5;
@@ -80,25 +75,36 @@ typedef struct {
 } rgba;
 
 static game_icon *game_icon_queue[ICON_QUEUE_SIZE];
-static struct image_cache_entry image_cache[IMAGE_CACHE_SIZE];
+static image_entry image_cache[IMAGE_CACHE_SIZE];
+static void *image_buffer;
 static u16 image_cache_oldest_id;
 
 static void convert_image_to_grayscale(void *new_image, u32 image_address, u32 image_size);
-static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom_grayscale);
-static u8 *get_cached_raster(u32 addr, u32 size);
-static u8 *get_cached_palette(u32 addr, _Bool custom_grayscale);
+static s32 get_image_cache_entry_id(u32 image_address, u32 image_size, _Bool custom_grayscale);
+static s32 get_cached_raster_id(u32 addr, u32 size);
+static s32 get_cached_palette_id(u32 addr, _Bool custom_grayscale);
+
 static void free_hud_script(game_icon *icon);
 static HudScript *create_hud_script(hud_script_type type, s32 data[]);
+
+static void refresh_icon_image(game_icon *icon);
 static void game_icon_set_flags(game_icon *icon, s32 flags);
 static void game_icon_clear_flags(game_icon *icon, s32 flags);
+
 static void game_icon_script_init(game_icon *icon, HudScript *script);
 static s32 game_icon_update(game_icon *icon);
 static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool custom_grayscale);
 static game_icon *game_icon_init(HudScript *script, _Bool custom_grayscale);
 
 static void convert_image_to_grayscale(void *new_image, u32 image_address, u32 image_size) {
-    // assuming CI4 RGBA palettes until I have a reason not to
-    rgba *base_image = (rgba *)get_cache_entry_image(image_address, image_size, 0);
+    // assuming 5551 RGBA palettes until I have a reason not to
+    s16 image_id = get_image_cache_entry_id(image_address, image_size, 0);
+    rgba *base_image;
+    if (image_id == -1) {
+        base_image = (rgba *)image_buffer;
+    } else {
+        base_image = (rgba *)image_cache[image_id].image;
+    }
     u8 pixel_count = image_size / 2;
     for (u32 i = 0; i < pixel_count; i++) {
         rgba *old_pixel = &base_image[i];
@@ -114,10 +120,11 @@ static void convert_image_to_grayscale(void *new_image, u32 image_address, u32 i
 }
 
 // image_address can be either ROM or RAM
-static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom_grayscale) {
-    // simply return the address if it's a pointer to RAM
+static s32 get_image_cache_entry_id(u32 image_address, u32 image_size, _Bool custom_grayscale) {
+    // no need to cache if it's a pointer to RAM
     if (!custom_grayscale && image_address >> 24 == 0x80) {
-        return (u8 *)image_address;
+        image_buffer = (void *)image_address;
+        return -1;
     }
 
     // use address as id, or id+1 for a custom grayscale
@@ -129,20 +136,20 @@ static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom
     s32 idx;
     for (idx = 0; idx < IMAGE_CACHE_SIZE; idx++) {
         // return cached data
-        if (image_cache[idx].id == id) {
-            return image_cache[idx].image;
+        if (image_cache[idx].cache_id == id) {
+            return idx;
         }
 
         // load in data and place in cache
-        if (image_cache[idx].id == 0) {
-            image_cache[idx].id = id;
+        if (image_cache[idx].cache_id == 0) {
+            image_cache[idx].cache_id = id;
             image_cache[idx].image = malloc(image_size);
             if (custom_grayscale) {
                 convert_image_to_grayscale(image_cache[idx].image, image_address, image_size);
             } else {
                 nuPiReadRom(image_address, image_cache[idx].image, image_size);
             }
-            return image_cache[idx].image;
+            return idx;
         }
     }
 
@@ -151,7 +158,7 @@ static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom
     if (image_cache_oldest_id == IMAGE_CACHE_SIZE) {
         image_cache_oldest_id = 0;
     }
-    image_cache[idx].id = id;
+    image_cache[idx].cache_id = id;
     free(image_cache[idx].image);
     image_cache[idx].image = malloc(image_size);
     if (custom_grayscale) {
@@ -159,16 +166,15 @@ static u8 *get_cache_entry_image(u32 image_address, u32 image_size, _Bool custom
     } else {
         nuPiReadRom(image_address, image_cache[idx].image, image_size);
     }
-    return image_cache[idx].image;
+    return idx;
 }
 
-static u8 *get_cached_raster(u32 addr, u32 size) {
-    u8 *entry = get_cache_entry_image(addr, size, 0);
-    return entry;
+static s32 get_cached_raster_id(u32 addr, u32 size) {
+    return get_image_cache_entry_id(addr, size, 0);
 }
 
-static u8 *get_cached_palette(u32 addr, _Bool custom_grayscale) {
-    return get_cache_entry_image(addr, ICON_PALETTE_SIZE, custom_grayscale);
+static s32 get_cached_palette_id(u32 addr, _Bool custom_grayscale) {
+    return get_image_cache_entry_id(addr, ICON_PALETTE_SIZE, custom_grayscale);
 }
 
 static void free_hud_script(game_icon *icon) {
@@ -227,6 +233,123 @@ static HudScript *create_hud_script(hud_script_type type, s32 data[]) {
             }
         }
         default: return NULL;
+    }
+}
+
+static void refresh_icon_image(game_icon *icon) {
+    if (image_cache[IMAGE_CACHE_SIZE - 1].image == NULL) {
+        return; // cache not full, no chance of stale reference
+    }
+    s32 *script_step = (s32 *)icon->script;
+
+    while (1) {
+        switch (*script_step++) {
+            case HUD_ELEMENT_OP_End: return;
+            case HUD_ELEMENT_OP_SetCI: {
+                script_step++;
+                s32 raster_rom = (s32)*script_step++;
+                s32 palette_rom = (s32)*script_step;
+
+                s32 raster_size;
+                if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
+                    raster_rom += icon->mem_offset;
+                    palette_rom += icon->mem_offset;
+                }
+                if (icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE) {
+                    raster_size = (icon->custom_image_size.x * icon->custom_image_size.y) / 2;
+                } else {
+                    raster_size = gHudElementSizes[icon->draw_size_preset].size;
+                }
+                s16 raster_index = get_cached_raster_id(raster_rom, raster_size);
+                s16 palette_index = get_cached_palette_id(palette_rom, icon->custom_grayscale);
+                if (raster_index == -1) {
+                    icon->raster.image = image_buffer;
+                } else {
+                    icon->raster.image = image_cache[raster_index].image;
+                }
+                icon->raster.cache_id = raster_index;
+                if (palette_index == -1) {
+                    icon->palette.image = image_buffer;
+                } else {
+                    icon->palette.image = image_cache[palette_index].image;
+                }
+                icon->palette.cache_id = palette_index;
+            }
+                return;
+            case HUD_ELEMENT_OP_SetTileSize: script_step++; break;
+            case HUD_ELEMENT_OP_SetSizesAutoScale:
+            case HUD_ELEMENT_OP_SetSizesFixedScale: script_step += 3; break;
+            case HUD_ELEMENT_OP_SetCustomSize: script_step += 2; break;
+            case HUD_ELEMENT_OP_AddTexelOffsetX:
+            case HUD_ELEMENT_OP_AddTexelOffsetY:
+            case HUD_ELEMENT_OP_SetScale:
+            case HUD_ELEMENT_OP_SetAlpha:
+            case HUD_ELEMENT_OP_op_15:
+            case HUD_ELEMENT_OP_RandomBranch:
+            case HUD_ELEMENT_OP_SetFlags:
+            case HUD_ELEMENT_OP_ClearFlags:
+            case HUD_ELEMENT_OP_PlaySound: script_step++; break;
+            case HUD_ELEMENT_OP_SetRGBA: {
+                script_step++;
+                u32 raster_addr = *script_step;
+
+                if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
+                    raster_addr += icon->mem_offset;
+                }
+
+                if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                    s32 image_width, image_height;
+
+                    if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
+                        s32 tile_size_preset = icon->tile_size_preset;
+
+                        image_width = gHudElementSizes[tile_size_preset].width;
+                        image_height = gHudElementSizes[tile_size_preset].height;
+                    } else {
+                        image_width = icon->custom_image_size.x;
+                        image_height = icon->custom_image_size.y;
+                    }
+                    // TODO: figure out the proper size for custom images sizes
+                    s16 raster_index = get_cached_raster_id(raster_addr, gHudElementSizes[icon->draw_size_preset].size);
+                    icon->raster.cache_id = raster_index;
+                    if (raster_index == -1) {
+                        icon->raster.image = image_buffer;
+                    } else {
+                        icon->raster.image = image_cache[raster_index].image;
+                    }
+                }
+            }
+                return;
+            case HUD_ELEMENT_OP_SetTexelOffset:
+            case HUD_ELEMENT_OP_RandomDelay:
+            case HUD_ELEMENT_OP_RandomRestart:
+            case HUD_ELEMENT_OP_SetPivot: script_step += 2; break;
+            case HUD_ELEMENT_OP_SetImage: {
+                // possibly only used with item icons?
+                script_step++;
+                s32 raster_addr = *script_step++;
+                s32 palette_addr = *script_step++;
+
+                s16 raster_index = get_cached_raster_id(ICONS_ITEMS_ROM_START + raster_addr,
+                                                        gHudElementSizes[icon->tile_size_preset].size);
+                s16 palette_index = get_cached_palette_id(ICONS_ITEMS_ROM_START + palette_addr, icon->custom_grayscale);
+
+                icon->raster.cache_id = raster_index;
+                if (raster_index == -1) {
+                    icon->raster.image = image_buffer;
+                } else {
+                    icon->raster.image = image_cache[raster_index].image;
+                }
+
+                icon->palette.cache_id = palette_index;
+                if (palette_index == -1) {
+                    icon->palette.image = image_buffer;
+                } else {
+                    icon->palette.image = image_cache[palette_index].image;
+                }
+            }
+                return;
+        }
     }
 }
 
@@ -337,11 +460,134 @@ static void game_icon_clear_flags(game_icon *icon, s32 flags) {
     icon->flags &= ~flags;
 }
 
+static game_icon *game_icon_init(HudScript *script, _Bool custom_grayscale) {
+    game_icon *icon = malloc(sizeof(*icon));
+    icon = game_icon_create(icon, script, custom_grayscale);
+    return icon;
+}
+
+game_icon *game_icons_create_global(icon_global icon, _Bool grayscale) {
+    s32 script_data[] = {icon};
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_GLOBAL, script_data), grayscale);
+}
+
+game_icon *game_icons_create_partner(Partner partner, _Bool grayscale) {
+    u8 partner_index;
+    switch (partner) {
+        case PARTNER_GOOMBARIO: partner_index = 1; break;
+        case PARTNER_KOOPER: partner_index = 2; break;
+        case PARTNER_BOMBETTE: partner_index = 3; break;
+        case PARTNER_PARAKARRY: partner_index = 4; break;
+        case PARTNER_WATT: partner_index = 6; break;
+        case PARTNER_SUSHIE: partner_index = 7; break;
+        case PARTNER_LAKILESTER: partner_index = 8; break;
+        case PARTNER_BOW: partner_index = 5; break;
+        default: partner_index = 0; break;
+    }
+
+    s32 data[] = {partner_index, grayscale};
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_PARTNER, data), 0);
+}
+
+game_icon *game_icons_create_item(Item item, _Bool grayscale) {
+    IconHudScriptPair *script_pair = &gItemHudScripts[gItemTable[item].hudElemID];
+    _Bool custom_grayscale = grayscale && script_pair->enabled == script_pair->disabled;
+
+    s32 data[] = {item, grayscale};
+    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data), custom_grayscale);
+}
+
+void game_icons_draw(game_icon *icon) {
+    for (s32 i = 0; i < ICON_QUEUE_SIZE; i++) {
+        if (game_icon_queue[i] == NULL) {
+            game_icon_queue[i] = icon;
+            return;
+        }
+    }
+}
+
+void game_icons_delete(game_icon *icon) {
+    game_icon_set_flags(icon, HUD_ELEMENT_FLAGS_DELETE);
+}
+
+game_icon *game_icons_update_next() {
+    static u16 idx = 0;
+    game_icon *next_icon = NULL;
+    while (idx < ICON_QUEUE_SIZE) {
+        if (game_icon_queue[idx] == NULL) {
+            // no more icons in queue
+            break;
+        } else {
+            if (game_icon_queue[idx]->flags != 0 && !(game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
+                if (game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_DELETE) {
+                    // icon flagged for deletion, free script if we created it before freeing the hud_element
+                    free_hud_script(game_icon_queue[idx]);
+                    free(game_icon_queue[idx]);
+                    game_icon_queue[idx] = NULL;
+                } else if (game_icon_queue[idx]->read_pos != NULL) {
+                    game_icon_queue[idx]->update_timer--;
+                    if (game_icon_queue[idx]->update_timer == 0) {
+                        while (game_icon_update(game_icon_queue[idx]) != 0) {};
+                    }
+                    if (game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
+                        game_icon_queue[idx]->unk_img_scale[0] += game_icon_queue[idx]->delta_size_x;
+                        game_icon_queue[idx]->unk_img_scale[1] += game_icon_queue[idx]->delta_size_y;
+                    }
+                    next_icon = game_icon_queue[idx];
+                }
+            }
+        }
+        game_icon_queue[idx] = NULL;
+        idx++;
+        if (next_icon) {
+            refresh_icon_image(next_icon);
+            return next_icon;
+        }
+    }
+    idx = 0;
+    return NULL;
+}
+
+static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool custom_grayscale) {
+    icon->raster.cache_id = 0;
+    icon->raster.image = NULL;
+    icon->palette.cache_id = 0;
+    icon->palette.image = NULL;
+    icon->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
+    icon->read_pos = script;
+    icon->update_timer = 1;
+    icon->draw_size_preset = -1;
+    icon->tile_size_preset = -1;
+    icon->render_pos.x = 0;
+    icon->render_pos.y = 0;
+    icon->render_pos_offset.x = 0;
+    icon->render_pos_offset.y = 0;
+    icon->loop_start_pos = script;
+    icon->width_scale = X10(1.0f);
+    icon->height_scale = X10(1.0f);
+    icon->script = icon->read_pos;
+    icon->uniform_scale = 1.0f;
+    icon->screen_pos_offset.x = 0;
+    icon->screen_pos_offset.y = 0;
+    icon->world_pos_offset.x = 0;
+    icon->world_pos_offset.y = 0;
+    icon->world_pos_offset.z = 0;
+    icon->alpha = 255;
+    icon->tint.r = 255;
+    icon->tint.g = 255;
+    icon->tint.b = 255;
+    icon->custom_grayscale = custom_grayscale;
+
+    game_icon_script_init(icon, icon->read_pos);
+    while (game_icon_update(icon) != 0) {};
+    return icon;
+}
+
 static void game_icon_script_init(game_icon *icon, HudScript *script) {
     s32 *script_step = (s32 *)script;
 
     if (script_step == NULL) {
-        // PRINTF("attempted to initialize icon, but script was NULL\n");
+        PRINTF("attempted to initialize icon, but script was NULL\n");
         return;
     }
 
@@ -434,10 +680,10 @@ static s32 game_icon_update(game_icon *icon) {
         }
         case HUD_ELEMENT_OP_SetRGBA: {
             icon->update_timer = *script_step++;
-            icon->raster_addr = (u8 *)*script_step++;
+            u32 raster_addr = *script_step++;
 
             if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
-                icon->raster_addr += icon->mem_offset;
+                raster_addr += icon->mem_offset;
             }
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
@@ -456,6 +702,14 @@ static s32 game_icon_update(game_icon *icon) {
                     image_height = icon->custom_image_size.y;
                     draw_width = icon->custom_draw_size.x;
                     draw_height = icon->custom_draw_size.y;
+                }
+                // TODO: figure out the proper size for custom images sizes
+                s16 raster_index = get_cached_raster_id(raster_addr, gHudElementSizes[icon->draw_size_preset].size);
+                icon->raster.cache_id = raster_index;
+                if (raster_index == -1) {
+                    icon->raster.image = image_buffer;
+                } else {
+                    icon->raster.image = image_cache[raster_index].image;
                 }
 
                 if (!(icon->flags & HUD_ELEMENT_FLAGS_200)) {
@@ -478,10 +732,9 @@ static s32 game_icon_update(game_icon *icon) {
         }
         case HUD_ELEMENT_OP_SetCI: {
             icon->update_timer = *script_step++;
-
-            if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {}
             s32 raster_rom = (s32)*script_step++;
             s32 palette_rom = (s32)*script_step++;
+
             s32 raster_size;
             if (icon->flags & HUD_ELEMENT_FLAGS_MEMOFFSET) {
                 raster_rom += icon->mem_offset;
@@ -492,8 +745,22 @@ static s32 game_icon_update(game_icon *icon) {
             } else {
                 raster_size = gHudElementSizes[icon->draw_size_preset].size;
             }
-            icon->raster_addr = get_cached_raster(raster_rom, raster_size);
-            icon->palette_addr = get_cached_palette(palette_rom, icon->custom_grayscale);
+
+            s16 raster_index = get_cached_raster_id(raster_rom, raster_size);
+            icon->raster.cache_id = raster_index;
+            if (raster_index == -1) {
+                icon->raster.image = image_buffer;
+            } else {
+                icon->raster.image = image_cache[raster_index].image;
+            }
+
+            s16 palette_index = get_cached_palette_id(palette_rom, icon->custom_grayscale);
+            icon->palette.cache_id = palette_index;
+            if (palette_index == -1) {
+                icon->palette.image = image_buffer;
+            } else {
+                icon->palette.image = image_cache[palette_index].image;
+            }
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
                 s32 image_width, image_height, draw_width, draw_height;
@@ -538,9 +805,22 @@ static s32 game_icon_update(game_icon *icon) {
             s32 palette_addr = *script_step++;
             script_step += 3;
 
-            icon->raster_addr =
-                get_cached_raster(ICONS_ITEMS_ROM_START + raster_addr, gHudElementSizes[icon->tile_size_preset].size);
-            icon->palette_addr = get_cached_palette(ICONS_ITEMS_ROM_START + palette_addr, icon->custom_grayscale);
+            s16 raster_index = get_cached_raster_id(ICONS_ITEMS_ROM_START + raster_addr,
+                                                    gHudElementSizes[icon->tile_size_preset].size);
+            icon->raster.cache_id = raster_index;
+            if (raster_index == -1) {
+                icon->raster.image = image_buffer;
+            } else {
+                icon->raster.image = image_cache[raster_index].image;
+            }
+
+            s16 palette_index = get_cached_palette_id(ICONS_ITEMS_ROM_START + palette_addr, icon->custom_grayscale);
+            icon->palette.cache_id = palette_index;
+            if (palette_index == -1) {
+                icon->palette.image = image_buffer;
+            } else {
+                icon->palette.image = image_cache[palette_index].image;
+            }
 
             if (icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
                 s32 image_width, image_height, draw_width, draw_height;
@@ -784,124 +1064,5 @@ static s32 game_icon_update(game_icon *icon) {
             break;
         }
     }
-
     return 0;
-}
-
-static game_icon *game_icon_create(game_icon *icon, HudScript *script, _Bool custom_grayscale) {
-    icon->flags = HUD_ELEMENT_FLAGS_INITIALIZED;
-    icon->read_pos = script;
-    icon->update_timer = 1;
-    icon->draw_size_preset = -1;
-    icon->tile_size_preset = -1;
-    icon->render_pos.x = 0;
-    icon->render_pos.y = 0;
-    icon->render_pos_offset.x = 0;
-    icon->render_pos_offset.y = 0;
-    icon->loop_start_pos = script;
-    icon->width_scale = X10(1.0f);
-    icon->height_scale = X10(1.0f);
-    icon->script = icon->read_pos;
-    icon->uniform_scale = 1.0f;
-    icon->screen_pos_offset.x = 0;
-    icon->screen_pos_offset.y = 0;
-    icon->world_pos_offset.x = 0;
-    icon->world_pos_offset.y = 0;
-    icon->world_pos_offset.z = 0;
-    icon->alpha = 255;
-    icon->tint.r = 255;
-    icon->tint.g = 255;
-    icon->tint.b = 255;
-    icon->custom_grayscale = custom_grayscale;
-
-    game_icon_script_init(icon, icon->read_pos);
-    while (game_icon_update(icon) != 0) {};
-    return icon;
-}
-
-static game_icon *game_icon_init(HudScript *script, _Bool custom_grayscale) {
-    game_icon *icon = malloc(sizeof(*icon));
-    icon = game_icon_create(icon, script, custom_grayscale);
-    return icon;
-}
-
-game_icon *game_icons_create_global(icon_global icon, _Bool grayscale) {
-    s32 script_data[] = {icon};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_GLOBAL, script_data), grayscale);
-}
-
-game_icon *game_icons_create_partner(Partner partner, _Bool grayscale) {
-    u8 partner_index;
-    switch (partner) {
-        case PARTNER_GOOMBARIO: partner_index = 1; break;
-        case PARTNER_KOOPER: partner_index = 2; break;
-        case PARTNER_BOMBETTE: partner_index = 3; break;
-        case PARTNER_PARAKARRY: partner_index = 4; break;
-        case PARTNER_WATT: partner_index = 6; break;
-        case PARTNER_SUSHIE: partner_index = 7; break;
-        case PARTNER_LAKILESTER: partner_index = 8; break;
-        case PARTNER_BOW: partner_index = 5; break;
-        default: partner_index = 0; break;
-    }
-
-    s32 data[] = {partner_index, grayscale};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_PARTNER, data), 0);
-}
-
-game_icon *game_icons_create_item(Item item, _Bool grayscale) {
-    IconHudScriptPair *script_pair = &gItemHudScripts[gItemTable[item].hudElemID];
-    _Bool custom_grayscale = grayscale && script_pair->enabled == script_pair->disabled;
-
-    s32 data[] = {item, grayscale};
-    return game_icon_init(create_hud_script(SCRIPT_TYPE_ITEM, data), custom_grayscale);
-}
-
-void game_icons_draw(game_icon *icon) {
-    for (s32 i = 0; i < ICON_QUEUE_SIZE; i++) {
-        if (game_icon_queue[i] == NULL) {
-            game_icon_queue[i] = icon;
-            return;
-        }
-    }
-}
-
-void game_icons_delete(game_icon *icon) {
-    game_icon_set_flags(icon, HUD_ELEMENT_FLAGS_DELETE);
-}
-
-game_icon *game_icons_update_next() {
-    static u16 idx = 0;
-    game_icon *next_icon = NULL;
-    while (idx < ICON_QUEUE_SIZE) {
-        if (game_icon_queue[idx] == NULL) {
-            // no more icons in queue
-            break;
-        } else {
-            if (game_icon_queue[idx]->flags != 0 && !(game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
-                if (game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_DELETE) {
-                    // icon flagged for deletion, free script if we created it before freeing the hud_element
-                    free_hud_script(game_icon_queue[idx]);
-                    free(game_icon_queue[idx]);
-                    game_icon_queue[idx] = NULL;
-                } else if (game_icon_queue[idx]->read_pos != NULL) {
-                    game_icon_queue[idx]->update_timer--;
-                    if (game_icon_queue[idx]->update_timer == 0) {
-                        while (game_icon_update(game_icon_queue[idx]) != 0) {};
-                    }
-                    if (game_icon_queue[idx]->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE) {
-                        game_icon_queue[idx]->unk_img_scale[0] += game_icon_queue[idx]->delta_size_x;
-                        game_icon_queue[idx]->unk_img_scale[1] += game_icon_queue[idx]->delta_size_y;
-                    }
-                    next_icon = game_icon_queue[idx];
-                }
-            }
-        }
-        game_icon_queue[idx] = NULL;
-        idx++;
-        if (next_icon) {
-            return next_icon;
-        }
-    }
-    idx = 0;
-    return NULL;
 }
