@@ -235,11 +235,11 @@ void menu_draw(struct menu *menu) {
     }
 }
 
-static void menu_nav_compare(struct menu *menu, struct menu_item *selector, s32 nav_x, s32 nav_y,
+static void menu_nav_compare(struct menu *menu, struct menu_item *selector, enum menu_navigation nav, s32 nav_x, s32 nav_y,
                              struct menu_item **near_item, struct menu_item **far_item, s32 *npa, s32 *fpa, s32 *npe,
                              s32 *fpe) {
     if (menu->child) {
-        return menu_nav_compare(menu->child, selector, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
+        return menu_nav_compare(menu->child, selector, nav, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
     }
     s32 sel_x = selector ? menu_item_screen_x(selector) : 0;
     s32 sel_y = selector ? menu_item_screen_y(selector) : 0;
@@ -248,10 +248,15 @@ static void menu_nav_compare(struct menu *menu, struct menu_item *selector, s32 
             continue;
         }
         if (item->imenu) {
-            menu_nav_compare(item->imenu, selector, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
+            menu_nav_compare(item->imenu, selector, nav, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
         }
         if (item == menu->selector || !item->selectable) {
             continue;
+        }
+        
+        if (selector && selector->chain_links[nav] == item) {
+            *near_item = item;
+            return;
         }
         s32 distance_x = menu_item_screen_x(item) - sel_x;
         s32 distance_y = menu_item_screen_y(item) - sel_y;
@@ -293,7 +298,7 @@ void menu_navigate(struct menu *menu, enum menu_navigation nav) {
     s32 fpe = 0;
     struct menu_item *near_item = NULL;
     struct menu_item *far_item = NULL;
-    menu_nav_compare(menu, menu->selector, nav_x, nav_y, &near_item, &far_item, &npa, &fpa, &npe, &fpe);
+    menu_nav_compare(menu, menu->selector, nav, nav_x, nav_y, &near_item, &far_item, &npa, &fpa, &npe, &fpe);
     if (near_item) {
         menu_select(menu, near_item);
     } else if (far_item) {
@@ -483,6 +488,28 @@ void menu_item_remove(struct menu_item *item) {
     }
     menu_deselect(item->owner, item);
     list_erase(&item->owner->items, item);
+}
+
+void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction) {
+    from_item->chain_links[direction] = to_item;
+}
+
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop, _Bool reverse_chain) {
+    if (!reverse_chain) {
+        for (s32 i = 0; i < items_size - 1; i++) {
+            menu_item_add_chain_link(items[i], items[i + 1], nav_direction);
+        }
+        if (loop) {
+            menu_item_add_chain_link(items[items_size - 1], items[0], nav_direction);
+        }
+    } else {
+        for (s32 i = items_size - 1; i > 0; i--) {
+            menu_item_add_chain_link(items[i], items[i - 1], nav_direction);
+        }
+        if (loop) {
+            menu_item_add_chain_link(items[0], items[items_size - 1], nav_direction);
+        }
+    }
 }
 
 s32 menu_item_screen_x(struct menu_item *item) {

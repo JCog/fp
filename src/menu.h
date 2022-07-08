@@ -66,6 +66,7 @@ struct menu_item {
     void *data;
     _Bool selectable;
     struct menu *imenu;
+    struct menu_item *chain_links[4];
     s32 (*enter_proc)(struct menu_item *item, enum menu_switch_reason reason);
     s32 (*leave_proc)(struct menu_item *item, enum menu_switch_reason reason);
     s32 (*think_proc)(struct menu_item *item);
@@ -152,6 +153,8 @@ void menu_item_enable(struct menu_item *item);
 void menu_item_disable(struct menu_item *item);
 void menu_item_transfer(struct menu_item *item, struct menu *menu);
 void menu_item_remove(struct menu_item *item);
+void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction);
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop, _Bool reverse_chain);
 s32 menu_item_screen_x(struct menu_item *item);
 s32 menu_item_screen_y(struct menu_item *item);
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color);
