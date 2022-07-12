@@ -215,3 +215,8 @@ void menu_tab_next(struct menu_item *item) {
         menu_tab_goto(item, tab_index);
     }
 }
+
+s32 menu_tab_get_current_tab(struct menu_item *item) {
+    struct tab_data *data = item->data;
+    return data->current_tab;
+}

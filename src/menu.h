@@ -154,7 +154,8 @@ void menu_item_disable(struct menu_item *item);
 void menu_item_transfer(struct menu_item *item, struct menu *menu);
 void menu_item_remove(struct menu_item *item);
 void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction);
-void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop, _Bool reverse_chain);
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop,
+                            _Bool reverse_chain);
 s32 menu_item_screen_x(struct menu_item *item);
 s32 menu_item_screen_y(struct menu_item *item);
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color);
@@ -170,6 +171,7 @@ struct menu_item *menu_add_tab(struct menu *menu, s32 x, s32 y, struct menu *tab
 void menu_tab_goto(struct menu_item *item, s32 tab_index);
 void menu_tab_previous(struct menu_item *item);
 void menu_tab_next(struct menu_item *item);
+s32 menu_tab_get_current_tab(struct menu_item *item);
 
 struct menu_item *menu_add_intinput(struct menu *menu, s32 x, s32 y, s32 base, s32 length,
                                     menu_generic_callback callback_proc, void *callback_data);

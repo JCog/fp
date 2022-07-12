@@ -235,9 +235,9 @@ void menu_draw(struct menu *menu) {
     }
 }
 
-static void menu_nav_compare(struct menu *menu, struct menu_item *selector, enum menu_navigation nav, s32 nav_x, s32 nav_y,
-                             struct menu_item **near_item, struct menu_item **far_item, s32 *npa, s32 *fpa, s32 *npe,
-                             s32 *fpe) {
+static void menu_nav_compare(struct menu *menu, struct menu_item *selector, enum menu_navigation nav, s32 nav_x,
+                             s32 nav_y, struct menu_item **near_item, struct menu_item **far_item, s32 *npa, s32 *fpa,
+                             s32 *npe, s32 *fpe) {
     if (menu->child) {
         return menu_nav_compare(menu->child, selector, nav, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
     }
@@ -253,9 +253,10 @@ static void menu_nav_compare(struct menu *menu, struct menu_item *selector, enum
         if (item == menu->selector || !item->selectable) {
             continue;
         }
-        
+
         if (selector && selector->chain_links[nav] == item) {
             *near_item = item;
+            *npe = 0;
             return;
         }
         s32 distance_x = menu_item_screen_x(item) - sel_x;
@@ -348,7 +349,9 @@ void menu_select(struct menu *menu, struct menu_item *item) {
         menu->selector->owner->selector = NULL;
     }
     menu->selector = item;
-    item->owner->selector = item;
+    if (item) {
+        item->owner->selector = item;
+    }
 }
 
 void menu_signal_enter(struct menu *menu, enum menu_switch_reason reason) {
@@ -494,7 +497,8 @@ void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_
     from_item->chain_links[direction] = to_item;
 }
 
-void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop, _Bool reverse_chain) {
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop,
+                            _Bool reverse_chain) {
     if (!reverse_chain) {
         for (s32 i = 0; i < items_size - 1; i++) {
             menu_item_add_chain_link(items[i], items[i + 1], nav_direction);

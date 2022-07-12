@@ -105,6 +105,7 @@ struct menu_item *menu_add_button_game_icon(struct menu *menu, s32 x, s32 y, gam
                                             menu_action_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->icon = icon;
+    data->texture = NULL;
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->anim_state = 0;
