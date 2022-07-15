@@ -8,7 +8,6 @@
 #include "gfx.h"
 #include "pm64.h"
 #include "fp.h"
-#include "game_icons.h"
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;
@@ -36,10 +35,6 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
 static void flush_chars(void);
 static void gfx_printf_n_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
 static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
-
-static void draw_game_icon(game_icon *icon);
-static void draw_game_icon_rect(game_icon *icon, s16 tex_size_x, s16 tex_size_y, s16 draw_size_x, s16 draw_size_y,
-                                s16 offset_x, s16 offset_y, s32 clamp, s32 drop_shadow);
 
 static inline void gfx_sync(void) {
     if (!gfx_synced) {
@@ -173,11 +168,6 @@ void *gfx_data_append(void *data, size_t size) {
 
 void gfx_flush(void) {
     flush_chars();
-    game_icon *next_icon = game_icons_update_next();
-    while (next_icon != NULL) {
-        draw_game_icon(next_icon);
-        next_icon = game_icons_update_next(next_icon);
-    }
     gSPEndDisplayList(gfx_disp_p++);
     gSPDisplayList(pm_MasterGfxPos++, gfx_disp);
     Gfx *disp_w = gfx_disp_w;
@@ -209,16 +199,24 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     texture->tile_height = texdesc->tile_height;
     texture->tiles_x = texdesc->tiles_x;
     texture->tiles_y = texdesc->tiles_y;
-    texture->tile_size = (texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) + 63) / 64 * 8;
+    texture->tile_size = (texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
+                          ICON_PALETTE_SIZE * texdesc->pal_count + 7) /
+                         8 * 8;
+    texture->pal_count = texdesc->pal_count;
     size_t texture_size = texture->tile_size * texture->tiles_x * texture->tiles_y;
     void *texture_data = NULL;
     void *file_start = NULL;
-    if (texdesc->file_vaddr != GFX_FILE_DRAM) {
+    if (texdesc->file_vaddr == GFX_FILE_DRAM_PM) {
+        // these textures are always loaded in memory by the base game, so no need to waste memory copying them
+        texture_data = (void *)texdesc->address;
+        texture->tile_size = texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
+                             ICON_PALETTE_SIZE * texdesc->pal_count;
+    } else if (texdesc->file_vaddr != GFX_FILE_DRAM) {
         if (texldr->file_vaddr != texdesc->file_vaddr) {
             if (texldr->file_data) {
                 free(texldr->file_data);
             }
-            texldr->file_data = memalign(64, texdesc->file_vsize);
+            texldr->file_data = malloc(texdesc->file_vsize);
             if (!texldr->file_data) {
                 texldr->file_vaddr = GFX_FILE_DRAM;
                 if (new_texture) {
@@ -227,7 +225,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
                 return NULL;
             }
             texldr->file_vaddr = texdesc->file_vaddr;
-            /*zu_getfile(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);*/
+            nuPiReadRom(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
         }
         if (texdesc->file_vsize == texture_size) {
             texture_data = texldr->file_data;
@@ -238,7 +236,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
         }
     }
     if (!texture_data) {
-        texture_data = memalign(64, texture_size);
+        texture_data = malloc(texture_size);
         if (!texture_data) {
             if (new_texture) {
                 free(new_texture);
@@ -287,7 +285,7 @@ struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct g
 }
 
 void gfx_texture_destroy(struct gfx_texture *texture) {
-    if (texture->data) {
+    if (texture->data && (uintptr_t)texture->data >= 0x80400000) {
         free(texture->data);
     }
 }
@@ -390,7 +388,110 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
     }
 }
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile) {
+void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
+    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
+    if (bytes_per_pixel == 0) {
+        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
+    }
+    s32 x_width = texture->tile_width;
+    if (texture->im_siz == G_IM_SIZ_4b) {
+        x_width /= 2;
+    }
+
+    if ((uintptr_t)texture->data < 0x80400000) {
+        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
+        memcpy(new_data, texture->data, texture->tiles_x * texture->tiles_y * texture->tile_size);
+        texture->data = new_data;
+    }
+
+    unsigned char *new_raster =
+        malloc(sizeof texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8);
+    unsigned char *new_pos = new_raster;
+    unsigned char *old_raster = texture->data + tile * texture->tile_size;
+    unsigned char *old_pos;
+    for (s32 y = 0; y < texture->tile_height; y++) {
+        s32 y_offset = bytes_per_pixel * (texture->tile_height * y + texture->tile_width - 1);
+        if (texture->im_siz == G_IM_SIZ_4b) {
+            y_offset /= 2;
+        }
+        old_pos = old_raster + y_offset;
+        for (s32 x = 0; x < x_width; x++) {
+            memcpy(new_pos, old_pos, bytes_per_pixel);
+            if (texture->im_siz == G_IM_SIZ_4b) {
+                *new_pos = (*new_pos & 0xF0) >> 4 | (*new_pos & 0x0F) << 4;
+            }
+            new_pos += bytes_per_pixel;
+            old_pos -= bytes_per_pixel;
+        }
+    }
+    if ((uintptr_t)texture->data < 0x80400000) {
+        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
+        memcpy(new_data, texture->data, sizeof(texture->tiles_x * texture->tiles_y * texture->tile_size));
+        texture->data = new_data;
+
+        old_raster = texture->data + tile * texture->tile_size;
+    }
+    memcpy(old_raster, new_raster, texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8);
+    free(new_raster);
+}
+
+void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index) {
+    if (texture->im_fmt != G_IM_FMT_CI || texture->im_siz != G_IM_SIZ_4b) {
+        return;
+    }
+    typedef struct {
+        u16 r : 5;
+        u16 g : 5;
+        u16 b : 5;
+        u16 a : 1;
+    } rgba;
+
+    s32 tile_count = texture->tiles_x * texture->tiles_y;
+    char *new_texture_data = malloc((texture->tile_size + ICON_PALETTE_SIZE) * tile_count);
+    size_t new_tile_size = texture->tile_size + ICON_PALETTE_SIZE;
+
+    u32 raster_size = texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
+
+    for (s32 i_tile = 0; i_tile < tile_count; i_tile++) {
+        char *base_tile = texture->data + texture->tile_size * i_tile;
+        char *new_tile = new_texture_data + new_tile_size * i_tile;
+        memcpy(new_tile, base_tile, texture->tile_size);
+
+        rgba *base_palette = (rgba *)(base_tile + raster_size + ICON_PALETTE_SIZE * base_palette_index);
+        rgba *new_palette = (rgba *)(new_texture_data + raster_size + ICON_PALETTE_SIZE * texture->pal_count);
+        u8 pixel_count = ICON_PALETTE_SIZE / 2;
+        for (u32 i_pixel = 0; i_pixel < pixel_count; i_pixel++) {
+            rgba *old_pixel = &base_palette[i_pixel];
+            rgba *new_pixel = &((rgba *)new_palette)[i_pixel];
+
+            f32 lum = 0.2782f * old_pixel->r + 0.6562f * old_pixel->g + 0.0656f * old_pixel->b;
+            u16 gray = (lum * 14 / 31) + 12;
+            new_pixel->r = gray;
+            new_pixel->g = gray;
+            new_pixel->b = gray;
+            new_pixel->a = old_pixel->a;
+        }
+    }
+
+    if ((uintptr_t)texture->data >= 0x80400000) {
+        // only free texture data if it's not stored in the base game RAM
+        free(texture->data);
+    }
+    texture->data = new_texture_data;
+    texture->tile_size = new_tile_size;
+    texture->pal_count++;
+}
+
+void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
+    if (texture->im_fmt == G_IM_FMT_CI) {
+        gDPSetTextureLUT((*disp)++, G_TT_RGBA16);
+        gDPLoadTLUT_pal16((*disp)++, 0,
+                          gfx_texture_data(texture, texture_tile) +
+                              texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
+                              ICON_PALETTE_SIZE * palette_index);
+    } else {
+        gDPSetTextureLUT((*disp)++, G_TT_NONE);
+    }
     if (texture->im_siz == G_IM_SIZ_4b) {
         gDPLoadTextureTile_4b((*disp)++, gfx_texture_data(texture, texture_tile), texture->im_fmt, texture->tile_width,
                               texture->tile_height, 0, 0, texture->tile_width - 1, texture->tile_height - 1, 0,
@@ -404,14 +505,14 @@ void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 t
     }
 }
 
-void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile) {
-    gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile);
+void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
+    gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile, palette_index);
     gfx_synced = 1;
 }
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite) {
     struct gfx_texture *texture = sprite->texture;
-    gfx_rdp_load_tile(texture, sprite->texture_tile);
+    gfx_rdp_load_tile(texture, sprite->texture_tile, sprite->palette_index);
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
         u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
@@ -487,7 +588,7 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
             c -= tile_begin;
             if (!tile_loaded) {
                 tile_loaded = 1;
-                gfx_rdp_load_tile(texture, i);
+                gfx_rdp_load_tile(texture, i, 0);
             }
             gSPScisTextureRectangle(gfx_disp_p++, qs102(x + cx), qs102(y + cy), qs102(x + cx + font->char_width),
                                     qs102(y + cy + font->char_height), G_TX_RENDERTILE,
@@ -507,7 +608,7 @@ static void flush_chars(void) {
         for (s32 j = 0; j < tile_vect->size; ++j) {
             struct gfx_char *gc = vector_at(tile_vect, j);
             if (j == 0) {
-                gfx_rdp_load_tile(font->texture, i);
+                gfx_rdp_load_tile(font->texture, i, 0);
             }
             if (first || color != gc->color) {
                 color = gc->color;
@@ -599,429 +700,4 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
     }
 
     gfx_char_font = font;
-}
-
-static void draw_game_icon_rect(game_icon *icon, s16 tex_size_x, s16 tex_size_y, s16 draw_size_x, s16 draw_size_y,
-                                s16 offset_x, s16 offset_y, s32 clamp, s32 drop_shadow) {
-    u8 *image_addr = icon->raster.image;
-    u8 *palette_addr = icon->palette.image;
-
-    s32 screen_pos_offset_scaled_x = icon->screen_pos_offset.x * 1024;
-    s32 screen_pos_offset_scaled_y = icon->screen_pos_offset.y * 1024;
-    s32 width_scale = icon->width_scale;
-    screen_pos_offset_scaled_x /= width_scale;
-    s32 height_scale = icon->height_scale;
-    screen_pos_offset_scaled_y /= height_scale;
-
-    s16 base_x = icon->render_pos.x + icon->render_pos_offset.x;
-    s16 base_y = icon->render_pos.y + icon->render_pos_offset.y;
-    base_x += icon->world_pos_offset.x + offset_x + screen_pos_offset_scaled_x;
-    base_y += icon->world_pos_offset.y + offset_y + screen_pos_offset_scaled_y;
-
-    if (drop_shadow) {
-        base_x += 2;
-        base_y += 2;
-    }
-
-    u32 is_fmt_ci4 = (icon->flags & HUD_ELEMENT_FLAGS_FMT_CI4) != 0;
-    u32 is_fmt_ia8 = (icon->flags & HUD_ELEMENT_FLAGS_FMT_IA8) != 0;
-    s32 flip_x = (icon->flags & HUD_ELEMENT_FLAGS_FLIPX) != 0;
-    s32 flip_y = (icon->flags & HUD_ELEMENT_FLAGS_FLIPY) != 0;
-
-    // this format logic makes no sense, but it's copied from decomp and I don't wanna touch it.
-    s32 fmt = 0; // stays the same if (is_fmt_ci4 == 0 && is_fmt_ia8 == 0)
-    if (is_fmt_ci4 == 1 && is_fmt_ia8 == 1) {
-        fmt = 0; // RGBA
-    }
-    if (is_fmt_ci4 == 1 && is_fmt_ia8 == 0) {
-        fmt = 1; // CI
-    }
-    if (is_fmt_ci4 == 0 && is_fmt_ia8 == 1) {
-        fmt = 2; // IA
-    }
-    if (is_fmt_ci4 == 1 && is_fmt_ia8 == 1) {
-        fmt = 2; // IA
-    }
-
-    s32 mask_s = 6;
-    s32 mask_t = 5;
-    if (!(icon->flags & HUD_ELEMENT_FLAGS_SCALED)) {
-        switch (draw_size_x) {
-            case 8: mask_s = 3; break;
-            case 16: mask_s = 4; break;
-            case 32: mask_s = 5; break;
-        }
-
-        switch (draw_size_y) {
-            case 8: mask_t = 3; break;
-            case 16: mask_t = 4; break;
-            case 32: mask_t = 5; break;
-        }
-    }
-
-    switch (fmt) {
-        case 0:
-            gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-            gDPSetTextureLUT(gfx_disp_p++, G_TT_NONE);
-            break;
-        case 1:
-            if (!(icon->flags & HUD_ELEMENT_FLAGS_TRANSPARENT)) {
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_ANTIALIASING)) {
-                    gDPSetRenderMode(gfx_disp_p++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
-                } else {
-                    gDPSetRenderMode(gfx_disp_p++, G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);
-                }
-            } else {
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_ANTIALIASING)) {
-                    gDPSetRenderMode(gfx_disp_p++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
-                } else {
-                    gDPSetRenderMode(gfx_disp_p++, G_RM_CLD_SURF | AA_EN, G_RM_CLD_SURF2 | AA_EN);
-                }
-            }
-            gDPSetTextureLUT(gfx_disp_p++, G_TT_RGBA16);
-            gDPLoadTLUT_pal16(gfx_disp_p++, 0, palette_addr);
-            break;
-        case 2:
-            gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-            gDPSetTextureLUT(gfx_disp_p++, G_TT_NONE);
-            break;
-    }
-
-    if (icon->flags & HUD_ELEMENT_FLAGS_FILTER_TEX) {
-        gDPSetTextureFilter(gfx_disp_p++, G_TF_AVERAGE);
-    } else {
-        gDPSetTextureFilter(gfx_disp_p++, G_TF_POINT);
-    }
-
-    s32 tex_start_x, tex_start_y;
-    u32 is_last_tile_x, is_last_tile_y;
-    s32 uls, ult, lrs, lrt;
-    s32 uly, lry, ulx, lrx;
-    s32 tile_mode;
-
-    ult = 0;
-    is_last_tile_y = 0;
-    uly = base_y;
-    while (1) {
-        lry = uly + 1024.0 / height_scale * 32.0;
-        lrt = ult + 31;
-        if (flip_y) {
-            tex_start_y = tex_size_y;
-        } else {
-            tex_start_y = 0;
-        }
-
-        if (lry < 0 || uly > SCREEN_HEIGHT) {
-            break;
-        }
-
-        if (lry >= SCREEN_HEIGHT) {
-            s32 temp = ult + SCREEN_HEIGHT + 31;
-            temp -= base_y + lrt;
-            lrt = temp - 1;
-
-            lry = SCREEN_HEIGHT;
-            is_last_tile_y = 1;
-        }
-
-        if (lrt + 1 >= tex_size_y) {
-            lrt = tex_size_y - 1;
-            if (tex_size_y > 16) {
-                lry = base_y + draw_size_y - 1;
-            } else {
-                lry = base_y + draw_size_y;
-            }
-            is_last_tile_y = 1;
-        }
-
-        is_last_tile_x = 0;
-        uls = 0;
-        ulx = base_x;
-        while (1) {
-            lrx = ulx + 1024.0 / width_scale * 64.0;
-            lrs = uls + 63;
-            if (flip_x) {
-                tex_start_x = tex_size_x;
-            } else {
-                tex_start_x = 0;
-            }
-
-            if (lrx < 0 || ulx > SCREEN_WIDTH) {
-                break;
-            }
-
-            if (lrx >= SCREEN_WIDTH) {
-                s32 temp = uls + SCREEN_WIDTH + 63;
-                temp -= base_x + lrs;
-                lrs = temp - 1;
-
-                lrx = SCREEN_WIDTH;
-                is_last_tile_x = 1;
-            }
-
-            if (lrs + 1 >= tex_size_x) {
-                lrs = tex_size_x - 1;
-                if (tex_size_x > 16) {
-                    lrx = base_x + draw_size_x - 1;
-                } else {
-                    lrx = base_x + draw_size_x;
-                }
-                is_last_tile_x = 1;
-            }
-
-            gDPPipeSync(gfx_disp_p++);
-
-            if (is_last_tile_x) {
-                tile_mode = !is_last_tile_y;
-            }
-            if (!is_last_tile_x && !is_last_tile_y) {
-                tile_mode = 0;
-            }
-            if (!is_last_tile_x && is_last_tile_y) {
-                tile_mode = 2;
-            }
-            if (is_last_tile_x && is_last_tile_y) {
-                tile_mode = 3;
-            }
-
-            switch (fmt) {
-                case 0:
-                    gDPSetCombineMode(gfx_disp_p++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-                    if (!(icon->flags & HUD_ELEMENT_FLAGS_TRANSPARENT)) {
-                        gDPSetCombineMode(gfx_disp_p++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-                    } else {
-                        gDPSetCombineLERP(gfx_disp_p++, 0, 0, 0, TEXEL0, PRIMITIVE, 0, TEXEL0, 0, 0, 0, 0, TEXEL0,
-                                          TEXEL0, 0, PRIMITIVE, 0);
-                    }
-
-                    if (icon->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
-                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 0, 0, 0, icon->alpha);
-                    }
-
-                    if (!flip_x && !flip_y) {
-                        gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_RGBA, G_IM_SIZ_32b, tex_size_x,
-                                           tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                           G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                    } else {
-                        gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_RGBA, G_IM_SIZ_32b, tex_size_x,
-                                           tex_size_y, uls, ult, lrs, lrt, 0, G_TX_MIRROR | G_TX_WRAP,
-                                           G_TX_MIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                    }
-                    break;
-                case 1:
-                    if (!drop_shadow) {
-                        if (icon->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
-                            gDPSetCombineLERP(gfx_disp_p++, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE,
-                                              0, TEXEL0, 0, TEXEL0, 0, PRIMITIVE, 0);
-                        } else {
-                            gDPSetCombineLERP(gfx_disp_p++, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE,
-                                              0, TEXEL0, 0, TEXEL0, 0, PRIMITIVE, 0);
-                        }
-
-                        if (icon->flags & HUD_ELEMENT_FLAGS_TRANSPARENT) {
-                            gDPSetPrimColor(gfx_disp_p++, 0, 0, icon->tint.r, icon->tint.g, icon->tint.b, icon->alpha);
-                        } else {
-                            gDPSetPrimColor(gfx_disp_p++, 0, 0, icon->tint.r, icon->tint.g, icon->tint.b, 255);
-                        }
-                    } else {
-                        gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-                        gDPSetCombineLERP(gfx_disp_p++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                                          TEXEL0, 0, PRIMITIVE, 0);
-                        gDPSetPrimColor(gfx_disp_p++, 0, 0, 40, 40, 40, 255);
-                    }
-
-                    if (!flip_x && !flip_y) {
-                        if (!clamp) {
-                            gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y, uls,
-                                                  ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                  G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                        } else {
-                            switch (tile_mode) {
-                                case 0:
-                                    gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y,
-                                                          uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                          G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                          G_TX_NOLOD);
-                                    break;
-                                case 1:
-                                    gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y,
-                                                          uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                          G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                          G_TX_NOLOD);
-                                    break;
-                                case 2:
-                                    gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y,
-                                                          uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                          G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                          G_TX_NOLOD);
-                                    break;
-                                case 3:
-                                    gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y,
-                                                          uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                          G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                          G_TX_NOLOD);
-                                    break;
-                            }
-                        }
-                    } else {
-                        gDPLoadTextureTile_4b(gfx_disp_p++, image_addr, G_IM_FMT_CI, tex_size_x, tex_size_y, uls, ult,
-                                              lrs, lrt, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP, mask_s,
-                                              mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                    }
-                    break;
-                case 2:
-                    gDPSetCombineLERP(gfx_disp_p++, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, 0, TEXEL0, 0, TEXEL0, 0,
-                                      PRIMITIVE, 0, PRIMITIVE, 0, TEXEL0, 0);
-                    gDPSetPrimColor(gfx_disp_p++, 0, 0, icon->tint.r, icon->tint.g, icon->tint.b, icon->alpha);
-
-                    if (!flip_x && !flip_y) {
-                        if (!clamp) {
-                            switch (tile_mode) {
-                                case 0:
-                                    gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x,
-                                                       tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                       G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                       G_TX_NOLOD);
-                                    break;
-                                case 1:
-                                    gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x,
-                                                       tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                       G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                       G_TX_NOLOD);
-                                    break;
-                                case 2:
-                                    gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x,
-                                                       tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                       G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                       G_TX_NOLOD);
-                                    break;
-                                case 3:
-                                    gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x,
-                                                       tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                                       G_TX_NOMIRROR | G_TX_WRAP, mask_s, mask_t, G_TX_NOLOD,
-                                                       G_TX_NOLOD);
-                                    break;
-                            }
-                        } else {
-                            gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x,
-                                               tex_size_y, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR | G_TX_CLAMP,
-                                               G_TX_NOMIRROR | G_TX_CLAMP, mask_s, mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                        }
-                    } else {
-                        gDPLoadTextureTile(gfx_disp_p++, image_addr, G_IM_FMT_IA, G_IM_SIZ_8b, tex_size_x, tex_size_y,
-                                           uls, ult, lrs, lrt, 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP,
-                                           mask_s, mask_t, G_TX_NOLOD, G_TX_NOLOD);
-                    }
-                    break;
-            }
-
-            if (icon->flags & HUD_ELEMENT_FLAGS_FILTER_TEX) {
-                gSPScisTextureRectangle(gfx_disp_p++, ulx * 4, uly * 4, lrx * 4, lry * 4, 0, tex_start_x * 32 + 16,
-                                        tex_start_y * 32 + 16, width_scale, height_scale);
-            } else {
-                gSPScisTextureRectangle(gfx_disp_p++, ulx * 4, uly * 4, lrx * 4, lry * 4, 0, tex_start_x * 32,
-                                        tex_start_y * 32, width_scale, height_scale);
-            }
-            if (is_last_tile_x) {
-                break;
-            }
-            ulx += 1024.0 / width_scale * 64.0;
-            uls += 64;
-        }
-
-        if (is_last_tile_y) {
-            break;
-        }
-
-        ult += 32;
-        uly += 1024.0 / height_scale * 32.0;
-    }
-
-    gDPPipeSync(gfx_disp_p++);
-}
-
-static void draw_game_icon(game_icon *icon) {
-    if (icon->flags && !(icon->flags & HUD_ELEMENT_FLAGS_DISABLED)) {
-        if (!(icon->flags & (HUD_ELEMENT_FLAGS_200000 | HUD_ELEMENT_FLAGS_10000000)) && (icon->draw_size_preset >= 0)) {
-            gDPPipeSync(gfx_disp_p++);
-            gDPSetCycleType(gfx_disp_p++, G_CYC_1CYCLE);
-            gDPSetTexturePersp(gfx_disp_p++, G_TP_NONE);
-            gDPSetTextureLOD(gfx_disp_p++, G_TL_TILE);
-            gDPSetTextureDetail(gfx_disp_p++, G_TD_CLAMP);
-            gDPSetTextureConvert(gfx_disp_p++, G_TC_FILT);
-            gDPSetCombineKey(gfx_disp_p++, G_CK_NONE);
-            gDPSetAlphaCompare(gfx_disp_p++, G_AC_NONE);
-            gDPNoOp(gfx_disp_p++);
-            gDPSetColorDither(gfx_disp_p++, G_CD_DISABLE);
-            gDPSetAlphaDither(gfx_disp_p++, G_AD_DISABLE);
-            gSPTexture(gfx_disp_p++, -1, -1, 0, G_TX_RENDERTILE, G_ON);
-
-            s32 tex_size_x, tex_size_y;
-            s32 draw_size_x, draw_size_y;
-            s32 preset;
-            if (!(icon->flags & HUD_ELEMENT_FLAGS_FIXEDSCALE)) {
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                    preset = icon->tile_size_preset;
-                    tex_size_x = gHudElementSizes[preset].width;
-                    tex_size_y = gHudElementSizes[preset].height;
-                } else {
-                    tex_size_x = icon->custom_image_size.x;
-                    tex_size_y = icon->custom_image_size.y;
-                }
-
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_SCALED)) {
-                    if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                        draw_size_x = gHudElementSizes[icon->draw_size_preset].width;
-                        draw_size_y = gHudElementSizes[icon->draw_size_preset].height;
-                    } else {
-                        draw_size_x = icon->custom_draw_size.x;
-                        draw_size_y = icon->custom_draw_size.y;
-                    }
-                } else {
-                    draw_size_x = icon->size_x;
-                    draw_size_y = icon->size_y;
-                }
-
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_REPEATED)) {
-                    if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 1);
-                    }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 1, 0);
-                } else {
-                    if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                        draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
-                    }
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 0);
-                }
-            } else {
-                f32 xScaled, yScaled;
-
-                if (!(icon->flags & HUD_ELEMENT_FLAGS_CUSTOM_SIZE)) {
-                    preset = icon->tile_size_preset;
-                    tex_size_x = gHudElementSizes[preset].width;
-                    tex_size_y = gHudElementSizes[preset].height;
-                } else {
-                    tex_size_x = icon->custom_image_size.x;
-                    tex_size_y = icon->custom_image_size.y;
-                }
-
-                draw_size_x = icon->unk_img_scale[0];
-                draw_size_y = icon->unk_img_scale[1];
-
-                xScaled = (f32)draw_size_x / (f32)tex_size_x;
-                yScaled = (f32)draw_size_y / (f32)tex_size_y;
-
-                xScaled = 1.0f / xScaled;
-                yScaled = 1.0f / yScaled;
-
-                icon->width_scale = X10(xScaled);
-                icon->height_scale = X10(yScaled);
-
-                if (icon->flags & HUD_ELEMENT_FLAGS_DROP_SHADOW) {
-                    draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
-                }
-                draw_game_icon_rect(icon, tex_size_x, tex_size_y, draw_size_x, draw_size_y, 0, 0, 0, 1);
-            }
-        }
-    }
 }

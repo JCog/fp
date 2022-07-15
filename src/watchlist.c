@@ -98,6 +98,7 @@ static s32 anchor_button_draw_proc(struct menu_item *item, struct menu_draw_para
     struct gfx_sprite sprite = {
         texture,
         (member_data->anchor_anim_state > 0) != member_data->anchored ? 0 : 1,
+        0,
         draw_params->x + (cw - texture->tile_width) / 2,
         draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
         1.f,
@@ -183,8 +184,8 @@ static s32 add_member(struct item_data *data, u32 address, enum watch_type type,
     member_data->x = x;
     member_data->y = y;
     member_data->position_set = 1;
-    menu_add_button_icon(imenu, 0, 0, list_icons, 1, 0xFF0000, remove_button_proc, member_data);
-    menu_add_button_icon(imenu, 2, 0, wrench, 0, 0xFFFFFF, edit_watch_in_memory_proc, member_data);
+    menu_add_button_icon(imenu, 0, 0, list_icons, 1, 0, 0xFF0000, 1.0f, remove_button_proc, member_data);
+    menu_add_button_icon(imenu, 2, 0, wrench, 0, 0, 0xFFFFFF, 1.0f, edit_watch_in_memory_proc, member_data);
 
     if (!settings->bits.watches_visible) {
         struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
@@ -303,10 +304,10 @@ struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release,
     if (!wrench) {
         wrench = resource_load_grc_texture("wrench");
     }
-    data->add_button = menu_add_button_icon(imenu, 0, 0, list_icons, 0, 0x00FF00, add_button_proc, data);
+    data->add_button = menu_add_button_icon(imenu, 0, 0, list_icons, 0, 0, 0x00FF00, 1.0f, add_button_proc, data);
 
     struct gfx_texture *file_icons = resource_get(RES_ICON_FILE);
-    data->import_button = menu_add_button_icon(imenu, 2, 0, file_icons, 1, 0xFFFFFF, import_button_proc, data);
+    data->import_button = menu_add_button_icon(imenu, 2, 0, file_icons, 1, 0, 0xFFFFFF, 1.0f, import_button_proc, data);
     item->data = data;
     item->destroy_proc = destroy_proc;
     return item;
@@ -462,8 +463,9 @@ static void watchfile_menu_init(void) {
         watchfile_return = menu_add_submenu(menu, 0, 0, NULL, "return");
         watchfile_return->leave_proc = watchfile_leave_proc;
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        menu_add_button_icon(menu, 0, 1, t_arrow, 0, 0xFFFFFF, scroll_up_proc, NULL);
-        menu_add_button_icon(menu, 0, 1 + WATCHFILE_VIEW_ROWS - 1, t_arrow, 1, 0xFFFFFF, scroll_down_proc, NULL);
+        menu_add_button_icon(menu, 0, 1, t_arrow, 0, 0, 0xFFFFFF, 1.0f, scroll_up_proc, NULL);
+        menu_add_button_icon(menu, 0, 1 + WATCHFILE_VIEW_ROWS - 1, t_arrow, 1, 0, 0xFFFFFF, 1.0f, scroll_down_proc,
+                             NULL);
         for (s32 i = 0; i < WATCHFILE_VIEW_ROWS; ++i) {
             struct menu_item *item = menu_item_add(menu, 2, 1 + i, NULL, 0xFFFFFF);
             item->data = (void *)i;

@@ -250,8 +250,8 @@ void flag_menu_create(struct menu *menu) {
         view_record_name = menu_add_static(menu, 8, 1, NULL, 0xC0C0C0);
         view_record_name->text = malloc(32);
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        view_pageup = menu_add_button_icon(menu, 0, 2, t_arrow, 0, 0xFFFFFF, page_up_proc, NULL);
-        view_pagedown = menu_add_button_icon(menu, 2, 2, t_arrow, 1, 0xFFFFFF, page_down_proc, NULL);
+        view_pageup = menu_add_button_icon(menu, 0, 2, t_arrow, 0, 0, 0xFFFFFF, 1.0f, page_up_proc, NULL);
+        view_pagedown = menu_add_button_icon(menu, 2, 2, t_arrow, 1, 0, 0xFFFFFF, 1.0f, page_down_proc, NULL);
         menu_add_static(menu, 4, 2, "0123456789abcdef", 0xC0C0C0);
         static struct gfx_texture *t_flag;
         if (!t_flag) {
@@ -262,8 +262,8 @@ void flag_menu_create(struct menu *menu) {
             view_rows[y]->text = malloc(5);
             for (s32 x = 0; x < 0x10; ++x) {
                 s32 n = y * 0x10 + x;
-                view_cells[n] = menu_add_switch(menu, 4 + x, 3 + y, t_flag, 1, 0xFFFFFF, t_flag, 0, 0xFFFFFF, 0.75f, 1,
-                                                flag_proc, (void *)n);
+                view_cells[n] = menu_add_switch(menu, 4 + x, 3 + y, t_flag, 1, 0, 0xFFFFFF, t_flag, 0, 0, 0xFFFFFF,
+                                                0.75f, 1, flag_proc, (void *)n);
             }
         }
         goto_record(0);

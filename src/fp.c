@@ -13,7 +13,6 @@
 #include "crash_screen.h"
 #include "sys.h"
 #include "util.h"
-#include "game_icons.h"
 #include "input.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
@@ -236,20 +235,25 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY(S)  STRINGIFY_(S)
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    static game_icon *fp_icon;
-    if (fp_icon == NULL) {
-        fp_icon = game_icons_create_item(ITEM_FP_PLUS_A, 0);
-        game_icons_set_pos(fp_icon, 31, SCREEN_HEIGHT - 49);
-    }
-    game_icons_draw(fp_icon);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));
-    gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
-    gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
-
+    static struct gfx_texture *fp_icon_tex;
     if (pm_status.load_menu_state == 5) {
         fp.version_shown = 1;
-        game_icons_delete(fp_icon);
-        fp_icon = NULL;
+        gfx_texture_free(fp_icon_tex);
+    } else {
+        if (fp_icon_tex == NULL) {
+            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A);
+        }
+        struct gfx_sprite fp_icon_sprite = {
+            fp_icon_tex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,
+        };
+        gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+        gfx_sprite_draw(&fp_icon_sprite);
+        gfx_mode_pop(GFX_MODE_DROPSHADOW);
+
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
+        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
     }
 }
 
@@ -279,12 +283,13 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
             image_dy = -d_y * image_range / settings->control_stick_range;
         }
         struct gfx_sprite in_background = {
-            control_stick, 0,   settings->input_display_x, settings->input_display_y - control_stick->tile_height,
+            control_stick, 0,   0, settings->input_display_x, settings->input_display_y - control_stick->tile_height,
             1.f,           1.f,
         };
         struct gfx_sprite in_stick = {
             control_stick,
             1,
+            0,
             settings->input_display_x + image_dx,
             settings->input_display_y - control_stick->tile_height + image_dy,
             1.f,
@@ -320,7 +325,7 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
             button_dx = control_stick->tile_width + cell_width;
         }
         struct gfx_sprite sprite = {
-            texture, b, settings->input_display_x + button_dx + x, settings->input_display_y + y, 1.f, 1.f,
+            texture, b, 0, settings->input_display_x + button_dx + x, settings->input_display_y + y, 1.f, 1.f,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
         gfx_sprite_draw(&sprite);
@@ -718,23 +723,6 @@ void fp_update(void) {
         pm_status.skip_intro = 1;
     }
 
-    // TODO: remove before PR
-    // static game_icon *test_icon;
-    // if (test_icon == NULL) {
-    //    test_icon = game_icons_create_item(ITEM_ATTACK_FX_C, 31, 49, 255, 0.670816f, 0);
-    //}
-    // if (pm_status.frame_counter % 120 == 0) {
-    //    //game_icons_swap_active_scripts(test_icon, 1);
-    //    game_icons_set_drop_shadow(test_icon, 1);
-    //    game_icons_set_render_pos(test_icon, 30, 48);
-    //}
-    // if (pm_status.frame_counter % 120 == 60) {
-    //    //game_icons_swap_active_scripts(test_icon, 0);
-    //    game_icons_set_drop_shadow(test_icon, 0);
-    //    game_icons_set_render_pos(test_icon, 31, 49);
-    //}
-    // game_icons_draw(test_icon);
-
     if (!fp.settings_loaded) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
             apply_menu_settings();
@@ -829,21 +817,6 @@ void fp_draw(void) {
     if (!fp.version_shown) {
         fp_draw_version(font, cell_width, cell_height, menu_alpha);
     }
-
-    // TODO: remove before PR
-    // if (fp.test_icons[0] == NULL) {
-    //  fp.test_icons[0] = game_icons_create_global(Icon_AButton, 32 + 32 * 0, 32, 255, 1.0f);
-    //  fp.test_icons[1] = game_icons_create_partner(PARTNER_WATT, 32 + 32 * 1, 32, 255, 1.0f, 1);
-    //  fp.test_icons[2] = game_icons_create_partner(PARTNER_BOMBETTE, 32 + 32 * 2, 32, 255, 1.0f, 1);
-    //  fp.test_icons[3] = game_icons_create_item(ITEM_APPLE, 32 + 32 * 3, 32, 255, 1.0f, 1);
-    //  fp.test_icons[4] = game_icons_create_item(ITEM_DAMAGE_DODGE_A, 32 + 32 * 4, 32, 255, 1.0f, 1);
-    //} else {
-    //    for (u32 i = 0; i < 10; i++) {
-    //        if (fp.test_icons[i] != NULL) {
-    //            game_icons_draw(fp.test_icons[i]);
-    //        }
-    //    }
-    //}
 
     if (settings->bits.input_display) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);

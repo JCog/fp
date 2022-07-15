@@ -1,6 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include "fp.h"
 #include "items.h"
 #include "item_button.h"
+#include "resource.h"
 #include "util.h"
 
 static const u16 items_normal_food[] = {
@@ -153,8 +156,8 @@ static void item_delete_button_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void create_item_selection_tab(struct menu *tab, const char *title, const u16 *item_lists[],
-                                      const u16 item_list_sizes[], u16 item_list_count) {
+static void create_item_selection_tab(struct menu *tab, const char *title, struct gfx_texture *item_texture_list[],
+                                      const u16 *item_lists[], const u16 item_list_sizes[], u16 item_list_count) {
     menu_init(tab, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_add_static(tab, 12, 0, title, 0xC0C0C0);
     const s32 row_size = 12;
@@ -171,17 +174,16 @@ static void create_item_selection_tab(struct menu *tab, const char *title, const
     s32 item_button_idx = 0;
     s32 start_y = base_y;
     for (s32 i_lists = 0; i_lists < item_list_count; i_lists++) {
-        s32 final_item_y;
+        s32 final_item_y = base_y;
         for (s32 i_pos = 0; i_pos < item_list_sizes[i_lists]; i_pos++) {
             const s32 item_x = base_x + (i_pos % row_size) * spacing;
             const s32 item_y = start_y + (i_pos / row_size) * spacing;
             final_item_y = item_y;
 
             u16 item_id = item_lists[i_lists][i_pos];
-            game_icon *icon = game_icons_create_item(item_id, 0);
-            game_icons_set_scale(icon, scale);
-            struct menu_item *button =
-                menu_add_button_game_icon(tab, item_x, item_y, icon, item_selection_button_proc, (void *)(u32)item_id);
+            struct gfx_texture *icon = item_texture_list[item_id];
+            struct menu_item *button = menu_add_button_icon(tab, item_x, item_y, icon, 0, 0, 0xFFFFFF, scale,
+                                                            item_selection_button_proc, (void *)(u32)item_id);
             button->tooltip = item_names[item_id];
             item_buttons[item_button_idx++] = button;
         }
@@ -191,8 +193,8 @@ static void create_item_selection_tab(struct menu *tab, const char *title, const
     menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_LEFT, 1, 1);
 }
 
-void create_item_selection_menu() {
-    const s32 tab_count = 6;
+void create_item_selection_menu(struct gfx_texture *item_texture_list[]) {
+    const s32 tab_count = 7;
 
     struct menu *menu = &item_selection_menu;
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -210,8 +212,7 @@ void create_item_selection_menu() {
     const u16 *list_key_2[] = {items_key_letters, items_key_unused};
     const u16 *list_badges_1[] = {items_badges};
     const u16 *list_badges_2[] = {items_badges_unused};
-    // const u16 *list_misc[] = {items_misc};
-    // TODO: something in misc is causing a FPE in game_icon_update() if you cycle through the menus quickly
+    const u16 *list_misc[] = {items_misc};
 
     const u16 sizes_items_1[] = {ARRAY_LENGTH(items_normal_food), ARRAY_LENGTH(items_normal_other)};
     const u16 sizes_items_2[] = {ARRAY_LENGTH(items_normal_tayce), ARRAY_LENGTH(items_normal_unused)};
@@ -219,34 +220,36 @@ void create_item_selection_menu() {
     const u16 sizes_key_2[] = {ARRAY_LENGTH(items_key_letters), ARRAY_LENGTH(items_key_unused)};
     const u16 sizes_badges_1[] = {ARRAY_LENGTH(items_badges)};
     const u16 sizes_badges_2[] = {ARRAY_LENGTH(items_badges_unused)};
-    // const u16 sizes_misc[] = {ARRAY_LENGTH(items_misc)};
+    const u16 sizes_misc[] = {ARRAY_LENGTH(items_misc)};
 
-    create_item_selection_tab(&tabs_menu[tab_index++], "items (1/2)", list_items_1, sizes_items_1,
+    create_item_selection_tab(&tabs_menu[tab_index++], "items (1/2)", item_texture_list, list_items_1, sizes_items_1,
                               ARRAY_LENGTH(list_items_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "items (2/2)", list_items_2, sizes_items_2,
+    create_item_selection_tab(&tabs_menu[tab_index++], "items (2/2)", item_texture_list, list_items_2, sizes_items_2,
                               ARRAY_LENGTH(list_items_2));
-    create_item_selection_tab(&tabs_menu[tab_index++], "key items (1/2)", list_key_1, sizes_key_1,
+    create_item_selection_tab(&tabs_menu[tab_index++], "key items (1/2)", item_texture_list, list_key_1, sizes_key_1,
                               ARRAY_LENGTH(list_key_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "key items (2/2)", list_key_2, sizes_key_2,
+    create_item_selection_tab(&tabs_menu[tab_index++], "key items (2/2)", item_texture_list, list_key_2, sizes_key_2,
                               ARRAY_LENGTH(list_key_2));
-    create_item_selection_tab(&tabs_menu[tab_index++], "badges (1/2)", list_badges_1, sizes_badges_1,
+    create_item_selection_tab(&tabs_menu[tab_index++], "badges (1/2)", item_texture_list, list_badges_1, sizes_badges_1,
                               ARRAY_LENGTH(list_badges_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "badges (2/2)", list_badges_2, sizes_badges_2,
+    create_item_selection_tab(&tabs_menu[tab_index++], "badges (2/2)", item_texture_list, list_badges_2, sizes_badges_2,
                               ARRAY_LENGTH(list_badges_2));
-    // create_item_selection_tab(&tabs_menu[tab_index++], "misc (1/1)", list_misc, sizes_misc, ARRAY_LENGTH(list_misc));
+    create_item_selection_tab(&tabs_menu[tab_index++], "misc (1/1)", item_texture_list, list_misc, sizes_misc,
+                              ARRAY_LENGTH(list_misc));
 
     menu_tab_goto(item_selection_menu_tabs, 0);
     menu_add_button(menu, 8, 0, "<", tab_prev_proc, item_selection_menu_tabs);
     menu_add_button(menu, 10, 0, ">", tab_next_proc, item_selection_menu_tabs);
 }
 
-static void create_items_menu(struct menu *menu, enum item_type item_type, f32 icon_scale, s32 item_count, s32 row_size,
-                              s32 tab_size, s32 spacing_x, s32 spacing_y) {
+static void create_items_menu(struct menu *menu, enum item_type item_type, struct gfx_texture *item_texture_list[],
+                              f32 icon_scale, s32 item_count, s32 row_size, s32 tab_size, s32 spacing_x,
+                              s32 spacing_y) {
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     const s32 base_x = 2;
     const s32 base_y = 3;
     const s32 tab_count = (item_count + (tab_size - 1)) / tab_size;
-    const s32 tooltip_x = tab_count > 1 ? 12 : 8;
+    const s32 tooltip_x = tab_count > 1 ? 18 : 8;
 
     menu_add_tooltip(menu, tooltip_x, 0, fp.main_menu, 0xC0C0C0);
 
@@ -256,14 +259,19 @@ static void create_items_menu(struct menu *menu, enum item_type item_type, f32 i
         struct menu_item *item_buttons[tab_size];
         struct menu *tab = &tabs_menu[i_tab];
         menu_init(tab, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+        if (tab_count > 1) {
+            char buffer[8];
+            sprintf(buffer, "(%ld/%ld)", i_tab + 1, tab_count);
+            menu_add_static(tab, 12, 0, buffer, 0xC0C0C0);
+        }
 
         for (s32 i_pos = 0; i_pos < tab_size; i_pos++) {
             const s32 item_x = base_x + (i_pos % row_size) * spacing_x;
             const s32 item_y = base_y + (i_pos / row_size) * spacing_y;
             const s32 item_idx = (i_tab * tab_size) + i_pos;
 
-            item_buttons[i_pos] =
-                menu_add_item_button(tab, item_x, item_y, item_type, item_idx, icon_scale, item_list_button_proc, menu);
+            item_buttons[i_pos] = menu_add_item_button(tab, item_x, item_y, item_texture_list, item_type, item_idx,
+                                                       icon_scale, item_list_button_proc, menu);
         }
         menu_item_create_chain(item_buttons, tab_size, MENU_NAVIGATE_RIGHT, 1, 0);
         menu_item_create_chain(item_buttons, tab_size, MENU_NAVIGATE_LEFT, 1, 1);
@@ -275,19 +283,19 @@ static void create_items_menu(struct menu *menu, enum item_type item_type, f32 i
     }
 }
 
-void create_normal_items_menu(struct menu *menu) {
-    create_items_menu(menu, ITEM_TYPE_NORMAL, 0.8f, 10, 5, 10, 4, 4);
+void create_normal_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+    create_items_menu(menu, ITEM_TYPE_NORMAL, item_texture_list, 0.8f, 10, 5, 10, 4, 4);
 }
 
-void create_key_items_menu(struct menu *menu) {
-    create_items_menu(menu, ITEM_TYPE_KEY, 0.7f, 32, 8, 32, 3, 3);
+void create_key_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+    create_items_menu(menu, ITEM_TYPE_KEY, item_texture_list, 0.7f, 32, 8, 32, 3, 3);
 }
 
-void create_stored_items_menu(struct menu *menu) {
-    create_items_menu(menu, ITEM_TYPE_STORED, 0.7f, 32, 8, 32, 3, 3);
+void create_stored_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+    create_items_menu(menu, ITEM_TYPE_STORED, item_texture_list, 0.7f, 32, 8, 32, 3, 3);
 }
 
-void create_badges_menu(struct menu *menu) {
+void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_tooltip(menu, 8, 0, fp.main_menu, 0xC0C0C0);
     const u8 base_x = 1;
@@ -301,13 +309,9 @@ void create_badges_menu(struct menu *menu) {
         u8 badge_x = base_x + (i % row_width) * spacing_x;
         u8 badge_y = base_y + (i / row_width) * spacing_y;
         u32 item_id = items_badges[i];
-        game_icon *badge_icon_on = game_icons_create_item(item_id, 0);
-        game_icon *badge_icon_off = game_icons_create_item(item_id, 1);
-        game_icons_set_scale(badge_icon_on, 0.6f);
-        game_icons_set_scale(badge_icon_off, 0.6f);
-
-        badge_items[i] = menu_add_switch_game_icon(menu, badge_x, badge_y, badge_icon_on, badge_icon_off,
-                                                   badge_proc_switch, (void *)item_id);
+        struct gfx_texture *badge_icon = resource_load_pmicon_item(item_id);
+        badge_items[i] = menu_add_switch(menu, badge_x, badge_y, badge_icon, 0, 0, 0xFFFFFF, badge_icon, 0, 1, 0xFFFFFF,
+                                         0.6f, 0, badge_proc_switch, (void *)item_id);
         badge_items[i]->tooltip = item_names[item_id];
     }
     menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_RIGHT, 1, 0);
@@ -316,5 +320,5 @@ void create_badges_menu(struct menu *menu) {
     static struct menu full_badge_list;
     menu_init(&full_badge_list, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_add_submenu(menu, 0, 18, &full_badge_list, "full list");
-    create_items_menu(&full_badge_list, ITEM_TYPE_BADGE, 0.7f, 128, 8, 32, 3, 3);
+    create_items_menu(&full_badge_list, ITEM_TYPE_BADGE, item_texture_list, 0.7f, 128, 8, 32, 3, 3);
 }
