@@ -6,7 +6,7 @@ If you want to build fp on Windows, you'll have to install the Windows Subsystem
 
 fp requires glank's n64 toolchain to compile and build. If you're on a debian-based linux distribution, you can install a prebuilt package of the toolchain by running:
 
-    sudo sh -c '(curl https://practicerom.com/public/packages/debian/pgp.pub || wget -O - https://practicerom.com/public/packages/debian/pgp.pub) | apt-key add - && echo deb https://practicerom.com/public/packages/debian ./staging main > /etc/apt/sources.list.d/practicerom.list && apt update'
+    sudo sh -c '(curl https://practicerom.com/public/packages/debian/pgp.pub || wget -O - https://practicerom.com/public/packages/debian/pgp.pub) | gpg --dearmor -o /usr/share/keyrings/practicerom.gpg && echo deb [signed-by=/usr/share/keyrings/practicerom.gpg] https://practicerom.com/public/packages/debian staging main > /etc/apt/sources.list.d/practicerom.list && apt update'
     sudo apt install practicerom-dev
 
 For those on other operating systems or who want to build from source, follow the instructions on [the n64 repository](https://github.com/glankk/n64) (note that building the toolchain from scratch can take a good amount of time. The prebuilt package is recommended if you're able to use it)
