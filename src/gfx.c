@@ -8,6 +8,7 @@
 #include "gfx.h"
 #include "pm64.h"
 #include "fp.h"
+#include "util.h"
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;
@@ -183,6 +184,10 @@ void gfx_texldr_init(struct gfx_texldr *texldr) {
     texldr->file_data = NULL;
 }
 
+static s32 get_texture_tile_raster_size(const struct gfx_texture *texture) {
+    return texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
+}
+
 struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_texdesc *texdesc,
                                     struct gfx_texture *texture) {
     struct gfx_texture *new_texture = NULL;
@@ -199,9 +204,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     texture->tile_height = texdesc->tile_height;
     texture->tiles_x = texdesc->tiles_x;
     texture->tiles_y = texdesc->tiles_y;
-    texture->tile_size = (texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
-                          ICON_PALETTE_SIZE * texdesc->pal_count + 7) /
-                         8 * 8;
+    texture->tile_size = (get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count + 7) / 8 * 8;
     texture->pal_count = texdesc->pal_count;
     size_t texture_size = texture->tile_size * texture->tiles_x * texture->tiles_y;
     void *texture_data = NULL;
@@ -209,8 +212,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     if (texdesc->file_vaddr == GFX_FILE_DRAM_PM) {
         // these textures are always loaded in memory by the base game, so no need to waste memory copying them
         texture_data = (void *)texdesc->address;
-        texture->tile_size = texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
-                             ICON_PALETTE_SIZE * texdesc->pal_count;
+        texture->tile_size = get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count;
     } else if (texdesc->file_vaddr != GFX_FILE_DRAM) {
         if (texldr->file_vaddr != texdesc->file_vaddr) {
             if (texldr->file_data) {
@@ -389,23 +391,20 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
 }
 
 void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
+    s32 adj_width = texture->tile_width;
     s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
     if (bytes_per_pixel == 0) {
         bytes_per_pixel = 1; // 0.5, but we'll handle it manually
-    }
-    s32 x_width = texture->tile_width;
-    if (texture->im_siz == G_IM_SIZ_4b) {
-        x_width /= 2;
+        adj_width /= 2;
     }
 
     if ((uintptr_t)texture->data < 0x80400000) {
         void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
-        memcpy(new_data, texture->data, texture->tiles_x * texture->tiles_y * texture->tile_size);
+        memcpy(new_data, texture->data, sizeof(*new_data));
         texture->data = new_data;
     }
 
-    unsigned char *new_raster =
-        malloc(sizeof texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8);
+    unsigned char *new_raster = malloc(get_texture_tile_raster_size(texture));
     unsigned char *new_pos = new_raster;
     unsigned char *old_raster = texture->data + tile * texture->tile_size;
     unsigned char *old_pos;
@@ -415,7 +414,7 @@ void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
             y_offset /= 2;
         }
         old_pos = old_raster + y_offset;
-        for (s32 x = 0; x < x_width; x++) {
+        for (s32 x = 0; x < adj_width; x++) {
             memcpy(new_pos, old_pos, bytes_per_pixel);
             if (texture->im_siz == G_IM_SIZ_4b) {
                 *new_pos = (*new_pos & 0xF0) >> 4 | (*new_pos & 0x0F) << 4;
@@ -424,15 +423,80 @@ void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
             old_pos -= bytes_per_pixel;
         }
     }
+    memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+    free(new_raster);
+}
+
+void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, s32 y_offset) {
+    s32 adj_width = texture->tile_width;
+    s32 adj_height = texture->tile_height;
+    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
+    s32 adj_x_offset = x_offset;
+    if (bytes_per_pixel == 0) {
+        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
+        adj_width /= 2;
+        adj_height /= 2;
+        adj_x_offset /= 2;
+    }
+
     if ((uintptr_t)texture->data < 0x80400000) {
         void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
-        memcpy(new_data, texture->data, sizeof(texture->tiles_x * texture->tiles_y * texture->tile_size));
+        memcpy(new_data, texture->data, sizeof(*new_data));
         texture->data = new_data;
-
-        old_raster = texture->data + tile * texture->tile_size;
     }
-    memcpy(old_raster, new_raster, texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8);
-    free(new_raster);
+
+    if (x_offset != 0) {
+        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
+        unsigned char *new_pos;
+        unsigned char *old_raster = texture->data + tile * texture->tile_size;
+        unsigned char *old_pos;
+        for (s32 y = 0; y < texture->tile_height; y++) {
+            new_pos = new_raster + bytes_per_pixel * (adj_height * y);
+            old_pos = old_raster + bytes_per_pixel * (adj_height * y - adj_x_offset);
+            for (s32 x = 0; x < adj_width; x++) {
+                if (x >= adj_x_offset && x < adj_width + adj_x_offset) {
+                    if (texture->im_siz == G_IM_SIZ_4b && (x_offset % 2 == 1 || x_offset % 2 == -1)) {
+                        if (x_offset > 0) {
+                            *new_pos = (*old_pos & 0xF0) >> 4;
+                            if (x > adj_x_offset) {
+                                *new_pos |= (*(old_pos - 1) & 0x0F) << 4;
+                            }
+                        } else {
+                            *new_pos = (*old_pos & 0x0F) << 4;
+                            if (x < adj_width + adj_x_offset - 1) {
+                                *new_pos |= (*(old_pos + 1) & 0xF0) >> 4;
+                            }
+                        }
+                    } else {
+                        memcpy(new_pos, old_pos, bytes_per_pixel);
+                    }
+                }
+                new_pos += bytes_per_pixel;
+                old_pos += bytes_per_pixel;
+            }
+        }
+        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+        free(new_raster);
+    }
+    if (y_offset != 0) {
+        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
+        unsigned char *new_pos;
+        unsigned char *old_raster = texture->data + tile * texture->tile_size;
+        unsigned char *old_pos;
+        for (s32 y = 0; y < texture->tile_height; y++) {
+            if (y >= y_offset && y < texture->tile_height + y_offset) {
+                new_pos = new_raster + bytes_per_pixel * (adj_height * y);
+                old_pos = old_raster + bytes_per_pixel * (adj_height * y - y_offset * adj_width);
+                for (s32 x = 0; x < adj_width; x++) {
+                    memcpy(new_pos, old_pos, bytes_per_pixel);
+                    new_pos += bytes_per_pixel;
+                    old_pos += bytes_per_pixel;
+                }
+            }
+        }
+        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+        free(new_raster);
+    }
 }
 
 void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index) {
@@ -450,7 +514,7 @@ void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_inde
     char *new_texture_data = malloc((texture->tile_size + ICON_PALETTE_SIZE) * tile_count);
     size_t new_tile_size = texture->tile_size + ICON_PALETTE_SIZE;
 
-    u32 raster_size = texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
+    u32 raster_size = get_texture_tile_raster_size(texture);
 
     for (s32 i_tile = 0; i_tile < tile_count; i_tile++) {
         char *base_tile = texture->data + texture->tile_size * i_tile;
@@ -486,8 +550,7 @@ void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 t
     if (texture->im_fmt == G_IM_FMT_CI) {
         gDPSetTextureLUT((*disp)++, G_TT_RGBA16);
         gDPLoadTLUT_pal16((*disp)++, 0,
-                          gfx_texture_data(texture, texture_tile) +
-                              texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8 +
+                          gfx_texture_data(texture, texture_tile) + get_texture_tile_raster_size(texture) +
                               ICON_PALETTE_SIZE * palette_index);
     } else {
         gDPSetTextureLUT((*disp)++, G_TT_NONE);

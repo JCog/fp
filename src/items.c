@@ -296,7 +296,7 @@ void create_stored_items_menu(struct menu *menu, struct gfx_texture *item_textur
 }
 
 void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
-    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
+    struct menu_item *return_item = menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_tooltip(menu, 8, 0, fp.main_menu, 0xC0C0C0);
     const u8 base_x = 1;
     const u8 base_y = 2;
@@ -314,11 +314,16 @@ void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list
                                          0.6f, 0, badge_proc_switch, (void *)item_id);
         badge_items[i]->tooltip = item_names[item_id];
     }
+    menu_item_add_chain_link(return_item, badge_items[0], MENU_NAVIGATE_DOWN);
+    menu_item_add_chain_link(badge_items[0], return_item, MENU_NAVIGATE_UP);
     menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_RIGHT, 1, 0);
     menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_LEFT, 1, 1);
 
     static struct menu full_badge_list;
     menu_init(&full_badge_list, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_add_submenu(menu, 0, 18, &full_badge_list, "full list");
+    struct menu_item *full_list_item = menu_add_submenu(menu, 0, 18, &full_badge_list, "full list");
     create_items_menu(&full_badge_list, ITEM_TYPE_BADGE, item_texture_list, 0.7f, 128, 8, 32, 3, 3);
+
+    menu_item_add_chain_link(full_list_item, badge_items[70], MENU_NAVIGATE_UP);
+    menu_item_add_chain_link(badge_items[70], full_list_item, MENU_NAVIGATE_DOWN);
 }

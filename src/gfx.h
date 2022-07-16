@@ -107,6 +107,7 @@ void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct
                            _Bool blend);
 void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix);
 void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile);
+void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, s32 y_offset);
 void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index);
 
 void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile, s8 palette_index);

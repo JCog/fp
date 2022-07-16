@@ -309,11 +309,9 @@ static void create_party_menu(struct menu *menu) {
     struct menu_item *ultra_ranks[8];
     struct menu_item *all_ranks[16];
     struct gfx_texture *partner = resource_get(RES_PMICON_PARTNER);
-    struct gfx_texture *rank_super = resource_load_pmicon_global(ICON_PARTNER_RANK_1_A, 1);
-    struct gfx_texture *rank_ultra = resource_load_pmicon_global(ICON_PARTNER_RANK_1_A, 1);
-    gfx_add_grayscale_palette(rank_super, 0);
-    gfx_add_grayscale_palette(rank_ultra, 0);
-    gfx_texture_mirror_horizontal(rank_ultra, 0);
+    struct gfx_texture *rank = resource_load_pmicon_global(ICON_PARTNER_RANK_1_A, 1);
+    gfx_add_grayscale_palette(rank, 0);
+    gfx_texture_translate(rank, 0, 3, 3);
 
     for (u32 i = 0; i < 8; i++) {
         u8 partner_x = base_x + (i % width) * spacing_x;
@@ -324,19 +322,19 @@ static void create_party_menu(struct menu *menu) {
                             0, in_party_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
         partners[i]->tooltip = partner_names[i];
 
-        // super rank_super
+        // super rank
         super_ranks[i] =
-            menu_add_switch(menu, partner_x - 1, partner_y + 3, rank_super, 0, 0, 0xFFFFFF, rank_super, 0, 1, 0xFFFFFF,
-                            1.0f, 0, super_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
+            menu_add_switch(menu, partner_x - 1, partner_y + 3, rank, 0, 0, 0xFFFFFF, rank, 0, 1, 0xFFFFFF, 1.0f, 0,
+                            super_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
         menu_item_add_chain_link(partners[i], super_ranks[i], MENU_NAVIGATE_DOWN);
         menu_item_add_chain_link(super_ranks[i], partners[i], MENU_NAVIGATE_UP);
         super_ranks[i]->tooltip = super_rank_str;
         all_ranks[i * 2] = super_ranks[i];
 
-        // ultra rank_super
+        // ultra rank
         ultra_ranks[i] =
-            menu_add_switch(menu, partner_x + 1, partner_y + 3, rank_ultra, 0, 0, 0xFFFFFF, rank_ultra, 0, 1, 0xFFFFFF,
-                            1.0f, 0, ultra_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
+            menu_add_switch(menu, partner_x + 1, partner_y + 3, rank, 0, 0, 0xFFFFFF, rank, 0, 1, 0xFFFFFF, 1.0f, 0,
+                            ultra_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
         menu_item_add_chain_link(ultra_ranks[i], partners[i], MENU_NAVIGATE_UP);
         ultra_ranks[i]->tooltip = ultra_rank_str;
         all_ranks[i * 2 + 1] = ultra_ranks[i];
@@ -413,7 +411,6 @@ struct menu *create_player_menu(void) {
             item_texture_list[i] = resource_load_pmicon_item(i);
         }
         gfx_add_grayscale_palette(item_texture_list[ITEM_KOOPA_FORTRESS_KEY], 0);
-        osSyncPrintf("present: %X\n", item_texture_list[0]);
 
         create_mario_menu(&mario);
         create_party_menu(&party);
