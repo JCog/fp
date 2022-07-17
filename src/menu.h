@@ -218,5 +218,10 @@ struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generi
                                     void *callback_data);
 _Bool menu_checkbox_get(struct menu_item *item);
 void menu_checkbox_set(struct menu_item *item, _Bool state);
+struct menu_item *menu_add_cycle(struct menu *menu, s32 x, s32 y, s32 cycle_count, struct gfx_texture **textures,
+                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, _Bool disable_shadow,
+                                 menu_generic_callback callback_proc, void *callback_data);
+void menu_cycle_set(struct menu_item *item, s32 state);
+s32 menu_cycle_get(struct menu_item *item);
 
 #endif

@@ -13,13 +13,15 @@
 
 #define ICON_PALETTE_SIZE 32
 #if PM64_VERSION == US
-#define SCRIPTS_GLOBAL_START     0x801049B0
-#define ICONS_ITEMS_ROM_START    0x1CC310
-#define ICONS_PARTNERS_ROM_START 0x97890
+#define SCRIPTS_GLOBAL_START         0x801049B0
+#define ICONS_ITEMS_ROM_START        0x1CC310
+#define ICONS_PARTNERS_ROM_START     0x97890
+#define ICONS_STAR_SPIRITS_ROM_START 0x963B0
 #else
-#define SCRIPTS_GLOBAL_START     0x80104b40
-#define ICONS_ITEMS_ROM_START    0x1D4720
-#define ICONS_PARTNERS_ROM_START 0x97A20
+#define SCRIPTS_GLOBAL_START         0x80104b40
+#define ICONS_ITEMS_ROM_START        0x1D4720
+#define ICONS_PARTNERS_ROM_START     0x97A20
+#define ICONS_STAR_SPIRITS_ROM_START 0x96540
 #endif
 
 typedef s32 HudScript[0];
@@ -294,12 +296,17 @@ typedef struct {
 } merlee_t; // size: 0x0006
 
 typedef struct {
-    /* 0x0000 */ u8 star_spirits_saved;
-    /* 0x0001 */ char unk_0x01[0x01];
-    /* 0x0002 */ u8 full_bars_filled;
-    /* 0x0003 */ u8 partial_bars_filled;
-    /* 0x0004 */ u8 beam_rank; /*1 for star beam, 2 for peach beam*/
-    /* 0x0005 */ char unk_0x05[0x01];
+    /* 0x00 */ u8 star_spirits_saved;
+    /* 0x01 */ char unk_0x01[0x01];
+    /* 0x02 */ union {
+        struct {
+            /* 0x02 */ u8 full_bars_filled;
+            /* 0x03 */ u8 partial_bars_filled;
+        };
+        /* 0x02 */ u16 total_star_power;
+    };
+    /* 0x04 */ u8 beam_rank; /*1 for star beam, 2 for peach beam*/
+    /* 0x05 */ char unk_0x05[0x01];
 } star_power_t; // size: 0x0006
 
 typedef struct {

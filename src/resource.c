@@ -6,6 +6,9 @@
 #include "pm64.h"
 #include "util.h"
 
+#define VSIZE(x, y, im_size, palette_count, tile_count) \
+    (x * y * G_SIZ_BITS(im_size) / 8 + ICON_PALETTE_SIZE * palette_count) * tile_count
+
 /* resource data table */
 static void *res_data[RES_MAX] = {NULL};
 
@@ -102,7 +105,7 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
     s16 tile_height = 0;
 
     const u32 *script_pos = hud_script;
-    s32 tile_size_preset = -1;
+    s32 tile_size_preset;
     _Bool script_done = 0;
     while (!script_done) {
         switch (*script_pos++) {
@@ -168,13 +171,7 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
         file_vsize = 0;
     } else {
         file_vaddr = address + vaddr_offset;
-        size_t vsize;
-        if (tile_size_preset != -1) {
-            vsize = gHudElementSizes[tile_size_preset].size;
-        } else {
-            vsize = tile_width * tile_height * G_SIZ_BITS(im_siz) / 8;
-        }
-        file_vsize = vsize + ICON_PALETTE_SIZE * pal_count;
+        file_vsize = VSIZE(tile_width, tile_height, im_siz, pal_count, 1);
     }
 
     *td_out = (struct gfx_texdesc){
@@ -185,16 +182,21 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
 
 static void *rc_pmicon_partner(void) {
     struct gfx_texdesc td = {
-        G_IM_FMT_CI,
-        G_IM_SIZ_4b,
-        0,
-        32,
-        32,
-        1,
-        12,
-        ICONS_PARTNERS_ROM_START,
-        (32 * 32 * G_SIZ_BITS(G_IM_SIZ_4b) / 8 + ICON_PALETTE_SIZE * 2) * 12,
-        2,
+        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 32, 32, 1, 12, ICONS_PARTNERS_ROM_START, VSIZE(32, 32, G_IM_SIZ_4b, 2, 12), 2,
+    };
+    return gfx_texture_load(&td, NULL);
+}
+
+static void *rc_pmicon_star_spirits(void) {
+    struct gfx_texdesc td = {
+        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 32, 32, 1, 9, ICONS_STAR_SPIRITS_ROM_START, VSIZE(32, 32, G_IM_SIZ_4b, 2, 9), 2,
+    };
+    return gfx_texture_load(&td, NULL);
+}
+
+static void *rc_pmicon_bp(void) {
+    struct gfx_texdesc td = {
+        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 16, 16, 1, 1, 0x134520, VSIZE(16, 16, G_IM_SIZ_4b, 1, 1), 1,
     };
     return gfx_texture_load(&td, NULL);
 }
@@ -252,13 +254,29 @@ static void rd_font_generic(void *data) {
 
 /* resource management tables */
 static void *(*res_ctor[RES_MAX])(void) = {
-    rc_font_fipps,     rc_font_notalot35,     rc_font_origamimommy,
-    rc_font_pcsenior,  rc_font_pixelintv,     rc_font_pressstart2p,
-    rc_font_smwtextnc, rc_font_werdnasreturn, rc_font_pixelzim,
-    rc_pmicon_partner, rc_icon_check,         rc_icon_buttons,
-    rc_icon_pause,     rc_icon_macro,         rc_icon_movie,
-    rc_icon_arrow,     rc_icon_file,          rc_icon_save,
-    rc_icon_osk,       rc_texture_crosshair,  rc_texture_control_stick,
+    rc_font_fipps,
+    rc_font_notalot35,
+    rc_font_origamimommy,
+    rc_font_pcsenior,
+    rc_font_pixelintv,
+    rc_font_pressstart2p,
+    rc_font_smwtextnc,
+    rc_font_werdnasreturn,
+    rc_font_pixelzim,
+    rc_pmicon_partner,
+    rc_pmicon_star_spirits,
+    rc_pmicon_bp,
+    rc_icon_check,
+    rc_icon_buttons,
+    rc_icon_pause,
+    rc_icon_macro,
+    rc_icon_movie,
+    rc_icon_arrow,
+    rc_icon_file,
+    rc_icon_save,
+    rc_icon_osk,
+    rc_texture_crosshair,
+    rc_texture_control_stick,
 };
 
 static void (*res_dtor[RES_MAX])() = {

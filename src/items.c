@@ -283,19 +283,19 @@ static void create_items_menu(struct menu *menu, enum item_type item_type, struc
     }
 }
 
-void create_normal_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+void create_normal_items_menu(struct menu *menu, struct gfx_texture **item_texture_list) {
     create_items_menu(menu, ITEM_TYPE_NORMAL, item_texture_list, 0.8f, 10, 5, 10, 4, 4);
 }
 
-void create_key_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+void create_key_items_menu(struct menu *menu, struct gfx_texture **item_texture_list) {
     create_items_menu(menu, ITEM_TYPE_KEY, item_texture_list, 0.7f, 32, 8, 32, 3, 3);
 }
 
-void create_stored_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+void create_stored_items_menu(struct menu *menu, struct gfx_texture **item_texture_list) {
     create_items_menu(menu, ITEM_TYPE_STORED, item_texture_list, 0.7f, 32, 8, 32, 3, 3);
 }
 
-void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list[]) {
+void create_badges_menu(struct menu *menu, struct gfx_texture **item_texture_list) {
     struct menu_item *return_item = menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_tooltip(menu, 8, 0, fp.main_menu, 0xC0C0C0);
     const u8 base_x = 1;

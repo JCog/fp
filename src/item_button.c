@@ -446,7 +446,7 @@ static s32 activate_proc(struct menu_item *item) {
     return 1;
 }
 
-struct menu_item *menu_add_item_button(struct menu *menu, s32 x, s32 y, struct gfx_texture *item_texture_list[],
+struct menu_item *menu_add_item_button(struct menu *menu, s32 x, s32 y, struct gfx_texture **item_texture_list,
                                        enum item_type type, u16 item_slot_index, f32 scale,
                                        menu_action_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
