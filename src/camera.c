@@ -38,9 +38,9 @@ static void cam_manual(void) {
         s32 x = zu_adjust_joystick(input_x());
         s32 y = zu_adjust_joystick(input_y());
 
-        Vec3f vf;
-        Vec3f vr;
-        Vec3f move;
+        vec3f_t vf;
+        vec3f_t vr;
+        vec3f_t move;
         vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
         vec3f_py(&vr, 0.f, fp.cam_yaw - M_PI / 2.f);
 
@@ -94,12 +94,12 @@ static void cam_manual(void) {
 }
 
 static void cam_birdseye(void) {
-    Vec3f vt;
+    vec3f_t vt;
     vt.x = pm_player.position.x;
     vt.y = pm_player.position.y;
     vt.z = pm_player.position.z;
 
-    Vec3f vd;
+    vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);
 
     f32 pitch, yaw;
@@ -121,12 +121,12 @@ static void cam_birdseye(void) {
 
     f32 dist = vec3f_mag(&vd);
     if (dist < fp.cam_dist_min) {
-        Vec3f move;
+        vec3f_t move;
         vec3f_py(&move, fp.cam_pitch, fp.cam_yaw);
         vec3f_scale(&move, &move, (dist - fp.cam_dist_min) * fol_mspeed);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     } else if (dist > fp.cam_dist_max) {
-        Vec3f move;
+        vec3f_t move;
         vec3f_py(&move, fp.cam_pitch, fp.cam_yaw);
         vec3f_scale(&move, &move, (dist - fp.cam_dist_max) * fol_mspeed);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
@@ -136,37 +136,37 @@ static void cam_birdseye(void) {
 }
 
 static void cam_radial(void) {
-    Vec3f vf;
+    vec3f_t vf;
     vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
 
-    Vec3f vt;
+    vec3f_t vt;
     vt.x = pm_player.position.x;
     vt.y = pm_player.position.y;
     vt.z = pm_player.position.z;
 
-    Vec3f vd;
+    vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);
 
     f32 dist = vec3f_dot(&vd, &vf);
-    Vec3f vp;
+    vec3f_t vp;
     vec3f_scale(&vp, &vf, dist);
 
-    Vec3f vr;
+    vec3f_t vr;
     vec3f_sub(&vr, &vd, &vp);
     {
-        Vec3f move;
+        vec3f_t move;
         vec3f_scale(&move, &vr, fol_mspeed);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     }
 
     if (dist < fp.cam_dist_min) {
         f32 norm = 1.f / dist;
-        Vec3f move;
+        vec3f_t move;
         vec3f_scale(&move, &vp, (dist - fp.cam_dist_min) * fol_mspeed * norm);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     } else if (dist > fp.cam_dist_max) {
         f32 norm = 1.f / dist;
-        Vec3f move;
+        vec3f_t move;
         vec3f_scale(&move, &vp, (dist - fp.cam_dist_max) * fol_mspeed * norm);
         vec3f_add(&fp.cam_pos, &fp.cam_pos, &move);
     }
@@ -206,10 +206,10 @@ static void cam_radial(void) {
             fp.cam_pitch = -pitch_lim;
         }
 
-        Vec3f vfoc;
+        vec3f_t vfoc;
         vec3f_add(&vfoc, &fp.cam_pos, &vp);
 
-        Vec3f move;
+        vec3f_t move;
         vec3f_py(&move, fp.cam_pitch, fp.cam_yaw);
         vec3f_scale(&move, &move, -dist);
         vec3f_add(&fp.cam_pos, &vfoc, &move);

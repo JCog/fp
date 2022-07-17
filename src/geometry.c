@@ -2,8 +2,8 @@
 #include "pm64.h"
 #include "gu.h"
 
-Vec3f *vec3f_py(Vec3f *r, f32 p, f32 y) {
-    Vec3f v = {
+vec3f_t *vec3f_py(vec3f_t *r, f32 p, f32 y) {
+    vec3f_t v = {
         -sin(y) * cos(p),
         -sin(p),
         -cos(y) * cos(p),
@@ -12,7 +12,7 @@ Vec3f *vec3f_py(Vec3f *r, f32 p, f32 y) {
     return r;
 }
 
-void vec3f_pyangles(Vec3f *a, f32 *p, f32 *y) {
+void vec3f_pyangles(vec3f_t *a, f32 *p, f32 *y) {
     if (p) {
         *p = atan2f(-a->y, sqrtf(a->x * a->x + a->z * a->z));
     }
@@ -21,8 +21,8 @@ void vec3f_pyangles(Vec3f *a, f32 *p, f32 *y) {
     }
 }
 
-Vec3f *vec3f_add(Vec3f *r, Vec3f *a, Vec3f *b) {
-    Vec3f v = {
+vec3f_t *vec3f_add(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
+    vec3f_t v = {
         a->x + b->x,
         a->y + b->y,
         a->z + b->z,
@@ -31,8 +31,8 @@ Vec3f *vec3f_add(Vec3f *r, Vec3f *a, Vec3f *b) {
     return r;
 }
 
-Vec3f *vec3f_sub(Vec3f *r, Vec3f *a, Vec3f *b) {
-    Vec3f v = {
+vec3f_t *vec3f_sub(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
+    vec3f_t v = {
         a->x - b->x,
         a->y - b->y,
         a->z - b->z,
@@ -41,8 +41,8 @@ Vec3f *vec3f_sub(Vec3f *r, Vec3f *a, Vec3f *b) {
     return r;
 }
 
-Vec3f *vec3f_mul(Vec3f *r, Vec3f *a, Vec3f *b) {
-    Vec3f v = {
+vec3f_t *vec3f_mul(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
+    vec3f_t v = {
         a->x * b->x,
         a->y * b->y,
         a->z * b->z,
@@ -51,8 +51,8 @@ Vec3f *vec3f_mul(Vec3f *r, Vec3f *a, Vec3f *b) {
     return r;
 }
 
-Vec3f *vec3f_scale(Vec3f *r, Vec3f *a, f32 s) {
-    Vec3f v = {
+vec3f_t *vec3f_scale(vec3f_t *r, vec3f_t *a, f32 s) {
+    vec3f_t v = {
         a->x * s,
         a->y * s,
         a->z * s,
@@ -61,8 +61,8 @@ Vec3f *vec3f_scale(Vec3f *r, Vec3f *a, f32 s) {
     return r;
 }
 
-Vec3f *vec3f_cross(Vec3f *r, Vec3f *a, Vec3f *b) {
-    Vec3f v = {
+vec3f_t *vec3f_cross(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
+    vec3f_t v = {
         a->y * b->z - a->z * b->y,
         a->z * b->x - a->x * b->z,
         a->x * b->y - a->y * b->x,
@@ -71,33 +71,33 @@ Vec3f *vec3f_cross(Vec3f *r, Vec3f *a, Vec3f *b) {
     return r;
 }
 
-f32 vec3f_dot(Vec3f *a, Vec3f *b) {
+f32 vec3f_dot(vec3f_t *a, vec3f_t *b) {
     return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
-f32 vec3f_mag(Vec3f *a) {
+f32 vec3f_mag(vec3f_t *a) {
     return sqrtf(vec3f_dot(a, a));
 }
 
-f32 vec3f_cos(Vec3f *a, Vec3f *b) {
+f32 vec3f_cos(vec3f_t *a, vec3f_t *b) {
     return vec3f_dot(a, b) / vec3f_mag(a) / vec3f_mag(b);
 }
 
-f32 vec3f_angle(Vec3f *a, Vec3f *b) {
+f32 vec3f_angle(vec3f_t *a, vec3f_t *b) {
     return acosf(vec3f_cos(a, b));
 }
 
-Vec3f *vec3f_norm(Vec3f *r, Vec3f *a) {
+vec3f_t *vec3f_norm(vec3f_t *r, vec3f_t *a) {
     return vec3f_scale(r, a, 1.f / vec3f_mag(a));
 }
 
-Vec3f *vec3f_proj(Vec3f *r, Vec3f *a, Vec3f *b) {
+vec3f_t *vec3f_proj(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
     vec3f_norm(r, b);
     vec3f_scale(r, r, vec3f_dot(a, r));
     return r;
 }
 
-Vec3f *vec3f_rej(Vec3f *r, Vec3f *a, Vec3f *b) {
+vec3f_t *vec3f_rej(vec3f_t *r, vec3f_t *a, vec3f_t *b) {
     vec3f_proj(r, a, b);
     vec3f_sub(r, a, r);
     return r;
@@ -114,8 +114,8 @@ f32 angle_dif(f32 a, f32 b) {
     return d;
 }
 
-Vec3f *vec3f_xfmw(Vec3f *r, Vec3f *a, f32 w, MtxF *b) {
-    Vec3f v = {
+vec3f_t *vec3f_xfmw(vec3f_t *r, vec3f_t *a, f32 w, MtxF *b) {
+    vec3f_t v = {
         a->x * b->xx + a->y * b->yx + a->z * b->zx + w * b->wx,
         a->x * b->xy + a->y * b->yy + a->z * b->zy + w * b->wy,
         a->x * b->xz + a->y * b->yz + a->z * b->zz + w * b->wz,

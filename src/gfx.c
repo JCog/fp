@@ -8,7 +8,6 @@
 #include "gfx.h"
 #include "pm64.h"
 #include "fp.h"
-#include "util.h"
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;
@@ -188,6 +187,10 @@ static s32 get_texture_tile_raster_size(const struct gfx_texture *texture) {
     return texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
 }
 
+static _Bool texture_data_is_on_heap(struct gfx_texture *texture) {
+    return (uintptr_t)texture->data >= 0x80400000;
+}
+
 struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_texdesc *texdesc,
                                     struct gfx_texture *texture) {
     struct gfx_texture *new_texture = NULL;
@@ -287,7 +290,7 @@ struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct g
 }
 
 void gfx_texture_destroy(struct gfx_texture *texture) {
-    if (texture->data && (uintptr_t)texture->data >= 0x80400000) {
+    if (texture->data && texture_data_is_on_heap(texture)) {
         free(texture->data);
     }
 }
@@ -398,7 +401,7 @@ void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
         adj_width /= 2;
     }
 
-    if ((uintptr_t)texture->data < 0x80400000) {
+    if (!texture_data_is_on_heap(texture)) {
         void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
         memcpy(new_data, texture->data, sizeof(*new_data));
         texture->data = new_data;
@@ -439,7 +442,7 @@ void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, 
         adj_x_offset /= 2;
     }
 
-    if ((uintptr_t)texture->data < 0x80400000) {
+    if (!texture_data_is_on_heap(texture)) {
         void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
         memcpy(new_data, texture->data, sizeof(*new_data));
         texture->data = new_data;
@@ -537,8 +540,7 @@ void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_inde
         }
     }
 
-    if ((uintptr_t)texture->data >= 0x80400000) {
-        // only free texture data if it's not stored in the base game RAM
+    if (texture_data_is_on_heap(texture)) {
         free(texture->data);
     }
     texture->data = new_texture_data;

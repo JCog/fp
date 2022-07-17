@@ -698,12 +698,12 @@ void fp_cam_update() {
         } else {
             fp_update_cam();
         }
-        Vec3f *camera_at = &pm_gCameras->lookAt_obj;
-        Vec3f *camera_eye = &pm_gCameras->lookAt_eye;
+        vec3f_t *camera_at = &pm_gCameras->lookAt_obj;
+        vec3f_t *camera_eye = &pm_gCameras->lookAt_eye;
 
         *camera_eye = fp.cam_pos;
 
-        Vec3f vf;
+        vec3f_t vf;
         vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
         vec3f_add(camera_at, camera_eye, &vf);
     }

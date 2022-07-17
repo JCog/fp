@@ -29,6 +29,7 @@ enum resource_id {
     RES_MAX,
 };
 
+// currently no support for animated icons
 enum icon_global_offset {
     ICON_ARROW_LEFT = 0x0,
     ICON_ARROW_RIGHT = 0x28,
@@ -233,7 +234,7 @@ enum icon_global_offset {
 void *resource_get(enum resource_id res);
 void resource_free(enum resource_id res);
 struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name);
-struct gfx_texture *resource_load_pmicon_item(Item item);
+struct gfx_texture *resource_load_pmicon_item(u16 item);
 struct gfx_texture *resource_load_pmicon_global(enum icon_global_offset icon_global_offset, s8 palette_count);
 
 #endif

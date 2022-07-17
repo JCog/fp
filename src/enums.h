@@ -1,22 +1,8 @@
 #ifndef ENUMS_H
 #define ENUMS_H
-#include <stdint.h>
 
-/// X.10 fixed-point literal
-#define X10(f) (s32)(f * 1024.0f)
-
-typedef uint8_t u8;
-typedef int8_t s8;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint32_t u32;
-typedef int32_t s32;
-typedef uint64_t u64;
-typedef int64_t s64;
-typedef float f32;
-typedef double f64;
-
-typedef enum {
+typedef int8_t ActionState;
+enum action_state {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
     ACTION_STATE_RUN,
@@ -58,9 +44,10 @@ typedef enum {
     ACTION_STATE_24,
     ACTION_STATE_25,
     ACTION_STATE_USE_SPRING,
-} ActionState;
+};
 
-typedef enum {
+typedef uint16_t Area;
+enum areas {
     AREA_GOOMBA_VILLAGE,
     AREA_TOAD_TOWN,
     AREA_SEWERS,
@@ -89,9 +76,10 @@ typedef enum {
     AREA_MINI_GAMES,
     AREA_GAME_OVER,
     AREA_DEBUG,
-} Area;
+};
 
-typedef enum {
+typedef uint8_t Partner;
+enum partners {
     PARTNER_NONE,
     PARTNER_GOOMBARIO,
     PARTNER_KOOPER,
@@ -104,9 +92,9 @@ typedef enum {
     PARTNER_BOW,
     PARTNER_GOOMBARIA,
     PARTNER_TWINK,
-} Partner;
+};
 
-typedef enum {
+enum ItemIDs {
     /*0x000*/ ITEM_NONE,
     /*0x001*/ ITEM_JUMP,
     /*0x002*/ ITEM_SPIN_JUMP,
@@ -472,7 +460,7 @@ typedef enum {
     /*0x16A*/ ITEM_BOOTS2_ICON,
     /*0x16B*/ ITEM_BOOTS3_ICON,
     /*0x16C*/ ITEM_ITEMS_ICON,
-} Item;
+};
 
 enum StoryProgress {
     /* 80 */ STORY_INTRO = -128,
@@ -743,7 +731,7 @@ enum {
     /* 0x1B */ HUD_ELEMENT_OP_SetPivot,
 };
 
-enum {
+enum HudElementSize {
     /* 0x00 */ HUD_ELEMENT_SIZE_8x8,
     /* 0x01 */ HUD_ELEMENT_SIZE_16x16,
     /* 0x02 */ HUD_ELEMENT_SIZE_24x24,

@@ -134,8 +134,8 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
                 break;
             case HUD_ELEMENT_OP_SetTileSize:
                 tile_size_preset = *script_pos++;
-                tile_width = gHudElementSizes[tile_size_preset].width;
-                tile_height = gHudElementSizes[tile_size_preset].height;
+                tile_width = pm_gHudElementSizes[tile_size_preset].width;
+                tile_height = pm_gHudElementSizes[tile_size_preset].height;
                 break;
             case HUD_ELEMENT_OP_SetCustomSize:
                 tile_width = *script_pos++;
@@ -321,10 +321,10 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
     return gfx_texture_load(&td, NULL);
 }
 
-struct gfx_texture *resource_load_pmicon_item(Item item) {
-    ItemData *item_data = &gItemTable[item];
-    u32 *script_enabled = (u32 *)gItemHudScripts[item_data->hudElemID].enabled;
-    u32 *script_disabled = (u32 *)gItemHudScripts[item_data->hudElemID].disabled;
+struct gfx_texture *resource_load_pmicon_item(u16 item) {
+    item_data_t *item_data = &pm_gItemTable[item];
+    u32 *script_enabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].enabled;
+    u32 *script_disabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].disabled;
     u8 pal_count = script_enabled == script_disabled ? 1 : 2;
     struct gfx_texdesc td;
     if (hud_script_to_texdesc(&td, script_enabled, ICONS_ITEMS_ROM_START, pal_count)) {
