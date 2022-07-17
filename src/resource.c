@@ -196,7 +196,7 @@ static void *rc_pmicon_star_spirits(void) {
 
 static void *rc_pmicon_bp(void) {
     struct gfx_texdesc td = {
-        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 16, 16, 1, 1, 0x134520, VSIZE(16, 16, G_IM_SIZ_4b, 1, 1), 1,
+        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 16, 16, 1, 1, ICONS_BP_ROM_START, VSIZE(16, 16, G_IM_SIZ_4b, 1, 1), 1,
     };
     return gfx_texture_load(&td, NULL);
 }
