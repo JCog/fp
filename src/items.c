@@ -162,7 +162,7 @@ static void create_item_selection_tab(struct menu *tab, const char *title, struc
     menu_add_static(tab, 12, 0, title, 0xC0C0C0);
     const s32 row_size = 12;
     const s32 base_x = 1;
-    const s32 base_y = 4;
+    const s32 base_y = 5;
     const s32 spacing = 2;
     const f32 scale = 0.6f;
 
@@ -200,7 +200,7 @@ void create_item_selection_menu(struct gfx_texture *item_texture_list[]) {
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     item_selection_menu_return = menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_button(menu, 0, 2, "delete", item_delete_button_proc, NULL);
-    menu_add_tooltip(menu, 7, 2, fp.main_menu, 0xC0C0C0);
+    menu_add_tooltip(menu, 8, 2, fp.main_menu, 0xC0C0C0);
     struct menu *tabs_menu = malloc(sizeof(*tabs_menu) * tab_count);
     item_selection_menu_tabs = menu_add_tab(menu, 0, 0, tabs_menu, tab_count);
 

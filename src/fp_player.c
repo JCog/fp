@@ -6,31 +6,35 @@
 #include "resource.h"
 #include "items.h"
 
-static const char *hp_str = "HP";
-static const char *max_hp_str = "Max HP";
-static const char *fp_str = "FP";
-static const char *max_fp_str = "Max FP";
-static const char *bp_str = "BP";
-static const char *coins_str = "Coins";
-static const char *star_pieces_str = "Star Pieces";
-static const char *level_str = "Level";
-static const char *star_points_str = "Star Points";
-static const char *boots_normal_str = "Normal Boots";
-static const char *boots_super_str = "Super Boots";
-static const char *boots_ultra_str = "Ultra Boots";
-static const char *hammer_normal_str = "Normal Hammer";
-static const char *hammer_super_str = "Super Hammer";
-static const char *hammer_ultra_str = "Ultra Hammer";
-static const char *action_commands_str = "Action Commands";
-static const char *partner_names[] = {
+static const char *str_hp = "HP";
+static const char *str_max_hp = "Max HP";
+static const char *str_fp = "FP";
+static const char *str_max_fp = "Max FP";
+static const char *str_bp = "BP";
+static const char *str_coins = "Coins";
+static const char *str_star_pieces = "Star Pieces";
+static const char *str_level = "Level";
+static const char *str_star_points = "Star Points";
+static const char *str_action_commands = "Action Commands";
+static const char *str_boots_normal = "Normal Boots";
+static const char *str_boots_super = "Super Boots";
+static const char *str_boots_ultra = "Ultra Boots";
+static const char *str_hammer_normal = "Normal Hammer";
+static const char *str_hammer_super = "Super Hammer";
+static const char *str_hammer_ultra = "Ultra Hammer";
+static const char *str_partner_names[] = {
     "Goombario", "Kooper",     "Bombette", "Parakarry", "Bow",   "Watt",
     "Sushie",    "Lakilester", "Goompa",   "Goombaria", "Twink",
 };
+static const char *str_star_spirit_names[] = {
+    "Eldstar", "Mamar", "Skolar", "Muskular", "Misstar", "Klevar", "Kalmar",
+};
+static const char *str_star_peach_beam = "Star/Peach Beam";
+static const char *str_super_rank = "Super Rank";
+static const char *str_ultra_rank = "Ultra Rank";
 static const u32 partner_order[] = {
     0, 1, 2, 3, 4, 9, 6, 7, 8, 5, 10, 11,
 };
-static const char *super_rank_str = "Super Rank";
-static const char *ultra_rank_str = "Ultra Rank";
 
 static struct gfx_texture *item_texture_list[0x16D];
 
@@ -258,7 +262,7 @@ static s32 peach_parasol_proc(struct menu_item *item, enum menu_callback_reason 
     return 0;
 }
 
-static void create_mario_menu(struct menu *menu) {
+static void create_boots_and_hammer_menu(struct menu *menu) {
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_tooltip(menu, 8, 0, fp.main_menu, 0xC0C0C0);
 
@@ -270,6 +274,45 @@ static void create_mario_menu(struct menu *menu) {
     struct gfx_texture *tex_hammer_normal = item_textures[ITEM_HAMMER];
     struct gfx_texture *tex_hammer_super = item_textures[ITEM_SUPER_HAMMER];
     struct gfx_texture *tex_hammer_ultra = item_textures[ITEM_ULTRA_HAMMER];
+    gfx_add_grayscale_palette(tex_boots_normal, 0);
+    gfx_add_grayscale_palette(tex_boots_super, 0);
+    gfx_add_grayscale_palette(tex_boots_ultra, 0);
+    gfx_add_grayscale_palette(tex_hammer_normal, 0);
+    gfx_add_grayscale_palette(tex_hammer_super, 0);
+    gfx_add_grayscale_palette(tex_hammer_ultra, 0);
+
+    struct menu_item *item;
+    s32 boots_x = 1;
+    s32 boots_y = 2;
+    item = menu_add_switch(menu, boots_x, boots_y, tex_boots_normal, 0, 0, 0xFFFFFF, tex_boots_normal, 0, 1, 0xFFFFFF,
+                           0.7f, 0, boots_proc, (void *)0);
+    item->tooltip = str_boots_normal;
+    item = menu_add_switch(menu, boots_x + 3, boots_y, tex_boots_super, 0, 0, 0xFFFFFF, tex_boots_super, 0, 1, 0xFFFFFF,
+                           0.7f, 0, boots_proc, (void *)1);
+    item->tooltip = str_boots_super;
+    item = menu_add_switch(menu, boots_x + 6, boots_y, tex_boots_ultra, 0, 0, 0xFFFFFF, tex_boots_ultra, 0, 1, 0xFFFFFF,
+                           0.7f, 0, boots_proc, (void *)2);
+    item->tooltip = str_boots_ultra;
+
+    s32 hammer_x = 1;
+    s32 hammer_y = 5;
+    item = menu_add_switch(menu, hammer_x, hammer_y, tex_hammer_normal, 0, 0, 0xFFFFFF, tex_hammer_normal, 0, 1,
+                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)0);
+    item->tooltip = str_hammer_normal;
+    item = menu_add_switch(menu, hammer_x + 3, hammer_y, tex_hammer_super, 0, 0, 0xFFFFFF, tex_hammer_super, 0, 1,
+                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)1);
+    item->tooltip = str_hammer_super;
+    item = menu_add_switch(menu, hammer_x + 6, hammer_y, tex_hammer_ultra, 0, 0, 0xFFFFFF, tex_hammer_ultra, 0, 1,
+                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)2);
+    item->tooltip = str_hammer_ultra;
+}
+
+static void create_stats_menu(struct menu *menu) {
+    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
+    menu_add_tooltip(menu, 8, 0, fp.main_menu, 0xC0C0C0);
+
+    struct gfx_texture **item_textures = get_item_texture_list();
+
     struct gfx_texture *tex_lucky_star = item_textures[ITEM_LUCKY_STAR];
     struct gfx_texture *tex_heart = resource_load_pmicon_global(ICON_STATUS_HEART, 1);
     struct gfx_texture *tex_flower = resource_load_pmicon_global(ICON_STATUS_FLOWER, 1);
@@ -278,92 +321,65 @@ static void create_mario_menu(struct menu *menu) {
     struct gfx_texture *tex_star_point = resource_load_pmicon_global(ICON_STATUS_STAR_POINT, 1);
     struct gfx_texture *tex_star_piece = resource_load_pmicon_global(ICON_STATUS_STAR_PIECE, 1);
     struct gfx_texture *tex_coin = resource_load_pmicon_global(ICON_STATUS_COIN, 1);
-    gfx_add_grayscale_palette(tex_boots_normal, 0);
-    gfx_add_grayscale_palette(tex_boots_super, 0);
-    gfx_add_grayscale_palette(tex_boots_ultra, 0);
-    gfx_add_grayscale_palette(tex_hammer_normal, 0);
-    gfx_add_grayscale_palette(tex_hammer_super, 0);
-    gfx_add_grayscale_palette(tex_hammer_ultra, 0);
     gfx_add_grayscale_palette(tex_lucky_star, 0);
 
     struct menu_item *item;
-    s32 boots_x = 10;
-    s32 boots_y = 2;
-    item = menu_add_switch(menu, boots_x, boots_y, tex_boots_normal, 0, 0, 0xFFFFFF, tex_boots_normal, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)0);
-    item->tooltip = boots_normal_str;
-    item = menu_add_switch(menu, boots_x + 3, boots_y, tex_boots_super, 0, 0, 0xFFFFFF, tex_boots_super, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)1);
-    item->tooltip = boots_super_str;
-    item = menu_add_switch(menu, boots_x + 6, boots_y, tex_boots_ultra, 0, 0, 0xFFFFFF, tex_boots_ultra, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)2);
-    item->tooltip = boots_ultra_str;
-
-    s32 hammer_x = 10;
-    s32 hammer_y = 5;
-    item = menu_add_switch(menu, hammer_x, hammer_y, tex_hammer_normal, 0, 0, 0xFFFFFF, tex_hammer_normal, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)0);
-    item->tooltip = hammer_normal_str;
-    item = menu_add_switch(menu, hammer_x + 3, hammer_y, tex_hammer_super, 0, 0, 0xFFFFFF, tex_hammer_super, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)1);
-    item->tooltip = hammer_super_str;
-    item = menu_add_switch(menu, hammer_x + 6, hammer_y, tex_hammer_ultra, 0, 0, 0xFFFFFF, tex_hammer_ultra, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)2);
-    item->tooltip = hammer_ultra_str;
-
-    item = menu_add_switch(menu, 20, 2, tex_lucky_star, 0, 0, 0xFFFFFF, tex_lucky_star, 0, 1, 0xFFFFFF, 0.7f, 0,
-                           action_commands_proc, NULL);
-    item->tooltip = action_commands_str;
 
     s32 hp_x = 1;
     s32 hp_y = 2;
     menu_add_static_icon(menu, hp_x, hp_y, tex_heart, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, hp_x + 2, hp_y, 10, 2, byte_mod_proc, &pm_player.player_data.hp);
-    item->tooltip = hp_str;
+    item->tooltip = str_hp;
     menu_add_static(menu, hp_x + 4, hp_y, "/", 0xC0C0C0);
     item = menu_add_intinput(menu, hp_x + 5, hp_y, 10, 2, max_hp_proc, NULL);
-    item->tooltip = max_hp_str;
+    item->tooltip = str_max_hp;
 
     s32 fp_x = 1;
     s32 fp_y = 4;
     menu_add_static_icon(menu, fp_x, fp_y, tex_flower, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, fp_x + 2, fp_y, 10, 2, byte_mod_proc, &pm_player.player_data.fp);
-    item->tooltip = fp_str;
+    item->tooltip = str_fp;
     menu_add_static(menu, fp_x + 4, fp_y, "/", 0xC0C0C0);
     item = menu_add_intinput(menu, fp_x + 5, fp_y, 10, 2, max_fp_proc, NULL);
-    item->tooltip = max_fp_str;
+    item->tooltip = str_max_fp;
 
     s32 bp_x = 1;
     s32 bp_y = 6;
     menu_add_static_icon(menu, bp_x, bp_y, tex_bp_icon, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, bp_x + 2, bp_y, 10, 2, byte_mod_proc, &pm_player.player_data.bp);
-    item->tooltip = bp_str;
+    item->tooltip = str_bp;
 
-    s32 coin_x = 1;
-    s32 coin_y = 9;
+    s32 coin_x = 10;
+    s32 coin_y = 2;
     menu_add_static_icon(menu, coin_x, coin_y, tex_coin, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, coin_x + 2, coin_y, 10, 3, halfword_mod_proc, &pm_player.player_data.coins);
-    item->tooltip = coins_str;
+    item->tooltip = str_coins;
 
-    s32 star_piece_x = 1;
-    s32 star_piece_y = 11;
+    s32 star_piece_x = 10;
+    s32 star_piece_y = 4;
     menu_add_static_icon(menu, star_piece_x, star_piece_y, tex_star_piece, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, star_piece_x + 2, star_piece_y, 10, 2, byte_mod_proc,
+    item = menu_add_intinput(menu, star_piece_x + 2, star_piece_y, 10, 3, byte_mod_proc,
                              &pm_player.player_data.star_pieces);
-    item->tooltip = star_pieces_str;
+    item->tooltip = str_star_pieces;
 
-    s32 level_x = 8;
-    s32 level_y = 9;
+    s32 level_x = 17;
+    s32 level_y = 2;
     menu_add_static_icon(menu, level_x, level_y, tex_mario_head, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, level_x + 2, level_y, 10, 2, byte_mod_proc, &pm_player.player_data.level);
-    item->tooltip = level_str;
+    item->tooltip = str_level;
 
-    s32 star_point_x = 8;
-    s32 star_point_y = 11;
+    s32 star_point_x = 17;
+    s32 star_point_y = 4;
     menu_add_static_icon(menu, star_point_x, star_point_y, tex_star_point, 0, 0xFFFFFF, 1.0f);
     item = menu_add_intinput(menu, star_point_x + 2, star_point_y, 10, 2, byte_mod_proc,
                              &pm_player.player_data.star_points);
-    item->tooltip = star_points_str;
+    item->tooltip = str_star_points;
+
+    s32 action_command_x = 23;
+    s32 action_command_y = 2;
+    item = menu_add_switch(menu, action_command_x, action_command_y, tex_lucky_star, 0, 0, 0xFFFFFF, tex_lucky_star, 0,
+                           1, 0xFFFFFF, 0.7f, 0, action_commands_proc, NULL);
+    item->tooltip = str_action_commands;
 }
 
 static void create_party_menu(struct menu *menu) {
@@ -408,19 +424,19 @@ static void create_party_menu(struct menu *menu) {
         partners[i] =
             menu_add_switch(menu, partner_x, partner_y, tex_partner, i + 1, 0, 0xFFFFFF, tex_partner, i + 1, 1,
                             0xFFFFFF, scale, 0, in_party_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
-        partners[i]->tooltip = partner_names[i];
+        partners[i]->tooltip = str_partner_names[i];
 
         // super tex
         super_ranks[i] =
             menu_add_switch(menu, partner_x + 2, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
                             0, super_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
-        super_ranks[i]->tooltip = super_rank_str;
+        super_ranks[i]->tooltip = str_super_rank;
 
         // ultra tex
         ultra_ranks[i] =
             menu_add_switch(menu, partner_x + 3, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
                             0, ultra_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
-        ultra_ranks[i]->tooltip = ultra_rank_str;
+        ultra_ranks[i]->tooltip = str_ultra_rank;
     }
     menu_item_add_chain_link(active_item, partners[0], MENU_NAVIGATE_DOWN);
     menu_item_add_chain_link(partners[0], active_item, MENU_NAVIGATE_UP);
@@ -452,6 +468,7 @@ static void create_star_spirit_menu(struct menu *menu) {
         ss_y = base_y + (i / row_width) * spacing_y;
         star_spirits[i] = menu_add_switch(menu, ss_x, ss_y, tex_star_spirits, i, 0, 0xFFFFFF, tex_star_spirits, i, 1,
                                           0xFFFFFF, scale, 0, star_spirit_switch_proc, (void *)i + 1);
+        star_spirits[i]->tooltip = str_star_spirit_names[i];
     }
     ss_x = base_x + (7 % row_width) * spacing_x;
     ss_y = base_y + (7 / row_width) * spacing_y;
@@ -459,62 +476,99 @@ static void create_star_spirit_menu(struct menu *menu) {
     s32 beam_tiles[] = {7, 7, 8};
     s8 beam_palettes[] = {1, 0, 0};
     u32 beam_colors[] = {0xFFFFFF, 0xFFFFFF, 0xFFFFFF};
-    menu_add_cycle(menu, ss_x, ss_y, 3, beam_textures, beam_tiles, beam_palettes, beam_colors, scale, 0, beam_rank_proc,
-                   NULL);
+    struct menu_item *item = menu_add_cycle(menu, ss_x, ss_y, 3, beam_textures, beam_tiles, beam_palettes, beam_colors,
+                                            scale, 0, beam_rank_proc, NULL);
+    item->tooltip = str_star_peach_beam;
     menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_RIGHT, 0, 0);
     menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_LEFT, 0, 1);
 }
 
 struct menu *create_player_menu(void) {
     static struct menu menu;
-    static struct menu mario;
+
+    static struct menu stats;
+
+    static struct menu equipment;
+    static struct menu boots_and_hammer;
+    static struct menu badges;
+
+    static struct menu party;
     static struct menu partners;
+    static struct menu star_spirits;
+
     static struct menu items;
+    static struct menu regular_items;
     static struct menu key_items;
     static struct menu stored_items;
-    static struct menu badges;
-    static struct menu star_spirits;
+
+    static struct menu misc;
     static struct menu peach;
     static struct menu merlee;
 
     /* initialize menu */
     menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&mario, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
+    menu_init(&stats, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
+    menu_init(&equipment, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&boots_and_hammer, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
+    menu_init(&party, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&star_spirits, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
     menu_init(&items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_init(&regular_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&key_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&stored_items, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&star_spirits, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+
+    menu_init(&misc, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&peach, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     {
-        s32 y = 0;
-        menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
-
         /*build player menu*/
-        menu_add_submenu(&menu, 0, y++, &mario, "mario");
-        menu_add_submenu(&menu, 0, y++, &partners, "partners");
-        menu_add_submenu(&menu, 0, y++, &badges, "badges");
-        menu_add_submenu(&menu, 0, y++, &items, "items");
-        menu_add_submenu(&menu, 0, y++, &key_items, "key items");
-        menu_add_submenu(&menu, 0, y++, &stored_items, "stored items");
-        menu_add_submenu(&menu, 0, y++, &star_spirits, "star spirits");
-        menu_add_submenu(&menu, 0, y++, &peach, "princess peach");
-        menu_add_submenu(&menu, 0, y++, &merlee, "merlee");
-
         struct gfx_texture **item_textures = get_item_texture_list();
         gfx_add_grayscale_palette(item_textures[ITEM_KOOPA_FORTRESS_KEY], 0);
+        create_item_selection_menu(item_texture_list);
 
-        create_mario_menu(&mario);
-        create_party_menu(&partners);
+        s32 y = 0;
+        menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
+        menu_add_submenu(&menu, 0, y++, &stats, "stats");
+        menu_add_submenu(&menu, 0, y++, &equipment, "equipment");
+        menu_add_submenu(&menu, 0, y++, &party, "party");
+        menu_add_submenu(&menu, 0, y++, &items, "items");
+        menu_add_submenu(&menu, 0, y++, &misc, "misc");
+        create_stats_menu(&stats);
+
+        y = 0;
+        equipment.selector = menu_add_submenu(&equipment, 0, y++, NULL, "return");
+        menu_add_submenu(&equipment, 0, y++, &boots_and_hammer, "boots and hammer");
+        menu_add_submenu(&equipment, 0, y++, &badges, "badges");
+        create_boots_and_hammer_menu(&boots_and_hammer);
         create_badges_menu(&badges, item_texture_list);
-        create_normal_items_menu(&items, item_texture_list);
+
+        y = 0;
+        party.selector = menu_add_submenu(&party, 0, y++, NULL, "return");
+        menu_add_submenu(&party, 0, y++, &partners, "partners");
+        menu_add_submenu(&party, 0, y++, &star_spirits, "star spirits");
+        create_party_menu(&partners);
+        create_star_spirit_menu(&star_spirits);
+
+        y = 0;
+        items.selector = menu_add_submenu(&items, 0, y++, NULL, "return");
+        menu_add_submenu(&items, 0, y++, &regular_items, "regular items");
+        menu_add_submenu(&items, 0, y++, &key_items, "key items");
+        menu_add_submenu(&items, 0, y++, &stored_items, "stored items");
+        create_normal_items_menu(&regular_items, item_texture_list);
         create_key_items_menu(&key_items, item_texture_list);
         create_stored_items_menu(&stored_items, item_texture_list);
-        create_item_selection_menu(item_texture_list);
-        create_star_spirit_menu(&star_spirits);
+
+        y = 0;
+        misc.selector = menu_add_submenu(&misc, 0, y++, NULL, "return");
+        menu_add_submenu(&misc, 0, y++, &peach, "princess peach");
+        menu_add_submenu(&misc, 0, y++, &merlee, "merlee");
     }
 
     {
