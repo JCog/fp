@@ -700,7 +700,7 @@ enum StoryProgress {
     /* 60 */ STORY_EPILOGUE,
 };
 
-enum {
+enum HudElementOps {
     /* 0x00 */ HUD_ELEMENT_OP_End,
     /* 0x01 */ HUD_ELEMENT_OP_SetRGBA,
     /* 0x02 */ HUD_ELEMENT_OP_SetCI,
