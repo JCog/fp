@@ -70,7 +70,7 @@ void fp_set_input_mask(u16 pad, u8 x, u8 y) {
     fp.input_mask.y_cardinal = y;
 }
 
-_Bool fp_warp(Area area, u16 map, u16 entrance) {
+_Bool fp_warp(u16 area, u16 map, u16 entrance) {
     if (pm_GameMode == 0xA || pm_GameMode == 0xB) { // paused/unpausing
         fp_log("can't warp while paused");
         return 0;
