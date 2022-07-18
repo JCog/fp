@@ -238,10 +238,9 @@ void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 
     static struct gfx_texture *fp_icon_tex;
     if (pm_status.load_menu_state == 5) {
         fp.version_shown = 1;
-        gfx_texture_free(fp_icon_tex);
     } else {
         if (fp_icon_tex == NULL) {
-            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A);
+            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A, 0);
         }
         struct gfx_sprite fp_icon_sprite = {
             fp_icon_tex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,

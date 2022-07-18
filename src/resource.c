@@ -9,6 +9,12 @@
 #define VSIZE(x, y, im_size, palette_count, tile_count) \
     (x * y * G_SIZ_BITS(im_size) / 8 + ICON_PALETTE_SIZE * palette_count) * tile_count
 
+struct item_icon_cache {
+    u32 address;
+    struct gfx_texture *texture;
+};
+static struct item_icon_cache item_textures[0x16D];
+
 /* resource data table */
 static void *res_data[RES_MAX] = {NULL};
 
@@ -321,14 +327,30 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
     return gfx_texture_load(&td, NULL);
 }
 
-struct gfx_texture *resource_load_pmicon_item(u16 item) {
+struct gfx_texture *resource_load_pmicon_item(u16 item, _Bool safe) {
+    if (!safe && item_textures[item].texture) {
+        return item_textures[item].texture;
+    }
     item_data_t *item_data = &pm_gItemTable[item];
     u32 *script_enabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].enabled;
     u32 *script_disabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].disabled;
     u8 pal_count = script_enabled == script_disabled ? 1 : 2;
     struct gfx_texdesc td;
     if (hud_script_to_texdesc(&td, script_enabled, ICONS_ITEMS_ROM_START, pal_count)) {
-        return gfx_texture_load(&td, NULL);
+        if (safe) {
+            return gfx_texture_load(&td, NULL);
+        } else {
+            for (s32 i = 0; i < ARRAY_LENGTH(item_textures); i++) {
+                if (item_textures[i].address == td.file_vaddr) {
+                    item_textures[item].address = td.file_vaddr;
+                    item_textures[item].texture = item_textures[i].texture;
+                    return item_textures[item].texture;
+                }
+            }
+            item_textures[item].texture = gfx_texture_load(&td, NULL);
+            item_textures[item].address = td.file_vaddr;
+            return item_textures[item].texture;
+        }
     }
     return NULL;
 }

@@ -309,7 +309,7 @@ void create_badges_menu(struct menu *menu, struct gfx_texture **item_texture_lis
         u8 badge_x = base_x + (i % row_width) * spacing_x;
         u8 badge_y = base_y + (i / row_width) * spacing_y;
         u32 item_id = items_badges[i];
-        struct gfx_texture *badge_icon = resource_load_pmicon_item(item_id);
+        struct gfx_texture *badge_icon = resource_load_pmicon_item(item_id, 0);
         badge_items[i] = menu_add_switch(menu, badge_x, badge_y, badge_icon, 0, 0, 0xFFFFFF, badge_icon, 0, 1, 0xFFFFFF,
                                          0.6f, 0, badge_proc_switch, (void *)item_id);
         badge_items[i]->tooltip = item_names[item_id];

@@ -43,7 +43,7 @@ static struct gfx_texture **get_item_texture_list(void) {
     if (!ready) {
         ready = 1;
         for (u16 i = 0; i < 0x16D; i++) {
-            item_texture_list[i] = resource_load_pmicon_item(i);
+            item_texture_list[i] = resource_load_pmicon_item(i, 0);
         }
     }
     return item_texture_list;
@@ -483,6 +483,48 @@ static void create_star_spirit_menu(struct menu *menu) {
     menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_LEFT, 0, 1);
 }
 
+static void create_peach_menu(struct menu *menu) {
+    s32 y = 0;
+    menu->selector = menu_add_submenu(menu, 0, y++, NULL, "return");
+
+    menu_add_static(menu, 0, y, "peach", 0xC0C0C0);
+    menu_add_checkbox(menu, 12, y++, peach_or_mario_proc, NULL);
+
+    menu_add_static(menu, 0, y, "transformed", 0xC0C0C0);
+    menu_add_checkbox(menu, 12, y++, peach_transformed_proc, NULL);
+
+    menu_add_static(menu, 0, y, "parasol", 0xC0C0C0);
+    menu_add_checkbox(menu, 12, y++, peach_parasol_proc, NULL);
+
+    menu_add_static(menu, 0, y, "disguise", 0xC0C0C0);
+    menu_add_option(menu, 12, y++,
+                    "none\0"
+                    "koopatrol\0"
+                    "hammer bro\0"
+                    "clubba\0",
+                    byte_optionmod_proc, &pm_status.peach_disguise);
+}
+
+static void create_merlee_menu(struct menu *menu) {
+    s32 y_value = 0;
+    menu->selector = menu_add_submenu(menu, 0, y_value++, NULL, "return");
+
+    menu_add_static(menu, 0, y_value, "spell type", 0xC0C0C0);
+    menu_add_option(menu, 16, y_value++,
+                    "none\0"
+                    "+3 ATK\0"
+                    "+3 DEF\0"
+                    "EXP x2\0"
+                    "Coins x2\0",
+                    byte_optionmod_proc, &pm_player.player_data.merlee.spell_type);
+
+    menu_add_static(menu, 0, y_value, "casts remaining", 0xC0C0C0);
+    menu_add_intinput(menu, 16, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.merlee.casts_remaining);
+
+    menu_add_static(menu, 0, y_value, "turns remaining", 0xC0C0C0);
+    menu_add_intinput(menu, 16, y_value++, 10, 3, byte_mod_proc, &pm_player.player_data.merlee.turns_until_spell);
+}
+
 struct menu *create_player_menu(void) {
     static struct menu menu;
 
@@ -527,99 +569,49 @@ struct menu *create_player_menu(void) {
     menu_init(&peach, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu_init(&merlee, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
-    {
-        /*build player menu*/
-        struct gfx_texture **item_textures = get_item_texture_list();
-        gfx_add_grayscale_palette(item_textures[ITEM_KOOPA_FORTRESS_KEY], 0);
-        create_item_selection_menu(item_texture_list);
+    /*build player menu*/
+    struct gfx_texture **item_textures = get_item_texture_list();
+    gfx_add_grayscale_palette(item_textures[ITEM_KOOPA_FORTRESS_KEY], 0);
+    create_item_selection_menu(item_texture_list);
 
-        s32 y = 0;
-        menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
-        menu_add_submenu(&menu, 0, y++, &stats, "stats");
-        menu_add_submenu(&menu, 0, y++, &equipment, "equipment");
-        menu_add_submenu(&menu, 0, y++, &party, "party");
-        menu_add_submenu(&menu, 0, y++, &items, "items");
-        menu_add_submenu(&menu, 0, y++, &misc, "misc");
-        create_stats_menu(&stats);
+    s32 y = 0;
+    menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
+    menu_add_submenu(&menu, 0, y++, &stats, "stats");
+    menu_add_submenu(&menu, 0, y++, &equipment, "equipment");
+    menu_add_submenu(&menu, 0, y++, &party, "party");
+    menu_add_submenu(&menu, 0, y++, &items, "items");
+    menu_add_submenu(&menu, 0, y++, &misc, "misc");
+    create_stats_menu(&stats);
 
-        y = 0;
-        equipment.selector = menu_add_submenu(&equipment, 0, y++, NULL, "return");
-        menu_add_submenu(&equipment, 0, y++, &boots_and_hammer, "boots and hammer");
-        menu_add_submenu(&equipment, 0, y++, &badges, "badges");
-        create_boots_and_hammer_menu(&boots_and_hammer);
-        create_badges_menu(&badges, item_texture_list);
+    y = 0;
+    equipment.selector = menu_add_submenu(&equipment, 0, y++, NULL, "return");
+    menu_add_submenu(&equipment, 0, y++, &boots_and_hammer, "boots and hammer");
+    menu_add_submenu(&equipment, 0, y++, &badges, "badges");
+    create_boots_and_hammer_menu(&boots_and_hammer);
+    create_badges_menu(&badges, item_texture_list);
 
-        y = 0;
-        party.selector = menu_add_submenu(&party, 0, y++, NULL, "return");
-        menu_add_submenu(&party, 0, y++, &partners, "partners");
-        menu_add_submenu(&party, 0, y++, &star_spirits, "star spirits");
-        create_party_menu(&partners);
-        create_star_spirit_menu(&star_spirits);
+    y = 0;
+    party.selector = menu_add_submenu(&party, 0, y++, NULL, "return");
+    menu_add_submenu(&party, 0, y++, &partners, "partners");
+    menu_add_submenu(&party, 0, y++, &star_spirits, "star spirits");
+    create_party_menu(&partners);
+    create_star_spirit_menu(&star_spirits);
 
-        y = 0;
-        items.selector = menu_add_submenu(&items, 0, y++, NULL, "return");
-        menu_add_submenu(&items, 0, y++, &regular_items, "regular items");
-        menu_add_submenu(&items, 0, y++, &key_items, "key items");
-        menu_add_submenu(&items, 0, y++, &stored_items, "stored items");
-        create_normal_items_menu(&regular_items, item_texture_list);
-        create_key_items_menu(&key_items, item_texture_list);
-        create_stored_items_menu(&stored_items, item_texture_list);
+    y = 0;
+    items.selector = menu_add_submenu(&items, 0, y++, NULL, "return");
+    menu_add_submenu(&items, 0, y++, &regular_items, "regular items");
+    menu_add_submenu(&items, 0, y++, &key_items, "key items");
+    menu_add_submenu(&items, 0, y++, &stored_items, "stored items");
+    create_normal_items_menu(&regular_items, item_texture_list);
+    create_key_items_menu(&key_items, item_texture_list);
+    create_stored_items_menu(&stored_items, item_texture_list);
 
-        y = 0;
-        misc.selector = menu_add_submenu(&misc, 0, y++, NULL, "return");
-        menu_add_submenu(&misc, 0, y++, &peach, "princess peach");
-        menu_add_submenu(&misc, 0, y++, &merlee, "merlee");
-    }
+    y = 0;
+    misc.selector = menu_add_submenu(&misc, 0, y++, NULL, "return");
+    menu_add_submenu(&misc, 0, y++, &peach, "princess peach");
+    menu_add_submenu(&misc, 0, y++, &merlee, "merlee");
+    create_peach_menu(&peach);
+    create_merlee_menu(&merlee);
 
-    {
-        /*build peach menu*/
-        const s32 PEACH_X = 12;
-        s32 y_value = 0;
-
-        peach.selector = menu_add_submenu(&peach, 0, y_value++, NULL, "return");
-
-        menu_add_static(&peach, 0, y_value, "peach", 0xC0C0C0);
-        menu_add_checkbox(&peach, PEACH_X, y_value++, peach_or_mario_proc, NULL);
-
-        menu_add_static(&peach, 0, y_value, "transformed", 0xC0C0C0);
-        menu_add_checkbox(&peach, PEACH_X, y_value++, peach_transformed_proc, NULL);
-
-        menu_add_static(&peach, 0, y_value, "parasol", 0xC0C0C0);
-        menu_add_checkbox(&peach, PEACH_X, y_value++, peach_parasol_proc, NULL);
-
-        menu_add_static(&peach, 0, y_value, "disguise", 0xC0C0C0);
-        menu_add_option(&peach, PEACH_X, y_value++,
-                        "none\0"
-                        "koopatrol\0"
-                        "hammer bro\0"
-                        "clubba\0",
-                        byte_optionmod_proc, &pm_status.peach_disguise);
-    }
-
-    {
-        /*build merlee menu*/
-        const s32 MERLEE_X = 16;
-        s32 y_value = 0;
-
-        merlee.selector = menu_add_submenu(&merlee, 0, y_value++, NULL, "return");
-
-        menu_add_static(&merlee, 0, y_value, "spell type", 0xC0C0C0);
-        menu_add_option(&merlee, MERLEE_X, y_value++,
-                        "none\0"
-                        "+3 ATK\0"
-                        "+3 DEF\0"
-                        "EXP x2\0"
-                        "Coins x2\0",
-                        byte_optionmod_proc, &pm_player.player_data.merlee.spell_type);
-
-        menu_add_static(&merlee, 0, y_value, "casts remaining", 0xC0C0C0);
-        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 2, byte_mod_proc,
-                          &pm_player.player_data.merlee.casts_remaining);
-
-        menu_add_static(&merlee, 0, y_value, "turns remaining", 0xC0C0C0);
-        menu_add_intinput(&merlee, MERLEE_X, y_value++, 10, 3, byte_mod_proc,
-                          &pm_player.player_data.merlee.turns_until_spell);
-
-        return &menu;
-    }
+    return &menu;
 }
