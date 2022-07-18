@@ -349,9 +349,7 @@ void menu_select(struct menu *menu, struct menu_item *item) {
         menu->selector->owner->selector = NULL;
     }
     menu->selector = item;
-    if (item) {
-        item->owner->selector = item;
-    }
+    item->owner->selector = item;
 }
 
 void menu_signal_enter(struct menu *menu, enum menu_switch_reason reason) {

@@ -68,7 +68,7 @@ static const u16 items_misc[] = {
 
 static struct menu item_selection_menu;
 static struct menu_item *item_selection_menu_return;
-static struct menu_item *item_selection_menu_tabs;
+static struct menu_item *item_selection_menu_tab;
 
 static u16 *item_slot_to_update;
 
@@ -117,26 +117,26 @@ static void tab_next_proc(struct menu_item *item, void *data) {
 static void item_list_button_proc(struct menu_item *item, void *data) {
     item_slot_to_update = menu_item_button_get_slot(item);
     enum item_type item_type = menu_item_button_get_type(item);
-    s32 last_tab = menu_tab_get_current_tab(item_selection_menu_tabs);
+    s32 last_page = menu_tab_get_current_tab(item_selection_menu_tab);
     menu_enter(fp.main_menu, &item_selection_menu);
     switch (item_type) {
         case ITEM_TYPE_NORMAL:
         case ITEM_TYPE_STORED:
-            if (last_tab != 0 && last_tab != 1) {
-                menu_tab_goto(item_selection_menu_tabs, 0);
+            if (last_page != 0 && last_page != 1) {
                 menu_select(&item_selection_menu, item_selection_menu_return);
+                menu_tab_goto(item_selection_menu_tab, 0);
             }
             break;
         case ITEM_TYPE_KEY:
-            if (last_tab != 2 && last_tab != 3) {
-                menu_tab_goto(item_selection_menu_tabs, 2);
+            if (last_page != 2 && last_page != 3) {
                 menu_select(&item_selection_menu, item_selection_menu_return);
+                menu_tab_goto(item_selection_menu_tab, 2);
             }
             break;
         case ITEM_TYPE_BADGE:
-            if (last_tab != 4 && last_tab != 5) {
-                menu_tab_goto(item_selection_menu_tabs, 4);
+            if (last_page != 4 && last_page != 5) {
                 menu_select(&item_selection_menu, item_selection_menu_return);
+                menu_tab_goto(item_selection_menu_tab, 4);
             }
             break;
     }
@@ -156,10 +156,10 @@ static void item_delete_button_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void create_item_selection_tab(struct menu *tab, const char *title, struct gfx_texture *item_texture_list[],
+static void create_item_selection_page(struct menu *page, const char *title, struct gfx_texture *item_texture_list[],
                                       const u16 *item_lists[], const u16 item_list_sizes[], u16 item_list_count) {
-    menu_init(tab, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_add_static(tab, 12, 0, title, 0xC0C0C0);
+    menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu_add_static(page, 12, 0, title, 0xC0C0C0);
     const s32 row_size = 12;
     const s32 base_x = 1;
     const s32 base_y = 5;
@@ -170,7 +170,7 @@ static void create_item_selection_tab(struct menu *tab, const char *title, struc
     for (s32 i = 0; i < item_list_count; i++) {
         total_item_count += item_list_sizes[i];
     }
-    struct menu_item *item_buttons[total_item_count];
+    struct menu_item **item_buttons = malloc(sizeof(*item_buttons) * total_item_count);
     s32 item_button_idx = 0;
     s32 start_y = base_y;
     for (s32 i_lists = 0; i_lists < item_list_count; i_lists++) {
@@ -182,7 +182,7 @@ static void create_item_selection_tab(struct menu *tab, const char *title, struc
 
             u16 item_id = item_lists[i_lists][i_pos];
             struct gfx_texture *icon = item_texture_list[item_id];
-            struct menu_item *button = menu_add_button_icon(tab, item_x, item_y, icon, 0, 0, 0xFFFFFF, scale,
+            struct menu_item *button = menu_add_button_icon(page, item_x, item_y, icon, 0, 0, 0xFFFFFF, scale,
                                                             item_selection_button_proc, (void *)(u32)item_id);
             button->tooltip = item_names[item_id];
             item_buttons[item_button_idx++] = button;
@@ -191,20 +191,22 @@ static void create_item_selection_tab(struct menu *tab, const char *title, struc
     }
     menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_RIGHT, 1, 0);
     menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_LEFT, 1, 1);
+    free(item_buttons);
 }
 
 void create_item_selection_menu(struct gfx_texture *item_texture_list[]) {
-    const s32 tab_count = 7;
+    const s32 page_count = 7;
 
     struct menu *menu = &item_selection_menu;
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     item_selection_menu_return = menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     menu_add_button(menu, 0, 2, "delete", item_delete_button_proc, NULL);
     menu_add_tooltip(menu, 8, 2, fp.main_menu, 0xC0C0C0);
-    struct menu *tabs_menu = malloc(sizeof(*tabs_menu) * tab_count);
-    item_selection_menu_tabs = menu_add_tab(menu, 0, 0, tabs_menu, tab_count);
 
-    s32 tab_index = 0;
+    struct menu *pages = malloc(sizeof(*pages) * page_count);
+    item_selection_menu_tab = menu_add_tab(menu, 0, 0, pages, page_count);
+
+    s32 page_index = 0;
 
     const u16 *list_items_1[] = {items_normal_food, items_normal_other};
     const u16 *list_items_2[] = {items_normal_tayce, items_normal_unused};
@@ -222,64 +224,64 @@ void create_item_selection_menu(struct gfx_texture *item_texture_list[]) {
     const u16 sizes_badges_2[] = {ARRAY_LENGTH(items_badges_unused)};
     const u16 sizes_misc[] = {ARRAY_LENGTH(items_misc)};
 
-    create_item_selection_tab(&tabs_menu[tab_index++], "items (1/2)", item_texture_list, list_items_1, sizes_items_1,
-                              ARRAY_LENGTH(list_items_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "items (2/2)", item_texture_list, list_items_2, sizes_items_2,
-                              ARRAY_LENGTH(list_items_2));
-    create_item_selection_tab(&tabs_menu[tab_index++], "key items (1/2)", item_texture_list, list_key_1, sizes_key_1,
-                              ARRAY_LENGTH(list_key_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "key items (2/2)", item_texture_list, list_key_2, sizes_key_2,
-                              ARRAY_LENGTH(list_key_2));
-    create_item_selection_tab(&tabs_menu[tab_index++], "badges (1/2)", item_texture_list, list_badges_1, sizes_badges_1,
-                              ARRAY_LENGTH(list_badges_1));
-    create_item_selection_tab(&tabs_menu[tab_index++], "badges (2/2)", item_texture_list, list_badges_2, sizes_badges_2,
-                              ARRAY_LENGTH(list_badges_2));
-    create_item_selection_tab(&tabs_menu[tab_index++], "misc (1/1)", item_texture_list, list_misc, sizes_misc,
-                              ARRAY_LENGTH(list_misc));
+    create_item_selection_page(&pages[page_index++], "items (1/2)", item_texture_list, list_items_1, sizes_items_1,
+                               ARRAY_LENGTH(list_items_1));
+    create_item_selection_page(&pages[page_index++], "items (2/2)", item_texture_list, list_items_2, sizes_items_2,
+                               ARRAY_LENGTH(list_items_2));
+    create_item_selection_page(&pages[page_index++], "key items (1/2)", item_texture_list, list_key_1, sizes_key_1,
+                               ARRAY_LENGTH(list_key_1));
+    create_item_selection_page(&pages[page_index++], "key items (2/2)", item_texture_list, list_key_2, sizes_key_2,
+                               ARRAY_LENGTH(list_key_2));
+    create_item_selection_page(&pages[page_index++], "badges (1/2)", item_texture_list, list_badges_1,
+                               sizes_badges_1, ARRAY_LENGTH(list_badges_1));
+    create_item_selection_page(&pages[page_index++], "badges (2/2)", item_texture_list, list_badges_2,
+                               sizes_badges_2, ARRAY_LENGTH(list_badges_2));
+    create_item_selection_page(&pages[page_index++], "misc (1/1)", item_texture_list, list_misc, sizes_misc,
+                               ARRAY_LENGTH(list_misc));
 
-    menu_tab_goto(item_selection_menu_tabs, 0);
-    menu_add_button(menu, 8, 0, "<", tab_prev_proc, item_selection_menu_tabs);
-    menu_add_button(menu, 10, 0, ">", tab_next_proc, item_selection_menu_tabs);
+    menu_tab_goto(item_selection_menu_tab, 0);
+    menu_add_button(menu, 8, 0, "<", tab_prev_proc, item_selection_menu_tab);
+    menu_add_button(menu, 10, 0, ">", tab_next_proc, item_selection_menu_tab);
 }
 
 static void create_items_menu(struct menu *menu, enum item_type item_type, struct gfx_texture *item_texture_list[],
-                              f32 icon_scale, s32 item_count, s32 row_size, s32 tab_size, s32 spacing_x,
+                              f32 icon_scale, s32 item_count, s32 row_size, s32 page_size, s32 spacing_x,
                               s32 spacing_y) {
     menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
     const s32 base_x = 2;
     const s32 base_y = 3;
-    const s32 tab_count = (item_count + (tab_size - 1)) / tab_size;
-    const s32 tooltip_x = tab_count > 1 ? 18 : 8;
+    const s32 page_count = (item_count + (page_size - 1)) / page_size;
+    const s32 tooltip_x = page_count > 1 ? 18 : 8;
 
     menu_add_tooltip(menu, tooltip_x, 0, fp.main_menu, 0xC0C0C0);
 
-    struct menu *tabs_menu = malloc(sizeof(*tabs_menu) * tab_count);
-    item_selection_menu_tabs = menu_add_tab(menu, 0, 0, tabs_menu, tab_count);
-    for (s32 i_tab = 0; i_tab < tab_count; i_tab++) {
-        struct menu_item *item_buttons[tab_size];
-        struct menu *tab = &tabs_menu[i_tab];
-        menu_init(tab, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-        if (tab_count > 1) {
+    struct menu *pages = malloc(sizeof(*pages) * page_count);
+    struct menu_item *tab = menu_add_tab(menu, 0, 0, pages, page_count);
+    for (s32 i_page = 0; i_page < page_count; i_page++) {
+        struct menu_item *item_buttons[page_size];
+        struct menu *page = &pages[i_page];
+        menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+        if (page_count > 1) {
             char buffer[8];
-            sprintf(buffer, "(%ld/%ld)", i_tab + 1, tab_count);
-            menu_add_static(tab, 12, 0, buffer, 0xC0C0C0);
+            sprintf(buffer, "(%ld/%ld)", i_page + 1, page_count);
+            menu_add_static(page, 12, 0, buffer, 0xC0C0C0);
         }
 
-        for (s32 i_pos = 0; i_pos < tab_size; i_pos++) {
+        for (s32 i_pos = 0; i_pos < page_size; i_pos++) {
             const s32 item_x = base_x + (i_pos % row_size) * spacing_x;
             const s32 item_y = base_y + (i_pos / row_size) * spacing_y;
-            const s32 item_idx = (i_tab * tab_size) + i_pos;
+            const s32 item_idx = (i_page * page_size) + i_pos;
 
-            item_buttons[i_pos] = menu_add_item_button(tab, item_x, item_y, item_texture_list, item_type, item_idx,
+            item_buttons[i_pos] = menu_add_item_button(page, item_x, item_y, item_texture_list, item_type, item_idx,
                                                        icon_scale, item_list_button_proc, menu);
         }
-        menu_item_create_chain(item_buttons, tab_size, MENU_NAVIGATE_RIGHT, 1, 0);
-        menu_item_create_chain(item_buttons, tab_size, MENU_NAVIGATE_LEFT, 1, 1);
+        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_RIGHT, 1, 0);
+        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_LEFT, 1, 1);
     }
-    menu_tab_goto(item_selection_menu_tabs, 0);
-    if (tab_count > 1) {
-        menu_add_button(menu, 8, 0, "<", tab_prev_proc, item_selection_menu_tabs);
-        menu_add_button(menu, 10, 0, ">", tab_next_proc, item_selection_menu_tabs);
+    menu_tab_goto(tab, 0);
+    if (page_count > 1) {
+        menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);
+        menu_add_button(menu, 10, 0, ">", tab_next_proc, tab);
     }
 }
 
