@@ -9,11 +9,11 @@
 #define VSIZE(x, y, im_size, palette_count, tile_count) \
     (x * y * G_SIZ_BITS(im_size) / 8 + ICON_PALETTE_SIZE * palette_count) * tile_count
 
-struct item_icon_cache {
-    u32 address;
+struct item_icon_cache_entry {
+    u32 vaddr;
     struct gfx_texture *texture;
 };
-static struct item_icon_cache item_textures[0x16D];
+static struct item_icon_cache_entry item_textures[0x16D];
 
 /* resource data table */
 static void *res_data[RES_MAX] = {NULL};
@@ -117,26 +117,38 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
         switch (*script_pos++) {
             case HUD_ELEMENT_OP_End: script_done = 1; break;
             case HUD_ELEMENT_OP_SetCI:
-                im_fmt = G_IM_FMT_CI;
-                im_siz = G_IM_SIZ_4b;
-                script_pos++;
-                address = *script_pos++;
-                script_pos++;
+                if (address == UINT32_MAX) {
+                    im_fmt = G_IM_FMT_CI;
+                    im_siz = G_IM_SIZ_4b;
+                    script_pos++;
+                    address = *script_pos++;
+                    script_pos++;
+                } else {
+                    script_pos += 3;
+                }
                 break;
             case HUD_ELEMENT_OP_SetImage:
-                im_fmt = G_IM_FMT_CI;
-                im_siz = G_IM_SIZ_4b;
-                script_pos++;
-                address = *script_pos++;
-                script_pos += 3;
+                if (address == UINT32_MAX) {
+                    im_fmt = G_IM_FMT_CI;
+                    im_siz = G_IM_SIZ_4b;
+                    script_pos++;
+                    address = *script_pos++;
+                    script_pos += 3;
+                } else {
+                    script_pos += 5;
+                }
                 break;
             case HUD_ELEMENT_OP_UseIA8:
                 im_fmt = G_IM_FMT_IA;
                 im_siz = G_IM_SIZ_8b;
                 break;
             case HUD_ELEMENT_OP_SetRGBA:
-                script_pos++;
-                address = *script_pos++;
+                if (address == UINT32_MAX) {
+                    script_pos++;
+                    address = *script_pos++;
+                } else {
+                    script_pos += 2;
+                }
                 break;
             case HUD_ELEMENT_OP_SetTileSize:
                 tile_size_preset = *script_pos++;
@@ -341,14 +353,14 @@ struct gfx_texture *resource_load_pmicon_item(u16 item, _Bool safe) {
             return gfx_texture_load(&td, NULL);
         } else {
             for (s32 i = 0; i < ARRAY_LENGTH(item_textures); i++) {
-                if (item_textures[i].address == td.file_vaddr) {
-                    item_textures[item].address = td.file_vaddr;
+                if (item_textures[i].vaddr == td.file_vaddr) {
+                    item_textures[item].vaddr = td.file_vaddr;
                     item_textures[item].texture = item_textures[i].texture;
                     return item_textures[item].texture;
                 }
             }
             item_textures[item].texture = gfx_texture_load(&td, NULL);
-            item_textures[item].address = td.file_vaddr;
+            item_textures[item].vaddr = td.file_vaddr;
             return item_textures[item].texture;
         }
     }

@@ -100,7 +100,7 @@ typedef struct {
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-_Bool fp_warp(Area area, u16 map, u16 entrance);
+_Bool fp_warp(u16 area, u16 map, u16 entrance);
 void fp_set_global_flag(s32 flag_index, _Bool value);
 void fp_set_area_flag(s32 flag_index, _Bool value);
 void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value);
