@@ -1,19 +1,16 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <startup.h>
-#include <n64.h>
-#include "commands.h"
 #include "fp.h"
+#include "commands.h"
+#include "common.h"
+#include "crash_screen.h"
 #include "geometry.h"
-#include "gu.h"
+#include "input.h"
 #include "io.h"
 #include "resource.h"
 #include "watchlist.h"
-#include "crash_screen.h"
-#include "sys.h"
-#include "util.h"
-#include "input.h"
+#include <n64.h>
+#include <startup.h>
+#include <stdlib.h>
+#include <string.h>
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -984,8 +981,8 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     return block;
 }
 
-#include <startup.c>
-#include <set/set.c>
-#include <vector/vector.c>
-#include <list/list.c>
 #include <grc.c>
+#include <list/list.c>
+#include <set/set.c>
+#include <startup.c>
+#include <vector/vector.c>

@@ -1,6 +1,5 @@
-#include <math.h>
-#include "pm64.h"
 #include "gu.h"
+#include <math.h>
 
 vec3f_t *vec3f_py(vec3f_t *r, f32 p, f32 y) {
     vec3f_t v = {

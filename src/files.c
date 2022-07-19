@@ -1,13 +1,15 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <set/set.h>
-#include <vector/vector.h>
 #include "files.h"
 #include "menu.h"
 #include "osk.h"
 #include "resource.h"
 #include "sys.h"
+#include <errno.h>
+#include <set/set.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+#include <vector/vector.h>
 
 #define FILE_VIEW_ROWS 14
 

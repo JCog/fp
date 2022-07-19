@@ -1,11 +1,11 @@
-#include <stdlib.h>
-#include "menu.h"
-#include "settings.h"
 #include "commands.h"
-#include "resource.h"
 #include "fp.h"
-#include "watchlist.h"
 #include "input.h"
+#include "menu.h"
+#include "resource.h"
+#include "settings.h"
+#include "watchlist.h"
+#include <stdlib.h>
 
 static u16 font_options[] = {
     RES_FONT_FIPPS,        RES_FONT_NOTALOT35, RES_FONT_ORIGAMIMOMMY,  RES_FONT_PCSENIOR, RES_FONT_PIXELINTV,

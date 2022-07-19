@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
 #include "menu.h"
+#include <stdlib.h>
 
 struct item_data {
     struct menu_item *address;

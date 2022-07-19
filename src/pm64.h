@@ -1,23 +1,12 @@
 #ifndef PM64_H
 #define PM64_H
-#include <n64.h>
-#include <stdint.h>
+#include "types.h"
+#include <n64/gbi.h>
+#include <n64/message.h>
 #include <stdarg.h>
-#include "enums.h"
 
-#define JP 0x00
-#define US 0x01
-
-typedef uint8_t u8;
-typedef int8_t s8;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint32_t u32;
-typedef int32_t s32;
-typedef uint64_t u64;
-typedef int64_t s64;
-typedef float f32;
-typedef double f64;
+#define JP                0x00
+#define US                0x01
 
 #define SCREEN_WIDTH      320
 #define SCREEN_HEIGHT     240

@@ -1,7 +1,7 @@
+#include "menu.h"
 #include <stdlib.h>
 #include <string.h>
 #include <vector/vector.h>
-#include "menu.h"
 
 struct item_data {
     struct vector options;

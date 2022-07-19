@@ -1,6 +1,6 @@
 #ifndef IODEV_H
 #define IODEV_H
-#include "pm64.h"
+#include "common.h"
 
 struct iodev {
     s32 (*probe)(void);

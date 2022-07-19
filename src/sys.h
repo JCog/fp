@@ -1,10 +1,6 @@
 #ifndef SYS_H
 #define SYS_H
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/param.h>
 #include <sys/stat.h>
-#include <time.h>
 
 typedef void *DIR;
 

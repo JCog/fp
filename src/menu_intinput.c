@@ -1,7 +1,5 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include "menu.h"
+#include <stdlib.h>
 
 struct item_data {
     _Bool signed_;

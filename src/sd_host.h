@@ -1,7 +1,6 @@
 #ifndef SD_HOST_H
 #define SD_HOST_H
-#include <stddef.h>
-#include <stdint.h>
+#include "common.h"
 
 #define SD_PROTO_SDBUS  0
 #define SD_PROTO_SPIBUS 1

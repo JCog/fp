@@ -1,5 +1,4 @@
 #include "crash_screen.h"
-#include "util.h"
 
 CrashScreen gCrashScreen;
 

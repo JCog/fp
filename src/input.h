@@ -1,6 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
-#include <stdint.h>
+#include "common.h"
 #include "menu.h"
 
 #define INPUT_REPEAT_DELAY 8

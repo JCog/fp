@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include "commands.h"
-#include "input.h"
 #include "fp.h"
-#include "util.h"
+#include "input.h"
 #include "watchlist.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 struct command fp_commands[COMMAND_MAX] = {
     {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                         },

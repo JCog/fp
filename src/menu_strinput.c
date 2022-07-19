@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include <string.h>
 #include "input.h"
 #include "menu.h"
+#include <stdlib.h>
+#include <string.h>
 
 struct item_data {
     s32 length;

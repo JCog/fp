@@ -1,7 +1,7 @@
-#include <stdlib.h>
 #include "gfx.h"
 #include "menu.h"
 #include "resource.h"
+#include <stdlib.h>
 
 struct item_data {
     menu_generic_callback callback_proc;

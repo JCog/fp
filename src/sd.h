@@ -1,7 +1,6 @@
 #ifndef SD_H
 #define SD_H
-#include <stdint.h>
-#include "pm64.h"
+#include "common.h"
 
 /* Common commands */
 #define GO_IDLE_STATE          0
@@ -174,10 +173,11 @@ static inline u32 swfn_sup(const void *dat, s32 group) {
 static inline u32 swfn_sel(const void *dat, s32 group) {
     const u8 *p = dat;
     p += 17 - ((group + 1) >> 1);
-    if (group & 1)
+    if (group & 1) {
         return *p & 0xF;
-    else
+    } else {
         return *p >> 4;
+    }
 }
 
 static inline u32 swfn_ver(const void *dat) {

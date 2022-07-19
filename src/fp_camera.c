@@ -1,9 +1,7 @@
-#include <stdint.h>
-#include <string.h>
 #include "fp.h"
-#include "menu.h"
-#include "pm64.h"
 #include "input.h"
+#include "menu.h"
+#include <string.h>
 
 static void set_cam_input_mask(void) {
     if (fp.free_cam && !fp.lock_cam) {

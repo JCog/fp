@@ -1,8 +1,7 @@
 #ifndef GU_H
 #define GU_H
-#include <stdint.h>
-#include <n64.h>
-#include "pm64.h"
+#include "common.h"
+#include <n64/gbi.h>
 
 // clang-format off
 #define M_PI 3.14159265358979323846

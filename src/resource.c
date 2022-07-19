@@ -1,10 +1,8 @@
-#include <stdlib.h>
-#include <grc.h>
+#include "resource.h"
 #include "gfx.h"
 #include "gu.h"
-#include "resource.h"
-#include "pm64.h"
-#include "util.h"
+#include <grc.h>
+#include <stdlib.h>
 
 #define VSIZE(x, y, im_size, palette_count, tile_count) \
     (x * y * G_SIZ_BITS(im_size) / 8 + ICON_PALETTE_SIZE * palette_count) * tile_count

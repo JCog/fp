@@ -1,15 +1,15 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <vector/vector.h>
 #include "adex.h"
 #include "files.h"
 #include "fp.h"
+#include "input.h"
 #include "mem.h"
 #include "menu.h"
 #include "resource.h"
 #include "settings.h"
-#include "input.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector/vector.h>
 
 struct item_data {
     struct menu *menu_release;

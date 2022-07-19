@@ -1,9 +1,5 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <n64.h>
 #include "pi.h"
 #include "util.h"
-#include "pm64.h"
 
 typedef void io_func_t(u32 dev_addr, u32 ram_addr, size_t size);
 

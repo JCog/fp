@@ -1,3 +1,4 @@
+#include "fp.h"
 #include "menu.h"
 #include "timer.h"
 #include "trainer.h"

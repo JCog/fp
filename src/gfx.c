@@ -1,13 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
+#include "gfx.h"
+#include "common.h"
 #include <malloc.h>
 #include <mips.h>
 #include <n64.h>
-#include "gfx.h"
-#include "pm64.h"
-#include "fp.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector/vector.h>
 
 #define GFX_DISP_SIZE 0x10000
 static Gfx *gfx_disp;

@@ -1,11 +1,10 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 #include "settings.h"
-#include "input.h"
 #include "fp.h"
+#include "input.h"
 #include "resource.h"
 #include "watchlist.h"
+#include <stdlib.h>
+#include <string.h>
 
 static _Alignas(128) struct settings settings_store;
 struct settings_data *settings = &settings_store.data;

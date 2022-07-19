@@ -1,7 +1,7 @@
-#include "menu.h"
-#include "mem.h"
 #include "flags.h"
 #include "fp.h"
+#include "mem.h"
+#include "menu.h"
 
 struct menu *create_debug_menu(void) {
     static struct menu menu;

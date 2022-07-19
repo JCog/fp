@@ -1,10 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "fp.h"
 #include "items.h"
+#include "common.h"
+#include "fp.h"
 #include "item_button.h"
 #include "resource.h"
-#include "util.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 const char *str_item_names[] = {
     "empty",

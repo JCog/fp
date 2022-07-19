@@ -1,7 +1,6 @@
-#include <stdlib.h>
-#include <stdint.h>
 #include "gfx.h"
 #include "menu.h"
+#include <stdlib.h>
 
 struct static_icon_data {
     struct gfx_texture *texture;

@@ -1,5 +1,6 @@
 #ifndef MEM_H
 #define MEM_H
+#include "common.h"
 #include "menu.h"
 
 void mem_menu_create(struct menu *menu);

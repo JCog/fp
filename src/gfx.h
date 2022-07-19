@@ -1,9 +1,8 @@
 #ifndef GFX_H
 #define GFX_H
-#include <stddef.h>
-#include <n64.h>
+#include "common.h"
 #include "gu.h"
-#include "pm64.h"
+#include <n64/gbi.h>
 
 #define GFX_FILE_DRAM    (-1)
 #define GFX_FILE_DRAM_PM (-2)

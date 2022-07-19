@@ -1,8 +1,7 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-typedef int8_t ActionState;
-enum action_state {
+enum ActionStates {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
     ACTION_STATE_RUN,
@@ -46,8 +45,7 @@ enum action_state {
     ACTION_STATE_USE_SPRING,
 };
 
-typedef uint16_t Area;
-enum areas {
+enum Areas {
     AREA_GOOMBA_VILLAGE,
     AREA_TOAD_TOWN,
     AREA_SEWERS,
@@ -78,8 +76,7 @@ enum areas {
     AREA_DEBUG,
 };
 
-typedef uint8_t Partner;
-enum partners {
+enum Partners {
     PARTNER_NONE,
     PARTNER_GOOMBARIO,
     PARTNER_KOOPER,

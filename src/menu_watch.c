@@ -1,12 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <stdint.h>
-#include <inttypes.h>
 #include "menu.h"
 #include "util.h"
+#include <inttypes.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct item_data {
     u32 address;

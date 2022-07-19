@@ -1,8 +1,7 @@
-#include <stddef.h>
-#include <stdint.h>
+#include "sd_host.h"
 #include "io.h"
 #include "sd.h"
-#include "sd_host.h"
+#include <stddef.h>
 
 static u8 crc7(void *data, s32 size) {
     u8 *p = data;

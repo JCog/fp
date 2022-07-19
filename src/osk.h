@@ -1,5 +1,6 @@
 #ifndef OSK_H
 #define OSK_H
+#include "common.h"
 #include "menu.h"
 
 typedef s32 (*osk_callback_t)(const char *str, void *data);

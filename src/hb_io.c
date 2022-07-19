@@ -1,8 +1,7 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <mips.h>
 #include "hb.h"
 #include "iodev.h"
+#include <mips.h>
+#include <stddef.h>
 
 /*  Homeboy devices are currently only implemented on systems that don't
  *  emulate the CPU cache. No flushing/invalidating is done.

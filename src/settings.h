@@ -1,8 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
-#include <stdint.h>
 #include "commands.h"
-#include "pm64.h"
+#include "common.h"
 
 #define SETTINGS_SAVE_FILE_SIZE   0x1380
 #define SETTINGS_PROFILE_MAX      4

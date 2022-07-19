@@ -1,11 +1,11 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <n64.h>
 #include "ed64_x.h"
+#include "common.h"
 #include "iodev.h"
 #include "pi.h"
 #include "sd_host.h"
 #include "util.h"
+#include <n64.h>
+#include <stddef.h>
 
 static s32 cart_irqf;
 static u32 cart_lat;

@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <list/list.h>
-#include "gfx.h"
 #include "menu.h"
+#include "common.h"
+#include "gfx.h"
+#include <list/list.h>
+#include <stdlib.h>
+#include <string.h>
 
 void menu_init(struct menu *menu, s32 cell_width, s32 cell_height, struct gfx_font *font) {
     menu->cxoffset = MENU_NOVALUE;

@@ -1,5 +1,6 @@
 #ifndef _ITEMS_H_
 #define _ITEMS_H_
+#include "gfx.h"
 #include "menu.h"
 
 void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list[]);

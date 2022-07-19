@@ -1,8 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
-#include <stdint.h>
-#include <list/list.h>
+#include "common.h"
 #include "gfx.h"
+#include <list/list.h>
 
 #define MENU_NOVALUE 0
 

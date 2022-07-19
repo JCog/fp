@@ -1,6 +1,6 @@
-#include <stdlib.h>
 #include "gfx.h"
 #include "menu.h"
+#include <stdlib.h>
 
 struct item_data {
     menu_action_callback callback_proc;

@@ -1,9 +1,8 @@
-#include <errno.h>
-#include <n64.h>
 #include "ed64_io.h"
 #include "hb_io.h"
 #include "iodev.h"
-//#include "zu.h"
+#include <errno.h>
+#include <n64.h>
 
 static u32 clock_ticks_dflt(void) {
     u32 count;

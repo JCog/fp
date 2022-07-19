@@ -1,5 +1,6 @@
 #ifndef _ITEM_BUTTON_H_
 #define _ITEM_BUTTON_H_
+#include "common.h"
 #include "menu.h"
 
 enum item_type {

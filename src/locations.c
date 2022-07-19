@@ -1,8 +1,7 @@
-#include <stdint.h>
-#include "menu.h"
-#include "settings.h"
-#include "warp_info.h"
+#include "common.h"
 #include "fp.h"
+#include "menu.h"
+#include "warp_info.h"
 
 static u16 area;
 static u16 map;

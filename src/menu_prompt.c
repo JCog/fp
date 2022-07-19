@@ -1,6 +1,6 @@
+#include "menu.h"
 #include <stdlib.h>
 #include <string.h>
-#include "menu.h"
 
 static struct menu prompt_menu;
 static menu_prompt_callback prompt_callback_proc;

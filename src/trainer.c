@@ -1,8 +1,8 @@
-#include <math.h>
-#include "menu.h"
 #include "trainer.h"
-#include "settings.h"
 #include "fp.h"
+#include "menu.h"
+#include "settings.h"
+#include <math.h>
 
 char messageForASM[] = "Success";
 

@@ -1,12 +1,9 @@
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdint.h>
 #include "input.h"
 #include "menu.h"
 #include "resource.h"
 #include "settings.h"
-#include "pm64.h"
+#include <stdarg.h>
+#include <stdlib.h>
 
 static s8 joy_x;
 static s8 joy_y;

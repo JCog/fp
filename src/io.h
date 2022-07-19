@@ -1,6 +1,6 @@
 #ifndef IO_H
 #define IO_H
-#include "pm64.h"
+#include "common.h"
 
 s32 io_init(void);
 

@@ -1,9 +1,7 @@
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <math.h>
 #include "menu.h"
 #include "util.h"
+#include <math.h>
+#include <stdlib.h>
 
 struct item_data {
     s32 sig_precis;

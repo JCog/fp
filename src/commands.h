@@ -1,6 +1,6 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
-#include "pm64.h"
+#include "common.h"
 
 enum commands {
     COMMAND_MENU,

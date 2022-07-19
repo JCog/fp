@@ -1,10 +1,10 @@
-#include <stdlib.h>
+#include "common.h"
 #include "fp.h"
-#include "menu.h"
-#include "settings.h"
 #include "gfx.h"
-#include "resource.h"
 #include "items.h"
+#include "menu.h"
+#include "resource.h"
+#include <stdlib.h>
 
 static const char *str_hp = "HP";
 static const char *str_max_hp = "Max HP";

@@ -1,7 +1,8 @@
-#include "menu.h"
+#include "commands.h"
 #include "fp.h"
 #include "gfx.h"
-#include "commands.h"
+#include "menu.h"
+#include "settings.h"
 
 static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u8 *p = data;

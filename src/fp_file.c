@@ -1,11 +1,14 @@
+#include "files.h"
+#include "fp.h"
+#include "menu.h"
+#include "resource.h"
+#include "settings.h"
+#include "sys.h"
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "menu.h"
-#include "settings.h"
-#include "fp.h"
-#include "files.h"
-#include "sys.h"
-#include "resource.h"
+#include <sys/param.h>
 
 static void save_slot_dec_proc(struct menu_item *item, void *data) {
     pm_status.save_slot += 3;

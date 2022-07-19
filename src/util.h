@@ -1,6 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
-#include <stdint.h>
+#include "common.h"
 #include <mips.h>
 #include <n64.h>
 #include <startup.h>
@@ -70,13 +70,5 @@ static inline void maybe_init_gp(void) {
     init_gp();
 #endif
 }
-
-#ifdef NDEBUG
-#define PRINTF(...) ((void)0)
-#else
-#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
-#endif
-
-#define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #endif

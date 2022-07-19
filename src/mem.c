@@ -1,17 +1,17 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <math.h>
-#include <inttypes.h>
-#include <vector/vector.h>
+#include "mem.h"
+#include "common.h"
 #include "fp.h"
 #include "input.h"
-#include "mem.h"
 #include "menu.h"
 #include "resource.h"
 #include "util.h"
 #include "watchlist.h"
+#include <inttypes.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector/vector.h>
 
 #define MEM_VIEW_ROWS 16
 #define MEM_VIEW_COLS 8

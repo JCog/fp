@@ -1,5 +1,6 @@
 #ifndef FILE_H
 #define FILE_H
+#include "common.h"
 #include "menu.h"
 
 enum get_file_mode {

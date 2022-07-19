@@ -1,10 +1,8 @@
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdint.h>
-#include <vector/vector.h>
 #include "adex.h"
-#include "pm64.h"
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector/vector.h>
 
 const char *adex_error_name[] = {
     "success", "out of memory", "syntax error", "arithmetic error", "address unavailable",

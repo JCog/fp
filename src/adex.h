@@ -1,8 +1,7 @@
 #ifndef ADEX_H
 #define ADEX_H
-#include <stdint.h>
+#include "common.h"
 #include <vector/vector.h>
-#include "pm64.h"
 
 enum adex_error {
     ADEX_ERROR_SUCCESS,

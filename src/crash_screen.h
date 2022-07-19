@@ -1,7 +1,6 @@
 #ifndef CRASH_SCREEN_H
 #define CRASH_SCREEN_H
-
-#include "fp.h"
+#include "common.h"
 
 typedef struct {
     /* 0x000 */ OSThread thread;

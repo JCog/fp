@@ -1,14 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <math.h>
-#include <vector/vector.h>
 #include "flags.h"
+#include "common.h"
 #include "gfx.h"
 #include "menu.h"
 #include "resource.h"
-#include "pm64.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector/vector.h>
 
 #define FLAG_LOG_LENGTH 16
 #define FLAG_VIEW_ROWS  16

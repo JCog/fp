@@ -1,9 +1,8 @@
 #ifndef FAT_H
 #define FAT_H
-#include <stdint.h>
-#include <time.h>
+#include "common.h"
 #include <list/list.h>
-#include "pm64.h"
+#include <sys/_timeval.h>
 
 #define FAT_MAX_CACHE_SECT   4
 

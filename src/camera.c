@@ -1,10 +1,9 @@
-#include <stdint.h>
-#include <math.h>
-#include <n64.h>
 #include "fp.h"
 #include "geometry.h"
 #include "gu.h"
 #include "input.h"
+#include <math.h>
+#include <n64.h>
 
 static const f32 joy_mspeed = 0.25f;
 static const f32 joy_rspeed = 0.0007f;

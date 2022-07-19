@@ -1,6 +1,5 @@
 #ifndef HB_H
-#include <stdint.h>
-#include "pm64.h"
+#include "common.h"
 
 #define hb_regs               (*(volatile hb_regs_t *)0xA8050000)
 
