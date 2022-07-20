@@ -350,7 +350,7 @@ void fp_bowser_block_trainer(void) {
         (pm_gGameStatus.mapID == 0x7 || pm_gGameStatus.mapID == 0x13) && STORY_PROGRESS != STORY_INTRO &&
         !(pm_gGameStatus.peachFlags & (1 << 0))) {
 
-        pm_Actor_t *bowser = pm_gBattleStatus.enemyActors[0];
+        pm_Actor *bowser = pm_gBattleStatus.enemyActors[0];
 
         if (bowser != NULL) {
             s32 *turn = &bowser->state.varTable[0];
@@ -407,7 +407,7 @@ void fp_bowser_block_trainer(void) {
 void fp_lzs_trainer(void) {
     // detect if loading zone is stored
     for (s32 evt_idx = 0; evt_idx < pm_gNumScripts; evt_idx++) {
-        pm_Evt_t *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
+        pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
         if (script && script->ptrNextLine) {
             u32 callback_function = script->ptrNextLine[5];
             if (callback_function == (uintptr_t)pm_GotoMap) {
@@ -787,7 +787,7 @@ ENTRY void fp_after_draw_entry(void) {
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-HOOK void fp_update_camera_mode_6(pm_Camera_t *cam) {
+HOOK void fp_update_camera_mode_6(pm_Camera *cam) {
     if (!fp.free_cam) {
         pm_update_camera_mode_6(cam);
     }
@@ -795,7 +795,7 @@ HOOK void fp_update_camera_mode_6(pm_Camera_t *cam) {
 
 HOOK void fp_update_input(void) {
     pm_update_player_input();
-    pm_Controller_t *mask = &fp.input_mask;
+    pm_Controller *mask = &fp.input_mask;
 
     pm_player.currentButtons.buttons &= ~mask->buttons;
     pm_player.previousButtons.buttons &= ~mask->buttons;

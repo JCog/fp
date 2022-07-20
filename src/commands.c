@@ -242,7 +242,7 @@ void command_show_hide_timer_proc(void) {
 }
 
 void command_load_game_proc(void) {
-    pm_SaveData_t *file = malloc(sizeof(*file));
+    pm_SaveData *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
     if (pm_FioValidateFileChecksum(file)) {

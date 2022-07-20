@@ -137,7 +137,7 @@ static void restore_letters_proc(struct menu_item *item, void *data) {
 static s32 do_export_file(const char *path, void *data) {
     const char *err_str = NULL;
     s32 f = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    pm_SaveData_t *file = data;
+    pm_SaveData *file = data;
     if (f != -1) {
         if (write(f, file, sizeof(*file)) != sizeof(*file)) {
             err_str = strerror(errno);
@@ -170,7 +170,7 @@ s32 fp_import_file(const char *path, void *data) {
     const char *s_invalid = "invalid or corrupt file";
     const char *s_memory = "out of memory";
     const char *err_str = NULL;
-    pm_SaveData_t *file = NULL;
+    pm_SaveData *file = NULL;
     s32 f = open(path, O_RDONLY);
     if (f != -1) {
         struct stat st;
@@ -225,7 +225,7 @@ s32 fp_import_file(const char *path, void *data) {
 }
 
 static void export_file_proc(struct menu_item *item, void *data) {
-    pm_SaveData_t *file = malloc(sizeof(*file));
+    pm_SaveData *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
 

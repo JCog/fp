@@ -155,7 +155,7 @@ static s32 action_commands_proc(struct menu_item *item, enum menu_callback_reaso
 }
 
 static s32 in_party_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
+    pm_PartnerData *partner = (pm_PartnerData *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         partner->enabled = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -167,7 +167,7 @@ static s32 in_party_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static s32 super_rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
+    pm_PartnerData *partner = (pm_PartnerData *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         partner->level = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -183,7 +183,7 @@ static s32 super_rank_proc(struct menu_item *item, enum menu_callback_reason rea
 }
 
 static s32 ultra_rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
+    pm_PartnerData *partner = (pm_PartnerData *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         partner->level = 2;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
