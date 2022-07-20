@@ -81,7 +81,6 @@ draw_hook = 0x80026CBC;
 pm_state_render_frontUI = 0x80112FC4;
 
 after_draw_hook = 0x80026DC0;
-crash_screen_set_draw_info = 0x8002C890;
 
 update_camera_mode_6_hook = 0x8002D4F8;
 pm_update_camera_mode_6 = 0x8002F990;
