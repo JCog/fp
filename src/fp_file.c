@@ -113,8 +113,10 @@ static void open_pipes_proc(struct menu_item *item, void *data) {
 }
 
 static void restore_enemies_proc(struct menu_item *item, void *data) {
-    for (s32 i = 0; i < 600; i++) {
-        pm_enemy_defeat_flags[i] = 0;
+    for (s32 i = 0; i < 60; i++) {
+        for (s32 j = 0; j < 12; j++) {
+            pm_gCurrentEncounter.defeatFlags[i][j] = 0;
+        }
     }
 }
 
@@ -225,7 +227,7 @@ s32 fp_import_file(const char *path, void *data) {
 static void export_file_proc(struct menu_item *item, void *data) {
     pm_SaveData_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
-    pm_FioReadFlash(pm_save_info.logical_save_info[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
+    pm_FioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
 
     if (pm_FioValidateFileChecksum(file)) {
         menu_get_file(fp.main_menu, GETFILE_SAVE, "file", ".pmsave", do_export_file, file);

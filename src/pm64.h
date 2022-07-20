@@ -1001,9 +1001,8 @@ extern_data pm_GameStatus_t pm_gGameStatus;
 extern_data u32 pm_ViFrames;
 extern_data s32 pm_TimeFreezeMode;
 extern_data Gfx *pm_MasterGfxPos;
-extern_data save_info_ctxt_t pm_save_info;
+extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_MapChangeState;
-extern_data u32 pm_enemy_defeat_flags[600];
 extern_data pm_ItemData_t pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair_t pm_gItemHudScripts[337];
 extern_data pm_HudElementSize_t pm_gHudElementSizes[26];
@@ -1070,7 +1069,7 @@ s32 pm_is_ability_active(s32 arg0);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
 void pm_state_step_end_battle(void);
 s32 pm_func_800554A4(s32);
-pm_ApiStatus_t pm_GotoMap(pm_Evt_t* script, s32 isInitialCall);
+pm_ApiStatus_t pm_GotoMap(pm_Evt_t *script, s32 isInitialCall);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]

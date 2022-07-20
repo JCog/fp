@@ -226,7 +226,7 @@ void flag_menu_create(struct menu *menu) {
     vector_init(&events, sizeof(struct flag_event));
     add_record(4, 64, &pm_gCurrentSaveFile.globalFlags, "global flags");
     add_record(4, 8, &pm_gCurrentSaveFile.areaFlags, "area flags");
-    add_record(4, 600, pm_enemy_defeat_flags, "enemy defeat flags");
+    add_record(4, 600, pm_gCurrentEncounter.defeatFlags, "enemy defeat flags");
     add_record(1, 26, &pm_gCurrentSaveFile.globalBytes[0x16D], "tattle flags");
     /* initialize menus */
     menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);

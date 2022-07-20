@@ -20,21 +20,6 @@ struct log_entry {
     s32 age;
 };
 
-struct timer {
-    s64 start;
-    s64 end;
-    u32 lag_start;
-    u32 lag_end;
-    u16 frame_start;
-    u16 frame_end;
-    _Bool prev_cutscene_state;
-    u8 mode;  /* 0 = auto, 1 = manual; */
-    u8 state; /* 0 = inactive, 1 = waiting to start, 2 = running, 3 = stopped */
-    u8 cutscene_target;
-    u8 cutscene_count;
-    _Bool moving;
-};
-
 typedef struct {
     _Bool ready;
     struct menu *main_menu;
@@ -47,9 +32,7 @@ typedef struct {
     _Bool version_shown;
     s64 cpu_counter;
     s32 cpu_counter_freq;
-    struct timer timer;
-    s64 timer_count;
-    s32 lag_frames;
+    _Bool timer_moving;
     _Bool menu_active;
     struct log_entry log[SETTINGS_LOG_MAX];
     f32 saved_x;
@@ -102,7 +85,6 @@ void fp_log(const char *fmt, ...);
 _Bool fp_warp(u16 area, u16 map, u16 entrance);
 void fp_set_global_flag(s32 flag_index, _Bool value);
 void fp_set_area_flag(s32 flag_index, _Bool value);
-void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value);
 void fp_set_global_byte(s32 byte_index, s8 value);
 s32 fp_import_file(const char *path, void *data);
 void fp_set_input_mask(u16 pad, u8 x, u8 y);

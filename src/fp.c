@@ -6,6 +6,7 @@
 #include "input.h"
 #include "io.h"
 #include "resource.h"
+#include "timer.h"
 #include "watchlist.h"
 #include <n64.h>
 #include <startup.h>
@@ -47,18 +48,6 @@ void fp_init() {
     fp.version_shown = 0;
     fp.cpu_counter = 0;
     fp.cpu_counter_freq = 0;
-    fp.timer.start = 0;
-    fp.timer.end = 0;
-    fp.timer.lag_start = 0;
-    fp.timer.lag_end = 0;
-    fp.timer.frame_start = 0;
-    fp.timer.frame_end = 0;
-    fp.timer.prev_cutscene_state = 0;
-    fp.timer.mode = 0;
-    fp.timer.state = 0;
-    fp.timer.cutscene_target = 1;
-    fp.timer.cutscene_count = 0;
-    fp.timer.moving = 0;
     fp.menu_active = 0;
 
     for (s32 i = 0; i < SETTINGS_LOG_MAX; i++) {
@@ -328,48 +317,8 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
     }
 }
 
-void fp_update_timer(s64 *timer_count, s32 *lag_frames) {
-    _Bool in_cutscene = pm_player.flags & 0x00002000;
-
-    switch (fp.timer.state) {
-        case 1:
-            if (fp.timer.mode == 1 || (fp.timer.prev_cutscene_state && !in_cutscene)) {
-                fp.timer.state = 2;
-                fp.timer.start = fp.cpu_counter;
-                fp.timer.lag_start = pm_ViFrames;
-                fp.timer.frame_start = pm_gGameStatus.frameCounter;
-                if (settings->bits.timer_logging) {
-                    fp_log("timer started");
-                }
-            }
-            break;
-        case 2:
-            if (fp.timer.mode == 0 && !fp.timer.prev_cutscene_state && in_cutscene) {
-                fp.timer.cutscene_count++;
-                if (settings->bits.timer_logging && fp.timer.cutscene_count != fp.timer.cutscene_target) {
-                    fp_log("cutscene started");
-                }
-            }
-            if (fp.timer.cutscene_count == fp.timer.cutscene_target) {
-                fp.timer.state = 3;
-                fp.timer.end = fp.cpu_counter;
-                fp.timer.lag_end = pm_ViFrames;
-                fp.timer.frame_end = pm_gGameStatus.frameCounter;
-                fp_log("timer stopped");
-            }
-            *timer_count = fp.cpu_counter - fp.timer.start;
-            *lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2 - (pm_gGameStatus.frameCounter - fp.timer.frame_start);
-            break;
-        case 3:
-            *timer_count = fp.timer.end - fp.timer.start;
-            *lag_frames = (fp.timer.lag_end - fp.timer.lag_start) / 2 - (fp.timer.frame_end - fp.timer.frame_start);
-            break;
-    }
-}
-
-void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 cell_width, s32 cell_height,
-                   u8 menu_alpha) {
-    s32 hundredths = timer_count * 100 / fp.cpu_counter_freq;
+void fp_draw_timer(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
+    s32 hundredths = timer_get_timer_count() * 100 / fp.cpu_counter_freq;
     s32 seconds = hundredths / 100;
     s32 minutes = seconds / 60;
     s32 hours = minutes / 60;
@@ -390,7 +339,7 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
         gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
     }
 
-    gfx_printf(font, x, y + cell_height, "%d", lag_frames);
+    gfx_printf(font, x, y + cell_height, "%d", timer_get_lag_frames());
 }
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
@@ -637,8 +586,8 @@ void fp_update_warps(void) {
         }
 
         pm_SetMapTransitionEffect(0); // normal black fade
-        PRINTF("changing game mode\n");
-        pm_SetGameMode(5); // start the "change map" game mode
+        PRINTF("changing game timer_mode\n");
+        pm_SetGameMode(5); // start the "change map" game timer_mode
         fp.warp = 0;
     }
 }
@@ -722,14 +671,7 @@ void fp_update(void) {
         show_menu();
     }
 
-    fp.timer_count = 0;
-    fp.lag_frames = 0;
-
-    if (fp.timer.state != 0) {
-        fp_update_timer(&fp.timer_count, &fp.lag_frames);
-    }
-
-    fp.timer.prev_cutscene_state = pm_player.flags & 0x00002000;
+    timer_update();
 
     if (fp.bowser_blocks_enabled) {
         fp_bowser_block_trainer();
@@ -806,9 +748,10 @@ void fp_draw(void) {
         fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
     }
 
-    if (fp.timer.moving || (fp.timer.state == 3 && !fp.menu_active) ||
-        (settings->bits.timer_show && !fp.menu_active && fp.timer.state > 0)) {
-        fp_draw_timer(fp.timer_count, fp.lag_frames, font, cell_width, cell_height, menu_alpha);
+    enum timer_state timer_state = timer_get_state();
+    if (fp.timer_moving || (timer_state == TIMER_STOPPED && !fp.menu_active) ||
+        (settings->bits.timer_show && !fp.menu_active && timer_state != TIMER_INACTIVE)) {
+        fp_draw_timer(font, cell_width, cell_height, menu_alpha);
     }
 
     if (fp.menu_active) {

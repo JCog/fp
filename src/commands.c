@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "fp.h"
 #include "input.h"
+#include "timer.h"
 #include "watchlist.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -141,10 +142,6 @@ void fp_set_area_flag(s32 flag_index, _Bool value) {
     set_flag(pm_gCurrentSaveFile.areaFlags, flag_index, value);
 }
 
-void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
-    set_flag(pm_enemy_defeat_flags, flag_index, value);
-}
-
 void fp_set_global_byte(s32 byte_index, s8 value) {
     pm_gCurrentSaveFile.globalBytes[byte_index] = value;
 }
@@ -233,26 +230,11 @@ void command_save_game_proc() {
 }
 
 void command_start_timer_proc() {
-    if (fp.timer.state == 0) {
-        fp.timer.state = 1;
-        if (fp.timer.mode == 0) {
-            fp_log("timer set to start");
-        }
-    } else if (fp.timer.state == 2 && fp.timer.mode == 1) {
-        fp.timer.cutscene_count = fp.timer.cutscene_target;
-    } else if (fp.timer.state == 3) {
-        fp.timer.state = 1;
-        fp.timer.cutscene_count = 0;
-        if (fp.timer.mode == 0) {
-            fp_log("timer set to start");
-        }
-    }
+    timer_start();
 }
 
 void command_reset_timer_proc() {
-    fp.timer.state = 0;
-    fp.timer.cutscene_count = 0;
-    fp_log("timer reset");
+    timer_reset();
 }
 
 void command_show_hide_timer_proc() {
@@ -262,7 +244,7 @@ void command_show_hide_timer_proc() {
 void command_load_game_proc() {
     pm_SaveData_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
-    pm_FioReadFlash(pm_save_info.logical_save_info[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
+    pm_FioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
     if (pm_FioValidateFileChecksum(file)) {
         pm_gCurrentSaveFile = *file;
         pm_FioDeserializeState();
