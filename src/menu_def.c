@@ -23,6 +23,7 @@ static s32 static_icon_draw_proc(struct menu_item *item, struct menu_draw_params
     struct gfx_sprite sprite = {
         data->texture,
         data->texture_tile,
+        0,
         draw_params->x + (cw - w) / 2,
         draw_params->y - (gfx_font_xheight(draw_params->font) + h + 1) / 2,
         data->scale,
@@ -188,4 +189,9 @@ void menu_tab_next(struct menu_item *item) {
         s32 tab_index = (data->current_tab + 1) % data->n_tabs;
         menu_tab_goto(item, tab_index);
     }
+}
+
+s32 menu_tab_get_current_tab(struct menu_item *item) {
+    struct tab_data *data = item->data;
+    return data->current_tab;
 }

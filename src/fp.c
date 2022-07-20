@@ -10,9 +10,10 @@
 #include "io.h"
 #include "resource.h"
 #include "watchlist.h"
-#include "item_icons.h"
 #include "crash_screen.h"
 #include "sys.h"
+#include "util.h"
+#include "input.h"
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
     .ready = 0,
@@ -188,17 +189,13 @@ void fp_update_menu(void) {
         u16 pad_pressed = input_pressed();
         if (pad_pressed & BUTTON_D_UP) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
-        }
-        if (pad_pressed & BUTTON_D_DOWN) {
+        } else if (pad_pressed & BUTTON_D_DOWN) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
-        }
-        if (pad_pressed & BUTTON_D_LEFT) {
+        } else if (pad_pressed & BUTTON_D_LEFT) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
-        }
-        if (pad_pressed & BUTTON_D_RIGHT) {
+        } else if (pad_pressed & BUTTON_D_RIGHT) {
             menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
-        }
-        if (pad_pressed & BUTTON_L) {
+        } else if (pad_pressed & BUTTON_L) {
             menu_activate(fp.main_menu);
         }
     }
@@ -238,15 +235,24 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY(S)  STRINGIFY_(S)
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    if (pm_status.load_menu_state > 0) {
-        item_icon_draw(ITEM_FP_PLUS_A, 15, SCREEN_HEIGHT - 65, 255, ICON_COLOR);
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, 0xFF));
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
-        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
-    }
-
+    static struct gfx_texture *fp_icon_tex;
     if (pm_status.load_menu_state == 5) {
         fp.version_shown = 1;
+    } else {
+        if (fp_icon_tex == NULL) {
+            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A, 0);
+        }
+        struct gfx_sprite fp_icon_sprite = {
+            fp_icon_tex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,
+        };
+        gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+        gfx_sprite_draw(&fp_icon_sprite);
+        gfx_mode_pop(GFX_MODE_DROPSHADOW);
+
+        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));
+        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
+        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
     }
 }
 
@@ -276,12 +282,13 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
             image_dy = -d_y * image_range / settings->control_stick_range;
         }
         struct gfx_sprite in_background = {
-            control_stick, 0,   settings->input_display_x, settings->input_display_y - control_stick->tile_height,
+            control_stick, 0,   0, settings->input_display_x, settings->input_display_y - control_stick->tile_height,
             1.f,           1.f,
         };
         struct gfx_sprite in_stick = {
             control_stick,
             1,
+            0,
             settings->input_display_x + image_dx,
             settings->input_display_y - control_stick->tile_height + image_dy,
             1.f,
@@ -317,7 +324,7 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
             button_dx = control_stick->tile_width + cell_width;
         }
         struct gfx_sprite sprite = {
-            texture, b, settings->input_display_x + button_dx + x, settings->input_display_y + y, 1.f, 1.f,
+            texture, b, 0, settings->input_display_x + button_dx + x, settings->input_display_y + y, 1.f, 1.f,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
         gfx_sprite_draw(&sprite);
@@ -835,6 +842,7 @@ ENTRY void fp_update_entry(void) {
 
     if (!fp.ready) {
         init_stack(fp_init);
+        PRINTF("\n**** fp initialized ****\n\n");
     }
 
     step_game_loop();
@@ -908,11 +916,11 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     bufferPos -= mashWindow + blockWindow;
 
     if (bufferPos < 0) {
-        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
     }
     for (i = 0; i < mashWindow; i++) {
-        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
@@ -930,11 +938,11 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     bufferPos = pm_battle_status.input_buffer_pos;
     bufferPos -= blockWindow;
     if (bufferPos < 0) {
-        bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
     }
     for (i = 0; i < blockWindow; i++) {
-        if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
@@ -958,12 +966,12 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         bufferPos = pm_battle_status.input_buffer_pos;
         bufferPos -= mashWindow + blockWindow + 20;
         if (bufferPos < 0) {
-            bufferPos += ARRAY_COUNT(pm_battle_status.push_input_buffer);
+            bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
         }
 
         for (i = 0; i < mashWindow + blockWindow + 20; i++) {
-            if (bufferPos >= ARRAY_COUNT(pm_battle_status.push_input_buffer)) {
-                bufferPos -= ARRAY_COUNT(pm_battle_status.push_input_buffer);
+            if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
+                bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
             }
             pm_battle_status.push_input_buffer[bufferPos] = 0;
             bufferPos++;

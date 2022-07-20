@@ -115,7 +115,7 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
             break;
         }
         struct gfx_sprite sprite = {
-            texture, c, x + n * 10, y, 1.f, 1.f,
+            texture, c, 0, x + n * 10, y, 1.f, 1.f,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[c], draw_params->alpha));
         gfx_sprite_draw(&sprite);
@@ -222,7 +222,7 @@ static void create_osk_menu(void) {
         }
 
         struct gfx_texture *osk_icons = resource_get(RES_ICON_OSK);
-        item = menu_add_button_icon(&osk_menu, 0, 8, osk_icons, 0, 0xFFFFFF, space_proc, NULL);
+        item = menu_add_button_icon(&osk_menu, 0, 8, osk_icons, 0, 0, 0xFFFFFF, 1.0f, space_proc, NULL);
         item->navigate_proc = navigate_proc;
 
         item = menu_item_add(&osk_menu, 0, 10, NULL, 0xC0C0C0);

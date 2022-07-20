@@ -700,4 +700,35 @@ enum StoryProgress {
     /* 60 */ STORY_EPILOGUE,
 };
 
+enum HudElementOps {
+    /* 0x00 */ HUD_ELEMENT_OP_End,
+    /* 0x01 */ HUD_ELEMENT_OP_SetRGBA,
+    /* 0x02 */ HUD_ELEMENT_OP_SetCI,
+    /* 0x03 */ HUD_ELEMENT_OP_Restart,
+    /* 0x04 */ HUD_ELEMENT_OP_Loop,
+    /* 0x05 */ HUD_ELEMENT_OP_SetTileSize,
+    /* 0x06 */ HUD_ELEMENT_OP_SetSizesAutoScale,
+    /* 0x07 */ HUD_ELEMENT_OP_SetSizesFixedScale,
+    /* 0x08 */ HUD_ELEMENT_OP_SetVisible,
+    /* 0x09 */ HUD_ELEMENT_OP_SetHidden,
+    /* 0x0A */ HUD_ELEMENT_OP_AddTexelOffsetX,
+    /* 0x0B */ HUD_ELEMENT_OP_AddTexelOffsetY,
+    /* 0x0C */ HUD_ELEMENT_OP_SetTexelOffset,
+    /* 0x0D */ HUD_ELEMENT_OP_SetImage,
+    /* 0x0E */ HUD_ELEMENT_OP_SetScale,
+    /* 0x0F */ HUD_ELEMENT_OP_SetAlpha,
+    /* 0x10 */ HUD_ELEMENT_OP_RandomDelay,
+    /* 0x11 */ HUD_ELEMENT_OP_Delete,
+    /* 0x12 */ HUD_ELEMENT_OP_UseIA8,
+    /* 0x13 */ HUD_ELEMENT_OP_SetCustomSize,
+    /* 0x14 */ HUD_ELEMENT_OP_RandomRestart,
+    /* 0x15 */ HUD_ELEMENT_OP_op_15,
+    /* 0x16 */ HUD_ELEMENT_OP_op_16,
+    /* 0x17 */ HUD_ELEMENT_OP_RandomBranch,
+    /* 0x18 */ HUD_ELEMENT_OP_SetFlags,
+    /* 0x19 */ HUD_ELEMENT_OP_ClearFlags,
+    /* 0x1A */ HUD_ELEMENT_OP_PlaySound,
+    /* 0x1B */ HUD_ELEMENT_OP_SetPivot,
+};
+
 #endif

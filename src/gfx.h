@@ -5,7 +5,8 @@
 #include "gu.h"
 #include "pm64.h"
 
-#define GFX_FILE_DRAM (-1)
+#define GFX_FILE_DRAM    (-1)
+#define GFX_FILE_DRAM_PM (-2)
 #define gfx_disp(...)                                    \
     {                                                    \
         Gfx gfx_disp__[] = {__VA_ARGS__};                \
@@ -33,6 +34,7 @@ struct gfx_texdesc {
     s16 tiles_y;
     u32 file_vaddr;
     size_t file_vsize;
+    s8 pal_count;
 };
 
 struct gfx_texldr {
@@ -49,11 +51,13 @@ struct gfx_texture {
     s16 tiles_x;
     s16 tiles_y;
     size_t tile_size;
+    s8 pal_count;
 };
 
 struct gfx_sprite {
     struct gfx_texture *texture;
     s16 texture_tile;
+    s8 palette_index;
     f32 x;
     f32 y;
     f32 xscale;
@@ -102,9 +106,12 @@ struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_t
 void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct gfx_texture *src, s32 src_tile,
                            _Bool blend);
 void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix);
+void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile);
+void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, s32 y_offset);
+void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index);
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile);
-void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile);
+void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile, s8 palette_index);
+void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile, s8 palette_index);
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite);
 

@@ -1,7 +1,6 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 #include <stdint.h>
-#include "input.h"
 #include "commands.h"
 #include "pm64.h"
 

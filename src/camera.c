@@ -4,6 +4,7 @@
 #include "fp.h"
 #include "geometry.h"
 #include "gu.h"
+#include "input.h"
 
 static const f32 joy_mspeed = 0.25f;
 static const f32 joy_rspeed = 0.0007f;

@@ -18,6 +18,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     struct gfx_sprite sprite = {
         texture,
         0,
+        0,
         draw_params->x + (cw - texture->tile_width) / 2,
         draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
         1.f,

@@ -183,6 +183,14 @@ void gfx_texldr_init(struct gfx_texldr *texldr) {
     texldr->file_data = NULL;
 }
 
+static s32 get_texture_tile_raster_size(const struct gfx_texture *texture) {
+    return texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
+}
+
+static _Bool texture_data_is_on_heap(struct gfx_texture *texture) {
+    return (uintptr_t)texture->data >= 0x80400000;
+}
+
 struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_texdesc *texdesc,
                                     struct gfx_texture *texture) {
     struct gfx_texture *new_texture = NULL;
@@ -199,16 +207,21 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
     texture->tile_height = texdesc->tile_height;
     texture->tiles_x = texdesc->tiles_x;
     texture->tiles_y = texdesc->tiles_y;
-    texture->tile_size = (texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) + 63) / 64 * 8;
+    texture->tile_size = (get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count + 7) / 8 * 8;
+    texture->pal_count = texdesc->pal_count;
     size_t texture_size = texture->tile_size * texture->tiles_x * texture->tiles_y;
     void *texture_data = NULL;
     void *file_start = NULL;
-    if (texdesc->file_vaddr != GFX_FILE_DRAM) {
+    if (texdesc->file_vaddr == GFX_FILE_DRAM_PM) {
+        // these textures are always loaded in memory by the base game, so no need to waste memory copying them
+        texture_data = (void *)texdesc->address;
+        texture->tile_size = get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count;
+    } else if (texdesc->file_vaddr != GFX_FILE_DRAM) {
         if (texldr->file_vaddr != texdesc->file_vaddr) {
             if (texldr->file_data) {
                 free(texldr->file_data);
             }
-            texldr->file_data = memalign(64, texdesc->file_vsize);
+            texldr->file_data = malloc(texdesc->file_vsize);
             if (!texldr->file_data) {
                 texldr->file_vaddr = GFX_FILE_DRAM;
                 if (new_texture) {
@@ -217,7 +230,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
                 return NULL;
             }
             texldr->file_vaddr = texdesc->file_vaddr;
-            /*zu_getfile(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);*/
+            nuPiReadRom(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
         }
         if (texdesc->file_vsize == texture_size) {
             texture_data = texldr->file_data;
@@ -228,7 +241,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
         }
     }
     if (!texture_data) {
-        texture_data = memalign(64, texture_size);
+        texture_data = malloc(texture_size);
         if (!texture_data) {
             if (new_texture) {
                 free(new_texture);
@@ -277,7 +290,7 @@ struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct g
 }
 
 void gfx_texture_destroy(struct gfx_texture *texture) {
-    if (texture->data) {
+    if (texture->data && texture_data_is_on_heap(texture)) {
         free(texture->data);
     }
 }
@@ -380,7 +393,170 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
     }
 }
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile) {
+void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
+    s32 adj_width = texture->tile_width;
+    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
+    if (bytes_per_pixel == 0) {
+        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
+        adj_width /= 2;
+    }
+
+    if (!texture_data_is_on_heap(texture)) {
+        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
+        memcpy(new_data, texture->data, sizeof(*new_data));
+        texture->data = new_data;
+    }
+
+    unsigned char *new_raster = malloc(get_texture_tile_raster_size(texture));
+    unsigned char *new_pos = new_raster;
+    unsigned char *old_raster = texture->data + tile * texture->tile_size;
+    unsigned char *old_pos;
+    for (s32 y = 0; y < texture->tile_height; y++) {
+        s32 y_offset = bytes_per_pixel * (texture->tile_height * y + texture->tile_width - 1);
+        if (texture->im_siz == G_IM_SIZ_4b) {
+            y_offset /= 2;
+        }
+        old_pos = old_raster + y_offset;
+        for (s32 x = 0; x < adj_width; x++) {
+            memcpy(new_pos, old_pos, bytes_per_pixel);
+            if (texture->im_siz == G_IM_SIZ_4b) {
+                *new_pos = (*new_pos & 0xF0) >> 4 | (*new_pos & 0x0F) << 4;
+            }
+            new_pos += bytes_per_pixel;
+            old_pos -= bytes_per_pixel;
+        }
+    }
+    memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+    free(new_raster);
+}
+
+void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, s32 y_offset) {
+    s32 adj_width = texture->tile_width;
+    s32 adj_height = texture->tile_height;
+    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
+    s32 adj_x_offset = x_offset;
+    if (bytes_per_pixel == 0) {
+        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
+        adj_width /= 2;
+        adj_height /= 2;
+        adj_x_offset /= 2;
+    }
+
+    if (!texture_data_is_on_heap(texture)) {
+        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
+        memcpy(new_data, texture->data, sizeof(*new_data));
+        texture->data = new_data;
+    }
+
+    if (x_offset != 0) {
+        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
+        unsigned char *new_pos;
+        unsigned char *old_raster = texture->data + tile * texture->tile_size;
+        unsigned char *old_pos;
+        for (s32 y = 0; y < texture->tile_height; y++) {
+            new_pos = new_raster + bytes_per_pixel * (adj_height * y);
+            old_pos = old_raster + bytes_per_pixel * (adj_height * y - adj_x_offset);
+            for (s32 x = 0; x < adj_width; x++) {
+                if (x >= adj_x_offset && x < adj_width + adj_x_offset) {
+                    if (texture->im_siz == G_IM_SIZ_4b && (x_offset % 2 == 1 || x_offset % 2 == -1)) {
+                        if (x_offset > 0) {
+                            *new_pos = (*old_pos & 0xF0) >> 4;
+                            if (x > adj_x_offset) {
+                                *new_pos |= (*(old_pos - 1) & 0x0F) << 4;
+                            }
+                        } else {
+                            *new_pos = (*old_pos & 0x0F) << 4;
+                            if (x < adj_width + adj_x_offset - 1) {
+                                *new_pos |= (*(old_pos + 1) & 0xF0) >> 4;
+                            }
+                        }
+                    } else {
+                        memcpy(new_pos, old_pos, bytes_per_pixel);
+                    }
+                }
+                new_pos += bytes_per_pixel;
+                old_pos += bytes_per_pixel;
+            }
+        }
+        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+        free(new_raster);
+    }
+    if (y_offset != 0) {
+        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
+        unsigned char *new_pos;
+        unsigned char *old_raster = texture->data + tile * texture->tile_size;
+        unsigned char *old_pos;
+        for (s32 y = 0; y < texture->tile_height; y++) {
+            if (y >= y_offset && y < texture->tile_height + y_offset) {
+                new_pos = new_raster + bytes_per_pixel * (adj_height * y);
+                old_pos = old_raster + bytes_per_pixel * (adj_height * y - y_offset * adj_width);
+                for (s32 x = 0; x < adj_width; x++) {
+                    memcpy(new_pos, old_pos, bytes_per_pixel);
+                    new_pos += bytes_per_pixel;
+                    old_pos += bytes_per_pixel;
+                }
+            }
+        }
+        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
+        free(new_raster);
+    }
+}
+
+void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index) {
+    if (texture->im_fmt != G_IM_FMT_CI || texture->im_siz != G_IM_SIZ_4b) {
+        return;
+    }
+    typedef struct {
+        u16 r : 5;
+        u16 g : 5;
+        u16 b : 5;
+        u16 a : 1;
+    } rgba;
+
+    s32 tile_count = texture->tiles_x * texture->tiles_y;
+    char *new_texture_data = malloc((texture->tile_size + ICON_PALETTE_SIZE) * tile_count);
+    size_t new_tile_size = texture->tile_size + ICON_PALETTE_SIZE;
+
+    u32 raster_size = get_texture_tile_raster_size(texture);
+
+    for (s32 i_tile = 0; i_tile < tile_count; i_tile++) {
+        char *base_tile = texture->data + texture->tile_size * i_tile;
+        char *new_tile = new_texture_data + new_tile_size * i_tile;
+        memcpy(new_tile, base_tile, texture->tile_size);
+
+        rgba *base_palette = (rgba *)(base_tile + raster_size + ICON_PALETTE_SIZE * base_palette_index);
+        rgba *new_palette = (rgba *)(new_texture_data + raster_size + ICON_PALETTE_SIZE * texture->pal_count);
+        u8 pixel_count = ICON_PALETTE_SIZE / 2;
+        for (u32 i_pixel = 0; i_pixel < pixel_count; i_pixel++) {
+            rgba *old_pixel = &base_palette[i_pixel];
+            rgba *new_pixel = &((rgba *)new_palette)[i_pixel];
+
+            f32 lum = 0.2782f * old_pixel->r + 0.6562f * old_pixel->g + 0.0656f * old_pixel->b;
+            u16 gray = (lum * 14 / 31) + 12;
+            new_pixel->r = gray;
+            new_pixel->g = gray;
+            new_pixel->b = gray;
+            new_pixel->a = old_pixel->a;
+        }
+    }
+
+    if (texture_data_is_on_heap(texture)) {
+        free(texture->data);
+    }
+    texture->data = new_texture_data;
+    texture->tile_size = new_tile_size;
+    texture->pal_count++;
+}
+
+void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
+    if (texture->im_fmt == G_IM_FMT_CI) {
+        gDPSetTextureLUT((*disp)++, G_TT_RGBA16);
+        gDPLoadTLUT_pal16((*disp)++, 0,
+                          gfx_texture_data(texture, texture_tile) + get_texture_tile_raster_size(texture) +
+                              ICON_PALETTE_SIZE * palette_index);
+    } else {
+        gDPSetTextureLUT((*disp)++, G_TT_NONE);
+    }
     if (texture->im_siz == G_IM_SIZ_4b) {
         gDPLoadTextureTile_4b((*disp)++, gfx_texture_data(texture, texture_tile), texture->im_fmt, texture->tile_width,
                               texture->tile_height, 0, 0, texture->tile_width - 1, texture->tile_height - 1, 0,
@@ -394,14 +570,14 @@ void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 t
     }
 }
 
-void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile) {
-    gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile);
+void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
+    gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile, palette_index);
     gfx_synced = 1;
 }
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite) {
     struct gfx_texture *texture = sprite->texture;
-    gfx_rdp_load_tile(texture, sprite->texture_tile);
+    gfx_rdp_load_tile(texture, sprite->texture_tile, sprite->palette_index);
     if (gfx_modes[GFX_MODE_DROPSHADOW]) {
         u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
@@ -477,7 +653,7 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
             c -= tile_begin;
             if (!tile_loaded) {
                 tile_loaded = 1;
-                gfx_rdp_load_tile(texture, i);
+                gfx_rdp_load_tile(texture, i, 0);
             }
             gSPScisTextureRectangle(gfx_disp_p++, qs102(x + cx), qs102(y + cy), qs102(x + cx + font->char_width),
                                     qs102(y + cy + font->char_height), G_TX_RENDERTILE,
@@ -497,7 +673,7 @@ static void flush_chars(void) {
         for (s32 j = 0; j < tile_vect->size; ++j) {
             struct gfx_char *gc = vector_at(tile_vect, j);
             if (j == 0) {
-                gfx_rdp_load_tile(font->texture, i);
+                gfx_rdp_load_tile(font->texture, i, 0);
             }
             if (first || color != gc->color) {
                 color = gc->color;

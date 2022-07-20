@@ -118,14 +118,6 @@ struct menu *create_debug_menu();
 struct menu *create_settings_menu();
 struct menu *create_camera_menu();
 
-#ifdef NDEBUG
-#define PRINTF(...) ((void)0)
-#else
-#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
-#endif
-
 #define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
-
-#define ARRAY_COUNT(arr)    (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #endif

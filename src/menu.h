@@ -65,6 +65,7 @@ struct menu_item {
     void *data;
     _Bool selectable;
     struct menu *imenu;
+    struct menu_item *chain_links[4];
     s32 (*enter_proc)(struct menu_item *item, enum menu_switch_reason reason);
     s32 (*leave_proc)(struct menu_item *item, enum menu_switch_reason reason);
     s32 (*think_proc)(struct menu_item *item);
@@ -151,6 +152,9 @@ void menu_item_enable(struct menu_item *item);
 void menu_item_disable(struct menu_item *item);
 void menu_item_transfer(struct menu_item *item, struct menu *menu);
 void menu_item_remove(struct menu_item *item);
+void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction);
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop,
+                            _Bool reverse_chain);
 s32 menu_item_screen_x(struct menu_item *item);
 s32 menu_item_screen_y(struct menu_item *item);
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color);
@@ -165,6 +169,7 @@ struct menu_item *menu_add_tab(struct menu *menu, s32 x, s32 y, struct menu *tab
 void menu_tab_goto(struct menu_item *item, s32 tab_index);
 void menu_tab_previous(struct menu_item *item);
 void menu_tab_next(struct menu_item *item);
+s32 menu_tab_get_current_tab(struct menu_item *item);
 
 struct menu_item *menu_add_intinput(struct menu *menu, s32 x, s32 y, s32 base, s32 length,
                                     menu_generic_callback callback_proc, void *callback_data);
@@ -196,21 +201,27 @@ struct menu_item *menu_userwatch_type(struct menu_item *item);
 struct menu_item *menu_userwatch_watch(struct menu_item *item);
 struct menu_item *menu_add_submenu(struct menu *menu, s32 x, s32 y, struct menu *submenu, const char *name);
 struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture_on, s32 texture_tile_on,
-                                  u32 color_on, struct gfx_texture *texture_off, s32 texture_tile_off, u32 color_off,
-                                  f32 scale, _Bool disable_shadow, menu_generic_callback callback_proc,
-                                  void *callback_data);
+                                  s8 texture_palette_on, u32 color_on, struct gfx_texture *texture_off,
+                                  s32 texture_tile_off, s8 texture_palette_off, u32 color_off, f32 scale,
+                                  _Bool disable_shadow, menu_generic_callback callback_proc, void *callback_data);
 void menu_switch_set(struct menu_item *item, _Bool state);
 _Bool menu_switch_get(struct menu_item *item);
 void menu_switch_toggle(struct menu_item *item);
 struct menu_item *menu_add_button(struct menu *menu, s32 x, s32 y, const char *name, menu_action_callback callback_proc,
                                   void *callback_data);
 struct menu_item *menu_add_button_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
-                                       u32 color, menu_action_callback callback_proc, void *callback_data);
+                                       s8 texture_palette, u32 color, f32 scale, menu_action_callback callback_proc,
+                                       void *callback_data);
 struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                        void *callback_data);
 struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                     void *callback_data);
 _Bool menu_checkbox_get(struct menu_item *item);
 void menu_checkbox_set(struct menu_item *item, _Bool state);
+struct menu_item *menu_add_cycle(struct menu *menu, s32 x, s32 y, s32 cycle_count, struct gfx_texture **textures,
+                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, _Bool disable_shadow,
+                                 menu_generic_callback callback_proc, void *callback_data);
+void menu_cycle_set(struct menu_item *item, s32 state);
+s32 menu_cycle_get(struct menu_item *item);
 
 #endif

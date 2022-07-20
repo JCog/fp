@@ -4,6 +4,7 @@
 #include "commands.h"
 #include "input.h"
 #include "fp.h"
+#include "util.h"
 #include "watchlist.h"
 
 struct command fp_commands[COMMAND_MAX] = {

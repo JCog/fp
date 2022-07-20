@@ -293,6 +293,7 @@ static s32 file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_
     struct gfx_sprite sprite = {
         texture,
         entry->tile,
+        0,
         draw_params->x + (cw - texture->tile_width) / 2,
         draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
         1.f,
@@ -546,7 +547,7 @@ static void gf_menu_init(void) {
         gf_reset = menu_add_button(menu, 0, 1, "reset disk", reset_proc, NULL);
         gf_location = menu_add_static(menu, 0, 2, NULL, 0xC0C0C0);
         gf_location->text = malloc(32);
-        gf_mkdir = menu_add_button_icon(menu, 0, 3, file_icons, 3, 0xFFFFFF, mkdir_proc, NULL);
+        gf_mkdir = menu_add_button_icon(menu, 0, 3, file_icons, 3, 0, 0xFFFFFF, 1.0f, mkdir_proc, NULL);
         gf_name = menu_item_add(menu, 2, 2, NULL, 0xFFFFFF);
         gf_name->text = malloc(32);
         gf_name->text[0] = 0;
@@ -563,9 +564,9 @@ static void gf_menu_init(void) {
             gf_files[i] = item;
         }
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        gf_scroll_up = menu_add_button_icon(menu, 0, 5, t_arrow, 0, 0xFFFFFF, scroll_up_proc, NULL);
-        gf_scroll_down =
-            menu_add_button_icon(menu, 0, 5 + FILE_VIEW_ROWS - 1, t_arrow, 1, 0xFFFFFF, scroll_down_proc, NULL);
+        gf_scroll_up = menu_add_button_icon(menu, 0, 5, t_arrow, 0, 0, 0xFFFFFF, 1.0f, scroll_up_proc, NULL);
+        gf_scroll_down = menu_add_button_icon(menu, 0, 5 + FILE_VIEW_ROWS - 1, t_arrow, 1, 0, 0xFFFFFF, 1.0f,
+                                              scroll_down_proc, NULL);
     }
     update_view(update_list(), 1);
 }

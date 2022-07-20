@@ -19,76 +19,24 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH      320
+#define SCREEN_HEIGHT     240
 
+#define ICON_PALETTE_SIZE 32
 #if PM64_VERSION == US
-#define ITEM_ICONS_ROM_START 0x1CC310
+#define SCRIPTS_GLOBAL_START         0x801049B0
+#define ICONS_ITEMS_ROM_START        0x1CC310
+#define ICONS_PARTNERS_ROM_START     0x97890
+#define ICONS_STAR_SPIRITS_ROM_START 0x963B0
+#define ICONS_BP_ROM_START           0x134520
 #else
-#define ITEM_ICONS_ROM_START 0x1D4720
+#define SCRIPTS_GLOBAL_START         0x80104b40
+#define ICONS_ITEMS_ROM_START        0x1D4720
+#define ICONS_PARTNERS_ROM_START     0x97A20
+#define ICONS_STAR_SPIRITS_ROM_START 0x96540
+#define ICONS_BP_ROM_START           0x13C820
 #endif
 
-typedef enum {
-    HUD_ELEMENT_OP_End,
-    HUD_ELEMENT_OP_SetRGBA,
-    HUD_ELEMENT_OP_SetCI,
-    HUD_ELEMENT_OP_Restart,
-    HUD_ELEMENT_OP_Loop,
-    HUD_ELEMENT_OP_SetTileSize,
-    HUD_ELEMENT_OP_SetSizesAutoScale,
-    HUD_ELEMENT_OP_SetSizesFixedScale,
-    HUD_ELEMENT_OP_SetVisible,
-    HUD_ELEMENT_OP_SetHidden,
-    HUD_ELEMENT_OP_AddTexelOffsetX,
-    HUD_ELEMENT_OP_AddTexelOffsetY,
-    HUD_ELEMENT_OP_AddTexelOffset,
-    HUD_ELEMENT_OP_SetImage,
-    HUD_ELEMENT_OP_SetScale,
-    HUD_ELEMENT_OP_SetAlpha,
-    HUD_ELEMENT_OP_RandomDelay,
-    HUD_ELEMENT_OP_Delete,
-    HUD_ELEMENT_OP_UseIA8,
-    HUD_ELEMENT_OP_SetCustomSize,
-    HUD_ELEMENT_OP_RandomRestart,
-    HUD_ELEMENT_OP_op_15,
-    HUD_ELEMENT_OP_op_16,
-    HUD_ELEMENT_OP_RandomBranch,
-    HUD_ELEMENT_OP_SetFlags,
-    HUD_ELEMENT_OP_ClearFlags,
-    HUD_ELEMENT_OP_PlaySound,
-    HUD_ELEMENT_OP_op_1B,
-} HudElementAnim[0];
-
-enum {
-    HUD_ELEMENT_SIZE_8x8,
-    HUD_ELEMENT_SIZE_16x16,
-    HUD_ELEMENT_SIZE_24x24,
-    HUD_ELEMENT_SIZE_32x32,
-    HUD_ELEMENT_SIZE_48x48,
-    HUD_ELEMENT_SIZE_64x64,
-    HUD_ELEMENT_SIZE_8x16,
-    HUD_ELEMENT_SIZE_16x8,
-    HUD_ELEMENT_SIZE_16x24,
-    HUD_ELEMENT_SIZE_16x32,
-    HUD_ELEMENT_SIZE_64x32,
-    HUD_ELEMENT_SIZE_32x16,
-    HUD_ELEMENT_SIZE_12x12,
-    HUD_ELEMENT_SIZE_48x24,
-    HUD_ELEMENT_SIZE_32x8,
-    HUD_ELEMENT_SIZE_24x8,
-    HUD_ELEMENT_SIZE_64x16,
-    HUD_ELEMENT_SIZE_16x64,
-    HUD_ELEMENT_SIZE_192x32,
-    HUD_ELEMENT_SIZE_40x40,
-    HUD_ELEMENT_SIZE_24x16,
-    HUD_ELEMENT_SIZE_32x40,
-    HUD_ELEMENT_SIZE_40x16,
-    HUD_ELEMENT_SIZE_40x24,
-    HUD_ELEMENT_SIZE_32x24,
-};
-
-typedef s32 OSPri;
-typedef s32 OSId;
 typedef union {
     struct {
         f32 f_odd;
@@ -278,18 +226,19 @@ typedef struct {
 } partner_t; // size: 0x00008
 
 typedef struct {
-    /* 0x0000 */ partner_t goombario;
-    /* 0x0008 */ partner_t kooper;
-    /* 0x0010 */ partner_t bombette;
-    /* 0x0018 */ partner_t parakarry;
-    /* 0x0020 */ partner_t goompa;
-    /* 0x0028 */ partner_t watt;
-    /* 0x0030 */ partner_t sushie;
-    /* 0x0038 */ partner_t lakilester;
-    /* 0x0040 */ partner_t bow;
-    /* 0x0048 */ partner_t goombaria;
-    /* 0x0050 */ partner_t twink;
-} party_t; // size: 0x0058
+    /* 0x00 */ partner_t unk_partner;
+    /* 0x08 */ partner_t goombario;
+    /* 0x10 */ partner_t kooper;
+    /* 0x18 */ partner_t bombette;
+    /* 0x20 */ partner_t parakarry;
+    /* 0x28 */ partner_t goompa;
+    /* 0x30 */ partner_t watt;
+    /* 0x38 */ partner_t sushie;
+    /* 0x40 */ partner_t lakilester;
+    /* 0x48 */ partner_t bow;
+    /* 0x50 */ partner_t goombaria;
+    /* 0x58 */ partner_t twink;
+} party_t; // size: 0x60
 
 typedef struct {
     /* 0x0000 */ char unk_0x00[0x01];
@@ -300,12 +249,17 @@ typedef struct {
 } merlee_t; // size: 0x0006
 
 typedef struct {
-    /* 0x0000 */ u8 star_spirits_saved;
-    /* 0x0001 */ char unk_0x01[0x01];
-    /* 0x0002 */ u8 full_bars_filled;
-    /* 0x0003 */ u8 partial_bars_filled;
-    /* 0x0004 */ u8 beam_rank; /*1 for star beam, 2 for peach beam*/
-    /* 0x0005 */ char unk_0x05[0x01];
+    /* 0x00 */ u8 star_spirits_saved;
+    /* 0x01 */ char unk_0x01[0x01];
+    /* 0x02 */ union {
+        struct {
+            /* 0x02 */ u8 full_bars_filled;
+            /* 0x03 */ u8 partial_bars_filled;
+        };
+        /* 0x02 */ u16 total_star_power;
+    };
+    /* 0x04 */ u8 beam_rank; /*1 for star beam, 2 for peach beam*/
+    /* 0x05 */ char unk_0x05[0x01];
 } star_power_t; // size: 0x0006
 
 typedef struct {
@@ -328,8 +282,10 @@ typedef struct {
     /* 0x011 */ char unk_0x11[0x01];
     /* 0x012 */ u8 current_partner; /*0x00 - 0x0B*/
     /* 0x013 */ char unk_0x13[0x01];
-    /* 0x014 */ char unk_14[8];
-    /* 0x01C */ party_t party;
+    /* 0x014 */ union {
+        /* 0x014 */ party_t party;
+        /* 0x014 */ partner_t partners[12];
+    /* 0x01C */ };
     /* 0x074 */ u16 key_items[32];
     /* 0x0B4 */ u16 badges[128];
     /* 0x1B4 */ u16 items[10];
@@ -979,21 +935,32 @@ typedef struct {
     /* 0x0050 */ s32 next_available_save_page;
 } save_info_ctxt_t;
 
-typedef struct StaticItem {
+typedef struct {
     /* 0x00 */ s32 nameMsg;
-    /* 0x04 */ s16 iconID;
-    /* 0x06 */ s16 badgeSortPriority;
+    /* 0x04 */ s16 hudElemID;
+    /* 0x06 */ s16 sortValue;
     /* 0x08 */ s32 targetFlags;
     /* 0x0C */ s16 sellValue;
     /* 0x0E */ char unk_0E[2];
-    /* 0x10 */ s32 menuMsg;
-    /* 0x14 */ s32 itemMsg;
+    /* 0x10 */ s32 fullDescMsg;
+    /* 0x14 */ s32 shortDescMsg;
     /* 0x18 */ s16 typeFlags;
     /* 0x1A */ u8 moveID;
     /* 0x1B */ s8 potencyA;
     /* 0x1C */ s8 potencyB;
     /* 0x1D */ char unk_1D[3];
-} StaticItem; // size = 0x20
+} item_data_t; // size = 0x20
+
+typedef struct {
+    /* 0x00 */ s16 width;
+    /* 0x02 */ s16 height;
+    /* 0x04 */ s16 size;
+} hud_element_size_t; // size = 0x06
+
+typedef struct {
+    /* 0x00 */ s32 *enabled;
+    /* 0x04 */ s32 *disabled;
+} icon_hud_script_pair_t; // size = 0x08
 
 typedef __OSEventState __osEventStateTab_t[];
 typedef void *(*PrintCallback)(void *, const char *, u32);
@@ -1007,8 +974,9 @@ extern_data Gfx *pm_MasterGfxPos;
 extern_data save_info_ctxt_t pm_save_info;
 extern_data s16 pm_MapChangeState;
 extern_data u32 pm_enemy_defeat_flags[600];
-extern_data StaticItem gItemTable[364];
-extern_data u32 *pm_IconScripts[337][2];
+extern_data item_data_t pm_gItemTable[0x16C];
+extern_data icon_hud_script_pair_t pm_gItemHudScripts[337];
+extern_data hud_element_size_t pm_gHudElementSizes[26];
 extern_data s32 pm_RandSeed;
 extern_data EffectInstance *pm_effects[96];
 extern_data save_data_ctxt_t pm_save_data;
@@ -1026,7 +994,6 @@ extern_data Camera pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
 extern_data s16 pm_GameMode;
 extern_data s8 D_800A0900;
-
 extern_data u16 *nuGfxCfb_ptr;
 extern_data u32 osMemSize;
 extern_data s32 pm_GameState;
@@ -1035,8 +1002,6 @@ extern_data s32 pm_GameState;
 void osSyncPrintf(const char *fmt, ...);
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);
-void osCreateMesgQueue(OSMesgQueue *queue, OSMesg *msg, s32 unk);
-s32 osRecvMesg(OSMesgQueue *queue, OSMesg *msg, s32 flag);
 s32 dma_copy(u32 romStart, u32 romEnd, void *vramDest);
 s32 pm_FioValidateFileChecksum(void *buffer);
 _Bool pm_FioFetchSavedFileInfo(void);
@@ -1049,6 +1014,7 @@ void pm_HidePopupMenu(void);
 void pm_DestroyPopupMenu(void);
 void pm_SetGameMode(s32 mode);
 void pm_RemoveEffect(EffectInstance *effect);
+void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
 void pm_FioReadFlash(s32 slot, void *buffer, u32 size);
 void pm_FioWriteFlash(s32 slot, void *buffer, u32 size);
 s32 draw_ci_image_with_clipping(u8 *texture, s32 width, s32 height, s32 fmt, s32 size, u16 *palette, s16 posX, s16 posY,
@@ -1060,7 +1026,7 @@ void pm_SfxStopSound(s32 sound_id);
 void pm_SaveGame(void);
 void pm_func_802A472C(void);
 void osSetTime(u64);
-u64 osGetTime();
+u64 osGetTime(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 void osWritebackDCacheAll(void);
 void osViBlack(u8);

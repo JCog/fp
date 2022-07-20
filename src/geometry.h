@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 #include "pm64.h"
+#include "gu.h"
 
 vec3f_t *vec3f_py(vec3f_t *r, f32 p, f32 y);
 void vec3f_pyangles(vec3f_t *a, f32 *p, f32 *y);

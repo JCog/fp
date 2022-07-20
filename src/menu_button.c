@@ -7,6 +7,8 @@ struct item_data {
     void *callback_data;
     struct gfx_texture *texture;
     s32 texture_tile;
+    s8 texture_palette;
+    f32 scale;
     s32 anim_state;
 };
 
@@ -28,10 +30,11 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         struct gfx_sprite sprite = {
             data->texture,
             data->texture_tile,
+            data->texture_palette,
             draw_params->x + (cw - data->texture->tile_width) / 2,
             draw_params->y - (gfx_font_xheight(draw_params->font) + data->texture->tile_height + 1) / 2,
-            1.f,
-            1.f,
+            data->scale,
+            data->scale,
         };
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
         gfx_sprite_draw(&sprite);
@@ -63,12 +66,15 @@ struct menu_item *menu_add_button(struct menu *menu, s32 x, s32 y, const char *n
 }
 
 struct menu_item *menu_add_button_icon(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture, s32 texture_tile,
-                                       u32 color, menu_action_callback callback_proc, void *callback_data) {
+                                       s8 texture_palette, u32 color, f32 scale, menu_action_callback callback_proc,
+                                       void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->texture = texture;
     data->texture_tile = texture_tile;
+    data->texture_palette = texture_palette;
+    data->scale = scale;
     data->anim_state = 0;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
     item->data = data;

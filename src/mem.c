@@ -286,8 +286,8 @@ void mem_menu_create(struct menu *menu) {
         view_domain_name = menu_add_static(menu, 22, 1, NULL, 0xC0C0C0);
         view_domain_name->text = malloc(32);
         struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        view_pageup = menu_add_button_icon(menu, 0, 2, t_arrow, 0, 0xFFFFFF, page_up_proc, NULL);
-        view_pagedown = menu_add_button_icon(menu, 2, 2, t_arrow, 1, 0xFFFFFF, page_down_proc, NULL);
+        view_pageup = menu_add_button_icon(menu, 0, 2, t_arrow, 0, 0, 0xFFFFFF, 1.0f, page_up_proc, NULL);
+        view_pagedown = menu_add_button_icon(menu, 2, 2, t_arrow, 1, 0, 0xFFFFFF, 1.0f, page_down_proc, NULL);
         view_cell_header = menu_add_static(menu, 9, 2, NULL, 0xC0C0C0);
         view_cell_header->text = malloc(32);
         for (s32 y = 0; y < MEM_VIEW_ROWS; ++y) {

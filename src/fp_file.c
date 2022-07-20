@@ -254,13 +254,13 @@ struct menu *create_file_menu(void) {
     menu_add_watch(&menu, 13, y, (u32)&pm_status.save_slot, WATCH_TYPE_U8);
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     y++;
-    item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0xFFFFFF, save_proc, NULL);
+    item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0, 0xFFFFFF, 1.0f, save_proc, NULL);
     item->tooltip = "save";
-    item = menu_add_button_icon(&menu, 3, y, t_save, 2, 0xFFFFFF, load_proc, NULL);
+    item = menu_add_button_icon(&menu, 3, y, t_save, 2, 0, 0xFFFFFF, 1.0f, load_proc, NULL);
     item->tooltip = "load";
-    item = menu_add_button_icon(&menu, 6, y, t_save, 1, 0xFFFFFF, export_file_proc, NULL);
+    item = menu_add_button_icon(&menu, 6, y, t_save, 1, 0, 0xFFFFFF, 1.0f, export_file_proc, NULL);
     item->tooltip = "export";
-    item = menu_add_button_icon(&menu, 9, y, t_save, 0, 0xFFFFFF, import_file_proc, NULL);
+    item = menu_add_button_icon(&menu, 9, y, t_save, 0, 0, 0xFFFFFF, 1.0f, import_file_proc, NULL);
     item->tooltip = "import";
     menu_add_tooltip(&menu, 12, y++, fp.main_menu, 0xC0C0C0);
     y++;

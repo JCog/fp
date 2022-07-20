@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "fp.h"
 #include "watchlist.h"
+#include "input.h"
 
 static u16 font_options[] = {
     RES_FONT_FIPPS,        RES_FONT_NOTALOT35, RES_FONT_ORIGAMIMOMMY,  RES_FONT_PCSENIOR, RES_FONT_PIXELINTV,

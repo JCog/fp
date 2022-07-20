@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "settings.h"
 #include "input.h"
 #include "fp.h"
 #include "resource.h"

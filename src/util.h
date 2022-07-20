@@ -71,4 +71,12 @@ static inline void maybe_init_gp(void) {
 #endif
 }
 
+#ifdef NDEBUG
+#define PRINTF(...) ((void)0)
+#else
+#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
+#endif
+
+#define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
+
 #endif
