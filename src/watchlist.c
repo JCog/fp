@@ -369,7 +369,6 @@ struct watchfile_entry {
     s32 anim_state;
 };
 
-// clang-format off
 static const char *watch_type_name[] = {
     "u8", "s8", "x8", "u16", "s16", "x16", "u32", "s32", "x32", "f32",
 };
@@ -377,7 +376,6 @@ static const char *watch_type_name[] = {
 static s32 watch_type_size[] = {
     1, 1, 1, 2, 2, 2, 4, 4, 4, 4,
 };
-// clang-format on
 
 static void watchfile_destroy(void) {
     for (s32 i = 0; i < watchfile_entries.size; ++i) {

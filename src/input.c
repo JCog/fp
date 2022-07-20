@@ -61,12 +61,10 @@ u16 bind_get_bitmask(u16 bind) {
     return p;
 }
 
-// clang-format off
 const u32 input_button_color[] = {
     0xFFA000, 0xFFA000, 0xFFA000, 0xFFA000, 0xC0C0C0, 0xC0C0C0, 0x000000, 0x000000,
     0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC8C8C8, 0xC80000, 0xC0C0C0, 0x009600, 0x5A5AFF,
 };
-// clang-format on
 
 void input_update(void) {
     joy_x = pm_gGameStatus.stickX[0];

@@ -292,11 +292,9 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
                    settings->input_display_y - cell_height * 2, "%4i %4i", d_x, d_y);
     }
 
-    // clang-format off
     static const s32 buttons[] = {
         15, 14, 12, 3, 2, 1, 0, 13, 5, 4, 11, 10, 9, 8,
     };
-    // clang-format on
 
     for (s32 i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
         s32 b = buttons[i];

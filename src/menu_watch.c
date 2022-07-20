@@ -11,11 +11,9 @@ struct item_data {
     enum watch_type type;
 };
 
-// clang-format off
 static s32 watch_type_size[] = {
     1, 1, 1, 2, 2, 2, 4, 4, 4, 4,
 };
-// clang-format on
 
 static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
