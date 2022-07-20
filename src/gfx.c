@@ -230,7 +230,7 @@ struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_
                 return NULL;
             }
             texldr->file_vaddr = texdesc->file_vaddr;
-            pm_nuPiReadRom(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
+            nuPiReadRom(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
         }
         if (texdesc->file_vsize == texture_size) {
             texture_data = texldr->file_data;
