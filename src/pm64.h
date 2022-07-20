@@ -960,14 +960,6 @@ typedef struct {
 } pm_ActionCommandStatus_t; // size = 0x84
 
 typedef struct {
-    /* 0x000 */ u32 script_list_ptr;
-    /* 0x004 */ u32 unk_04;
-    /* 0x008 */ s32 script_index_list[128];
-    /* 0x208 */ s32 script_id_list[128];
-    /* 0x408 */ u32 script_list_count;
-} script_list_ctxt_t;
-
-typedef struct {
     /* 0x00 */ s32 logical_save_info[4][2];
     /* 0x20 */ s32 physical_save_info[6][2];
     /* 0x50 */ s32 next_available_save_page;
@@ -1001,6 +993,7 @@ typedef struct {
 } pm_IconHudScriptPair_t; // size = 0x08
 
 typedef void *(*PrintCallback)(void *, const char *, u32);
+typedef pm_Evt_t *pm_ScriptList_t[128];
 
 /* Data */
 #define extern_data extern __attribute__((section(".data")))
@@ -1025,7 +1018,9 @@ extern_data pm_PartnerActionStatus_t pm_gPartnerActionStatus;
 extern_data pm_UiStatus_t pm_gUiStatus;
 extern_data pm_PlayerStatus_t pm_player;
 extern_data pm_ActionCommandStatus_t pm_gActionCommandStatus;
-extern_data script_list_ctxt_t pm_curr_script_lst;
+extern_data s32 pm_gScriptIndexList[128];
+extern_data s32 pm_gNumScripts;
+extern_data pm_ScriptList_t *pm_gCurrentScriptListPtr;
 extern_data pm_EncounterStatus_t pm_gCurrentEncounter;
 extern_data pm_Camera_t pm_gCameras[4];
 extern_data s32 pm_gCurrentCameraID;
@@ -1075,6 +1070,7 @@ s32 pm_is_ability_active(s32 arg0);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
 void pm_state_step_end_battle(void);
 s32 pm_func_800554A4(s32);
+pm_ApiStatus_t pm_GotoMap(pm_Evt_t* script, s32 isInitialCall);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]

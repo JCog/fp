@@ -455,23 +455,12 @@ void fp_bowser_block_trainer(void) {
 
 void fp_lzs_trainer(void) {
     // detect if loading zone is stored
-    // TODO: Yes this function looks awful.
-    // If a cleaner way to detect stored loading zones is found or decomped, please submit a PR or let an fp dev know
-    u32 *event_spc_ptr = &pm_curr_script_lst.script_list_ptr;
-    u32 event_space = *event_spc_ptr;
-    u32 event_count = pm_curr_script_lst.script_list_count;
-
-    for (s32 event_priority = 0; event_priority < event_count; event_priority++) {
-        u32 *event_id_ptr = (event_spc_ptr + 2 + event_priority);
-        u32 event_id = *event_id_ptr;
-        u32 *event_ptr_ptr = (u32 *)(event_space + (4 * event_id));
-        u32 *event_ptr = (u32 *)*event_ptr_ptr;
-
-        if (event_ptr) {
-            u32 *callback_ptr = (u32 *)*(event_ptr + 2);
-            if (callback_ptr) {
-                u32 callback_function = *(callback_ptr + 0x5);
-                if (callback_function == 0x802CA400) {
+    for (s32 evt_idx = 0; evt_idx < pm_gNumScripts; evt_idx++) {
+        pm_Evt_t *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
+        if (script) {
+            if (script->ptrNextLine) {
+                u32 callback_function = script->ptrNextLine[5];
+                if (callback_function == (uintptr_t)pm_GotoMap) {
                     fp.lz_stored = 1;
                 }
             }

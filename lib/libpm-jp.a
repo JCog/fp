@@ -68,7 +68,10 @@ pm_SfxStopSound = 0x8014ED1C;
 pm_BgmSetSong = 0x8014F9C8;
 pm_gHudElementSizes = 0x8015406C;
 pm_gActionCommandStatus = 0x8029FED0;
-pm_curr_script_lst = 0x802DA890;
+pm_GotoMap = 0x802CA400;
+pm_gNumScripts = 0x802DA488;
+pm_gCurrentScriptListPtr = 0x802DA890;
+pm_gScriptIndexList = 0x802DA898;
 pm_SaveGame = 0x802DC150;
 
 update_hook = 0x80026100;
