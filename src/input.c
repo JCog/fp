@@ -69,9 +69,9 @@ const u32 input_button_color[] = {
 // clang-format on
 
 void input_update(void) {
-    joy_x = pm_status.control_x;
-    joy_y = pm_status.control_y;
-    u16 pm_pad = pm_status.raw.buttons;
+    joy_x = pm_gGameStatus.stickX[0];
+    joy_y = pm_gGameStatus.stickY[0];
+    u16 pm_pad = pm_gGameStatus.currentButtons[0].buttons;
     pad_pressed_raw = (pad ^ pm_pad) & pm_pad;
     pad_released = (pad ^ pm_pad) & ~pm_pad;
     pad = pm_pad;

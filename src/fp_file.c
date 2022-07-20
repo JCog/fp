@@ -11,13 +11,13 @@
 #include <sys/param.h>
 
 static void save_slot_dec_proc(struct menu_item *item, void *data) {
-    pm_status.save_slot += 3;
-    pm_status.save_slot %= 4;
+    pm_gGameStatus.saveSlot += 3;
+    pm_gGameStatus.saveSlot %= 4;
 }
 
 static void save_slot_inc_proc(struct menu_item *item, void *data) {
-    pm_status.save_slot += 1;
-    pm_status.save_slot %= 4;
+    pm_gGameStatus.saveSlot += 1;
+    pm_gGameStatus.saveSlot %= 4;
 }
 
 static void save_proc() {
@@ -135,7 +135,7 @@ static void restore_letters_proc(struct menu_item *item, void *data) {
 static s32 do_export_file(const char *path, void *data) {
     const char *err_str = NULL;
     s32 f = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    save_data_ctxt_t *file = data;
+    pm_SaveData_t *file = data;
     if (f != -1) {
         if (write(f, file, sizeof(*file)) != sizeof(*file)) {
             err_str = strerror(errno);
@@ -159,7 +159,7 @@ static s32 do_export_file(const char *path, void *data) {
         menu_prompt(fp.main_menu, err_str, "return\0", 0, NULL, NULL);
         return 1;
     } else {
-        fp_log("exported file %d to disk", file->save_slot);
+        fp_log("exported file %d to disk", file->saveSlot);
         return 0;
     }
 }
@@ -168,7 +168,7 @@ s32 fp_import_file(const char *path, void *data) {
     const char *s_invalid = "invalid or corrupt file";
     const char *s_memory = "out of memory";
     const char *err_str = NULL;
-    save_data_ctxt_t *file = NULL;
+    pm_SaveData_t *file = NULL;
     s32 f = open(path, O_RDONLY);
     if (f != -1) {
         struct stat st;
@@ -190,9 +190,9 @@ s32 fp_import_file(const char *path, void *data) {
                     }
                 } else {
                     if (pm_FioValidateFileChecksum(file)) {
-                        pm_save_data = *file;
+                        pm_gCurrentSaveFile = *file;
                         pm_FioDeserializeState();
-                        fp_warp(file->area_id, file->map_id, file->entrance_id);
+                        fp_warp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fp_log("save file corrupt");
                     }
@@ -223,15 +223,15 @@ s32 fp_import_file(const char *path, void *data) {
 }
 
 static void export_file_proc(struct menu_item *item, void *data) {
-    save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_SaveData_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
-    pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
+    pm_FioReadFlash(pm_save_info.logical_save_info[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
 
     if (pm_FioValidateFileChecksum(file)) {
         menu_get_file(fp.main_menu, GETFILE_SAVE, "file", ".pmsave", do_export_file, file);
     } else {
         free(file);
-        fp_log("no file in slot %d", pm_status.save_slot);
+        fp_log("no file in slot %d", pm_gGameStatus.saveSlot);
     }
 }
 
@@ -254,7 +254,7 @@ struct menu *create_file_menu(void) {
     menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
     menu_add_static(&menu, 0, y, "save slot", 0xC0C0C0);
     menu_add_button(&menu, 11, y, "-", save_slot_dec_proc, NULL);
-    menu_add_watch(&menu, 13, y, (u32)&pm_status.save_slot, WATCH_TYPE_U8);
+    menu_add_watch(&menu, 13, y, (u32)&pm_gGameStatus.saveSlot, WATCH_TYPE_U8);
     menu_add_button(&menu, 15, y++, "+", save_slot_inc_proc, NULL);
     y++;
     item = menu_add_button_icon(&menu, 0, y, t_save, 3, 0, 0xFFFFFF, 1.0f, save_proc, NULL);
@@ -272,27 +272,27 @@ struct menu *create_file_menu(void) {
     menu_add_static_custom(&menu, 1, y++, story_progress_draw_proc, NULL, 0xC0C0C0);
     y++;
     menu_add_static(&menu, 0, y, "music", 0xC0C0C0);
-    menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_status.music_enabled);
+    menu_add_checkbox(&menu, MENU_X, y++, checkbox_mod_proc, &pm_gGameStatus.musicEnabled);
     menu_add_static(&menu, 0, y, "quizzes answered", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y++, 10, 2, byte_mod_proc, &pm_save_data.global_bytes[0x161]);
+    menu_add_intinput(&menu, MENU_X, y++, 10, 2, byte_mod_proc, &pm_gCurrentSaveFile.globalBytes[0x161]);
     menu_add_static(&menu, 0, y, "peach item 1", 0xC0C0C0);
     menu_add_option(&menu, MENU_X, y++,
                     "goomba\0"
                     "clubba\0"
                     "mushroom\0",
-                    byte_optionmod_proc, &pm_save_data.global_bytes[0xD8]);
+                    byte_optionmod_proc, &pm_gCurrentSaveFile.globalBytes[0xD8]);
     menu_add_static(&menu, 0, y, "peach item 2", 0xC0C0C0);
     menu_add_option(&menu, MENU_X, y++,
                     "fuzzy\0"
                     "hammer bros.\0"
                     "thunder rage\0",
-                    byte_optionmod_proc, &pm_save_data.global_bytes[0xD9]);
+                    byte_optionmod_proc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
     menu_add_static(&menu, 0, y, "peach item 3", 0xC0C0C0);
     menu_add_option(&menu, MENU_X, y++,
                     "pokey\0"
                     "koopatrol\0"
                     "super soda\0",
-                    byte_optionmod_proc, &pm_save_data.global_bytes[0xDA]);
+                    byte_optionmod_proc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
     menu_add_button(&menu, 0, y++, "open shortcut pipes", open_pipes_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore enemies", restore_enemies_proc, NULL);
     menu_add_button(&menu, 0, y++, "restore letters", restore_letters_proc, NULL);

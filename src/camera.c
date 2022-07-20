@@ -12,7 +12,7 @@ static const f32 pitch_lim = M_PI / 2.f - joy_rspeed;
 static const f32 fol_mspeed = 1.f / 3.f;
 static const f32 fol_rspeed = 1.f / 3.f;
 
-s32 zu_adjust_joystick(s32 v) {
+s32 adjust_joystick(s32 v) {
     if (v < 0) {
         if (v > -8) {
             return 0;
@@ -34,8 +34,8 @@ s32 zu_adjust_joystick(s32 v) {
 
 static void cam_manual(void) {
     if (!fp.lock_cam) {
-        s32 x = zu_adjust_joystick(input_x());
-        s32 y = zu_adjust_joystick(input_y());
+        s32 x = adjust_joystick(input_x());
+        s32 y = adjust_joystick(input_y());
 
         vec3f_t vf;
         vec3f_t vr;
@@ -171,8 +171,8 @@ static void cam_radial(void) {
     }
 
     if (!fp.lock_cam) {
-        s32 x = zu_adjust_joystick(input_x());
-        s32 y = zu_adjust_joystick(input_y());
+        s32 x = adjust_joystick(input_x());
+        s32 y = adjust_joystick(input_y());
 
         if (input_pad() & BUTTON_Z) {
             dist -= y * joy_mspeed;

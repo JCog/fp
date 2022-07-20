@@ -85,42 +85,54 @@ static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
+static s32 halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+    u16 *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menu_option_get(item) != *p) {
+            menu_option_set(item, *p);
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        *p = menu_option_get(item);
+    }
+    return 0;
+}
+
 static s32 max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.player_data.max_hp) {
-            menu_intinput_set(item, pm_player.player_data.max_hp);
+        if (menu_intinput_get(item) != pm_player.playerData.maxHP) {
+            menu_intinput_set(item, pm_player.playerData.maxHP);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_player.player_data.max_hp = menu_intinput_get(item);
-        pm_player.player_data.menu_max_hp = menu_intinput_get(item);
+        pm_player.playerData.maxHP = menu_intinput_get(item);
+        pm_player.playerData.hardMaxHP = menu_intinput_get(item);
     }
     return 0;
 }
 
 static s32 max_fp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != pm_player.player_data.max_fp) {
-            menu_intinput_set(item, pm_player.player_data.max_fp);
+        if (menu_intinput_get(item) != pm_player.playerData.curMaxFP) {
+            menu_intinput_set(item, pm_player.playerData.curMaxFP);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_player.player_data.max_fp = menu_intinput_get(item);
-        pm_player.player_data.menu_max_fp = menu_intinput_get(item);
+        pm_player.playerData.curMaxFP = menu_intinput_get(item);
+        pm_player.playerData.hardMaxFP = menu_intinput_get(item);
     }
     return 0;
 }
 
 static s32 current_partner_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        menu_option_set(item, partner_order[pm_player.player_data.current_partner]);
+        menu_option_set(item, partner_order[pm_player.playerData.currentPartner]);
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_player.player_data.current_partner = partner_order[menu_option_get(item)];
+        pm_player.playerData.currentPartner = partner_order[menu_option_get(item)];
     }
     return 0;
 }
 
 static s32 boots_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u32 tracked_level = (u32)data;
-    u8 *boots_upgrade = &pm_player.player_data.boots_upgrade;
+    u8 *boots_upgrade = &pm_player.playerData.bootsLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *boots_upgrade = tracked_level;
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -131,7 +143,7 @@ static s32 boots_proc(struct menu_item *item, enum menu_callback_reason reason, 
 
 static s32 hammer_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u32 tracked_level = (u32)data;
-    u8 *hammer_upgrade = &pm_player.player_data.hammer_upgrade;
+    u8 *hammer_upgrade = &pm_player.playerData.hammerLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *hammer_upgrade = tracked_level;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -143,7 +155,7 @@ static s32 hammer_proc(struct menu_item *item, enum menu_callback_reason reason,
 }
 
 static s32 action_commands_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    u8 *has_action_commands = &pm_player.player_data.has_action_command;
+    u8 *has_action_commands = &pm_player.playerData.hasActionCommands;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *has_action_commands = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -155,48 +167,48 @@ static s32 action_commands_proc(struct menu_item *item, enum menu_callback_reaso
 }
 
 static s32 in_party_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    partner_t *partner = (partner_t *)data;
+    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        partner->in_party = 1;
+        partner->enabled = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        partner->in_party = 0;
+        partner->enabled = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_switch_set(item, partner->in_party);
+        menu_switch_set(item, partner->enabled);
     }
     return 0;
 }
 
 static s32 super_rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    partner_t *partner = (partner_t *)data;
+    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        partner->upgrade = 1;
+        partner->level = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        if (partner->upgrade == 2) {
-            partner->upgrade = 1;
+        if (partner->level == 2) {
+            partner->level = 1;
         } else {
-            partner->upgrade = 0;
+            partner->level = 0;
         }
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_switch_set(item, partner->upgrade > 0);
+        menu_switch_set(item, partner->level > 0);
     }
     return 0;
 }
 
 static s32 ultra_rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    partner_t *partner = (partner_t *)data;
+    pm_PartnerData_t *partner = (pm_PartnerData_t *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        partner->upgrade = 2;
+        partner->level = 2;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        partner->upgrade = 0;
+        partner->level = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_switch_set(item, partner->upgrade == 2);
+        menu_switch_set(item, partner->level == 2);
     }
     return 0;
 }
 
 static s32 star_spirit_switch_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    u8 *ss_saved = &pm_player.player_data.star_power.star_spirits_saved;
-    u16 *star_power = &pm_player.player_data.star_power.total_star_power;
+    u8 *ss_saved = &pm_player.playerData.starSpiritsSaved;
+    u16 *star_power = &pm_player.playerData.totalStarPower;
     u32 ss_index = (u32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *ss_saved = ss_index;
@@ -220,7 +232,7 @@ static s32 star_spirit_switch_proc(struct menu_item *item, enum menu_callback_re
 }
 
 static s32 beam_rank_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    u8 *beam_rank = &pm_player.player_data.star_power.beam_rank;
+    u8 *beam_rank = &pm_player.playerData.starBeamLevel;
     if (reason == MENU_CALLBACK_CHANGED) {
         *beam_rank = menu_cycle_get(item);
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -231,33 +243,33 @@ static s32 beam_rank_proc(struct menu_item *item, enum menu_callback_reason reas
 
 static s32 peach_or_mario_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_status.peach_flags |= (1 << 0);
+        pm_gGameStatus.peachFlags |= (1 << 0);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_status.peach_flags &= ~(1 << 0);
+        pm_gGameStatus.peachFlags &= ~(1 << 0);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_status.peach_flags & (1 << 0));
+        menu_checkbox_set(item, pm_gGameStatus.peachFlags & (1 << 0));
     }
     return 0;
 }
 
 static s32 peach_transformed_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_status.peach_flags |= (1 << 1);
+        pm_gGameStatus.peachFlags |= (1 << 1);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_status.peach_flags &= ~(1 << 1);
+        pm_gGameStatus.peachFlags &= ~(1 << 1);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_status.peach_flags & (1 << 1));
+        menu_checkbox_set(item, pm_gGameStatus.peachFlags & (1 << 1));
     }
     return 0;
 }
 
 static s32 peach_parasol_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_status.peach_flags |= (1 << 2);
+        pm_gGameStatus.peachFlags |= (1 << 2);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_status.peach_flags &= ~(1 << 2);
+        pm_gGameStatus.peachFlags &= ~(1 << 2);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_status.peach_flags & (1 << 2));
+        menu_checkbox_set(item, pm_gGameStatus.peachFlags & (1 << 2));
     }
     return 0;
 }
@@ -328,7 +340,7 @@ static void create_stats_menu(struct menu *menu) {
     s32 hp_x = 1;
     s32 hp_y = 2;
     menu_add_static_icon(menu, hp_x, hp_y, tex_heart, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, hp_x + 2, hp_y, 10, 2, byte_mod_proc, &pm_player.player_data.hp);
+    item = menu_add_intinput(menu, hp_x + 2, hp_y, 10, 2, byte_mod_proc, &pm_player.playerData.curHP);
     item->tooltip = str_hp;
     menu_add_static(menu, hp_x + 4, hp_y, "/", 0xC0C0C0);
     item = menu_add_intinput(menu, hp_x + 5, hp_y, 10, 2, max_hp_proc, NULL);
@@ -337,7 +349,7 @@ static void create_stats_menu(struct menu *menu) {
     s32 fp_x = 1;
     s32 fp_y = 4;
     menu_add_static_icon(menu, fp_x, fp_y, tex_flower, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, fp_x + 2, fp_y, 10, 2, byte_mod_proc, &pm_player.player_data.fp);
+    item = menu_add_intinput(menu, fp_x + 2, fp_y, 10, 2, byte_mod_proc, &pm_player.playerData.curFP);
     item->tooltip = str_fp;
     menu_add_static(menu, fp_x + 4, fp_y, "/", 0xC0C0C0);
     item = menu_add_intinput(menu, fp_x + 5, fp_y, 10, 2, max_fp_proc, NULL);
@@ -346,33 +358,33 @@ static void create_stats_menu(struct menu *menu) {
     s32 bp_x = 1;
     s32 bp_y = 6;
     menu_add_static_icon(menu, bp_x, bp_y, tex_bp_icon, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, bp_x + 2, bp_y, 10, 2, byte_mod_proc, &pm_player.player_data.bp);
+    item = menu_add_intinput(menu, bp_x + 2, bp_y, 10, 2, byte_mod_proc, &pm_player.playerData.maxBP);
     item->tooltip = str_bp;
 
     s32 coin_x = 10;
     s32 coin_y = 2;
     menu_add_static_icon(menu, coin_x, coin_y, tex_coin, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, coin_x + 2, coin_y, 10, 3, halfword_mod_proc, &pm_player.player_data.coins);
+    item = menu_add_intinput(menu, coin_x + 2, coin_y, 10, 3, halfword_mod_proc, &pm_player.playerData.coins);
     item->tooltip = str_coins;
 
     s32 star_piece_x = 10;
     s32 star_piece_y = 4;
     menu_add_static_icon(menu, star_piece_x, star_piece_y, tex_star_piece, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, star_piece_x + 2, star_piece_y, 10, 3, byte_mod_proc,
-                             &pm_player.player_data.star_pieces);
+    item =
+        menu_add_intinput(menu, star_piece_x + 2, star_piece_y, 10, 3, byte_mod_proc, &pm_player.playerData.starPieces);
     item->tooltip = str_star_pieces;
 
     s32 level_x = 17;
     s32 level_y = 2;
     menu_add_static_icon(menu, level_x, level_y, tex_mario_head, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, level_x + 2, level_y, 10, 2, byte_mod_proc, &pm_player.player_data.level);
+    item = menu_add_intinput(menu, level_x + 2, level_y, 10, 2, byte_mod_proc, &pm_player.playerData.level);
     item->tooltip = str_level;
 
     s32 star_point_x = 17;
     s32 star_point_y = 4;
     menu_add_static_icon(menu, star_point_x, star_point_y, tex_star_point, 0, 0xFFFFFF, 1.0f);
-    item = menu_add_intinput(menu, star_point_x + 2, star_point_y, 10, 2, byte_mod_proc,
-                             &pm_player.player_data.star_points);
+    item =
+        menu_add_intinput(menu, star_point_x + 2, star_point_y, 10, 2, byte_mod_proc, &pm_player.playerData.starPoints);
     item->tooltip = str_star_points;
 
     s32 action_command_x = 23;
@@ -423,19 +435,19 @@ static void create_party_menu(struct menu *menu) {
 
         partners[i] =
             menu_add_switch(menu, partner_x, partner_y, tex_partner, i + 1, 0, 0xFFFFFF, tex_partner, i + 1, 1,
-                            0xFFFFFF, scale, 0, in_party_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
+                            0xFFFFFF, scale, 0, in_party_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
         partners[i]->tooltip = str_partner_names[i];
 
         // super tex
         super_ranks[i] =
             menu_add_switch(menu, partner_x + 2, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
-                            0, super_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
+                            0, super_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
         super_ranks[i]->tooltip = str_super_rank;
 
         // ultra tex
         ultra_ranks[i] =
             menu_add_switch(menu, partner_x + 3, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
-                            0, ultra_rank_proc, &pm_player.player_data.partners[partner_order[i + 1]]);
+                            0, ultra_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
         ultra_ranks[i]->tooltip = str_ultra_rank;
     }
     menu_item_add_chain_link(active_item, partners[0], MENU_NAVIGATE_DOWN);
@@ -502,7 +514,7 @@ static void create_peach_menu(struct menu *menu) {
                     "koopatrol\0"
                     "hammer bro\0"
                     "clubba\0",
-                    byte_optionmod_proc, &pm_status.peach_disguise);
+                    byte_optionmod_proc, &pm_gGameStatus.peachDisguise);
 }
 
 static void create_merlee_menu(struct menu *menu) {
@@ -516,13 +528,13 @@ static void create_merlee_menu(struct menu *menu) {
                     "+3 DEF\0"
                     "EXP x2\0"
                     "Coins x2\0",
-                    byte_optionmod_proc, &pm_player.player_data.merlee.spell_type);
+                    byte_optionmod_proc, &pm_player.playerData.merleeSpellType);
 
     menu_add_static(menu, 0, y_value, "casts remaining", 0xC0C0C0);
-    menu_add_intinput(menu, 16, y_value++, 10, 2, byte_mod_proc, &pm_player.player_data.merlee.casts_remaining);
+    menu_add_intinput(menu, 16, y_value++, 10, 2, byte_mod_proc, &pm_player.playerData.merleeCastsRemaining);
 
     menu_add_static(menu, 0, y_value, "turns remaining", 0xC0C0C0);
-    menu_add_intinput(menu, 16, y_value++, 10, 3, byte_mod_proc, &pm_player.player_data.merlee.turns_until_spell);
+    menu_add_intinput(menu, 16, y_value++, 10, 3, halfword_mod_proc, &pm_player.playerData.merleeTurnCount);
 }
 
 struct menu *create_player_menu(void) {

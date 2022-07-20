@@ -78,7 +78,7 @@ static void crystal_king_proc(struct menu_item *item, void *data) {
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
-    u8 *partner = &pm_player.player_data.current_partner;
+    u8 *partner = &pm_player.playerData.currentPartner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { // flying partners cause a softlock
         *partner = 1;                                                       // goombario
     }
@@ -188,7 +188,7 @@ static void anti_guys_unit_proc(struct menu_item *item, void *data) {
 
 static void chan_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 0);
-    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
+    if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
         fp_log("dojo set to chan");
     } else {
         fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
@@ -197,7 +197,7 @@ static void chan_proc(struct menu_item *item, void *data) {
 
 static void lee_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 1);
-    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
+    if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
         fp_log("dojo set to lee");
     } else {
         fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
@@ -206,7 +206,7 @@ static void lee_proc(struct menu_item *item, void *data) {
 
 static void master1_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 2);
-    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
+    if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
         fp_log("dojo set to master 1");
     } else {
         fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
@@ -215,7 +215,7 @@ static void master1_proc(struct menu_item *item, void *data) {
 
 static void master2_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 3);
-    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
+    if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
         fp_log("dojo set to master 2");
     } else {
         fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
@@ -224,7 +224,7 @@ static void master2_proc(struct menu_item *item, void *data) {
 
 static void master3_proc(struct menu_item *item, void *data) {
     fp_set_global_byte(0x1C, 4);
-    if (pm_status.area_id == 0x1 && pm_status.map_id == 0x1 && !pm_status.is_battle) {
+    if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
         fp_log("dojo set to master 3");
     } else {
         fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
@@ -263,7 +263,7 @@ void create_bosses_menu(struct menu *menu) {
     menu_add_button(page, 0, y_tab++, "final phase 2", bowser_phase2_proc, NULL);
     y_tab++;
     menu_add_static(page, 0, y_tab, "phase 2 hp:", 0xC0C0C0);
-    menu_add_intinput(page, 12, y_tab++, 10, 2, byte_mod_proc, &pm_save_data.global_bytes[0x18a]);
+    menu_add_intinput(page, 12, y_tab++, 10, 2, byte_mod_proc, &pm_gCurrentSaveFile.globalBytes[0x18a]);
 
     /* chapter bosses */
     y_tab = 0;

@@ -80,8 +80,8 @@ void apply_menu_settings() {
     menu_set_pyoffset(fp.main_menu, settings->menu_y);
     menu_imitate(fp.global, fp.main_menu);
     watchlist_fetch(fp.menu_watchlist);
-    pm_status.battle_debug = settings->bits.battle_debug;
-    pm_status.quizmo_debug = settings->bits.quizmo_debug;
+    pm_gGameStatus.debugEnemyContact = settings->bits.battle_debug;
+    pm_gGameStatus.debugQuizmo = settings->bits.quizmo_debug;
 }
 
 void settings_save(s32 profile) {

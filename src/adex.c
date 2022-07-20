@@ -86,22 +86,6 @@ struct sym {
     void *addr;
 };
 
-// static struct sym syms[] =
-//{
-//   {
-//     "ctxt",
-//     &z64_ctxt,
-//   },
-//   {
-//     "file",
-//     &z64_file,
-//   },
-//   {
-//     "link",
-//     &z64_link,
-//   },
-// };
-
 static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
     tok->type = type;
     va_list arg;

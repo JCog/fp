@@ -144,7 +144,7 @@ void fp_init() {
     apply_menu_settings();
 
     // skip intro on boot
-    pm_status.skip_intro = 1;
+    pm_gGameStatus.bSkipIntro = 1;
 
     // calculate frame window for OoT ACE
     *(u16 *)0x807D0000 = 0;
@@ -233,7 +233,7 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 #define STRINGIFY_(S) #S
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     static struct gfx_texture *fp_icon_tex;
-    if (pm_status.load_menu_state == 5) {
+    if (pm_gGameStatus.introState == 5) {
         fp.version_shown = 1;
     } else {
         if (fp_icon_tex == NULL) {
@@ -254,9 +254,9 @@ void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 
 }
 
 void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    u16 d_pad = pm_status.raw.buttons;
-    s8 d_x = pm_status.control_x;
-    s8 d_y = pm_status.control_y;
+    u16 d_pad = pm_gGameStatus.currentButtons[0].buttons;
+    s8 d_x = pm_gGameStatus.stickX[0];
+    s8 d_y = pm_gGameStatus.stickY[0];
 
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
     struct gfx_texture *control_stick = resource_get(RES_TEXTURE_CONTROL_STICK);
@@ -337,7 +337,7 @@ void fp_update_timer(s64 *timer_count, s32 *lag_frames) {
                 fp.timer.state = 2;
                 fp.timer.start = fp.cpu_counter;
                 fp.timer.lag_start = pm_ViFrames;
-                fp.timer.frame_start = pm_status.frame_counter;
+                fp.timer.frame_start = pm_gGameStatus.frameCounter;
                 if (settings->bits.timer_logging) {
                     fp_log("timer started");
                 }
@@ -354,11 +354,11 @@ void fp_update_timer(s64 *timer_count, s32 *lag_frames) {
                 fp.timer.state = 3;
                 fp.timer.end = fp.cpu_counter;
                 fp.timer.lag_end = pm_ViFrames;
-                fp.timer.frame_end = pm_status.frame_counter;
+                fp.timer.frame_end = pm_gGameStatus.frameCounter;
                 fp_log("timer stopped");
             }
             *timer_count = fp.cpu_counter - fp.timer.start;
-            *lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2 - (pm_status.frame_counter - fp.timer.frame_start);
+            *lag_frames = (pm_ViFrames - fp.timer.lag_start) / 2 - (pm_gGameStatus.frameCounter - fp.timer.frame_start);
             break;
         case 3:
             *timer_count = fp.timer.end - fp.timer.start;
@@ -395,18 +395,19 @@ void fp_draw_timer(s64 timer_count, s32 lag_frames, struct gfx_font *font, s32 c
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
 void fp_bowser_block_trainer(void) {
-    if (pm_status.is_battle && pm_status.area_id == 0x4 && (pm_status.map_id == 0x7 || pm_status.map_id == 0x13) &&
-        STORY_PROGRESS != STORY_INTRO && !(pm_status.peach_flags & (1 << 0))) {
+    if (pm_gGameStatus.isBattle && pm_gGameStatus.areaID == 0x4 &&
+        (pm_gGameStatus.mapID == 0x7 || pm_gGameStatus.mapID == 0x13) && STORY_PROGRESS != STORY_INTRO &&
+        !(pm_gGameStatus.peachFlags & (1 << 0))) {
 
-        actor_t *bowser = pm_battle_status.enemy_actors[0];
+        pm_Actor_t *bowser = pm_gBattleStatus.enemyActors[0];
 
         if (bowser != NULL) {
-            s32 *turn = &bowser->var_table[0];
-            s32 *turns_since_wave = &bowser->var_table[2];
-            s32 *turns_since_beam = &bowser->var_table[3];
-            s32 *turns_since_claw = &bowser->var_table[4];
-            s32 *turns_since_stomp = &bowser->var_table[5];
-            s32 *turns_since_heal = &bowser->var_table[6];
+            s32 *turn = &bowser->state.varTable[0];
+            s32 *turns_since_wave = &bowser->state.varTable[2];
+            s32 *turns_since_beam = &bowser->state.varTable[3];
+            s32 *turns_since_claw = &bowser->state.varTable[4];
+            s32 *turns_since_stomp = &bowser->state.varTable[5];
+            s32 *turns_since_heal = &bowser->state.varTable[6];
             *turns_since_heal = 0;
             *turns_since_beam = 0;
             switch (fp.bowser_block) {
@@ -443,11 +444,10 @@ void fp_bowser_block_trainer(void) {
             }
         }
 
-        if (pm_battle_status.partner_actor != NULL) {
+        if (pm_gBattleStatus.partnerActor != NULL) {
             // if partner is KO'd by wave, never let it last more than one turn so you can keep practicing the block
-            if (pm_battle_status.partner_actor->ko_duration > 1) {
-                pm_battle_status.partner_actor->ko_duration = 1;
-                pm_battle_status.partner_actor->ptr_defuff_icon->ptr_property_list[15] = 1;
+            if (pm_gBattleStatus.partnerActor->koDuration > 1) {
+                pm_gBattleStatus.partnerActor->koDuration = 1;
             }
         }
     }
@@ -479,8 +479,8 @@ void fp_lzs_trainer(void) {
     }
 
     // Count frames since mario landed
-    if (pm_player.action_state == ACTION_STATE_LAND || pm_player.action_state == ACTION_STATE_WALK ||
-        pm_player.action_state == ACTION_STATE_RUN) {
+    if (pm_player.actionState == ACTION_STATE_LAND || pm_player.actionState == ACTION_STATE_WALK ||
+        pm_player.actionState == ACTION_STATE_RUN) {
         fp.player_landed = 1;
     }
     if (fp.player_landed) {
@@ -488,25 +488,24 @@ void fp_lzs_trainer(void) {
     } else {
         fp.frames_since_land = 0;
     }
-    if (pm_player.action_state == ACTION_STATE_JUMP) {
+    if (pm_player.actionState == ACTION_STATE_JUMP) {
         fp.player_landed = 0;
     }
 
     // log lzs status
-    if (fp.lz_stored && pm_status.pressed.a) {
-        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.action_state == ACTION_STATE_JUMP &&
+    if (fp.lz_stored && pm_gGameStatus.pressedButtons[0].a) {
+        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.actionState == ACTION_STATE_JUMP &&
             pm_MapChangeState == 0) {
             fp_log("control early");
-        } else if (pm_player.prev_action_state == ACTION_STATE_JUMP ||
-                   pm_player.action_state == ACTION_STATE_SPIN_JUMP ||
-                   pm_player.action_state == ACTION_STATE_ULTRA_JUMP) {
+        } else if (pm_player.prevActionState == ACTION_STATE_JUMP || pm_player.actionState == ACTION_STATE_SPIN_JUMP ||
+                   pm_player.actionState == ACTION_STATE_ULTRA_JUMP) {
             fp_log("jump >= 2 frames early");
-            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
                 fp_log("control early");
             }
-        } else if (pm_player.prev_action_state == ACTION_STATE_FALLING) {
+        } else if (pm_player.prevActionState == ACTION_STATE_FALLING) {
             fp_log("jump 1 frame early");
-            if (pm_player.action_state == ACTION_STATE_RUN || pm_player.action_state == ACTION_STATE_WALK) {
+            if (pm_player.actionState == ACTION_STATE_RUN || pm_player.actionState == ACTION_STATE_WALK) {
                 fp_log("control early");
             }
         } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_MapChangeState == 0) {
@@ -514,12 +513,12 @@ void fp_lzs_trainer(void) {
             fp_log("control early");
         } else if (fp.frames_since_land == 3) {
             fp_log("jump 1 frame late");
-            if (pm_status.pressed.y_cardinal) {
+            if (pm_gGameStatus.pressedButtons[0].yCardinal) {
                 fp_log("control late");
             }
         } else if (fp.frames_since_land == 4) {
             fp_log("jump 2 frames late");
-            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
                 fp_log("control late");
             }
         } else if (fp.frames_since_land == 0 &&
@@ -528,7 +527,7 @@ void fp_lzs_trainer(void) {
             fp_log("control early");
         } else if (fp.frames_since_land >= 5 && pm_MapChangeState == 0) {
             fp_log("jump > 2 frames late");
-            if (pm_status.pressed.y_cardinal || fp.prev_pressed_y) {
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
                 fp_log("control late");
             }
         } else if (fp.frames_since_land == 2) {
@@ -540,8 +539,8 @@ void fp_lzs_trainer(void) {
         fp.record_lzs_jumps = fp.current_lzs_jumps;
     }
 
-    fp.prev_pressed_y = pm_status.pressed.y_cardinal;
-    fp.prev_prev_action_state = pm_player.prev_action_state;
+    fp.prev_pressed_y = pm_gGameStatus.pressedButtons[0].yCardinal;
+    fp.prev_prev_action_state = pm_player.prevActionState;
 
     if (pm_MapChangeState == 1) {
         fp.lz_stored = 0;
@@ -552,8 +551,8 @@ void fp_lzs_trainer(void) {
 }
 
 void fp_clippy_trainer(void) {
-    if (pm_status.pressed.cr && pm_encounter_status.first_strike != 2) {
-        if (pm_GameState == 2 && pm_overworld.enable_partner_ability == 1) {
+    if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
+        if (pm_GameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
             fp.clippy_status = 1;
         } else if (fp.frames_since_battle > 0) {
             fp.clippy_status = 3;
@@ -577,26 +576,26 @@ void fp_clippy_trainer(void) {
 
 void fp_action_command_trainer(void) {
     // Either goombario or mario attacking
-    if ((pm_battle_state_2 == 3 && pm_player.player_data.current_partner == PARTNER_GOOMBARIO) ||
+    if ((pm_battle_state_2 == 3 && pm_player.playerData.currentPartner == PARTNER_GOOMBARIO) ||
         pm_battle_state_2 == 4) {
-        if (pm_ActionCommandStatus.state == 10 && pm_status.pressed.a) {
-            fp.last_a_press = pm_status.frame_counter;
-        } else if (pm_ActionCommandStatus.state == 11) {
+        if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
+            fp.last_a_press = pm_gGameStatus.frameCounter;
+        } else if (pm_gActionCommandStatus.state == 11) {
             if (fp.last_a_press) {
-                u16 frames_early = pm_status.frame_counter - fp.last_a_press;
+                u16 frames_early = pm_gGameStatus.frameCounter - fp.last_a_press;
                 fp_log("pressed A %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
                 fp.last_a_press = 0;
             }
-            if (pm_status.pressed.a) {
+            if (pm_gGameStatus.pressedButtons[0].a) {
                 fp_log("pressed A frame %d out of %d",
-                       pm_battle_status.unk_434[pm_ActionCommandStatus.unk_50] - pm_ActionCommandStatus.unk_54,
-                       pm_battle_status.unk_434[pm_ActionCommandStatus.unk_50]);
+                       pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
+                       pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
             }
-            fp.last_valid_frame = pm_status.frame_counter;
+            fp.last_valid_frame = pm_gGameStatus.frameCounter;
             // check for a press up to 10 frames late
-        } else if (pm_ActionCommandStatus.state == 12 && pm_status.pressed.a &&
-                   pm_status.frame_counter - fp.last_valid_frame <= 10) {
-            u16 frames_late = pm_status.frame_counter - fp.last_valid_frame;
+        } else if (pm_gActionCommandStatus.state == 12 && pm_gGameStatus.pressedButtons[0].a &&
+                   pm_gGameStatus.frameCounter - fp.last_valid_frame <= 10) {
+            u16 frames_late = pm_gGameStatus.frameCounter - fp.last_valid_frame;
             fp_log("pressed A %d frame%s late", frames_late, frames_late > 1 ? "s" : "");
         }
     }
@@ -604,34 +603,34 @@ void fp_action_command_trainer(void) {
 
 void fp_update_cheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
-        pm_player.player_data.hp = pm_player.player_data.max_hp;
+        pm_player.playerData.curHP = pm_player.playerData.maxHP;
     }
     if (CHEAT_ACTIVE(CHEAT_FP)) {
-        pm_player.player_data.fp = pm_player.player_data.max_fp;
+        pm_player.playerData.curFP = pm_player.playerData.curMaxFP;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
-        pm_player.player_data.coins = 999;
+        pm_player.playerData.coins = 999;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_POWER)) {
-        pm_player.player_data.star_power.full_bars_filled = pm_player.player_data.star_power.star_spirits_saved;
-        pm_player.player_data.star_power.partial_bars_filled = 0;
+        pm_player.playerData.starSpiritsFullBarsFilled = pm_player.playerData.starSpiritsSaved;
+        pm_player.playerData.starSpiritsPartialBarFilled = 0;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_PIECES)) {
-        pm_player.player_data.star_pieces = 160;
+        pm_player.playerData.starPieces = 160;
     }
     if (CHEAT_ACTIVE(CHEAT_PERIL)) {
-        pm_player.player_data.hp = 1;
+        pm_player.playerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
-        if (pm_status.is_battle) {
-            pm_ActionCommandStatus.barFillLevel = 10000;
+        if (pm_gGameStatus.isBattle) {
+            pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
-        set_screen_overlay_alpha(1, 0);
+        pm_set_screen_overlay_alpha(1, 0);
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
-        pm_ActionCommandStatus.autoSucceed = 1;
+        pm_gActionCommandStatus.autoSucceed = 1;
     }
 }
 
@@ -716,7 +715,7 @@ void fp_update(void) {
     u16 pad_pressed = input_pressed();
 
     if (!fp.version_shown) {
-        pm_status.skip_intro = 1;
+        pm_gGameStatus.bSkipIntro = 1;
     }
 
     if (!fp.settings_loaded) {
@@ -762,9 +761,9 @@ void fp_update(void) {
     fp_update_cheats();
 
     if (fp.turbo) {
-        pm_player.run_speed = 24.0f;
+        pm_player.runSpeed = 24.0f;
     } else {
-        pm_player.run_speed = 4.0f;
+        pm_player.runSpeed = 4.0f;
     }
 
     for (s32 i = 0; i < COMMAND_MAX; ++i) {
@@ -842,13 +841,13 @@ ENTRY void fp_update_entry(void) {
         PRINTF("\n**** fp initialized ****\n\n");
     }
 
-    step_game_loop();
+    pm_step_game_loop();
     init_stack(fp_update);
 }
 
 ENTRY void fp_draw_entry(void) {
     init_gp();
-    state_render_frontUI();
+    pm_state_render_frontUI();
     init_stack(fp_draw);
 }
 
@@ -856,22 +855,22 @@ ENTRY void fp_after_draw_entry(void) {
     crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-HOOK void fp_update_camera_mode_6(Camera *cam) {
+HOOK void fp_update_camera_mode_6(pm_Camera_t *cam) {
     if (!fp.free_cam) {
-        update_camera_mode_6(cam);
+        pm_update_camera_mode_6(cam);
     }
 }
 
 HOOK void fp_update_input(void) {
-    update_player_input();
-    controller_t *mask = &fp.input_mask;
+    pm_update_player_input();
+    pm_Controller_t *mask = &fp.input_mask;
 
-    pm_player.raw.buttons &= ~mask->buttons;
-    pm_player.previous.buttons &= ~mask->buttons;
-    pm_player.pad_held.buttons &= ~mask->buttons;
+    pm_player.currentButtons.buttons &= ~mask->buttons;
+    pm_player.previousButtons.buttons &= ~mask->buttons;
+    pm_player.heldButtons.buttons &= ~mask->buttons;
 
-    pm_player.pad_x &= ~mask->x_cardinal;
-    pm_player.pad_y &= ~mask->y_cardinal;
+    pm_player.stickAxisX &= ~mask->xCardinal;
+    pm_player.stickAxisY &= ~mask->yCardinal;
 }
 
 HOOK s32 fp_check_block_input(s32 buttonMask) {
@@ -882,45 +881,45 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     s32 bufferPos;
     s32 i;
 
-    pm_battle_status.block_result = 0; // Fail
+    pm_gBattleStatus.blockResult = 0; // Fail
 
-    if (pm_battle_status.unk_83 == -1 && (pm_battle_status.flags1 & 0x2000000)) {
-        pm_battle_status.block_result = 1;
+    if (pm_gBattleStatus.unk_83 == -1 && (pm_gBattleStatus.flags1 & 0x2000000)) {
+        pm_gBattleStatus.blockResult = 1;
         return 1;
     }
 
-    if (!pm_battle_status.unk_83 || (pm_status.demo_flag & 1)) {
+    if (!pm_gBattleStatus.unk_83 || (pm_gGameStatus.demoState & 1)) {
         return 0;
     }
 
-    if (pm_player.player_data.hits_taken < 9999) {
-        pm_player.player_data.hits_taken += 1;
-        pm_ActionCommandStatus.hitsTakenIsMax = 0;
+    if (pm_player.playerData.hitsTaken < 9999) {
+        pm_player.playerData.hitsTaken += 1;
+        pm_gActionCommandStatus.hitsTakenIsMax = 0;
     } else {
-        pm_ActionCommandStatus.hitsTakenIsMax = 1;
+        pm_gActionCommandStatus.hitsTakenIsMax = 1;
     }
 
     block = 0;
     blockWindow = 3;
     mashWindow = 10;
 
-    if (!(pm_battle_status.flags1 & 0x80000) && pm_is_ability_active(0)) {
+    if (!(pm_gBattleStatus.flags1 & 0x80000) && pm_is_ability_active(0)) {
         blockWindow = 5;
     }
 
     // Pre-window mashing check
-    bufferPos = pm_battle_status.input_buffer_pos;
+    bufferPos = pm_gBattleStatus.inputBufferPos;
     bufferPos -= mashWindow + blockWindow;
 
     if (bufferPos < 0) {
-        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
     }
     for (i = 0; i < mashWindow; i++) {
-        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
         }
 
-        if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
+        if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
             if (fp.action_command_trainer_enabled) {
                 s32 frames_early = mashWindow - i;
                 fp_log("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
@@ -932,21 +931,21 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     }
 
     // Block check
-    bufferPos = pm_battle_status.input_buffer_pos;
+    bufferPos = pm_gBattleStatus.inputBufferPos;
     bufferPos -= blockWindow;
     if (bufferPos < 0) {
-        bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+        bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
     }
     for (i = 0; i < blockWindow; i++) {
-        if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
-            bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+        if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
+            bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
         }
 
-        if (pm_battle_status.push_input_buffer[bufferPos] & buttonMask) {
+        if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
             if (!mash && fp.action_command_trainer_enabled) {
                 fp_log("blocked frame %d out of %d", i + 1, blockWindow);
             }
-            pm_battle_status.block_result = 1; // Block
+            pm_gBattleStatus.blockResult = 1; // Block
             block = 1;
             break;
         }
@@ -954,28 +953,28 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
     }
 
     if (mash) {
-        pm_battle_status.block_result = -1; // Mash
+        pm_gBattleStatus.blockResult = -1; // Mash
         block = 0;
     }
 
     // Ignore inputs until another mash window has passed, so check_block_input() can be called in quick succession
     if (block) {
-        bufferPos = pm_battle_status.input_buffer_pos;
+        bufferPos = pm_gBattleStatus.inputBufferPos;
         bufferPos -= mashWindow + blockWindow + 20;
         if (bufferPos < 0) {
-            bufferPos += ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+            bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
         }
 
         for (i = 0; i < mashWindow + blockWindow + 20; i++) {
-            if (bufferPos >= ARRAY_LENGTH(pm_battle_status.push_input_buffer)) {
-                bufferPos -= ARRAY_LENGTH(pm_battle_status.push_input_buffer);
+            if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
+                bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
             }
-            pm_battle_status.push_input_buffer[bufferPos] = 0;
+            pm_gBattleStatus.pushInputBuffer[bufferPos] = 0;
             bufferPos++;
         }
     }
-    if (block && !pm_ActionCommandStatus.hitsTakenIsMax) {
-        pm_player.player_data.hits_blocked += 1;
+    if (block && !pm_gActionCommandStatus.hitsTakenIsMax) {
+        pm_player.playerData.hitsBlocked += 1;
     }
 
     return block;

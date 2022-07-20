@@ -89,7 +89,7 @@ typedef struct {
     f32 cam_pitch;
     f32 cam_yaw;
     vec3f_t cam_pos;
-    controller_t input_mask;
+    pm_Controller_t input_mask;
     _Bool cam_enabled_before;
     _Bool action_command_trainer_enabled;
     u16 last_a_press;

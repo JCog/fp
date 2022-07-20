@@ -13,7 +13,7 @@ s32 getMatrixTotal(void) {
 
     for (s32 i = 0; i < 0x60; i++) {
         if (pm_effects[i] != NULL) {
-            matrixCount += pm_effects[i]->matrixTotal;
+            matrixCount += pm_effects[i]->numParts;
         }
     }
     return matrixCount;
@@ -24,8 +24,8 @@ void clearAllEffectsManual(s32 matrixCount) {
 
     if (matrixCount == 0x215) {
         var = 1;
-        fp.ace_last_flag_status = pm_player.anim_flags == 0x01000000;
-        fp.ace_last_timer = pm_player.idle_timer;
+        fp.ace_last_flag_status = pm_player.animFlags == 0x01000000;
+        fp.ace_last_timer = pm_player.currentStateTime;
         fp.ace_last_jump_status = (pm_player.flags & 0xff) == 3;
         fp_log("Successful ACE, jump prevented");
     }
@@ -133,10 +133,10 @@ static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
     gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
     gfx_printf(font, x, y + chHeight * menuY, "angle: ");
-    if (pm_player.facing_angle >= 43.9f && pm_player.facing_angle <= 46.15f) {
+    if (pm_player.currentYaw >= 43.9f && pm_player.currentYaw <= 46.15f) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
-    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.facing_angle);
+    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.currentYaw);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * menuY, "position: ");
     if (goodPos) {
@@ -180,7 +180,7 @@ static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     }
     gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    if (pm_player.anim_flags == 0x01000000) {
+    if (pm_player.animFlags == 0x01000000) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {

@@ -10,25 +10,25 @@ static const char *labels[] = {
 
 static s32 battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != pm_status.battle_debug) {
-            menu_option_set(item, pm_status.battle_debug);
+        if (menu_option_get(item) != pm_gGameStatus.debugEnemyContact) {
+            menu_option_set(item, pm_gGameStatus.debugEnemyContact);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_status.battle_debug = menu_option_get(item);
-        settings->bits.battle_debug = pm_status.battle_debug;
+        pm_gGameStatus.debugEnemyContact = menu_option_get(item);
+        settings->bits.battle_debug = pm_gGameStatus.debugEnemyContact;
     }
     return 0;
 }
 
 static s32 quizmo_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_status.quizmo_debug = 1;
+        pm_gGameStatus.debugQuizmo = 1;
         settings->bits.quizmo_debug = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_status.quizmo_debug = 0;
+        pm_gGameStatus.debugQuizmo = 0;
         settings->bits.quizmo_debug = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_status.quizmo_debug);
+        menu_checkbox_set(item, pm_gGameStatus.debugQuizmo);
     }
     return 0;
 }

@@ -95,10 +95,10 @@ static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params
     s32 x = draw_params->x;
     s32 y = draw_params->y;
     gfx_printf(font, x, y + ch * 0, "current map");
-    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_status.area_id, AREAS[pm_status.area_id].area_name);
-    gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_status.map_id,
-               AREAS[pm_status.area_id].maps[pm_status.map_id].map_name);
-    gfx_printf(font, x, y + ch * 3, "e: %x", pm_status.entrance_id);
+    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_gGameStatus.areaID, AREAS[pm_gGameStatus.areaID].area_name);
+    gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_gGameStatus.mapID,
+               AREAS[pm_gGameStatus.areaID].maps[pm_gGameStatus.mapID].map_name);
+    gfx_printf(font, x, y + ch * 3, "e: %x", pm_gGameStatus.entryID);
 
     return 1;
 }

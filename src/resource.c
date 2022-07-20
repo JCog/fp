@@ -341,7 +341,7 @@ struct gfx_texture *resource_load_pmicon_item(u16 item, _Bool safe) {
     if (!safe && item_textures[item].texture) {
         return item_textures[item].texture;
     }
-    item_data_t *item_data = &pm_gItemTable[item];
+    pm_ItemData_t *item_data = &pm_gItemTable[item];
     u32 *script_enabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].enabled;
     u32 *script_disabled = (u32 *)pm_gItemHudScripts[item_data->hudElemID].disabled;
     u8 pal_count = script_enabled == script_disabled ? 1 : 2;

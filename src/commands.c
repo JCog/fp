@@ -65,8 +65,8 @@ void fp_log(const char *fmt, ...) {
 
 void fp_set_input_mask(u16 pad, u8 x, u8 y) {
     fp.input_mask.buttons = pad;
-    fp.input_mask.x_cardinal = x;
-    fp.input_mask.y_cardinal = y;
+    fp.input_mask.xCardinal = x;
+    fp.input_mask.yCardinal = y;
 }
 
 _Bool fp_warp(u16 area, u16 map, u16 entrance) {
@@ -83,8 +83,8 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
         // but the rest aren't. at some point we should figure out how to back out of these states automatically.
         fp_log("can't warp in battle menu");
         return 0;
-    } else if (pm_status.is_battle) {
-        D_800A0900 = 1;
+    } else if (pm_gGameStatus.isBattle) {
+        pm_D_800A0900 = 1;
         pm_state_step_end_battle();
     }
 
@@ -96,10 +96,10 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
     pm_SfxStopSound(0x19C);        // clear upward vine sound
     pm_SfxStopSound(0x19D);        // clear downward vine sound
     pm_disable_player_input();
-    pm_status.loading_zone_tangent = 0;
-    pm_status.area_id = area;
-    pm_status.map_id = map;
-    pm_status.entrance_id = entrance;
+    pm_gGameStatus.loadingZoneTangent = 0;
+    pm_gGameStatus.areaID = area;
+    pm_gGameStatus.mapID = map;
+    pm_gGameStatus.entryID = entrance;
 
     pm_MapChangeState = 1;
 
@@ -134,11 +134,11 @@ void set_flag(u32 *flags, s32 flag_index, _Bool value) {
 }
 
 void fp_set_global_flag(s32 flag_index, _Bool value) {
-    set_flag(pm_save_data.global_flags, flag_index, value);
+    set_flag(pm_gCurrentSaveFile.globalFlags, flag_index, value);
 }
 
 void fp_set_area_flag(s32 flag_index, _Bool value) {
-    set_flag(pm_save_data.area_flags, flag_index, value);
+    set_flag(pm_gCurrentSaveFile.areaFlags, flag_index, value);
 }
 
 void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
@@ -146,20 +146,20 @@ void fp_set_enemy_defeat_flag(s32 flag_index, _Bool value) {
 }
 
 void fp_set_global_byte(s32 byte_index, s8 value) {
-    pm_save_data.global_bytes[byte_index] = value;
+    pm_gCurrentSaveFile.globalBytes[byte_index] = value;
 }
 
 void command_levitate_proc() {
     // TODO: figure out how to get some version of this working for peach
-    if (!(pm_status.peach_flags & (1 << 0))) {
+    if (!(pm_gGameStatus.peachFlags & (1 << 0))) {
         pm_player.flags |= 1 << 1;
         pm_player.flags &= ~(1 << 2);
-        pm_player.y_speed = 11;
-        pm_player.frames_in_air = 1;
+        pm_player.ySpeed = 11;
+        pm_player.framesInAir = 1;
         // these are the default starting values for when you fall
-        pm_player.y_acceleration = -0.350080013275f;
-        pm_player.y_jerk = -0.182262003422f;
-        pm_player.y_snap = 0.0115200001746f;
+        pm_player.yAcceleration = -0.350080013275f;
+        pm_player.yJerk = -0.182262003422f;
+        pm_player.ySnap = 0.0115200001746f;
     }
 }
 
@@ -177,8 +177,8 @@ void command_save_pos_proc() {
     fp.saved_x = pm_player.position.x;
     fp.saved_y = pm_player.position.y;
     fp.saved_z = pm_player.position.z;
-    fp.saved_facing_angle = pm_player.facing_angle;
-    fp.saved_movement_angle = pm_player.movement_angle;
+    fp.saved_facing_angle = pm_player.currentYaw;
+    fp.saved_movement_angle = pm_player.targetYaw;
     fp_log("position saved");
 }
 
@@ -186,8 +186,8 @@ void command_load_pos_proc() {
     pm_player.position.x = fp.saved_x;
     pm_player.position.y = fp.saved_y;
     pm_player.position.z = fp.saved_z;
-    pm_player.facing_angle = fp.saved_facing_angle;
-    pm_player.movement_angle = fp.saved_movement_angle;
+    pm_player.currentYaw = fp.saved_facing_angle;
+    pm_player.targetYaw = fp.saved_movement_angle;
     fp_log("position loaded");
 }
 
@@ -202,7 +202,7 @@ void command_lzs_proc() {
 }
 
 void command_reload_proc() {
-    fp_warp(pm_status.area_id, pm_status.map_id, pm_status.entrance_id);
+    fp_warp(pm_gGameStatus.areaID, pm_gGameStatus.mapID, pm_gGameStatus.entryID);
 }
 
 void command_reload_last_warp_proc() {
@@ -229,7 +229,7 @@ void command_import_save_proc() {
 void command_save_game_proc() {
     pm_SaveGame();
     pm_PlaySfx(0x10);
-    fp_log("saved to slot %d", pm_status.save_slot);
+    fp_log("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
 void command_start_timer_proc() {
@@ -260,16 +260,16 @@ void command_show_hide_timer_proc() {
 }
 
 void command_load_game_proc() {
-    save_data_ctxt_t *file = malloc(sizeof(*file));
+    pm_SaveData_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
-    pm_FioReadFlash(pm_save_info.logical_save_info[pm_status.save_slot][0], file, sizeof(*file));
+    pm_FioReadFlash(pm_save_info.logical_save_info[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
     if (pm_FioValidateFileChecksum(file)) {
-        pm_save_data = *file;
+        pm_gCurrentSaveFile = *file;
         pm_FioDeserializeState();
-        fp_warp(file->area_id, file->map_id, file->entrance_id);
-        fp_log("loaded from slot %d", pm_status.save_slot);
+        fp_warp(file->areaID, file->mapID, file->entryID);
+        fp_log("loaded from slot %d", pm_gGameStatus.saveSlot);
     } else {
-        fp_log("no file in slot %d", pm_status.save_slot);
+        fp_log("no file in slot %d", pm_gGameStatus.saveSlot);
     }
     free(file);
 }

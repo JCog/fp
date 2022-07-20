@@ -14,11 +14,6 @@ static u32 clock_freq_dflt(void) {
     return OS_CPU_COUNTER;
 }
 
-// static void cpu_reset_dflt(void)
-//{
-//   return zu_reset();
-// }
-
 static struct iodev *current_dev;
 
 s32 io_init(void) {
