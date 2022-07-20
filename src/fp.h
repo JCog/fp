@@ -77,7 +77,7 @@ typedef struct {
 extern fp_ctxt_t fp;
 
 void fp_log(const char *fmt, ...);
-bool fp_warp(u16 area, u16 map, u16 entrance);
+bool fp_warp(enum Areas area, u16 map, u16 entrance);
 void fp_set_global_flag(s32 flag_index, bool value);
 void fp_set_area_flag(s32 flag_index, bool value);
 void fp_set_global_byte(s32 byte_index, s8 value);

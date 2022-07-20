@@ -29,7 +29,7 @@ static void area_next_proc(struct menu_item *item, void *data) {
 
 static void map_prev_proc(struct menu_item *item, void *data) {
     if (map == 0) {
-        map = AREAS[area].map_count - 1;
+        map = area_info_list[area]->map_count - 1;
     } else {
         map--;
     }
@@ -38,7 +38,7 @@ static void map_prev_proc(struct menu_item *item, void *data) {
 }
 
 static void map_next_proc(struct menu_item *item, void *data) {
-    if (map == AREAS[area].map_count - 1) {
+    if (map == area_info_list[area]->map_count - 1) {
         map = 0;
     } else {
         map++;
@@ -49,7 +49,7 @@ static void map_next_proc(struct menu_item *item, void *data) {
 
 static void entrance_prev_proc(struct menu_item *item, void *data) {
     if (entrance == 0) {
-        entrance = AREAS[area].maps[map].entrance_count - 1;
+        entrance = area_info_list[area]->maps[map].entrance_count - 1;
     } else {
         entrance--;
     }
@@ -58,7 +58,7 @@ static void entrance_prev_proc(struct menu_item *item, void *data) {
 }
 
 static void entrance_next_proc(struct menu_item *item, void *data) {
-    if (entrance == AREAS[area].maps[map].entrance_count - 1) {
+    if (entrance == area_info_list[area]->maps[map].entrance_count - 1) {
         entrance = 0;
     } else {
         entrance++;
@@ -74,16 +74,16 @@ static s32 warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 
-    if (map >= AREAS[area].map_count) {
+    if (map >= area_info_list[area]->map_count) {
         map = 0;
     }
-    if (entrance >= AREAS[area].maps[map].entrance_count) {
+    if (entrance >= area_info_list[area]->maps[map].entrance_count) {
         entrance = 0;
     }
 
-    gfx_printf(font, x, y + ch * 0, "%x %s", area, AREAS[area].area_name);
-    gfx_printf(font, x, y + ch * 3, "%x %s", map, AREAS[area].maps[map].map_name);
-    gfx_printf(font, x, y + ch * 6, "%d/%d", entrance, AREAS[area].maps[map].entrance_count);
+    gfx_printf(font, x, y + ch * 0, "%x %s", area, area_info_list[area]->area_name);
+    gfx_printf(font, x, y + ch * 3, "%x %s", map, area_info_list[area]->maps[map].map_name);
+    gfx_printf(font, x, y + ch * 6, "%d/%d", entrance, area_info_list[area]->maps[map].entrance_count);
 
     return 1;
 }
@@ -95,9 +95,10 @@ static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params
     s32 x = draw_params->x;
     s32 y = draw_params->y;
     gfx_printf(font, x, y + ch * 0, "current map");
-    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_gGameStatus.areaID, AREAS[pm_gGameStatus.areaID].area_name);
+    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_gGameStatus.areaID,
+               area_info_list[pm_gGameStatus.areaID]->area_name);
     gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_gGameStatus.mapID,
-               AREAS[pm_gGameStatus.areaID].maps[pm_gGameStatus.mapID].map_name);
+               area_info_list[pm_gGameStatus.areaID]->maps[pm_gGameStatus.mapID].map_name);
     gfx_printf(font, x, y + ch * 3, "e: %x", pm_gGameStatus.entryID);
 
     return 1;
