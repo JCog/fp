@@ -951,6 +951,31 @@ typedef struct {
     /* 0x04 */ s32 *disabled;
 } pm_IconHudScriptPair; // size = 0x08
 
+typedef struct Map {
+    /* 0x00 */ char *id;     ///< "xxx_yyy" excluding null terminator.
+    /* 0x04 */ void *config; // MapConfig*
+    /* 0x08 */ void *dmaStart;
+    /* 0x0C */ void *dmaEnd;
+    /* 0x10 */ void *dmaDest;
+    /* 0x14 */ char *bgName;
+    /* 0x18 */ void *init; /// s32(*MapInit)(void) < Return TRUE to skip normal asset (shape/hit/bg/tex) loading.
+    union {
+        /* 0x1C */ u32 word;
+        struct {
+            /* 0x1C */ char unk_1C[0x2];
+            /* 0x1E */ s8 songVariation; ///< 0 or 1. @see bgm_get_map_default_variation
+            /* 0x1F */ s8 flags;
+        };
+    };
+} pm_Map; // size = 0x20
+
+typedef struct Area {
+    /* 0x00 */ s32 mapCount;
+    /* 0x04 */ pm_Map *maps;
+    /* 0x08 */ char *id;   ///< "area_xxx"
+    /* 0x0C */ char *name; ///< JP debug name.
+} pm_Area;                 // size = 0x10
+
 typedef void *(*PrintCallback)(void *, const char *, u32);
 typedef pm_Evt *pm_ScriptList[128];
 
@@ -962,6 +987,7 @@ extern_data s32 pm_randSeed;
 extern_data s32 pm_gCurrentCameraID;
 extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
+extern_data pm_Area pm_gAreas[29];
 extern_data u32 pm_viFrames;
 extern_data s32 pm_timeFreezeMode;
 extern_data s32 pm_gameState;

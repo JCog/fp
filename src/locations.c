@@ -94,12 +94,14 @@ static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params
     s32 ch = menu_get_cell_height(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
+    u16 areaID = pm_gGameStatus.areaID;
+    u16 mapID = pm_gGameStatus.mapID;
+    char **map_name = &pm_gAreas[areaID].maps[mapID].id;
     gfx_printf(font, x, y + ch * 0, "current map");
-    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_gGameStatus.areaID,
-               area_info_list[pm_gGameStatus.areaID]->area_name);
-    gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_gGameStatus.mapID,
-               area_info_list[pm_gGameStatus.areaID]->maps[pm_gGameStatus.mapID].map_name);
+    gfx_printf(font, x, y + ch * 1, "a: %x %s", areaID, area_info_list[areaID]->area_name);
+    gfx_printf(font, x, y + ch * 2, "m: %x %s", mapID, area_info_list[areaID]->maps[mapID].map_name);
     gfx_printf(font, x, y + ch * 3, "e: %x", pm_gGameStatus.entryID);
+    gfx_printf(font, x, y + ch * 5, "%s", *map_name);
 
     return 1;
 }
