@@ -85,18 +85,6 @@ static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
     return 0;
 }
 
-static s32 halfword_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    u16 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p) {
-            menu_option_set(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menu_option_get(item);
-    }
-    return 0;
-}
-
 static s32 max_hp_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menu_intinput_get(item) != pm_player.playerData.maxHP) {

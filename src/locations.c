@@ -103,7 +103,7 @@ static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params
     return 1;
 }
 
-static void warp_proc() {
+static void warp_proc(struct menu_item *item, void *data) {
     if (fp_warp(area, map, entrance)) {
         fp.saved_area = area;
         fp.saved_map = map;

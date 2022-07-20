@@ -179,7 +179,7 @@ static void update_view(bool enable, bool select) {
     }
 }
 
-static s32 get_next_prefix_number() {
+static s32 get_next_prefix_number(void) {
     DIR *dir = opendir(".");
     if (!dir) {
         return 0;

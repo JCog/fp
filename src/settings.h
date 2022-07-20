@@ -80,8 +80,8 @@ struct settings {
     struct settings_data data;
 };
 
-void settings_load_default();
-void apply_menu_settings();
+void settings_load_default(void);
+void apply_menu_settings(void);
 void settings_save(s32 profile);
 bool settings_load(s32 profile);
 

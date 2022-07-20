@@ -65,11 +65,11 @@ static s32 timer_logging_proc(struct menu_item *item, enum menu_callback_reason 
     return 0;
 }
 
-static void start_proc() {
+static void start_proc(struct menu_item *item, void *data) {
     timer_start();
 }
 
-static void reset_proc() {
+static void reset_proc(struct menu_item *item, void *data) {
     timer_reset();
 }
 

@@ -35,7 +35,7 @@ static void main_return_proc(struct menu_item *item, void *data) {
     hide_menu();
 }
 
-void fp_init() {
+void fp_init(void) {
     clear_bss();
     do_global_ctors();
 
@@ -623,7 +623,7 @@ void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu
     }
 }
 
-void fp_cam_update() {
+void fp_cam_update(void) {
     if (fp.free_cam) {
         if (!fp.cam_enabled_before) {
             fp.cam_pos.x = pm_gCameras->lookAt_eye.x;

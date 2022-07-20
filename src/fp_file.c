@@ -20,11 +20,11 @@ static void save_slot_inc_proc(struct menu_item *item, void *data) {
     pm_gGameStatus.saveSlot %= 4;
 }
 
-static void save_proc() {
+static void save_proc(struct menu_item *item, void *data) {
     command_save_game_proc();
 }
 
-static void load_proc() {
+static void load_proc(struct menu_item *item, void *data) {
     command_load_game_proc();
 }
 

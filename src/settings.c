@@ -69,7 +69,7 @@ void settings_load_default(void) {
     d->binds[COMMAND_BREAK_FREE] = bind_make(2, BUTTON_L, BUTTON_D_DOWN);
 }
 
-void apply_menu_settings() {
+void apply_menu_settings(void) {
     struct gfx_font *font = resource_get(settings->bits.font_resource);
     menu_set_font(fp.main_menu, font);
     menu_set_cell_width(fp.main_menu, font->char_width + font->letter_spacing);

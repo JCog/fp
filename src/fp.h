@@ -90,14 +90,14 @@ s32 fp_import_file(const char *path, void *data);
 void fp_set_input_mask(u16 pad, u8 x, u8 y);
 void fp_update_cam(void);
 
-struct menu *create_warps_menu();
-struct menu *create_cheats_menu();
-struct menu *create_player_menu();
-struct menu *create_file_menu();
-struct menu *create_practice_menu();
-struct menu *create_debug_menu();
-struct menu *create_settings_menu();
-struct menu *create_camera_menu();
+struct menu *create_warps_menu(void);
+struct menu *create_cheats_menu(void);
+struct menu *create_player_menu(void);
+struct menu *create_file_menu(void);
+struct menu *create_practice_menu(void);
+struct menu *create_debug_menu(void);
+struct menu *create_settings_menu(void);
+struct menu *create_camera_menu(void);
 
 #define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
 

@@ -27,13 +27,13 @@ struct command fp_commands[COMMAND_MAX] = {
     {"break free",       COMMAND_PRESS_ONCE, 0, command_break_free_proc      },
 };
 
-void show_menu() {
+void show_menu(void) {
     menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
     fp.menu_active = TRUE;
     input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
 }
 
-void hide_menu() {
+void hide_menu(void) {
     menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
     fp.menu_active = FALSE;
     input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
@@ -146,7 +146,7 @@ void fp_set_global_byte(s32 byte_index, s8 value) {
     pm_gCurrentSaveFile.globalBytes[byte_index] = value;
 }
 
-void command_levitate_proc() {
+void command_levitate_proc(void) {
     // TODO: figure out how to get some version of this working for peach
     if (!(pm_gGameStatus.peachFlags & (1 << 0))) {
         pm_player.flags |= 1 << 1;
@@ -160,7 +160,7 @@ void command_levitate_proc() {
     }
 }
 
-void command_turbo_proc() {
+void command_turbo_proc(void) {
     if (fp.turbo) {
         fp.turbo = FALSE;
         fp_log("turbo disabled");
@@ -170,7 +170,7 @@ void command_turbo_proc() {
     }
 }
 
-void command_save_pos_proc() {
+void command_save_pos_proc(void) {
     fp.saved_x = pm_player.position.x;
     fp.saved_y = pm_player.position.y;
     fp.saved_z = pm_player.position.z;
@@ -179,7 +179,7 @@ void command_save_pos_proc() {
     fp_log("position saved");
 }
 
-void command_load_pos_proc() {
+void command_load_pos_proc(void) {
     pm_player.position.x = fp.saved_x;
     pm_player.position.y = fp.saved_y;
     pm_player.position.z = fp.saved_z;
@@ -188,7 +188,7 @@ void command_load_pos_proc() {
     fp_log("position loaded");
 }
 
-void command_lzs_proc() {
+void command_lzs_proc(void) {
     if (pm_TimeFreezeMode == 0) {
         pm_TimeFreezeMode = 1;
         fp_log("easy lzs enabled");
@@ -198,17 +198,17 @@ void command_lzs_proc() {
     }
 }
 
-void command_reload_proc() {
+void command_reload_proc(void) {
     fp_warp(pm_gGameStatus.areaID, pm_gGameStatus.mapID, pm_gGameStatus.entryID);
 }
 
-void command_reload_last_warp_proc() {
+void command_reload_last_warp_proc(void) {
     if (fp.saved_area != 0x1c) {
         fp_warp(fp.saved_area, fp.saved_map, fp.saved_entrance);
     }
 }
 
-void command_toggle_watches_proc() {
+void command_toggle_watches_proc(void) {
     settings->bits.watches_visible = !settings->bits.watches_visible;
     if (settings->bits.watches_visible) {
         watchlist_show(fp.menu_watchlist);
@@ -217,31 +217,31 @@ void command_toggle_watches_proc() {
     }
 }
 
-void command_import_save_proc() {
+void command_import_save_proc(void) {
     if (fp.last_imported_save_path) {
         fp_import_file(fp.last_imported_save_path, NULL);
     }
 }
 
-void command_save_game_proc() {
+void command_save_game_proc(void) {
     pm_SaveGame();
     pm_PlaySfx(0x10);
     fp_log("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void command_start_timer_proc() {
+void command_start_timer_proc(void) {
     timer_start();
 }
 
-void command_reset_timer_proc() {
+void command_reset_timer_proc(void) {
     timer_reset();
 }
 
-void command_show_hide_timer_proc() {
+void command_show_hide_timer_proc(void) {
     settings->bits.timer_show = !settings->bits.timer_show;
 }
 
-void command_load_game_proc() {
+void command_load_game_proc(void) {
     pm_SaveData_t *file = malloc(sizeof(*file));
     pm_FioFetchSavedFileInfo();
     pm_FioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
@@ -256,7 +256,7 @@ void command_load_game_proc() {
     free(file);
 }
 
-void command_break_free_proc() {
+void command_break_free_proc(void) {
     s32 third_byte_mask = 0xFFFF00FF;
     s32 check_mask = 0x0000FF00;
 

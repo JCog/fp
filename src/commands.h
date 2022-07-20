@@ -36,24 +36,24 @@ struct command {
     void (*proc)();
 };
 
-void show_menu();
-void hide_menu();
-void command_levitate_proc();
-void command_turbo_proc();
-void command_levitate_proc();
-void command_save_pos_proc();
-void command_load_pos_proc();
-void command_lzs_proc();
-void command_reload_proc();
-void command_reload_last_warp_proc();
-void command_toggle_watches_proc();
-void command_import_save_proc();
-void command_save_game_proc();
-void command_load_game_proc();
-void command_start_timer_proc();
-void command_reset_timer_proc();
-void command_show_hide_timer_proc();
-void command_break_free_proc();
+void show_menu(void);
+void hide_menu(void);
+void command_levitate_proc(void);
+void command_turbo_proc(void);
+void command_levitate_proc(void);
+void command_save_pos_proc(void);
+void command_load_pos_proc(void);
+void command_lzs_proc(void);
+void command_reload_proc(void);
+void command_reload_last_warp_proc(void);
+void command_toggle_watches_proc(void);
+void command_import_save_proc(void);
+void command_save_game_proc(void);
+void command_load_game_proc(void);
+void command_start_timer_proc(void);
+void command_reset_timer_proc(void);
+void command_show_hide_timer_proc(void);
+void command_break_free_proc(void);
 
 extern struct command fp_commands[COMMAND_MAX];
 
