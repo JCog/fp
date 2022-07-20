@@ -527,7 +527,7 @@ typedef struct {
     };
 } pm_ActorState_t; // size = 0xBC;
 
-typedef struct ActorMovement {
+typedef struct {
     /* 0x00 */ vec3f_t currentPos;
     /* 0x0C */ vec3f_t goalPos;
     /* 0x18 */ vec3f_t unk_18;

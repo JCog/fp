@@ -408,12 +408,10 @@ void fp_lzs_trainer(void) {
     // detect if loading zone is stored
     for (s32 evt_idx = 0; evt_idx < pm_gNumScripts; evt_idx++) {
         pm_Evt_t *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
-        if (script) {
-            if (script->ptrNextLine) {
-                u32 callback_function = script->ptrNextLine[5];
-                if (callback_function == (uintptr_t)pm_GotoMap) {
-                    fp.lz_stored = TRUE;
-                }
+        if (script && script->ptrNextLine) {
+            u32 callback_function = script->ptrNextLine[5];
+            if (callback_function == (uintptr_t)pm_GotoMap) {
+                fp.lz_stored = TRUE;
             }
         }
     }
@@ -588,8 +586,8 @@ void fp_update_warps(void) {
         }
 
         pm_SetMapTransitionEffect(0); // normal black fade
-        PRINTF("changing game timer_mode\n");
-        pm_SetGameMode(5); // start the "change map" game timer_mode
+        PRINTF("changing game mode\n");
+        pm_SetGameMode(5); // start the "change map" game mode
         fp.warp = FALSE;
     }
 }
