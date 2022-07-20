@@ -83,7 +83,7 @@ static s32 timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     switch (timer_state) {
         case TIMER_RUNNING:
             timer_count = fp.cpu_counter - start;
-            lag_frames = (pm_ViFrames - lag_start) / 2 - (pm_gGameStatus.frameCounter - frame_start);
+            lag_frames = (pm_viFrames - lag_start) / 2 - (pm_gGameStatus.frameCounter - frame_start);
             break;
         case TIMER_STOPPED:
             timer_count = end - start;
@@ -142,14 +142,14 @@ s32 timer_get_lag_frames(void) {
 }
 
 void timer_update(void) {
-    bool in_cutscene = pm_player.flags & 0x00002000;
+    bool in_cutscene = pm_gPlayerStatus.flags & 0x00002000;
 
     switch (timer_state) {
         case TIMER_WAITING:
             if (timer_mode == TIMER_MANUAL || (prev_cutscene_state && !in_cutscene)) {
                 timer_state = TIMER_RUNNING;
                 start = fp.cpu_counter;
-                lag_start = pm_ViFrames;
+                lag_start = pm_viFrames;
                 frame_start = pm_gGameStatus.frameCounter;
                 if (settings->bits.timer_logging) {
                     fp_log("timer started");
@@ -166,12 +166,12 @@ void timer_update(void) {
             if (cutscene_count == cutscene_target) {
                 timer_state = TIMER_STOPPED;
                 end = fp.cpu_counter;
-                lag_end = pm_ViFrames;
+                lag_end = pm_viFrames;
                 frame_end = pm_gGameStatus.frameCounter;
                 fp_log("timer stopped");
             }
             timer_count = fp.cpu_counter - start;
-            lag_frames = (pm_ViFrames - lag_start) / 2 - (pm_gGameStatus.frameCounter - frame_start);
+            lag_frames = (pm_viFrames - lag_start) / 2 - (pm_gGameStatus.frameCounter - frame_start);
             break;
         case TIMER_STOPPED:
             timer_count = end - start;
@@ -180,7 +180,7 @@ void timer_update(void) {
         case TIMER_INACTIVE: break;
     }
 
-    prev_cutscene_state = pm_player.flags & 0x00002000;
+    prev_cutscene_state = pm_gPlayerStatus.flags & 0x00002000;
 }
 
 void timer_start(void) {

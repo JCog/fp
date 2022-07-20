@@ -442,7 +442,7 @@ static u16 *item_slot_to_update;
 
 static s32 badge_proc_switch(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     u32 badge_id = (u32)data;
-    u16 *badge_list = pm_player.playerData.badges;
+    u16 *badge_list = pm_gPlayerStatus.playerData.badges;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         for (u16 i = 0; i < 128; i++) {
             if (badge_list[i] == 0) {
@@ -457,8 +457,8 @@ static s32 badge_proc_switch(struct menu_item *item, enum menu_callback_reason r
             }
         }
         for (u16 i = 0; i < 64; i++) {
-            if (pm_player.playerData.equippedBadges[i] == badge_id) {
-                pm_player.playerData.equippedBadges[i] = 0;
+            if (pm_gPlayerStatus.playerData.equippedBadges[i] == badge_id) {
+                pm_gPlayerStatus.playerData.equippedBadges[i] = 0;
             }
         }
     } else if (reason == MENU_CALLBACK_THINK) {

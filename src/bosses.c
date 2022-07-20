@@ -78,7 +78,7 @@ static void crystal_king_proc(struct menu_item *item, void *data) {
 
 static void jr_playground_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
-    u8 *partner = &pm_player.playerData.currentPartner;
+    u8 *partner = &pm_gPlayerStatus.playerData.currentPartner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { // flying partners cause a softlock
         *partner = 1;                                                       // goombario
     }

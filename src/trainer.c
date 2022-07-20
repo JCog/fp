@@ -12,8 +12,8 @@ s32 getMatrixTotal(void) {
     s32 matrixCount = 0;
 
     for (s32 i = 0; i < 0x60; i++) {
-        if (pm_effects[i] != NULL) {
-            matrixCount += pm_effects[i]->numParts;
+        if (pm_gEffectInstances[i] != NULL) {
+            matrixCount += pm_gEffectInstances[i]->numParts;
         }
     }
     return matrixCount;
@@ -24,9 +24,9 @@ void clearAllEffectsManual(s32 matrixCount) {
 
     if (matrixCount == 0x215) {
         var = 1;
-        fp.ace_last_flag_status = pm_player.animFlags == 0x01000000;
-        fp.ace_last_timer = pm_player.currentStateTime;
-        fp.ace_last_jump_status = (pm_player.flags & 0xff) == 3;
+        fp.ace_last_flag_status = pm_gPlayerStatus.animFlags == 0x01000000;
+        fp.ace_last_timer = pm_gPlayerStatus.currentStateTime;
+        fp.ace_last_jump_status = (pm_gPlayerStatus.flags & 0xff) == 3;
         fp_log("Successful ACE, jump prevented");
     }
     if (matrixCount > 0x215) { // matrix limit reached, destroy all effects
@@ -36,8 +36,8 @@ void clearAllEffectsManual(s32 matrixCount) {
 
     if (var == 1) {
         for (s32 i = 0; i < 0x60; i++) {
-            if (pm_effects[i] != NULL) {
-                pm_RemoveEffect(pm_effects[i]);
+            if (pm_gEffectInstances[i] != NULL) {
+                pm_removeEffect(pm_gEffectInstances[i]);
             }
         }
     }
@@ -98,12 +98,12 @@ static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 
-    s32 xPos = ceil(pm_player.position.x);
-    s32 zPos = ceil(pm_player.position.z);
+    s32 xPos = ceil(pm_gPlayerStatus.position.x);
+    s32 zPos = ceil(pm_gPlayerStatus.position.z);
     bool goodPos = 0;
     bool willClip = 0;
 
-    if (pm_player.position.z >= -26.3686f) {
+    if (pm_gPlayerStatus.position.z >= -26.3686f) {
         // check if in a known position that will clip and respawn OoB
         if (zPos == -24 && xPos == -184) {
             goodPos = TRUE;
@@ -130,13 +130,13 @@ static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     }
 
     s32 menuY = 0;
-    gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
-    gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
+    gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_gPlayerStatus.position.x);
+    gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_gPlayerStatus.position.z);
     gfx_printf(font, x, y + chHeight * menuY, "angle: ");
-    if (pm_player.currentYaw >= 43.9f && pm_player.currentYaw <= 46.15f) {
+    if (pm_gPlayerStatus.currentYaw >= 43.9f && pm_gPlayerStatus.currentYaw <= 46.15f) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
-    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.currentYaw);
+    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_gPlayerStatus.currentYaw);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
     gfx_printf(font, x, y + chHeight * menuY, "position: ");
     if (goodPos) {
@@ -163,7 +163,7 @@ static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     s32 effect_count = 0;
     s32 i;
     for (i = 0; i < 96; i++) {
-        if (pm_effects[i]) {
+        if (pm_gEffectInstances[i]) {
             effect_count++;
         }
     }
@@ -180,7 +180,7 @@ static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     }
     gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    if (pm_player.animFlags == 0x01000000) {
+    if (pm_gPlayerStatus.animFlags == 0x01000000) {
         gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
         gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {

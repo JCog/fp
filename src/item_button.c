@@ -28,11 +28,11 @@ static u16 get_empty_icon(enum item_type type) {
 
 static u16 *get_item_slot(enum item_type type, u16 item_index) {
     switch (type) {
-        case ITEM_TYPE_NORMAL: return &pm_player.playerData.invItems[item_index];
-        case ITEM_TYPE_KEY: return &pm_player.playerData.keyItems[item_index];
-        case ITEM_TYPE_STORED: return &pm_player.playerData.storedItems[item_index];
+        case ITEM_TYPE_NORMAL: return &pm_gPlayerStatus.playerData.invItems[item_index];
+        case ITEM_TYPE_KEY: return &pm_gPlayerStatus.playerData.keyItems[item_index];
+        case ITEM_TYPE_STORED: return &pm_gPlayerStatus.playerData.storedItems[item_index];
         case ITEM_TYPE_BADGE:
-        default: return &pm_player.playerData.badges[item_index];
+        default: return &pm_gPlayerStatus.playerData.badges[item_index];
     }
 }
 

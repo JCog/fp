@@ -373,24 +373,24 @@ void fp_bowser_block_trainer(void) {
                     *turns_since_claw = 0;
                     *turns_since_stomp = 1;
                     *turns_since_wave = 0;
-                    pm_RandSeed = 0x03D49DFF;
+                    pm_randSeed = 0x03D49DFF;
                     break;
                 case 2: // claw
                     *turn = 3;
                     *turns_since_stomp = 0;
                     *turns_since_claw = 1;
                     *turns_since_wave = 0;
-                    pm_RandSeed = 0x9CB89EDA;
+                    pm_randSeed = 0x9CB89EDA;
                     break;
                 case 3: // wave
                     *turn = 4;
                     *turns_since_wave = 6;
-                    pm_RandSeed = 0x77090261;
+                    pm_randSeed = 0x77090261;
                     break;
                 case 4: // lightning, still gives wave for hallway bowser
                     *turn = 4;
                     *turns_since_wave = 6;
-                    pm_RandSeed = 0x72A5DCE5;
+                    pm_randSeed = 0x72A5DCE5;
                     break;
             }
         }
@@ -410,15 +410,15 @@ void fp_lzs_trainer(void) {
         pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
         if (script && script->ptrNextLine) {
             u32 callback_function = script->ptrNextLine[5];
-            if (callback_function == (uintptr_t)pm_GotoMap) {
+            if (callback_function == (uintptr_t)pm_gotoMap) {
                 fp.lz_stored = TRUE;
             }
         }
     }
 
     // Count frames since mario landed
-    if (pm_player.actionState == ACTION_STATE_LAND || pm_player.actionState == ACTION_STATE_WALK ||
-        pm_player.actionState == ACTION_STATE_RUN) {
+    if (pm_gPlayerStatus.actionState == ACTION_STATE_LAND || pm_gPlayerStatus.actionState == ACTION_STATE_WALK ||
+        pm_gPlayerStatus.actionState == ACTION_STATE_RUN) {
         fp.player_landed = TRUE;
     }
     if (fp.player_landed) {
@@ -426,27 +426,28 @@ void fp_lzs_trainer(void) {
     } else {
         fp.frames_since_land = 0;
     }
-    if (pm_player.actionState == ACTION_STATE_JUMP) {
+    if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
         fp.player_landed = FALSE;
     }
 
     // log lzs status
     if (fp.lz_stored && pm_gGameStatus.pressedButtons[0].a) {
-        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_player.actionState == ACTION_STATE_JUMP &&
-            pm_MapChangeState == 0) {
+        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
+            pm_mapChangeState == 0) {
             fp_log("control early");
-        } else if (pm_player.prevActionState == ACTION_STATE_JUMP || pm_player.actionState == ACTION_STATE_SPIN_JUMP ||
-                   pm_player.actionState == ACTION_STATE_ULTRA_JUMP) {
+        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
+                   pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
+                   pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
             fp_log("jump >= 2 frames early");
             if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
                 fp_log("control early");
             }
-        } else if (pm_player.prevActionState == ACTION_STATE_FALLING) {
+        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
             fp_log("jump 1 frame early");
-            if (pm_player.actionState == ACTION_STATE_RUN || pm_player.actionState == ACTION_STATE_WALK) {
+            if (pm_gPlayerStatus.actionState == ACTION_STATE_RUN || pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
                 fp_log("control early");
             }
-        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_MapChangeState == 0) {
+        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
             fp_log("jump 1 frame late");
             fp_log("control early");
         } else if (fp.frames_since_land == 3) {
@@ -463,7 +464,7 @@ void fp_lzs_trainer(void) {
                    (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
             fp_log("jump >= 2 frames late");
             fp_log("control early");
-        } else if (fp.frames_since_land >= 5 && pm_MapChangeState == 0) {
+        } else if (fp.frames_since_land >= 5 && pm_mapChangeState == 0) {
             fp_log("jump > 2 frames late");
             if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
                 fp_log("control late");
@@ -478,9 +479,9 @@ void fp_lzs_trainer(void) {
     }
 
     fp.prev_pressed_y = pm_gGameStatus.pressedButtons[0].yCardinal;
-    fp.prev_prev_action_state = pm_player.prevActionState;
+    fp.prev_prev_action_state = pm_gPlayerStatus.prevActionState;
 
-    if (pm_MapChangeState == 1) {
+    if (pm_mapChangeState == 1) {
         fp.lz_stored = FALSE;
         fp.player_landed = FALSE;
         fp.frames_since_land = 0;
@@ -490,16 +491,16 @@ void fp_lzs_trainer(void) {
 
 void fp_clippy_trainer(void) {
     if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
-        if (pm_GameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+        if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
             fp.clippy_status = 1;
         } else if (fp.frames_since_battle > 0) {
             fp.clippy_status = 3;
-        } else if (pm_GameState == 3 && fp.frames_since_battle == 0) {
+        } else if (pm_gameState == 3 && fp.frames_since_battle == 0) {
             fp.clippy_status = 2;
         }
     }
 
-    if (pm_GameState == 3) {
+    if (pm_gameState == 3) {
         fp.frames_since_battle++;
         switch (fp.clippy_status) {
             case 1: fp_log("early"); break;
@@ -507,15 +508,15 @@ void fp_clippy_trainer(void) {
             case 3: fp_log("late"); break;
         }
         fp.clippy_status = 0;
-    } else if (pm_GameState != 3) {
+    } else if (pm_gameState != 3) {
         fp.frames_since_battle = 0;
     }
 }
 
 void fp_action_command_trainer(void) {
     // Either goombario or mario attacking
-    if ((pm_battle_state_2 == 3 && pm_player.playerData.currentPartner == PARTNER_GOOMBARIO) ||
-        pm_battle_state_2 == 4) {
+    if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+        pm_battleState2 == 4) {
         if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
             fp.last_a_press = pm_gGameStatus.frameCounter;
         } else if (pm_gActionCommandStatus.state == 11) {
@@ -541,23 +542,23 @@ void fp_action_command_trainer(void) {
 
 void fp_update_cheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
-        pm_player.playerData.curHP = pm_player.playerData.maxHP;
+        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
     }
     if (CHEAT_ACTIVE(CHEAT_FP)) {
-        pm_player.playerData.curFP = pm_player.playerData.curMaxFP;
+        pm_gPlayerStatus.playerData.curFP = pm_gPlayerStatus.playerData.curMaxFP;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
-        pm_player.playerData.coins = 999;
+        pm_gPlayerStatus.playerData.coins = 999;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_POWER)) {
-        pm_player.playerData.starSpiritsFullBarsFilled = pm_player.playerData.starSpiritsSaved;
-        pm_player.playerData.starSpiritsPartialBarFilled = 0;
+        pm_gPlayerStatus.playerData.starSpiritsFullBarsFilled = pm_gPlayerStatus.playerData.starSpiritsSaved;
+        pm_gPlayerStatus.playerData.starSpiritsPartialBarFilled = 0;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_PIECES)) {
-        pm_player.playerData.starPieces = 160;
+        pm_gPlayerStatus.playerData.starPieces = 160;
     }
     if (CHEAT_ACTIVE(CHEAT_PERIL)) {
-        pm_player.playerData.curHP = 1;
+        pm_gPlayerStatus.playerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
         if (pm_gGameStatus.isBattle) {
@@ -580,14 +581,14 @@ void fp_update_warps(void) {
 
     if (fp.warp && fp.warp_delay == 0) {
         // if a popup menu is currently hidden, destroy it
-        if (pm_popup_menu_var == 10) {
+        if (pm_popupMenuVar == 10) {
             PRINTF("destroying popup menu\n");
-            pm_DestroyPopupMenu();
+            pm_destroyPopupMenu();
         }
 
-        pm_SetMapTransitionEffect(0); // normal black fade
+        pm_setMapTransitionEffect(0); // normal black fade
         PRINTF("changing game mode\n");
-        pm_SetGameMode(5); // start the "change map" game mode
+        pm_setGameMode(5); // start the "change map" game mode
         fp.warp = FALSE;
     }
 }
@@ -692,9 +693,9 @@ void fp_update(void) {
     fp_update_cheats();
 
     if (fp.turbo) {
-        pm_player.runSpeed = 24.0f;
+        pm_gPlayerStatus.runSpeed = 24.0f;
     } else {
-        pm_player.runSpeed = 4.0f;
+        pm_gPlayerStatus.runSpeed = 4.0f;
     }
 
     for (s32 i = 0; i < COMMAND_MAX; ++i) {
@@ -797,12 +798,12 @@ HOOK void fp_update_input(void) {
     pm_update_player_input();
     pm_Controller *mask = &fp.input_mask;
 
-    pm_player.currentButtons.buttons &= ~mask->buttons;
-    pm_player.previousButtons.buttons &= ~mask->buttons;
-    pm_player.heldButtons.buttons &= ~mask->buttons;
+    pm_gPlayerStatus.currentButtons.buttons &= ~mask->buttons;
+    pm_gPlayerStatus.previousButtons.buttons &= ~mask->buttons;
+    pm_gPlayerStatus.heldButtons.buttons &= ~mask->buttons;
 
-    pm_player.stickAxisX &= ~mask->xCardinal;
-    pm_player.stickAxisY &= ~mask->yCardinal;
+    pm_gPlayerStatus.stickAxisX &= ~mask->xCardinal;
+    pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
 }
 
 HOOK s32 fp_check_block_input(s32 buttonMask) {
@@ -824,8 +825,8 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         return 0;
     }
 
-    if (pm_player.playerData.hitsTaken < 9999) {
-        pm_player.playerData.hitsTaken += 1;
+    if (pm_gPlayerStatus.playerData.hitsTaken < 9999) {
+        pm_gPlayerStatus.playerData.hitsTaken += 1;
         pm_gActionCommandStatus.hitsTakenIsMax = 0;
     } else {
         pm_gActionCommandStatus.hitsTakenIsMax = 1;
@@ -906,7 +907,7 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         }
     }
     if (block && !pm_gActionCommandStatus.hitsTakenIsMax) {
-        pm_player.playerData.hitsBlocked += 1;
+        pm_gPlayerStatus.playerData.hitsBlocked += 1;
     }
 
     return block;

@@ -94,9 +94,9 @@ static void cam_manual(void) {
 
 static void cam_birdseye(void) {
     vec3f_t vt;
-    vt.x = pm_player.position.x;
-    vt.y = pm_player.position.y;
-    vt.z = pm_player.position.z;
+    vt.x = pm_gPlayerStatus.position.x;
+    vt.y = pm_gPlayerStatus.position.y;
+    vt.z = pm_gPlayerStatus.position.z;
 
     vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);
@@ -139,9 +139,9 @@ static void cam_radial(void) {
     vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
 
     vec3f_t vt;
-    vt.x = pm_player.position.x;
-    vt.y = pm_player.position.y;
-    vt.z = pm_player.position.z;
+    vt.x = pm_gPlayerStatus.position.x;
+    vt.y = pm_gPlayerStatus.position.y;
+    vt.z = pm_gPlayerStatus.position.z;
 
     vec3f_t vd;
     vec3f_sub(&vd, &vt, &fp.cam_pos);

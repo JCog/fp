@@ -90,20 +90,20 @@ void settings_save(s32 profile) {
 
     // read in save file in the same slot as the profile
     char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
-    pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
+    pm_fioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
 
     // append settings data to the end and save to file
     char *offset = start + SETTINGS_SAVE_FILE_SIZE;
     memcpy(offset, &settings_store, sizeof(settings_store));
-    pm_FioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    pm_fioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
     free(start);
 }
 
 static bool save_file_exists(void) {
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
     for (s32 i = 0; i < 8; i++) {
-        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
-        if (pm_FioValidateFileChecksum(file)) {
+        pm_fioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
+        if (pm_fioValidateFileChecksum(file)) {
             free(file);
             return TRUE;
         }
@@ -121,7 +121,7 @@ bool settings_load(s32 profile) {
 
     // read in save data along with the settings data in the same slot as the profile
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
-    pm_FioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    pm_fioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
 
     struct settings *settings_temp = (struct settings *)(file + SETTINGS_SAVE_FILE_SIZE);
     if (!settings_validate(settings_temp)) {
