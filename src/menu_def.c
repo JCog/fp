@@ -10,13 +10,13 @@ struct static_icon_data {
 
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
-    item->selectable = 0;
+    item->selectable = FALSE;
     return item;
 }
 
 static s32 static_icon_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct static_icon_data *data = item->data;
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     s32 w = data->texture->tile_width * data->scale;
     s32 h = data->texture->tile_height * data->scale;
     struct gfx_sprite sprite = {
@@ -45,7 +45,7 @@ struct menu_item *menu_add_static_icon(struct menu *menu, s32 x, s32 y, struct g
     data->scale = scale;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
     item->data = data;
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->draw_proc = static_icon_draw_proc;
     return item;
 }
@@ -54,7 +54,7 @@ struct menu_item *menu_add_static_custom(struct menu *menu, s32 x, s32 y,
                                          s32 (*draw_proc)(struct menu_item *item, struct menu_draw_params *draw_params),
                                          const char *text, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, text, color);
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->draw_proc = draw_proc;
     return item;
 }
@@ -79,7 +79,7 @@ static s32 tooltip_destroy_proc(struct menu_item *item) {
 struct menu_item *menu_add_tooltip(struct menu *menu, s32 x, s32 y, struct menu *tool_menu, u32 color) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, color);
     item->data = tool_menu;
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->draw_proc = tooltip_draw_proc;
     item->destroy_proc = tooltip_destroy_proc;
     return item;
@@ -113,7 +113,7 @@ static s32 imenu_activate_proc(struct menu_item *item) {
 
 struct menu_item *menu_add_imenu(struct menu *menu, s32 x, s32 y, struct menu **p_imenu) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0);
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->think_proc = imenu_think_proc;
     item->navigate_proc = imenu_navigate_proc;
     item->activate_proc = imenu_activate_proc;
@@ -145,7 +145,7 @@ struct menu_item *menu_add_tab(struct menu *menu, s32 x, s32 y, struct menu *tab
     data->current_tab = -1;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0);
     item->data = data;
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->think_proc = imenu_think_proc;
     item->navigate_proc = imenu_navigate_proc;
     item->activate_proc = imenu_activate_proc;

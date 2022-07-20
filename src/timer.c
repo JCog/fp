@@ -11,7 +11,7 @@ static u32 lag_start = 0;
 static u32 lag_end = 0;
 static u16 frame_start = 0;
 static u16 frame_end = 0;
-static _Bool prev_cutscene_state = 0;
+static bool prev_cutscene_state = FALSE;
 static enum timer_mode timer_mode = 0;
 static enum timer_state timer_state = 0;
 static u8 cutscene_target = 1;
@@ -78,7 +78,7 @@ static s32 timer_draw_proc(struct menu_item *item, struct menu_draw_params *draw
     struct gfx_font *font = draw_params->font;
     s32 x = draw_params->x;
     s32 y = draw_params->y;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
+    s32 chHeight = menu_get_cell_height(item->owner, TRUE);
 
     switch (timer_state) {
         case TIMER_RUNNING:
@@ -142,7 +142,7 @@ s32 timer_get_lag_frames(void) {
 }
 
 void timer_update(void) {
-    _Bool in_cutscene = pm_player.flags & 0x00002000;
+    bool in_cutscene = pm_player.flags & 0x00002000;
 
     switch (timer_state) {
         case TIMER_WAITING:

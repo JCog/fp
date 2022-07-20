@@ -110,10 +110,10 @@ static s32 hud_script_to_texdesc(struct gfx_texdesc *td_out, const u32 *hud_scri
 
     const u32 *script_pos = hud_script;
     s32 tile_size_preset;
-    _Bool script_done = 0;
+    bool script_done = 0;
     while (!script_done) {
         switch (*script_pos++) {
-            case HUD_ELEMENT_OP_End: script_done = 1; break;
+            case HUD_ELEMENT_OP_End: script_done = TRUE; break;
             case HUD_ELEMENT_OP_SetCI:
                 if (address == UINT32_MAX) {
                     im_fmt = G_IM_FMT_CI;
@@ -337,7 +337,7 @@ struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name) {
     return gfx_texture_load(&td, NULL);
 }
 
-struct gfx_texture *resource_load_pmicon_item(u16 item, _Bool safe) {
+struct gfx_texture *resource_load_pmicon_item(u16 item, bool safe) {
     if (!safe && item_textures[item].texture) {
         return item_textures[item].texture;
     }

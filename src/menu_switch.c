@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 struct item_data {
-    _Bool state;
-    _Bool display_state;
+    bool state;
+    bool display_state;
     menu_generic_callback callback_proc;
     void *callback_data;
     struct gfx_texture *texture_on;
@@ -16,7 +16,7 @@ struct item_data {
     s8 texture_palette_off;
     u32 color_off;
     f32 scale;
-    _Bool disable_shadow;
+    bool disable_shadow;
     s32 anim_state;
 };
 
@@ -57,7 +57,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         texture_palette = data->texture_palette_off;
         color = data->color_off;
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     s32 w = texture->tile_width * data->scale;
     s32 h = texture->tile_height * data->scale;
     s32 x = draw_params->x + (cw - w) / 2;
@@ -110,10 +110,10 @@ static s32 activate_proc(struct menu_item *item) {
 struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture_on, s32 texture_tile_on,
                                   s8 texture_palette_on, u32 color_on, struct gfx_texture *texture_off,
                                   s32 texture_tile_off, s8 texture_palette_off, u32 color_off, f32 scale,
-                                  _Bool disable_shadow, menu_generic_callback callback_proc, void *callback_data) {
+                                  bool disable_shadow, menu_generic_callback callback_proc, void *callback_data) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0x808080);
     struct item_data *data = malloc(sizeof(*data));
-    data->state = 0;
+    data->state = FALSE;
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->texture_on = texture_on;
@@ -135,12 +135,12 @@ struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_te
     return item;
 }
 
-void menu_switch_set(struct menu_item *item, _Bool state) {
+void menu_switch_set(struct menu_item *item, bool state) {
     struct item_data *data = item->data;
     data->state = state;
 }
 
-_Bool menu_switch_get(struct menu_item *item) {
+bool menu_switch_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->state;
 }

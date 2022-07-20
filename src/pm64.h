@@ -218,17 +218,17 @@ typedef struct {
     /* 0x45 */ s8 unk_45[2];
     /* 0x47 */ s8 disabled; /* set != 0 for menu to be disabled completely */
     /* 0x48 */ u16 displayStarPower;
-    /* 0x4A */ _Bool hpBlinking;
+    /* 0x4A */ bool hpBlinking;
     /* 0x4B */ u8 hpBlinkCounter;
     /* 0x4C */ u8 hpBlinkTimer; /* until stop */
-    /* 0x4D */ _Bool fpBlinking;
+    /* 0x4D */ bool fpBlinking;
     /* 0x4E */ u8 fpBlinkCounter;
     /* 0x4F */ u8 fpBlinkTimer; /* until stop */
-    /* 0x50 */ _Bool starPowerBlinking;
+    /* 0x50 */ bool starPowerBlinking;
     /* 0x51 */ u8 starPowerBlinkCounter;
-    /* 0x52 */ _Bool starPointsBlinking;
+    /* 0x52 */ bool starPointsBlinking;
     /* 0x53 */ u8 starPointsBlinkCounter;
-    /* 0x54 */ _Bool coinsBlinking; /*non-zero value will flash*/
+    /* 0x54 */ bool coinsBlinking; /*non-zero value will flash*/
     /* 0x55 */ u8 coinsBlinkCounter;
     /* 0x56 */ u8 coinsBlinkTimer; /* until stop */
     /* 0x57 */ char unk_57[3];
@@ -1032,7 +1032,7 @@ extern_data s32 pm_GameState;
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
 s32 pm_FioValidateFileChecksum(void *buffer);
-_Bool pm_FioFetchSavedFileInfo(void);
+bool pm_FioFetchSavedFileInfo(void);
 void pm_FioDeserializeState(void);
 void pm_SetCurtainScaleGoal(f32 goal);
 void pm_SetCurtainDrawCallback(void *callback);

@@ -9,7 +9,7 @@ struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
     f32 value;
-    _Bool active;
+    bool active;
     struct menu *imenu;
     struct menu_item *item;
     struct menu_item *sig_sign;
@@ -197,7 +197,7 @@ struct menu_item *menu_add_floatinput(struct menu *menu, s32 x, s32 y, s32 sig_p
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->value = 0.;
-    data->active = 0;
+    data->active = FALSE;
     data->sig_digits = malloc(sizeof(*data->sig_digits) * sig_precis);
     data->exp_digits = malloc(sizeof(*data->exp_digits) * exp_precis);
     data->imenu = malloc(sizeof(*data->imenu));
@@ -216,8 +216,8 @@ struct menu_item *menu_add_floatinput(struct menu *menu, s32 x, s32 y, s32 sig_p
     item->activate_proc = activate_proc;
     item->destroy_proc = destroy_proc;
     u32 color = data->imenu->highlight_color_static;
-    menu_item_add(data->imenu, 2, 0, ".", color)->selectable = 0;
-    menu_item_add(data->imenu, 2 + sig_precis, 0, "e", color)->selectable = 0;
+    menu_item_add(data->imenu, 2, 0, ".", color)->selectable = FALSE;
+    menu_item_add(data->imenu, 2 + sig_precis, 0, "e", color)->selectable = FALSE;
     for (s32 i = 0; i < 2; ++i) {
         s32 x = i * (3 + sig_precis);
         struct menu_item *sign = menu_item_add(data->imenu, x, 0, NULL, color);
@@ -225,7 +225,7 @@ struct menu_item *menu_add_floatinput(struct menu *menu, s32 x, s32 y, s32 sig_p
         sign->text[0] = '+';
         sign->text[1] = 0;
         sign->navigate_proc = sign_navigate_proc;
-        sign->animate_highlight = 1;
+        sign->animate_highlight = TRUE;
         sign->data = data;
         if (i == 0) {
             data->sig_sign = sign;
@@ -249,7 +249,7 @@ struct menu_item *menu_add_floatinput(struct menu *menu, s32 x, s32 y, s32 sig_p
         item->text[tx] = '0';
         digit->text[1] = 0;
         digit->navigate_proc = digit_navigate_proc;
-        digit->animate_highlight = 1;
+        digit->animate_highlight = TRUE;
         digit->data = data;
         if (i < sig_precis) {
             data->sig_digits[i] = digit;

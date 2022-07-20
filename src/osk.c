@@ -11,7 +11,7 @@ static struct menu_item *osk_text;
 static struct menu_item *osk_letters[26];
 static struct menu_item *osk_minus;
 static s32 osk_cursor_pos;
-static _Bool osk_shift_state;
+static bool osk_shift_state;
 
 static void insert_char(char c) {
     if (osk_cursor_pos < sizeof(osk_buf) - 1) {
@@ -95,7 +95,7 @@ static s32 navigate_text_proc(struct menu_item *item, enum menu_navigation nav) 
 }
 
 static s32 draw_text_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     gfx_printf(draw_params->font, draw_params->x, draw_params->y, "%s", osk_buf);
     gfx_printf(draw_params->font, draw_params->x + osk_cursor_pos * cw, draw_params->y + 3, "_");
@@ -104,7 +104,7 @@ static s32 draw_text_proc(struct menu_item *item, struct menu_draw_params *draw_
 
 static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_params, u16 bind, const char *desc) {
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     s32 x = draw_params->x + (cw - texture->tile_width) / 2;
     s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2;
 
@@ -126,7 +126,7 @@ static void draw_shortcut(struct menu_item *item, struct menu_draw_params *draw_
 }
 
 static s32 draw_tooltip_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 ch = menu_get_cell_height(item->owner, TRUE);
 
     draw_shortcut(item, draw_params, bind_make(2, BUTTON_Z, BUTTON_D_UP), "shift");
     draw_params->y += ch;
@@ -150,7 +150,7 @@ static s32 draw_tooltip_proc(struct menu_item *item, struct menu_draw_params *dr
 }
 
 static void create_osk_menu(void) {
-    static _Bool ready = 0;
+    static bool ready = FALSE;
     if (!ready) {
         menu_init(&osk_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
@@ -227,9 +227,9 @@ static void create_osk_menu(void) {
 
         item = menu_item_add(&osk_menu, 0, 10, NULL, 0xC0C0C0);
         item->draw_proc = draw_tooltip_proc;
-        item->selectable = 0;
+        item->selectable = FALSE;
 
-        ready = 1;
+        ready = TRUE;
     }
 }
 

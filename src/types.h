@@ -12,5 +12,6 @@ typedef uint64_t u64;
 typedef int64_t s64;
 typedef float f32;
 typedef double f64;
+typedef _Bool bool;
 
 #endif //_TYPES_H_

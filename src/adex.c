@@ -86,7 +86,7 @@ struct sym {
     void *addr;
 };
 
-static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
+static bool make_tok(struct tok *tok, enum tok_type type, ...) {
     tok->type = type;
     va_list arg;
     va_start(arg, type);
@@ -103,11 +103,11 @@ static _Bool make_tok(struct tok *tok, enum tok_type type, ...) {
     return tok;
 }
 
-static _Bool is_func_tok(struct tok *tok) {
+static bool is_func_tok(struct tok *tok) {
     return tok->type == TOK_OP && op_ar[tok->op] == 1;
 }
 
-static _Bool parse_op(const char **p, s32 *op) {
+static bool parse_op(const char **p, s32 *op) {
     for (s32 i = 0; i < OP_MAX; ++i) {
         s32 l = strlen(op_s[i]);
         if (strncmp(*p, op_s[i], l) == 0) {
@@ -119,7 +119,7 @@ static _Bool parse_op(const char **p, s32 *op) {
     return 0;
 }
 
-static _Bool is_word_char(char c) {
+static bool is_word_char(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
 
@@ -151,7 +151,7 @@ static struct tok *stack_peek(struct vector *stack) {
     }
 }
 
-static _Bool stack_push(struct vector *stack, struct tok *tok) {
+static bool stack_push(struct vector *stack, struct tok *tok) {
     return vector_push_back(stack, 1, tok);
 }
 
@@ -168,7 +168,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
     struct vector stack;
     stack_init(&stack);
     /* parse string */
-    _Bool mode_op = 0;
+    bool mode_op = 0;
     const char *p = str;
     while (*p) {
         char c = *p;
@@ -248,7 +248,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
         /* parse bracket */
         else if (c == '[') {
             if (mode_op) {
-                mode_op = 0;
+                mode_op = FALSE;
                 make_tok(&tok, TOK_BRACK_L, BRACK_SQUARE);
                 ++p;
             } else {
@@ -272,11 +272,11 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
         }
         if (tok.type == TOK_ID) {
             // TODO: figure out what this is even doing
-            //      _Bool found = 0;
+            //      bool found = FALSE;
             //      for (s32 i = 0; i < sizeof(syms) / sizeof(*syms); ++i)
             //        if (strcmp(tok.id, syms[i].id) == 0) {
             //          make_tok(&tok, TOK_CONST, (u32)syms[i].addr);
-            //          found = 1;
+            //          found = TRUE;
             //          break;
             //        }
             //      if (!found)
@@ -291,7 +291,7 @@ enum adex_error adex_parse(struct adex *adex, const char *str) {
                 goto mem_err;
             }
             if (tok.type == TOK_OP && tok.op >= OP_B && tok.op <= OP_W) {
-                mode_op = 1;
+                mode_op = TRUE;
             }
         } else if (tok.type == TOK_BRACK_R) {
             while (1) {
@@ -377,7 +377,7 @@ exit:
     return e;
 }
 
-static _Bool validate_addr(u32 addr, s32 size) {
+static bool validate_addr(u32 addr, s32 size) {
     return addr >= 0x80000000 && addr < 0x80800000 && addr % size == 0;
 }
 
@@ -398,17 +398,17 @@ enum adex_error adex_eval(struct adex *adex, u32 *result) {
             s32 op = tok->op;
             s32 ar = op_ar[op];
             u32 *ops = vector_at(&stack, stack.size - ar);
-            _Bool sign = 1;
+            bool sign = TRUE;
             switch (op) {
                 /* dereference operators */
-                case OP_BZ: sign = 0;
+                case OP_BZ: sign = FALSE;
                 case OP_B:
                     if (!validate_addr(ops[0], 1)) {
                         goto addr_err;
                     }
                     value = (sign ? *(s8 *)ops[0] : *(u8 *)ops[0]);
                     break;
-                case OP_HZ: sign = 0;
+                case OP_HZ: sign = FALSE;
                 case OP_H:
                     if (!validate_addr(ops[0], 2)) {
                         goto addr_err;

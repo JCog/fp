@@ -17,27 +17,27 @@ static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reaso
 
 static void bowser_hallway_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fa, 0); // hallway not defeated
+    fp_set_global_flag(0x1fa, FALSE); // hallway not defeated
     fp_warp(AREA_PEACHS_CASTLE, 0x7, 0x0);
 }
 
 static void bowser_phase1_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fc, 0); // bridge not broken
-    fp_set_global_flag(0x1fd, 0); // not sure, but prevents a crash
-    fp_set_global_flag(0x1fe, 1); // skip camera zoom in
+    fp_set_global_flag(0x1fc, FALSE); // bridge not broken
+    fp_set_global_flag(0x1fd, FALSE); // not sure, but prevents a crash
+    fp_set_global_flag(0x1fe, TRUE);  // skip camera zoom in
     fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x0);
 }
 
 static void bowser_phase2_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fc, 1); // bridge broken
+    fp_set_global_flag(0x1fc, TRUE); // bridge broken
     fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x1);
 }
 
 static void goomba_king_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH0_DEFEATED_GOOMBA_BROS;
-    fp_set_global_flag(0x02d, 1); // skip cutscene
+    fp_set_global_flag(0x02d, TRUE); // skip cutscene
     fp_warp(AREA_GOOMBA_VILLAGE, 0x9, 0x0);
 }
 
@@ -92,13 +92,13 @@ static void jr_pleasant_path_proc(struct menu_item *item, void *data) {
 
 static void jr_forever_forest_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH3_STAR_SPRIT_DEPARTED;
-    fp_set_global_flag(0x39f, 0); // jr not defeated
+    fp_set_global_flag(0x39f, FALSE); // jr not defeated
     fp_warp(AREA_FOREVER_FOREST, 0x6, 0x3);
 }
 
 static void jr_toad_town_port_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH5_STAR_SPIRIT_DEPARTED;
-    fp_set_global_flag(0x4c2, 0); // jr not defeated
+    fp_set_global_flag(0x4c2, FALSE); // jr not defeated
     fp_warp(AREA_TOAD_TOWN, 0x6, 0x1);
 }
 
@@ -144,39 +144,39 @@ static void monstar_proc(struct menu_item *item, void *data) {
 }
 
 static void blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, 0); // blooper not defeated
-    fp_set_global_flag(0x1ac, 0); // electro blooper not defeated
-    fp_set_global_flag(0x1af, 0); // ch5 pipe switch
+    fp_set_global_flag(0x1ab, FALSE); // blooper not defeated
+    fp_set_global_flag(0x1ac, FALSE); // electro blooper not defeated
+    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
     fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void electro_blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, 1); // blooper defeated
-    fp_set_global_flag(0x1ac, 0); // electro blooper not defeated
-    fp_set_global_flag(0x1af, 0); // ch5 pipe switch
+    fp_set_global_flag(0x1ab, TRUE);  // blooper defeated
+    fp_set_global_flag(0x1ac, FALSE); // electro blooper not defeated
+    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
     fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void super_blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, 1); // blooper defeated
-    fp_set_global_flag(0x1ac, 1); // electro blooper defeated
-    fp_set_global_flag(0x1af, 0); // ch5 pipe switch
+    fp_set_global_flag(0x1ab, TRUE);  // blooper defeated
+    fp_set_global_flag(0x1ac, TRUE);  // electro blooper defeated
+    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
     fp_warp(AREA_SEWERS, 0x7, 0x1);
 }
 
 static void buzzar_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x2c4, 0); // buzzar not defeated
+    fp_set_global_flag(0x2c4, FALSE); // buzzar not defeated
     fp_warp(AREA_MT_RUGGED, 0x4, 0x1);
 }
 
 static void anti_guy_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x451, 0); // anti guy not defeated
+    fp_set_global_flag(0x451, FALSE); // anti guy not defeated
     fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xc, 0x1);
 }
 
 static void kent_c_koopa_proc(struct menu_item *item, void *data) {
     STORY_PROGRESS = STORY_CH6_RETURNED_TO_TOAD_TOWN;
-    fp_set_global_flag(0x262, 0); // kent not defeated
+    fp_set_global_flag(0x262, FALSE); // kent not defeated
     fp_warp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
 }
 

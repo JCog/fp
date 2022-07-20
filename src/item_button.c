@@ -56,7 +56,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         ++draw_params->y;
         data->anim_state = (data->anim_state + 1) % 3;
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     struct gfx_texture *texture =
         data->item_texture_list[data->item_id == 0 ? get_empty_icon(data->item_type) : data->item_id];
     struct gfx_sprite sprite = {

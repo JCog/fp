@@ -26,7 +26,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         data->anim_state = (data->anim_state + 1) % 3;
     }
     if (data->texture) {
-        s32 cw = menu_get_cell_width(item->owner, 1);
+        s32 cw = menu_get_cell_width(item->owner, TRUE);
         struct gfx_sprite sprite = {
             data->texture,
             data->texture_tile,

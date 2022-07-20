@@ -93,39 +93,39 @@ static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason
 static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 chHeight = menu_get_cell_height(item->owner, TRUE);
+    s32 chWidth = menu_get_cell_width(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 
     s32 xPos = ceil(pm_player.position.x);
     s32 zPos = ceil(pm_player.position.z);
-    _Bool goodPos = 0;
-    _Bool willClip = 0;
+    bool goodPos = 0;
+    bool willClip = 0;
 
     if (pm_player.position.z >= -26.3686f) {
         // check if in a known position that will clip and respawn OoB
         if (zPos == -24 && xPos == -184) {
-            goodPos = 1;
+            goodPos = TRUE;
         } else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
-            goodPos = 1;
+            goodPos = TRUE;
         } else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
-            goodPos = 1;
+            goodPos = TRUE;
         }
 
         // check if in a known position that will clip
         if (xPos == -186 && (zPos >= -26 && zPos <= -21)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -181 && zPos == -26) {
-            willClip = 1;
+            willClip = TRUE;
         }
     }
 
@@ -155,8 +155,8 @@ static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
 static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 chHeight = menu_get_cell_height(item->owner, TRUE);
+    s32 chWidth = menu_get_cell_width(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 
@@ -248,8 +248,8 @@ static void ace_oot_instr_proc(struct menu_item *item, void *data) {
 static s32 lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
+    s32 chHeight = menu_get_cell_height(item->owner, TRUE);
+    s32 chWidth = menu_get_cell_width(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 

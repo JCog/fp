@@ -29,13 +29,13 @@ struct command fp_commands[COMMAND_MAX] = {
 
 void show_menu() {
     menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
-    fp.menu_active = 1;
+    fp.menu_active = TRUE;
     input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
 }
 
 void hide_menu() {
     menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
-    fp.menu_active = 0;
+    fp.menu_active = FALSE;
     input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
 }
 
@@ -70,10 +70,10 @@ void fp_set_input_mask(u16 pad, u8 x, u8 y) {
     fp.input_mask.yCardinal = y;
 }
 
-_Bool fp_warp(u16 area, u16 map, u16 entrance) {
+bool fp_warp(u16 area, u16 map, u16 entrance) {
     if (pm_GameMode == 0xA || pm_GameMode == 0xB) { // paused/unpausing
         fp_log("can't warp while paused");
-        return 0;
+        return FALSE;
     } else if ((pm_battle_state == 0xD &&
                 (pm_battle_state_2 == 0xC9 || pm_battle_state_2 == 0x1F || pm_battle_state_2 == 0x29 ||
                  pm_battle_state_2 == 0x2 || pm_battle_state_2 == 0x3D)) ||
@@ -83,7 +83,7 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
         // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
         // but the rest aren't. at some point we should figure out how to back out of these states automatically.
         fp_log("can't warp in battle menu");
-        return 0;
+        return FALSE;
     } else if (pm_gGameStatus.isBattle) {
         pm_D_800A0900 = 1;
         pm_state_step_end_battle();
@@ -119,12 +119,12 @@ _Bool fp_warp(u16 area, u16 map, u16 entrance) {
     pm_SetCurtainDrawCallback(NULL);
     pm_SetCurtainFadeGoal(0.0f);
 
-    fp.warp = 1;
+    fp.warp = TRUE;
 
-    return 1;
+    return TRUE;
 }
 
-void set_flag(u32 *flags, s32 flag_index, _Bool value) {
+static void set_flag(u32 *flags, s32 flag_index, bool value) {
     s32 word_index = flag_index / 32;
     s32 bit = flag_index % 32;
     if (value) {
@@ -134,11 +134,11 @@ void set_flag(u32 *flags, s32 flag_index, _Bool value) {
     }
 }
 
-void fp_set_global_flag(s32 flag_index, _Bool value) {
+void fp_set_global_flag(s32 flag_index, bool value) {
     set_flag(pm_gCurrentSaveFile.globalFlags, flag_index, value);
 }
 
-void fp_set_area_flag(s32 flag_index, _Bool value) {
+void fp_set_area_flag(s32 flag_index, bool value) {
     set_flag(pm_gCurrentSaveFile.areaFlags, flag_index, value);
 }
 
@@ -162,10 +162,10 @@ void command_levitate_proc() {
 
 void command_turbo_proc() {
     if (fp.turbo) {
-        fp.turbo = 0;
+        fp.turbo = FALSE;
         fp_log("turbo disabled");
     } else {
-        fp.turbo = 1;
+        fp.turbo = TRUE;
         fp_log("turbo enabled");
     }
 }

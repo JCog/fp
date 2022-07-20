@@ -30,7 +30,7 @@ struct dir_desc {
 __attribute__((used)) __attribute__((noinline)) void __assert_func(const char *file, int line, const char *func,
                                                                    const char *failedexpr) {}
 
-static _Bool fat_ready = 0;
+static bool fat_ready = FALSE;
 static struct fat fat;
 static void *desc_list[OPEN_MAX] = {NULL};
 static struct fat_path *wd = NULL;
@@ -49,7 +49,7 @@ static int init_fat(void) {
     if (!wd) {
         return -1;
     }
-    fat_ready = 1;
+    fat_ready = TRUE;
     return 0;
 }
 
@@ -96,7 +96,7 @@ static int check_path(ino_t sn, struct fat_path *fp) {
     return 0;
 }
 
-static int ent_access(struct fat_entry *entry, _Bool write) {
+static int ent_access(struct fat_entry *entry, bool write) {
     ino_t sn = make_sn(entry);
     if (write && check_path(sn, wd)) {
         return -1;
@@ -440,7 +440,7 @@ int truncate(const char *path, off_t length) {
         errno = EISDIR;
         return -1;
     }
-    if (ent_access(&entry, 1)) {
+    if (ent_access(&entry, TRUE)) {
         return -1;
     }
     u32 size = entry.size;
@@ -473,7 +473,7 @@ int rename(const char *old_path, const char *new_path) {
     errno = 0;
     struct fat_path *fp = wd_path(old_path);
     if (errno == 0) {
-        ent_access(fat_path_target(fp), 1);
+        ent_access(fat_path_target(fp), TRUE);
     }
     int r = -1;
     if (fp) {
@@ -500,7 +500,7 @@ int chmod(const char *path, mode_t mode) {
     if (wd_find(path, &entry)) {
         return -1;
     }
-    if (ent_access(&entry, 1)) {
+    if (ent_access(&entry, TRUE)) {
         return -1;
     }
     u8 attrib = entry.attrib;
@@ -532,7 +532,7 @@ int unlink(const char *path) {
         errno = EISDIR;
         return -1;
     }
-    if (ent_access(&entry, 1)) {
+    if (ent_access(&entry, TRUE)) {
         return -1;
     }
     if (fat_remove(&entry)) {
@@ -559,7 +559,7 @@ DIR *opendir(const char *dirname) {
         errno = ENOTDIR;
         goto error;
     }
-    if (ent_access(entry, 0)) {
+    if (ent_access(entry, FALSE)) {
         goto error;
     }
     /* allocate and initialize dir desc */
@@ -658,7 +658,7 @@ int rmdir(const char *path) {
         errno = ENOTDIR;
         return -1;
     }
-    if (ent_access(&entry, 1)) {
+    if (ent_access(&entry, TRUE)) {
         return -1;
     }
     if (fat_remove(&entry)) {
@@ -747,7 +747,7 @@ time_t time(time_t *tloc) {
 }
 
 void sys_reset(void) {
-    fat_ready = 0;
+    fat_ready = FALSE;
     for (int i = 0; i < OPEN_MAX; ++i) {
         if (desc_list[i])
             delete_desc(i);

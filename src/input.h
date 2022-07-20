@@ -35,11 +35,11 @@ u16 input_pressed(void);
 u16 input_released(void);
 void input_reserve(u16 bitmask);
 void input_free(u16 bitmask);
-void input_bind_set_disable(s32 index, _Bool value);
-void input_bind_set_override(s32 index, _Bool value);
-_Bool input_bind_held(s32 index);
-_Bool input_bind_pressed_raw(s32 index);
-_Bool input_bind_pressed(s32 index);
+void input_bind_set_disable(s32 index, bool value);
+void input_bind_set_override(s32 index, bool value);
+bool input_bind_held(s32 index);
+bool input_bind_pressed_raw(s32 index);
+bool input_bind_pressed(s32 index);
 
 struct menu_item *binder_create(struct menu *menu, s32 x, s32 y, s32 bind_index);
 

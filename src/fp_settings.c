@@ -116,9 +116,9 @@ static s32 menu_position_proc(struct menu_item *item, enum menu_callback_reason 
 
 static s32 timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_ACTIVATE) {
-        fp.timer_moving = 1;
+        fp.timer_moving = TRUE;
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        fp.timer_moving = 0;
+        fp.timer_moving = FALSE;
     }
     return generic_position_proc(item, reason, &settings->timer_x);
 }

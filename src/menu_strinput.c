@@ -7,7 +7,7 @@ struct item_data {
     s32 length;
     menu_generic_callback callback_proc;
     void *callback_data;
-    _Bool active;
+    bool active;
     struct menu *imenu;
     struct menu_item *item;
     struct menu_item **chars;
@@ -119,7 +119,7 @@ struct menu_item *menu_add_strinput(struct menu *menu, s32 x, s32 y, s32 length,
     data->length = length;
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
-    data->active = 0;
+    data->active = FALSE;
     data->chars = malloc(sizeof(*data->chars) * length);
     data->imenu = malloc(sizeof(*data->imenu));
     menu_init(data->imenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -142,7 +142,7 @@ struct menu_item *menu_add_strinput(struct menu *menu, s32 x, s32 y, s32 length,
         c->text[1] = 0;
         item->text[i] = ' ';
         c->navigate_proc = char_navigate_proc;
-        c->animate_highlight = 1;
+        c->animate_highlight = TRUE;
         c->data = data;
     }
     data->imenu->selector = data->chars[0];
@@ -157,7 +157,7 @@ void menu_strinput_get(struct menu_item *item, char *buf) {
 void menu_strinput_set(struct menu_item *item, const char *str) {
     struct item_data *data = item->data;
     s32 max = 0;
-    _Bool end = 0;
+    bool end = FALSE;
     for (s32 i = 0; i < data->length; ++i) {
         char c;
         if (end) {
@@ -165,7 +165,7 @@ void menu_strinput_set(struct menu_item *item, const char *str) {
         } else {
             c = str[i];
             if (c == 0) {
-                end = 1;
+                end = TRUE;
                 c = ' ';
             } else if (!strchr(charset, c) || c == '_') {
                 c = ' ';

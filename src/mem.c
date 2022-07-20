@@ -19,7 +19,7 @@
 
 static s32 view_domain_index;
 static s32 view_data_size;
-static _Bool view_float;
+static bool view_float;
 static struct menu_item *view_address;
 static struct menu_item *view_type;
 static struct menu_item *view_domain_name;
@@ -181,19 +181,19 @@ static s32 data_type_proc(struct menu_item *item, enum menu_callback_reason reas
         switch (menu_option_get(item)) {
             case 0:
                 view_data_size = 1;
-                view_float = 0;
+                view_float = FALSE;
                 break;
             case 1:
                 view_data_size = 2;
-                view_float = 0;
+                view_float = FALSE;
                 break;
             case 2:
                 view_data_size = 4;
-                view_float = 0;
+                view_float = FALSE;
                 break;
             case 3:
                 view_data_size = 4;
-                view_float = 1;
+                view_float = FALSE;
                 break;
         }
         make_cells(item->owner);
@@ -280,7 +280,7 @@ void mem_menu_create(struct menu *menu) {
                                     "float\0",
                                     data_type_proc, NULL);
         view_data_size = 1;
-        view_float = 0;
+        view_float = FALSE;
         menu_add_button(menu, 18, 1, "<", prev_domain_proc, NULL);
         menu_add_button(menu, 20, 1, ">", next_domain_proc, NULL);
         view_domain_name = menu_add_static(menu, 22, 1, NULL, 0xC0C0C0);
@@ -318,7 +318,7 @@ void mem_open_watch(struct menu *menu, struct menu *menu_mem, u32 address, enum 
         case WATCH_TYPE_S8:
         case WATCH_TYPE_X8:
             view_data_size = 1;
-            view_float = 0;
+            view_float = FALSE;
             menu_option_set(view_type, 0);
             break;
 
@@ -326,7 +326,7 @@ void mem_open_watch(struct menu *menu, struct menu *menu_mem, u32 address, enum 
         case WATCH_TYPE_S16:
         case WATCH_TYPE_X16:
             view_data_size = 2;
-            view_float = 0;
+            view_float = FALSE;
             menu_option_set(view_type, 1);
             break;
 
@@ -334,13 +334,13 @@ void mem_open_watch(struct menu *menu, struct menu *menu_mem, u32 address, enum 
         case WATCH_TYPE_S32:
         case WATCH_TYPE_X32:
             view_data_size = 4;
-            view_float = 0;
+            view_float = FALSE;
             menu_option_set(view_type, 2);
             break;
 
         case WATCH_TYPE_F32:
             view_data_size = 4;
-            view_float = 1;
+            view_float = TRUE;
             menu_option_set(view_type, 3);
             break;
 

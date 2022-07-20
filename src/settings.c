@@ -19,7 +19,7 @@ static u16 settings_checksum_compute(struct settings *settings) {
     return checksum;
 }
 
-static _Bool settings_validate(struct settings *settings) {
+static bool settings_validate(struct settings *settings) {
     return settings->header.version == SETTINGS_VERSION && settings->header.data_size == sizeof(settings->data) &&
            settings->header.data_checksum == settings_checksum_compute(settings);
 }
@@ -99,24 +99,24 @@ void settings_save(s32 profile) {
     free(start);
 }
 
-_Bool _save_file_exists() {
+static bool save_file_exists(void) {
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
     for (s32 i = 0; i < 8; i++) {
         pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
         if (pm_FioValidateFileChecksum(file)) {
             free(file);
-            return 1;
+            return TRUE;
         }
     }
     free(file);
-    return 0;
+    return FALSE;
 }
 
-_Bool settings_load(s32 profile) {
+bool settings_load(s32 profile) {
     // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
     // now
-    if (!_save_file_exists()) {
-        return 0;
+    if (!save_file_exists()) {
+        return FALSE;
     }
 
     // read in save data along with the settings data in the same slot as the profile
@@ -126,9 +126,9 @@ _Bool settings_load(s32 profile) {
     struct settings *settings_temp = (struct settings *)(file + SETTINGS_SAVE_FILE_SIZE);
     if (!settings_validate(settings_temp)) {
         free(file);
-        return 0;
+        return FALSE;
     }
     memcpy(&settings_store, settings_temp, sizeof(*settings_temp));
     free(file);
-    return 1;
+    return TRUE;
 }

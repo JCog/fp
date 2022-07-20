@@ -32,7 +32,7 @@ struct flag_record {
 struct flag_event {
     s32 record_index;
     s32 flag_index;
-    _Bool value;
+    bool value;
     char description[32];
 };
 
@@ -51,7 +51,7 @@ static void add_record(size_t word_size, size_t length, void *data, const char *
     record->view_offset = 0;
 }
 
-static void add_event(s32 record_index, s32 flag_index, _Bool value) {
+static void add_event(s32 record_index, s32 flag_index, bool value) {
     if (events.size >= FLAG_LOG_LENGTH) {
         vector_erase(&events, 0, 1);
     }
@@ -74,7 +74,7 @@ static u32 get_flag_word(void *data, size_t word_size, s32 index) {
     return 0;
 }
 
-static void modify_flag(void *data, size_t word_size, s32 flag_index, _Bool value) {
+static void modify_flag(void *data, size_t word_size, s32 flag_index, bool value) {
     s32 word = flag_index / (word_size * 8);
     s32 bit = flag_index % (word_size * 8);
     if (word_size == 1) {
@@ -127,7 +127,7 @@ static s32 log_draw_proc(struct menu_item *item, struct menu_draw_params *draw_p
     struct gfx_font *font = draw_params->font;
     u32 color = draw_params->color;
     u8 alpha = draw_params->alpha;
-    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 ch = menu_get_cell_height(item->owner, TRUE);
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     for (s32 i = 0; i < events.size && i < FLAG_LOG_LENGTH; ++i) {
         struct flag_event *e = vector_at(&events, events.size - i - 1);
@@ -210,12 +210,12 @@ static s32 flag_proc(struct menu_item *item, enum menu_callback_reason reason, v
     if (reason == MENU_CALLBACK_THINK) {
         s32 word = flag_index / (r->word_size * 8);
         s32 bit = flag_index % (r->word_size * 8);
-        _Bool v = (get_flag_word(r->data, r->word_size, word) >> bit) & 1;
+        bool v = (get_flag_word(r->data, r->word_size, word) >> bit) & 1;
         menu_switch_set(item, v);
     } else if (reason == MENU_CALLBACK_SWITCH_ON) {
-        modify_flag(r->data, r->word_size, flag_index, 1);
+        modify_flag(r->data, r->word_size, flag_index, TRUE);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        modify_flag(r->data, r->word_size, flag_index, 0);
+        modify_flag(r->data, r->word_size, flag_index, FALSE);
     }
     return 0;
 }
@@ -239,7 +239,7 @@ void flag_menu_create(struct menu *menu) {
         menu_add_button(&log, 0, 1, "undo", log_undo_proc, NULL);
         menu_add_button(&log, 5, 1, "clear", log_clear_proc, NULL);
         struct menu_item *log_item = menu_item_add(&log, 0, 2, NULL, 0xC0C0C0);
-        log_item->selectable = 0;
+        log_item->selectable = FALSE;
         log_item->think_proc = log_think_proc;
         log_item->draw_proc = log_draw_proc;
     }
@@ -262,7 +262,7 @@ void flag_menu_create(struct menu *menu) {
             for (s32 x = 0; x < 0x10; ++x) {
                 s32 n = y * 0x10 + x;
                 view_cells[n] = menu_add_switch(menu, 4 + x, 3 + y, t_flag, 1, 0, 0xFFFFFF, t_flag, 0, 0, 0xFFFFFF,
-                                                0.75f, 1, flag_proc, (void *)n);
+                                                0.75f, TRUE, flag_proc, (void *)n);
             }
         }
         goto_record(0);

@@ -2,13 +2,13 @@
 #include <stdlib.h>
 
 struct item_data {
-    _Bool signed_;
+    bool signed_;
     s32 base;
     s32 length;
     menu_generic_callback callback_proc;
     void *callback_data;
     u32 value;
-    _Bool active;
+    bool active;
     struct menu *imenu;
     struct menu_item *item;
     struct menu_item **digits;
@@ -156,17 +156,17 @@ struct menu_item *menu_add_intinput(struct menu *menu, s32 x, s32 y, s32 base, s
                                     menu_generic_callback callback_proc, void *callback_data) {
     struct item_data *data = malloc(sizeof(*data));
     if (base < 0) {
-        data->signed_ = 1;
+        data->signed_ = TRUE;
         base = -base;
     } else {
-        data->signed_ = 0;
+        data->signed_ = FALSE;
     }
     data->base = base;
     data->length = length;
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->value = 0;
-    data->active = 0;
+    data->active = FALSE;
     data->digits = malloc(sizeof(*data->digits) * length);
     data->imenu = malloc(sizeof(*data->imenu));
     menu_init(data->imenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -199,7 +199,7 @@ struct menu_item *menu_add_intinput(struct menu *menu, s32 x, s32 y, s32 base, s
             item->text[i] = '0';
         }
         digit->text[1] = 0;
-        digit->animate_highlight = 1;
+        digit->animate_highlight = TRUE;
         digit->data = data;
     }
     data->imenu->selector = data->digits[length - 1];

@@ -14,7 +14,7 @@
 #include <string.h>
 
 __attribute__((section(".data"))) fp_ctxt_t fp = {
-    .ready = 0,
+    .ready = FALSE,
 };
 
 // Initializes and uses new stack instead of using games main thread stack.
@@ -44,11 +44,11 @@ void fp_init() {
     gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
 
     fp.profile = 0;
-    fp.settings_loaded = 0;
-    fp.version_shown = 0;
+    fp.settings_loaded = FALSE;
+    fp.version_shown = FALSE;
     fp.cpu_counter = 0;
     fp.cpu_counter_freq = 0;
-    fp.menu_active = 0;
+    fp.menu_active = FALSE;
 
     for (s32 i = 0; i < SETTINGS_LOG_MAX; i++) {
         fp.log[i].msg = NULL;
@@ -61,25 +61,27 @@ void fp_init() {
     fp.saved_area = 0x1c;
     fp.saved_map = 0;
     fp.saved_entrance = 0;
-    fp.turbo = 0;
+    fp.turbo = FALSE;
     fp.ace_last_timer = 0;
-    fp.ace_last_flag_status = 0;
-    fp.ace_last_jump_status = 0;
-    fp.bowser_blocks_enabled = 0;
+    fp.ace_last_flag_status = FALSE;
+    fp.ace_last_jump_status = FALSE;
+    fp.bowser_blocks_enabled = FALSE;
     fp.bowser_block = 0;
+    fp.lzs_trainer_enabled = FALSE;
     fp.prev_prev_action_state = 0;
-    fp.lz_stored = 0;
+    fp.lz_stored = FALSE;
     fp.record_lzs_jumps = 0;
     fp.current_lzs_jumps = 0;
-    fp.player_landed = 0;
+    fp.player_landed = FALSE;
     fp.frames_since_land = 0;
-    fp.warp = 0;
+    fp.warp = FALSE;
     fp.warp_delay = 0;
     fp.frames_since_battle = 0;
     fp.clippy_status = 0;
+    fp.clippy_trainer_enabled = FALSE;
     fp.last_imported_save_path = NULL;
-    fp.free_cam = 0;
-    fp.lock_cam = 0;
+    fp.free_cam = FALSE;
+    fp.lock_cam = FALSE;
     fp.cam_bhv = CAMBHV_MANUAL;
     fp.cam_dist_min = 100;
     fp.cam_dist_max = 400;
@@ -88,8 +90,8 @@ void fp_init() {
     fp.cam_pos.x = 0;
     fp.cam_pos.y = 0;
     fp.cam_pos.z = 0;
-    fp.cam_enabled_before = 0;
-    fp.action_command_trainer_enabled = 0;
+    fp.cam_enabled_before = FALSE;
+    fp.action_command_trainer_enabled = FALSE;
 
     io_init();
 
@@ -126,8 +128,8 @@ void fp_init() {
     fp.menu_watchlist = watchlist_create(&watches, &global, 0, 1);
 
     // configure menu related commands
-    input_bind_set_override(COMMAND_MENU, 1);
-    input_bind_set_override(COMMAND_RETURN, 1);
+    input_bind_set_override(COMMAND_MENU, TRUE);
+    input_bind_set_override(COMMAND_RETURN, TRUE);
 
     // get menu appearance
     apply_menu_settings();
@@ -163,7 +165,7 @@ void fp_init() {
     crash_screen_init();
 #endif
 
-    fp.ready = 1;
+    fp.ready = TRUE;
 }
 
 void fp_update_menu(void) {
@@ -223,10 +225,10 @@ void fp_emergency_settings_reset(u16 pad_pressed) {
 void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
     static struct gfx_texture *fp_icon_tex;
     if (pm_gGameStatus.introState == 5) {
-        fp.version_shown = 1;
+        fp.version_shown = TRUE;
     } else {
         if (fp_icon_tex == NULL) {
-            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A, 0);
+            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A, FALSE);
         }
         struct gfx_sprite fp_icon_sprite = {
             fp_icon_tex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,
@@ -410,7 +412,7 @@ void fp_lzs_trainer(void) {
             if (script->ptrNextLine) {
                 u32 callback_function = script->ptrNextLine[5];
                 if (callback_function == (uintptr_t)pm_GotoMap) {
-                    fp.lz_stored = 1;
+                    fp.lz_stored = TRUE;
                 }
             }
         }
@@ -419,7 +421,7 @@ void fp_lzs_trainer(void) {
     // Count frames since mario landed
     if (pm_player.actionState == ACTION_STATE_LAND || pm_player.actionState == ACTION_STATE_WALK ||
         pm_player.actionState == ACTION_STATE_RUN) {
-        fp.player_landed = 1;
+        fp.player_landed = TRUE;
     }
     if (fp.player_landed) {
         fp.frames_since_land++;
@@ -427,7 +429,7 @@ void fp_lzs_trainer(void) {
         fp.frames_since_land = 0;
     }
     if (pm_player.actionState == ACTION_STATE_JUMP) {
-        fp.player_landed = 0;
+        fp.player_landed = FALSE;
     }
 
     // log lzs status
@@ -481,8 +483,8 @@ void fp_lzs_trainer(void) {
     fp.prev_prev_action_state = pm_player.prevActionState;
 
     if (pm_MapChangeState == 1) {
-        fp.lz_stored = 0;
-        fp.player_landed = 0;
+        fp.lz_stored = FALSE;
+        fp.player_landed = FALSE;
         fp.frames_since_land = 0;
         fp.current_lzs_jumps = 0;
     }
@@ -588,7 +590,7 @@ void fp_update_warps(void) {
         pm_SetMapTransitionEffect(0); // normal black fade
         PRINTF("changing game timer_mode\n");
         pm_SetGameMode(5); // start the "change map" game timer_mode
-        fp.warp = 0;
+        fp.warp = FALSE;
     }
 }
 
@@ -627,7 +629,7 @@ void fp_cam_update() {
             fp.cam_pos.x = pm_gCameras->lookAt_eye.x;
             fp.cam_pos.y = pm_gCameras->lookAt_eye.y;
             fp.cam_pos.z = pm_gCameras->lookAt_eye.z;
-            fp.cam_enabled_before = 1;
+            fp.cam_enabled_before = TRUE;
         } else {
             fp_update_cam();
         }
@@ -660,7 +662,7 @@ void fp_update(void) {
         if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
             apply_menu_settings();
         }
-        fp.settings_loaded = 1;
+        fp.settings_loaded = TRUE;
     }
 
     fp_emergency_settings_reset(pad_pressed);
@@ -698,7 +700,7 @@ void fp_update(void) {
     }
 
     for (s32 i = 0; i < COMMAND_MAX; ++i) {
-        _Bool active = 0;
+        bool active = FALSE;
 
         switch (fp_commands[i].command_type) {
             case COMMAND_HOLD: active = input_bind_held(i); break;
@@ -735,10 +737,10 @@ void fp_update(void) {
 void fp_draw(void) {
     gfx_mode_init();
 
-    struct gfx_font *font = menu_get_font(fp.main_menu, 1);
-    u8 menu_alpha = menu_get_alpha_i(fp.main_menu, 1);
-    s32 cell_width = menu_get_cell_width(fp.main_menu, 1);
-    s32 cell_height = menu_get_cell_height(fp.main_menu, 1);
+    struct gfx_font *font = menu_get_font(fp.main_menu, TRUE);
+    u8 menu_alpha = menu_get_alpha_i(fp.main_menu, TRUE);
+    s32 cell_width = menu_get_cell_width(fp.main_menu, TRUE);
+    s32 cell_height = menu_get_cell_height(fp.main_menu, TRUE);
 
     if (!fp.version_shown) {
         fp_draw_version(font, cell_width, cell_height, menu_alpha);

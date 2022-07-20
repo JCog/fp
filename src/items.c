@@ -462,10 +462,10 @@ static s32 badge_proc_switch(struct menu_item *item, enum menu_callback_reason r
             }
         }
     } else if (reason == MENU_CALLBACK_THINK) {
-        _Bool has_badge = 0;
+        bool has_badge = FALSE;
         for (u16 i = 0; i < 128; i++) {
             if (badge_list[i] == badge_id) {
-                has_badge = 1;
+                has_badge = TRUE;
                 break;
             }
         }
@@ -557,8 +557,8 @@ static void create_item_selection_page(struct menu *page, const char *title, str
         }
         start_y = final_item_y + spacing + 1;
     }
-    menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_RIGHT, 1, 0);
-    menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_LEFT, 1, 1);
+    menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_RIGHT, TRUE, FALSE);
+    menu_item_create_chain(item_buttons, total_item_count, MENU_NAVIGATE_LEFT, TRUE, TRUE);
     free(item_buttons);
 }
 
@@ -643,8 +643,8 @@ static void create_items_menu(struct menu *menu, enum item_type item_type, struc
             item_buttons[i_pos] = menu_add_item_button(page, item_x, item_y, str_item_names, item_texture_list,
                                                        item_type, item_idx, icon_scale, item_list_button_proc, menu);
         }
-        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_RIGHT, 1, 0);
-        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_LEFT, 1, 1);
+        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_RIGHT, TRUE, FALSE);
+        menu_item_create_chain(item_buttons, page_size, MENU_NAVIGATE_LEFT, TRUE, TRUE);
     }
     menu_tab_goto(tab, 0);
     if (page_count > 1) {
@@ -679,15 +679,15 @@ void create_badges_menu(struct menu *menu, struct gfx_texture **item_texture_lis
         u8 badge_x = base_x + (i % row_width) * spacing_x;
         u8 badge_y = base_y + (i / row_width) * spacing_y;
         u32 item_id = items_badges[i];
-        struct gfx_texture *badge_icon = resource_load_pmicon_item(item_id, 0);
+        struct gfx_texture *badge_icon = resource_load_pmicon_item(item_id, FALSE);
         badge_items[i] = menu_add_switch(menu, badge_x, badge_y, badge_icon, 0, 0, 0xFFFFFF, badge_icon, 0, 1, 0xFFFFFF,
-                                         0.6f, 0, badge_proc_switch, (void *)item_id);
+                                         0.6f, FALSE, badge_proc_switch, (void *)item_id);
         badge_items[i]->tooltip = str_item_names[item_id];
     }
     menu_item_add_chain_link(return_item, badge_items[0], MENU_NAVIGATE_DOWN);
     menu_item_add_chain_link(badge_items[0], return_item, MENU_NAVIGATE_UP);
-    menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_RIGHT, 1, 0);
-    menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_LEFT, 1, 1);
+    menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_RIGHT, TRUE, FALSE);
+    menu_item_create_chain(badge_items, 80, MENU_NAVIGATE_LEFT, TRUE, TRUE);
 
     static struct menu full_badge_list;
     menu_init(&full_badge_list, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);

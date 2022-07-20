@@ -39,10 +39,10 @@ void menu_destroy(struct menu *menu) {
     }
 }
 
-s32 menu_get_cxoffset(struct menu *menu, _Bool inherit) {
+s32 menu_get_cxoffset(struct menu *menu, bool inherit) {
     s32 cxoffset = menu->cxoffset;
     if (inherit && menu->parent) {
-        cxoffset += menu_get_cxoffset(menu->parent, 1);
+        cxoffset += menu_get_cxoffset(menu->parent, TRUE);
     }
     return cxoffset;
 }
@@ -51,10 +51,10 @@ void menu_set_cxoffset(struct menu *menu, s32 cxoffset) {
     menu->cxoffset = cxoffset;
 }
 
-s32 menu_get_cyoffset(struct menu *menu, _Bool inherit) {
+s32 menu_get_cyoffset(struct menu *menu, bool inherit) {
     s32 cyoffset = menu->cyoffset;
     if (inherit && menu->parent) {
-        cyoffset += menu_get_cyoffset(menu->parent, 1);
+        cyoffset += menu_get_cyoffset(menu->parent, TRUE);
     }
     return cyoffset;
 }
@@ -63,10 +63,10 @@ void menu_set_cyoffset(struct menu *menu, s32 cyoffset) {
     menu->cyoffset = cyoffset;
 }
 
-s32 menu_get_pxoffset(struct menu *menu, _Bool inherit) {
+s32 menu_get_pxoffset(struct menu *menu, bool inherit) {
     s32 pxoffset = menu->pxoffset;
     if (inherit && menu->parent) {
-        pxoffset += menu_get_pxoffset(menu->parent, 1);
+        pxoffset += menu_get_pxoffset(menu->parent, TRUE);
     }
     return pxoffset;
 }
@@ -75,10 +75,10 @@ void menu_set_pxoffset(struct menu *menu, s32 pxoffset) {
     menu->pxoffset = pxoffset;
 }
 
-s32 menu_get_pyoffset(struct menu *menu, _Bool inherit) {
+s32 menu_get_pyoffset(struct menu *menu, bool inherit) {
     s32 pyoffset = menu->pyoffset;
     if (inherit && menu->parent) {
-        pyoffset += menu_get_pyoffset(menu->parent, 1);
+        pyoffset += menu_get_pyoffset(menu->parent, TRUE);
     }
     return pyoffset;
 }
@@ -87,9 +87,9 @@ void menu_set_pyoffset(struct menu *menu, s32 pyoffset) {
     menu->pyoffset = pyoffset;
 }
 
-s32 menu_get_cell_width(struct menu *menu, _Bool inherit) {
+s32 menu_get_cell_width(struct menu *menu, bool inherit) {
     if (inherit && menu->parent && menu->cell_width == MENU_NOVALUE) {
-        return menu_get_cell_width(menu->parent, 1);
+        return menu_get_cell_width(menu->parent, TRUE);
     }
     return menu->cell_width;
 }
@@ -98,9 +98,9 @@ void menu_set_cell_width(struct menu *menu, s32 cell_width) {
     menu->cell_width = cell_width;
 }
 
-s32 menu_get_cell_height(struct menu *menu, _Bool inherit) {
+s32 menu_get_cell_height(struct menu *menu, bool inherit) {
     if (inherit && menu->parent && menu->cell_height == MENU_NOVALUE) {
-        return menu_get_cell_height(menu->parent, 1);
+        return menu_get_cell_height(menu->parent, TRUE);
     }
     return menu->cell_height;
 }
@@ -109,9 +109,9 @@ void menu_set_cell_height(struct menu *menu, s32 cell_height) {
     menu->cell_height = cell_height;
 }
 
-struct gfx_font *menu_get_font(struct menu *menu, _Bool inherit) {
+struct gfx_font *menu_get_font(struct menu *menu, bool inherit) {
     if (inherit && menu->parent && menu->font == MENU_NOVALUE) {
-        return menu_get_font(menu->parent, 1);
+        return menu_get_font(menu->parent, TRUE);
     }
     return menu->font;
 }
@@ -120,15 +120,15 @@ void menu_set_font(struct menu *menu, struct gfx_font *font) {
     menu->font = font;
 }
 
-f32 menu_get_alpha(struct menu *menu, _Bool inherit) {
+f32 menu_get_alpha(struct menu *menu, bool inherit) {
     f32 alpha = menu->alpha;
     if (inherit && menu->parent) {
-        alpha *= menu_get_alpha(menu->parent, 1);
+        alpha *= menu_get_alpha(menu->parent, TRUE);
     }
     return alpha;
 }
 
-u8 menu_get_alpha_i(struct menu *menu, _Bool inherit) {
+u8 menu_get_alpha_i(struct menu *menu, bool inherit) {
     f32 alpha = menu_get_alpha(menu, inherit);
     if (alpha < 0.f) {
         alpha = 0.f;
@@ -143,11 +143,11 @@ void menu_set_alpha(struct menu *menu, f32 alpha) {
 }
 
 s32 menu_cell_screen_x(struct menu *menu, s32 x) {
-    return (x + menu_get_cxoffset(menu, 1)) * menu_get_cell_width(menu, 1) + menu_get_pxoffset(menu, 1);
+    return (x + menu_get_cxoffset(menu, TRUE)) * menu_get_cell_width(menu, TRUE) + menu_get_pxoffset(menu, TRUE);
 }
 
 s32 menu_cell_screen_y(struct menu *menu, s32 y) {
-    return (y + menu_get_cyoffset(menu, 1)) * menu_get_cell_height(menu, 1) + menu_get_pyoffset(menu, 1);
+    return (y + menu_get_cyoffset(menu, TRUE)) * menu_get_cell_height(menu, TRUE) + menu_get_pyoffset(menu, TRUE);
 }
 
 struct menu_item *menu_get_selector(struct menu *menu) {
@@ -205,8 +205,8 @@ void menu_draw(struct menu *menu) {
         menu->highlight_color_animated &= ~mask;
         menu->highlight_color_animated |= (u32)v << shift;
     }
-    struct gfx_font *font = menu_get_font(menu, 1);
-    u8 alpha = menu_get_alpha_i(menu, 1);
+    struct gfx_font *font = menu_get_font(menu, TRUE);
+    u8 alpha = menu_get_alpha_i(menu, TRUE);
     for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
         if (!item->enabled) {
             continue;
@@ -419,7 +419,7 @@ struct menu_item *menu_item_add(struct menu *menu, s32 x, s32 y, const char *tex
     struct menu_item *item = list_push_back(&menu->items, NULL);
     if (item) {
         item->owner = menu;
-        item->enabled = 1;
+        item->enabled = TRUE;
         item->x = x;
         item->y = y;
         item->pxoffset = 0;
@@ -432,9 +432,9 @@ struct menu_item *menu_item_add(struct menu *menu, s32 x, s32 y, const char *tex
         }
         item->tooltip = NULL;
         item->color = color;
-        item->animate_highlight = 0;
+        item->animate_highlight = FALSE;
         item->data = NULL;
-        item->selectable = 1;
+        item->selectable = TRUE;
         item->imenu = NULL;
         item->enter_proc = NULL;
         item->leave_proc = NULL;
@@ -457,11 +457,11 @@ static void menu_deselect(struct menu *menu, struct menu_item *item) {
 }
 
 void menu_item_enable(struct menu_item *item) {
-    item->enabled = 1;
+    item->enabled = TRUE;
 }
 
 void menu_item_disable(struct menu_item *item) {
-    item->enabled = 0;
+    item->enabled = FALSE;
     menu_deselect(item->owner, item);
 }
 
@@ -495,8 +495,8 @@ void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_
     from_item->chain_links[direction] = to_item;
 }
 
-void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop,
-                            _Bool reverse_chain) {
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, bool loop,
+                            bool reverse_chain) {
     if (!reverse_chain) {
         for (s32 i = 0; i < items_size - 1; i++) {
             menu_item_add_chain_link(items[i], items[i + 1], nav_direction);

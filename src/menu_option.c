@@ -8,7 +8,7 @@ struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
     s32 value;
-    _Bool active;
+    bool active;
 };
 
 static s32 think_proc(struct menu_item *item) {
@@ -60,13 +60,13 @@ static s32 activate_proc(struct menu_item *item) {
             return 1;
         }
         item->navigate_proc = NULL;
-        item->animate_highlight = 0;
+        item->animate_highlight = FALSE;
     } else {
         if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
             return 1;
         }
         item->navigate_proc = navigate_proc;
-        item->animate_highlight = 1;
+        item->animate_highlight = TRUE;
     }
     data->active = !data->active;
     return 1;
@@ -97,7 +97,7 @@ struct menu_item *menu_add_option(struct menu *menu, s32 x, s32 y, const char *o
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
     data->value = 0;
-    data->active = 0;
+    data->active = FALSE;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
     char **option = vector_at(&data->options, data->value);
     item->text = *option;

@@ -97,19 +97,19 @@ static s32 story_progress_draw_proc(struct menu_item *item, struct menu_draw_par
 }
 
 static void open_pipes_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ad, 1); // 3 pipe blooper gone
-    fp_set_global_flag(0x78d, 1); // 3 pipes opened
-    fp_set_global_flag(0x791, 1); // goomba village pipe
-    fp_set_global_flag(0x792, 1); // koopa village pipe
-    fp_set_global_flag(0x793, 1); // dry dry outpost pipe
+    fp_set_global_flag(0x1ad, TRUE); // 3 pipe blooper gone
+    fp_set_global_flag(0x78d, TRUE); // 3 pipes opened
+    fp_set_global_flag(0x791, TRUE); // goomba village pipe
+    fp_set_global_flag(0x792, TRUE); // koopa village pipe
+    fp_set_global_flag(0x793, TRUE); // dry dry outpost pipe
 
-    fp_set_global_flag(0x1af, 1); // ch5 blooper gone
-    fp_set_global_flag(0x78e, 1); // ch5 sewer pipe
-    fp_set_global_flag(0x795, 1); // lavalava island pipe
+    fp_set_global_flag(0x1af, TRUE); // ch5 blooper gone
+    fp_set_global_flag(0x78e, TRUE); // ch5 sewer pipe
+    fp_set_global_flag(0x795, TRUE); // lavalava island pipe
 
-    fp_set_global_flag(0x1b0, 1); // dark koopas gone
-    fp_set_global_flag(0x78f, 1); // dark koopa pipe
-    fp_set_global_flag(0x794, 1); // boo's mansion pipe
+    fp_set_global_flag(0x1b0, TRUE); // dark koopas gone
+    fp_set_global_flag(0x78f, TRUE); // dark koopa pipe
+    fp_set_global_flag(0x794, TRUE); // boo's mansion pipe
 }
 
 static void restore_enemies_proc(struct menu_item *item, void *data) {
@@ -121,17 +121,17 @@ static void restore_enemies_proc(struct menu_item *item, void *data) {
 }
 
 static void restore_letters_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x2c1, 0);
-    fp_set_global_flag(0x2c2, 0);
-    fp_set_global_flag(0x2c3, 0);
-    fp_set_global_flag(0x2f5, 0);
-    fp_set_global_flag(0x340, 0);
-    fp_set_global_flag(0x341, 0);
-    fp_set_global_flag(0x4c6, 0);
-    fp_set_global_flag(0x4cb, 0);
-    fp_set_global_flag(0x56d, 0);
-    fp_set_global_flag(0x5a6, 0);
-    fp_set_global_flag(0x5a9, 0);
+    fp_set_global_flag(0x2c1, FALSE);
+    fp_set_global_flag(0x2c2, FALSE);
+    fp_set_global_flag(0x2c3, FALSE);
+    fp_set_global_flag(0x2f5, FALSE);
+    fp_set_global_flag(0x340, FALSE);
+    fp_set_global_flag(0x341, FALSE);
+    fp_set_global_flag(0x4c6, FALSE);
+    fp_set_global_flag(0x4cb, FALSE);
+    fp_set_global_flag(0x56d, FALSE);
+    fp_set_global_flag(0x5a6, FALSE);
+    fp_set_global_flag(0x5a9, FALSE);
 }
 
 static s32 do_export_file(const char *path, void *data) {

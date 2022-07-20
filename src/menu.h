@@ -53,7 +53,7 @@ typedef s32 (*menu_prompt_callback)(s32 option_index, void *data);
 
 struct menu_item {
     struct menu *owner;
-    _Bool enabled;
+    bool enabled;
     s32 x;
     s32 y;
     s32 pxoffset;
@@ -61,9 +61,9 @@ struct menu_item {
     char *text;
     const char *tooltip;
     u32 color;
-    _Bool animate_highlight;
+    bool animate_highlight;
     void *data;
-    _Bool selectable;
+    bool selectable;
     struct menu *imenu;
     struct menu_item *chain_links[4];
     s32 (*enter_proc)(struct menu_item *item, enum menu_switch_reason reason);
@@ -110,22 +110,22 @@ enum watch_type {
 void menu_init(struct menu *menu, s32 cell_width, s32 cell_height, struct gfx_font *font);
 void menu_imitate(struct menu *dest, struct menu *src);
 void menu_destroy(struct menu *menu);
-s32 menu_get_cxoffset(struct menu *menu, _Bool inherit);
+s32 menu_get_cxoffset(struct menu *menu, bool inherit);
 void menu_set_cxoffset(struct menu *menu, s32 cxoffset);
-s32 menu_get_cyoffset(struct menu *menu, _Bool inherit);
+s32 menu_get_cyoffset(struct menu *menu, bool inherit);
 void menu_set_cyoffset(struct menu *menu, s32 cyoffset);
-s32 menu_get_pxoffset(struct menu *menu, _Bool inherit);
+s32 menu_get_pxoffset(struct menu *menu, bool inherit);
 void menu_set_pxoffset(struct menu *menu, s32 pxoffset);
-s32 menu_get_pyoffset(struct menu *menu, _Bool inherit);
+s32 menu_get_pyoffset(struct menu *menu, bool inherit);
 void menu_set_pyoffset(struct menu *menu, s32 pyoffset);
-s32 menu_get_cell_width(struct menu *menu, _Bool inherit);
+s32 menu_get_cell_width(struct menu *menu, bool inherit);
 void menu_set_cell_width(struct menu *menu, s32 cell_width);
-s32 menu_get_cell_height(struct menu *menu, _Bool inherit);
+s32 menu_get_cell_height(struct menu *menu, bool inherit);
 void menu_set_cell_height(struct menu *menu, s32 cell_height);
-struct gfx_font *menu_get_font(struct menu *menu, _Bool inherit);
+struct gfx_font *menu_get_font(struct menu *menu, bool inherit);
 void menu_set_font(struct menu *menu, struct gfx_font *font);
-f32 menu_get_alpha(struct menu *menu, _Bool inherit);
-u8 menu_get_alpha_i(struct menu *menu, _Bool inherit);
+f32 menu_get_alpha(struct menu *menu, bool inherit);
+u8 menu_get_alpha_i(struct menu *menu, bool inherit);
 void menu_set_alpha(struct menu *menu, f32 alpha);
 s32 menu_cell_screen_x(struct menu *menu, s32 cell_x);
 s32 menu_cell_screen_y(struct menu *menu, s32 cell_y);
@@ -153,8 +153,8 @@ void menu_item_disable(struct menu_item *item);
 void menu_item_transfer(struct menu_item *item, struct menu *menu);
 void menu_item_remove(struct menu_item *item);
 void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction);
-void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, _Bool loop,
-                            _Bool reverse_chain);
+void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, bool loop,
+                            bool reverse_chain);
 s32 menu_item_screen_x(struct menu_item *item);
 s32 menu_item_screen_y(struct menu_item *item);
 struct menu_item *menu_add_static(struct menu *menu, s32 x, s32 y, const char *text, u32 color);
@@ -203,9 +203,9 @@ struct menu_item *menu_add_submenu(struct menu *menu, s32 x, s32 y, struct menu 
 struct menu_item *menu_add_switch(struct menu *menu, s32 x, s32 y, struct gfx_texture *texture_on, s32 texture_tile_on,
                                   s8 texture_palette_on, u32 color_on, struct gfx_texture *texture_off,
                                   s32 texture_tile_off, s8 texture_palette_off, u32 color_off, f32 scale,
-                                  _Bool disable_shadow, menu_generic_callback callback_proc, void *callback_data);
-void menu_switch_set(struct menu_item *item, _Bool state);
-_Bool menu_switch_get(struct menu_item *item);
+                                  bool disable_shadow, menu_generic_callback callback_proc, void *callback_data);
+void menu_switch_set(struct menu_item *item, bool state);
+bool menu_switch_get(struct menu_item *item);
 void menu_switch_toggle(struct menu_item *item);
 struct menu_item *menu_add_button(struct menu *menu, s32 x, s32 y, const char *name, menu_action_callback callback_proc,
                                   void *callback_data);
@@ -216,10 +216,10 @@ struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_gen
                                        void *callback_data);
 struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
                                     void *callback_data);
-_Bool menu_checkbox_get(struct menu_item *item);
-void menu_checkbox_set(struct menu_item *item, _Bool state);
+bool menu_checkbox_get(struct menu_item *item);
+void menu_checkbox_set(struct menu_item *item, bool state);
 struct menu_item *menu_add_cycle(struct menu *menu, s32 x, s32 y, s32 cycle_count, struct gfx_texture **textures,
-                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, _Bool disable_shadow,
+                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, bool disable_shadow,
                                  menu_generic_callback callback_proc, void *callback_data);
 void menu_cycle_set(struct menu_item *item, s32 state);
 s32 menu_cycle_get(struct menu_item *item);

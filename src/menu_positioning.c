@@ -6,7 +6,7 @@
 struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
-    _Bool active;
+    bool active;
 };
 
 static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
@@ -14,7 +14,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     if (!texture) {
         texture = resource_load_grc_texture("move_icon");
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     struct gfx_sprite sprite = {
         texture,
         0,
@@ -53,7 +53,7 @@ struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_gen
     struct item_data *data = malloc(sizeof(*data));
     data->callback_proc = callback_proc;
     data->callback_data = callback_data;
-    data->active = 0;
+    data->active = FALSE;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
     item->data = data;
     item->draw_proc = draw_proc;

@@ -54,7 +54,7 @@ static inline void dcache_wb(const void *ptr, size_t len) {
 }
 
 /* safe (non-signaling) nan check */
-static inline _Bool is_nan(f32 f) {
+static inline bool is_nan(f32 f) {
     u32 exp_mask = 0b01111111100000000000000000000000;
     u32 sig_mask = 0b00000000011111111111111111111111;
     union {

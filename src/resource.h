@@ -236,7 +236,7 @@ void *resource_get(enum resource_id res);
 void resource_free(enum resource_id res);
 struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name);
 /// @param safe disable to save memory by reusing duplicate textures. enable if editing the texture.
-struct gfx_texture *resource_load_pmicon_item(u16 item, _Bool safe);
+struct gfx_texture *resource_load_pmicon_item(u16 item, bool safe);
 struct gfx_texture *resource_load_pmicon_global(enum icon_global_offset icon_global_offset, s8 palette_count);
 
 #endif

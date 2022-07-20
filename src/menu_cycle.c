@@ -12,7 +12,7 @@ struct item_data {
     s8 *texture_palettes;
     u32 *colors;
     f32 scale;
-    _Bool disable_shadow;
+    bool disable_shadow;
     s32 display_state;
     s32 anim_state;
 };
@@ -43,7 +43,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     s32 texture_tile = data->texture_tiles[data->display_state];
     s8 texture_palette = data->texture_palettes[data->display_state];
     u32 color = data->colors[data->display_state];
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     s32 w = texture->tile_width * data->scale;
     s32 h = texture->tile_height * data->scale;
     s32 x = draw_params->x + (cw - w) / 2;
@@ -90,7 +90,7 @@ static s32 activate_proc(struct menu_item *item) {
 }
 
 struct menu_item *menu_add_cycle(struct menu *menu, s32 x, s32 y, s32 cycle_count, struct gfx_texture **textures,
-                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, _Bool disable_shadow,
+                                 s32 *texture_tiles, s8 *texture_palettes, u32 *colors, f32 scale, bool disable_shadow,
                                  menu_generic_callback callback_proc, void *callback_data) {
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0x808080);
     struct item_data *data = malloc(sizeof(*data));

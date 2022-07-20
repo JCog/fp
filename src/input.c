@@ -16,11 +16,11 @@ static u16 pad_reserved;
 static s32 button_reserve_count[16];
 static s32 bind_component_state[COMMAND_MAX];
 static s32 bind_time[COMMAND_MAX];
-static _Bool bind_pressed_raw[COMMAND_MAX];
-static _Bool bind_pressed[COMMAND_MAX];
-static _Bool bind_disable[COMMAND_MAX];
-static _Bool bind_override[COMMAND_MAX];
-static _Bool input_enabled = 1;
+static bool bind_pressed_raw[COMMAND_MAX];
+static bool bind_pressed[COMMAND_MAX];
+static bool bind_disable[COMMAND_MAX];
+static bool bind_override[COMMAND_MAX];
+static bool input_enabled = TRUE;
 
 static s32 bitmask_button_index(u16 bitmask) {
     for (s32 i = 0; i < 16; ++i) {
@@ -88,7 +88,7 @@ void input_update(void) {
         }
     }
     u16 bind_pad[SETTINGS_BIND_MAX];
-    _Bool bind_state[SETTINGS_BIND_MAX];
+    bool bind_state[SETTINGS_BIND_MAX];
     for (s32 i = 0; i < SETTINGS_BIND_MAX; ++i) {
         u16 *b = &settings->binds[i];
         bind_pad[i] = bind_get_bitmask(*b);
@@ -138,7 +138,7 @@ void input_update(void) {
             u16 pj = bind_pad[j];
             if (pi != pj && (pi & pj) == pi) {
                 bind_component_state[i] = 0;
-                bind_state[i] = 0;
+                bind_state[i] = FALSE;
             }
         }
         bind_pressed_raw[i] = (bind_time[i] == 0 && bind_state[i]);
@@ -212,23 +212,23 @@ void input_free(u16 bitmask) {
     }
 }
 
-void input_bind_set_disable(s32 index, _Bool value) {
+void input_bind_set_disable(s32 index, bool value) {
     bind_disable[index] = value;
 }
 
-void input_bind_set_override(s32 index, _Bool value) {
+void input_bind_set_override(s32 index, bool value) {
     bind_override[index] = value;
 }
 
-_Bool input_bind_held(s32 index) {
+bool input_bind_held(s32 index) {
     return bind_time[index] > 0;
 }
 
-_Bool input_bind_pressed_raw(s32 index) {
+bool input_bind_pressed_raw(s32 index) {
     return bind_pressed_raw[index];
 }
 
-_Bool input_bind_pressed(s32 index) {
+bool input_bind_pressed(s32 index) {
     return bind_pressed[index];
 }
 
@@ -245,9 +245,9 @@ static s32 think_proc(struct menu_item *item) {
             data->state = 2;
         } else if (button_time[bitmask_button_index(BUTTON_L)] >= INPUT_REPEAT_DELAY) {
             *b = bind_make(0);
-            item->animate_highlight = 0;
+            item->animate_highlight = FALSE;
             data->state = 0;
-            input_enabled = 1;
+            input_enabled = TRUE;
         }
     }
     if (data->state == 2) {
@@ -259,9 +259,9 @@ static s32 think_proc(struct menu_item *item) {
     if (data->state == 3) {
         u16 p = bind_get_bitmask(*b);
         if (pad == 0) {
-            item->animate_highlight = 0;
+            item->animate_highlight = FALSE;
             data->state = 0;
-            input_enabled = 1;
+            input_enabled = TRUE;
         } else {
             u16 pp = pad_pressed_raw & ~p;
             for (s32 i = 0; pp && i < 4; ++i) {
@@ -284,7 +284,7 @@ static s32 think_proc(struct menu_item *item) {
 static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     struct item_data *data = item->data;
     struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     s32 x = draw_params->x + (cw - texture->tile_width) / 2;
     s32 y = draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2;
     u16 b = settings->binds[data->bind_index];
@@ -311,9 +311,9 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
 static s32 activate_proc(struct menu_item *item) {
     struct item_data *data = item->data;
     if (data->state == 0) {
-        item->animate_highlight = 1;
+        item->animate_highlight = TRUE;
         data->state = 1;
-        input_enabled = 0;
+        input_enabled = FALSE;
     }
     return 1;
 }

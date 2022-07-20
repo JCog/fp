@@ -27,11 +27,11 @@ struct member_data {
     struct menu_item *anchor_button;
     struct menu_item *positioning;
     struct menu_item *userwatch;
-    _Bool anchored;
+    bool anchored;
     s32 anchor_anim_state;
     s32 x;
     s32 y;
-    _Bool position_set;
+    bool position_set;
 };
 
 static struct gfx_texture *list_icons = NULL;
@@ -49,7 +49,7 @@ static void release_member(struct member_data *member_data) {
     if (!member_data->anchored) {
         return;
     }
-    member_data->anchored = 0;
+    member_data->anchored = FALSE;
     menu_item_enable(member_data->positioning);
     struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
     if (!member_data->position_set) {
@@ -67,7 +67,7 @@ static void anchor_member(struct member_data *member_data) {
     if (member_data->anchored) {
         return;
     }
-    member_data->anchored = 1;
+    member_data->anchored = TRUE;
     menu_item_disable(member_data->positioning);
     struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
     watch->x = 13;
@@ -90,7 +90,7 @@ static s32 anchor_button_draw_proc(struct menu_item *item, struct menu_draw_para
     if (!texture) {
         texture = resource_load_grc_texture("anchor");
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     if (member_data->anchor_anim_state > 0) {
         ++draw_params->x;
         ++draw_params->y;
@@ -132,7 +132,7 @@ static s32 position_proc(struct menu_item *item, enum menu_callback_reason reaso
     struct member_data *member_data = data;
     struct menu_item *watch = menu_userwatch_watch(member_data->userwatch);
     if (!member_data->position_set) {
-        member_data->position_set = 1;
+        member_data->position_set = TRUE;
         member_data->x = watch->pxoffset;
         member_data->y = watch->pyoffset;
     }
@@ -155,8 +155,8 @@ static s32 position_proc(struct menu_item *item, enum menu_callback_reason reaso
 }
 
 static void remove_button_proc(struct menu_item *item, void *data);
-static s32 add_member(struct item_data *data, u32 address, enum watch_type type, s32 position, _Bool anchored, s32 x,
-                      s32 y, _Bool position_set) {
+static s32 add_member(struct item_data *data, u32 address, enum watch_type type, s32 position, bool anchored, s32 x,
+                      s32 y, bool position_set) {
     if (data->members.size >= SETTINGS_WATCHES_MAX || position < 0 || position > data->members.size) {
         return 0;
     }
@@ -179,11 +179,11 @@ static s32 add_member(struct item_data *data, u32 address, enum watch_type type,
     member_data->anchor_button->data = member_data;
     member_data->positioning = menu_add_positioning(imenu, 6, 0, position_proc, member_data);
     member_data->userwatch = menu_add_userwatch(imenu, 8, 0, address, type);
-    member_data->anchored = 1;
+    member_data->anchored = TRUE;
     member_data->anchor_anim_state = 0;
     member_data->x = x;
     member_data->y = y;
-    member_data->position_set = 1;
+    member_data->position_set = TRUE;
     menu_add_button_icon(imenu, 0, 0, list_icons, 1, 0, 0xFF0000, 1.0f, remove_button_proc, member_data);
     menu_add_button_icon(imenu, 2, 0, wrench, 0, 0, 0xFFFFFF, 1.0f, edit_watch_in_memory_proc, member_data);
 
@@ -234,7 +234,7 @@ static void add_button_proc(struct menu_item *item, void *data) {
         address = menu_watch_get_address(last_watch);
         type = menu_watch_get_type(last_watch);
     }
-    add_member(item_data, address, type, item_data->members.size, 1, 0, 0, 0);
+    add_member(item_data, address, type, item_data->members.size, TRUE, 0, 0, FALSE);
 }
 
 static s32 import_callback(const char *path, void *data);
@@ -316,7 +316,7 @@ struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release,
 s32 watchlist_add(struct menu_item *item, u32 address, enum watch_type type) {
     struct item_data *list = item->data;
     s32 pos = list->members.size;
-    if (add_member(list, address, type, pos, 1, 0, 0, 0)) {
+    if (add_member(list, address, type, pos, TRUE, 0, 0, FALSE)) {
         return pos;
     } else {
         return -1;
@@ -431,7 +431,7 @@ static s32 entry_activate_proc(struct menu_item *item) {
         struct menu *menu_top = menu_get_top(watchfile_list_data->imenu);
         menu_prompt(menu_top, adex_error_name[e], "return\0", 0, NULL, NULL);
     } else {
-        add_member(watchfile_list_data, address, entry->type, watchfile_list_data->members.size, 1, 0, 0, 0);
+        add_member(watchfile_list_data, address, entry->type, watchfile_list_data->members.size, TRUE, 0, 0, FALSE);
     }
     return 1;
 }
@@ -455,9 +455,9 @@ static void scroll_down_proc(struct menu_item *item, void *data) {
 }
 
 static void watchfile_menu_init(void) {
-    static _Bool ready = 0;
+    static bool ready = FALSE;
     if (!ready) {
-        ready = 1;
+        ready = TRUE;
         struct menu *menu = &watchfile_menu;
         menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         watchfile_return = menu_add_submenu(menu, 0, 0, NULL, "return");
@@ -497,14 +497,14 @@ static void watchfile_view(struct menu *menu) {
     menu_enter(menu, &watchfile_menu);
 }
 
-static _Bool parse_line(const char *line, const char **err_str) {
+static bool parse_line(const char *line, const char **err_str) {
     const char *p = line;
     /* skip whitespace, check for comment or empty line */
     while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
         ++p;
     }
     if (*p == '#' || *p == 0) {
-        return 1;
+        return TRUE;
     }
     /* read name part */
     if (*p++ != '"') {
@@ -553,12 +553,12 @@ static _Bool parse_line(const char *line, const char **err_str) {
     entry.anim_state = 0;
     /* insert entry */
     vector_push_back(&watchfile_entries, 1, &entry);
-    return 1;
+    return TRUE;
 syntax_err:
     *err_str = adex_error_name[ADEX_ERROR_SYNTAX];
     goto err;
 err:
-    return 0;
+    return FALSE;
 }
 
 static s32 import_callback(const char *path, void *data) {

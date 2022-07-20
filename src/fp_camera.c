@@ -14,10 +14,10 @@ static void set_cam_input_mask(void) {
 
 static s32 enable_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        fp.free_cam = 1;
+        fp.free_cam = TRUE;
         set_cam_input_mask();
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        fp.free_cam = 0;
+        fp.free_cam = FALSE;
         pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
         set_cam_input_mask();
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -28,10 +28,10 @@ static s32 enable_cam_proc(struct menu_item *item, enum menu_callback_reason rea
 
 static s32 lock_cam_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        fp.lock_cam = 1;
+        fp.lock_cam = TRUE;
         set_cam_input_mask();
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        fp.lock_cam = 0;
+        fp.lock_cam = FALSE;
         set_cam_input_mask();
     } else if (reason == MENU_CALLBACK_THINK) {
         menu_checkbox_set(item, fp.lock_cam);

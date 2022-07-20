@@ -83,7 +83,7 @@ struct settings {
 void settings_load_default();
 void apply_menu_settings();
 void settings_save(s32 profile);
-_Bool settings_load(s32 profile);
+bool settings_load(s32 profile);
 
 extern struct settings_data *settings;
 

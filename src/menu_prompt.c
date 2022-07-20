@@ -38,7 +38,7 @@ static s32 destroy_proc(struct menu_item *item) {
 
 void menu_prompt(struct menu *menu, const char *prompt, const char *options, s32 default_option,
                  menu_prompt_callback callback_proc, void *callback_data) {
-    static _Bool ready = 0;
+    static bool ready = FALSE;
     if (ready) {
         if (menu == &prompt_menu) {
             menu = prompt_menu.parent;
@@ -46,7 +46,7 @@ void menu_prompt(struct menu *menu, const char *prompt, const char *options, s32
         }
         menu_destroy(&prompt_menu);
     } else {
-        ready = 1;
+        ready = TRUE;
     }
     menu_init(&prompt_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     struct menu_item *item = menu_add_static(&prompt_menu, 0, 0, prompt, 0xC0C0C0);

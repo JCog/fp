@@ -39,11 +39,11 @@ static const u32 partner_order[] = {
 static struct gfx_texture *item_texture_list[0x16D];
 
 static struct gfx_texture **get_item_texture_list(void) {
-    static _Bool ready = 0;
+    static bool ready = FALSE;
     if (!ready) {
-        ready = 1;
+        ready = TRUE;
         for (u16 i = 0; i < 0x16D; i++) {
-            item_texture_list[i] = resource_load_pmicon_item(i, 0);
+            item_texture_list[i] = resource_load_pmicon_item(i, FALSE);
         }
     }
     return item_texture_list;
@@ -297,25 +297,25 @@ static void create_boots_and_hammer_menu(struct menu *menu) {
     s32 boots_x = 1;
     s32 boots_y = 2;
     item = menu_add_switch(menu, boots_x, boots_y, tex_boots_normal, 0, 0, 0xFFFFFF, tex_boots_normal, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)0);
+                           0.7f, FALSE, boots_proc, (void *)0);
     item->tooltip = str_boots_normal;
     item = menu_add_switch(menu, boots_x + 3, boots_y, tex_boots_super, 0, 0, 0xFFFFFF, tex_boots_super, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)1);
+                           0.7f, FALSE, boots_proc, (void *)1);
     item->tooltip = str_boots_super;
     item = menu_add_switch(menu, boots_x + 6, boots_y, tex_boots_ultra, 0, 0, 0xFFFFFF, tex_boots_ultra, 0, 1, 0xFFFFFF,
-                           0.7f, 0, boots_proc, (void *)2);
+                           0.7f, FALSE, boots_proc, (void *)2);
     item->tooltip = str_boots_ultra;
 
     s32 hammer_x = 1;
     s32 hammer_y = 5;
     item = menu_add_switch(menu, hammer_x, hammer_y, tex_hammer_normal, 0, 0, 0xFFFFFF, tex_hammer_normal, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)0);
+                           0xFFFFFF, 0.7f, FALSE, hammer_proc, (void *)0);
     item->tooltip = str_hammer_normal;
     item = menu_add_switch(menu, hammer_x + 3, hammer_y, tex_hammer_super, 0, 0, 0xFFFFFF, tex_hammer_super, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)1);
+                           0xFFFFFF, 0.7f, FALSE, hammer_proc, (void *)1);
     item->tooltip = str_hammer_super;
     item = menu_add_switch(menu, hammer_x + 6, hammer_y, tex_hammer_ultra, 0, 0, 0xFFFFFF, tex_hammer_ultra, 0, 1,
-                           0xFFFFFF, 0.7f, 0, hammer_proc, (void *)2);
+                           0xFFFFFF, 0.7f, FALSE, hammer_proc, (void *)2);
     item->tooltip = str_hammer_ultra;
 }
 
@@ -390,7 +390,7 @@ static void create_stats_menu(struct menu *menu) {
     s32 action_command_x = 23;
     s32 action_command_y = 2;
     item = menu_add_switch(menu, action_command_x, action_command_y, tex_lucky_star, 0, 0, 0xFFFFFF, tex_lucky_star, 0,
-                           1, 0xFFFFFF, 0.7f, 0, action_commands_proc, NULL);
+                           1, 0xFFFFFF, 0.7f, FALSE, action_commands_proc, NULL);
     item->tooltip = str_action_commands;
 }
 
@@ -433,31 +433,31 @@ static void create_party_menu(struct menu *menu) {
         s32 partner_x = base_x + (i / col_height) * spacing_x;
         s32 partner_y = base_y + (i % col_height) * spacing_y;
 
-        partners[i] =
-            menu_add_switch(menu, partner_x, partner_y, tex_partner, i + 1, 0, 0xFFFFFF, tex_partner, i + 1, 1,
-                            0xFFFFFF, scale, 0, in_party_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
+        partners[i] = menu_add_switch(menu, partner_x, partner_y, tex_partner, i + 1, 0, 0xFFFFFF, tex_partner, i + 1,
+                                      1, 0xFFFFFF, scale, FALSE, in_party_proc,
+                                      &pm_player.playerData.partners[partner_order[i + 1]]);
         partners[i]->tooltip = str_partner_names[i];
 
         // super tex
         super_ranks[i] =
             menu_add_switch(menu, partner_x + 2, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
-                            0, super_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
+                            FALSE, super_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
         super_ranks[i]->tooltip = str_super_rank;
 
         // ultra tex
         ultra_ranks[i] =
             menu_add_switch(menu, partner_x + 3, partner_y, tex_rank, 0, 0, 0xFFFFFF, tex_rank, 0, 1, 0xFFFFFF, scale,
-                            0, ultra_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
+                            FALSE, ultra_rank_proc, &pm_player.playerData.partners[partner_order[i + 1]]);
         ultra_ranks[i]->tooltip = str_ultra_rank;
     }
     menu_item_add_chain_link(active_item, partners[0], MENU_NAVIGATE_DOWN);
     menu_item_add_chain_link(partners[0], active_item, MENU_NAVIGATE_UP);
-    menu_item_create_chain(partners, 8, MENU_NAVIGATE_DOWN, 0, 0);
-    menu_item_create_chain(partners, 8, MENU_NAVIGATE_UP, 0, 1);
-    menu_item_create_chain(super_ranks, 8, MENU_NAVIGATE_DOWN, 0, 0);
-    menu_item_create_chain(super_ranks, 8, MENU_NAVIGATE_UP, 0, 1);
-    menu_item_create_chain(ultra_ranks, 8, MENU_NAVIGATE_DOWN, 0, 0);
-    menu_item_create_chain(ultra_ranks, 8, MENU_NAVIGATE_UP, 0, 1);
+    menu_item_create_chain(partners, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
+    menu_item_create_chain(partners, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
+    menu_item_create_chain(super_ranks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
+    menu_item_create_chain(super_ranks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
+    menu_item_create_chain(ultra_ranks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
+    menu_item_create_chain(ultra_ranks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
 }
 
 static void create_star_spirit_menu(struct menu *menu) {
@@ -479,7 +479,7 @@ static void create_star_spirit_menu(struct menu *menu) {
         ss_x = base_x + (i % row_width) * spacing_x;
         ss_y = base_y + (i / row_width) * spacing_y;
         star_spirits[i] = menu_add_switch(menu, ss_x, ss_y, tex_star_spirits, i, 0, 0xFFFFFF, tex_star_spirits, i, 1,
-                                          0xFFFFFF, scale, 0, star_spirit_switch_proc, (void *)i + 1);
+                                          0xFFFFFF, scale, FALSE, star_spirit_switch_proc, (void *)i + 1);
         star_spirits[i]->tooltip = str_star_spirit_names[i];
     }
     ss_x = base_x + (7 % row_width) * spacing_x;
@@ -489,10 +489,10 @@ static void create_star_spirit_menu(struct menu *menu) {
     s8 beam_palettes[] = {1, 0, 0};
     u32 beam_colors[] = {0xFFFFFF, 0xFFFFFF, 0xFFFFFF};
     struct menu_item *item = menu_add_cycle(menu, ss_x, ss_y, 3, beam_textures, beam_tiles, beam_palettes, beam_colors,
-                                            scale, 0, beam_rank_proc, NULL);
+                                            scale, FALSE, beam_rank_proc, NULL);
     item->tooltip = str_star_peach_beam;
-    menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_RIGHT, 0, 0);
-    menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_LEFT, 0, 1);
+    menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_RIGHT, FALSE, FALSE);
+    menu_item_create_chain(star_spirits, 8, MENU_NAVIGATE_LEFT, FALSE, TRUE);
 }
 
 static void create_peach_menu(struct menu *menu) {

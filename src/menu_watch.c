@@ -61,7 +61,7 @@ struct menu_item *menu_add_watch(struct menu *menu, s32 x, s32 y, u32 address, e
     data->type = type;
     struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xC0C0C0);
     item->text = malloc(17);
-    item->selectable = 0;
+    item->selectable = FALSE;
     item->data = data;
     item->draw_proc = draw_proc;
     return item;

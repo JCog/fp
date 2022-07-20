@@ -6,7 +6,7 @@
 struct item_data {
     menu_generic_callback callback_proc;
     void *callback_data;
-    _Bool state;
+    bool state;
     s32 anim_state;
 };
 
@@ -31,7 +31,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     if (!texture) {
         texture = resource_load_grc_texture("checkbox");
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
+    s32 cw = menu_get_cell_width(item->owner, TRUE);
     struct gfx_sprite sprite = {
         texture,
         data->anim_state == 0 ? 0 : 1,
@@ -82,12 +82,12 @@ struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generi
     return item;
 }
 
-_Bool menu_checkbox_get(struct menu_item *item) {
+bool menu_checkbox_get(struct menu_item *item) {
     struct item_data *data = item->data;
     return data->state;
 }
 
-void menu_checkbox_set(struct menu_item *item, _Bool state) {
+void menu_checkbox_set(struct menu_item *item, bool state) {
     struct item_data *data = item->data;
     data->state = state;
 }

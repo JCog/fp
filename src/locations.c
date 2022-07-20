@@ -70,7 +70,7 @@ static void entrance_next_proc(struct menu_item *item, void *data) {
 static s32 warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 ch = menu_get_cell_height(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
 
@@ -91,7 +91,7 @@ static s32 warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *
 static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
     gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
     struct gfx_font *font = draw_params->font;
-    s32 ch = menu_get_cell_height(item->owner, 1);
+    s32 ch = menu_get_cell_height(item->owner, TRUE);
     s32 x = draw_params->x;
     s32 y = draw_params->y;
     gfx_printf(font, x, y + ch * 0, "current map");

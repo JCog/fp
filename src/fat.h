@@ -32,8 +32,8 @@ enum fat_rw {
 
 /* block cache */
 struct fat_cache {
-    _Bool valid;
-    _Bool dirty;
+    bool valid;
+    bool dirty;
     u32 max_lba;
     u32 load_lba;
     u32 prep_lba;
@@ -78,7 +78,7 @@ struct fat_file {
     /* file info */
     u32 clust;
     u32 size;
-    _Bool is_dir;
+    bool is_dir;
     /* file offset */
     u32 p_off;
     /* file system geometry pointers */
@@ -117,8 +117,8 @@ struct fat_entry {
 void fat_root(struct fat *fat, struct fat_file *file);
 void fat_begin(struct fat_entry *entry, struct fat_file *file);
 void fat_rewind(struct fat_file *file);
-u32 fat_advance(struct fat_file *file, u32 n_byte, _Bool *eof);
-u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct fat_file *new_file, _Bool *eof);
+u32 fat_advance(struct fat_file *file, u32 n_byte, bool *eof);
+u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct fat_file *new_file, bool *eof);
 s32 fat_dir(struct fat_file *dir, struct fat_entry *entry);
 s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fat_entry *entry);
 struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *path, const char **tail);

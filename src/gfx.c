@@ -19,7 +19,7 @@ static Gfx *gfx_disp_d;
 static u64 gfx_modes[GFX_MODE_ALL];
 static u64 gfx_mode_stack[GFX_MODE_ALL][GFX_STACK_LENGTH];
 static s32 gfx_mode_stack_pos[GFX_MODE_ALL];
-static _Bool gfx_synced;
+static bool gfx_synced;
 
 #define CHAR_TILE_MAX 8
 struct gfx_char {
@@ -39,7 +39,7 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
 static inline void gfx_sync(void) {
     if (!gfx_synced) {
         gDPPipeSync(gfx_disp_p++);
-        gfx_synced = 1;
+        gfx_synced = TRUE;
     }
 }
 
@@ -156,7 +156,7 @@ Gfx *gfx_disp_append(Gfx *disp, size_t size) {
     Gfx *p = gfx_disp_p;
     memcpy(gfx_disp_p, disp, size);
     gfx_disp_p += (size + sizeof(*gfx_disp_p) - 1) / sizeof(*gfx_disp_p);
-    gfx_synced = 0;
+    gfx_synced = FALSE;
     return p;
 }
 
@@ -175,7 +175,7 @@ void gfx_flush(void) {
     gfx_disp = disp_w;
     gfx_disp_p = gfx_disp;
     gfx_disp_d = gfx_disp + (GFX_DISP_SIZE + sizeof(*gfx_disp) - 1) / sizeof(*gfx_disp);
-    gfx_synced = 0;
+    gfx_synced = FALSE;
 }
 
 void gfx_texldr_init(struct gfx_texldr *texldr) {
@@ -187,7 +187,7 @@ static s32 get_texture_tile_raster_size(const struct gfx_texture *texture) {
     return texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
 }
 
-static _Bool texture_data_is_on_heap(struct gfx_texture *texture) {
+static bool texture_data_is_on_heap(struct gfx_texture *texture) {
     return (uintptr_t)texture->data >= 0x80400000;
 }
 
@@ -328,7 +328,7 @@ struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_t
 }
 
 void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct gfx_texture *src, s32 src_tile,
-                           _Bool blend) {
+                           bool blend) {
     if (src->im_fmt != G_IM_FMT_RGBA || src->im_siz != G_IM_SIZ_32b || dest->im_fmt != src->im_fmt ||
         dest->im_siz != src->im_siz || dest->tile_width != src->tile_width || dest->tile_height != src->tile_height) {
         return;
@@ -572,7 +572,7 @@ void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 t
 
 void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
     gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile, palette_index);
-    gfx_synced = 1;
+    gfx_synced = TRUE;
 }
 
 void gfx_sprite_draw(const struct gfx_sprite *sprite) {
@@ -593,7 +593,7 @@ void gfx_sprite_draw(const struct gfx_sprite *sprite) {
                             qs102(sprite->x + texture->tile_width * sprite->xscale) & ~3,
                             qs102(sprite->y + texture->tile_height * sprite->yscale) & ~3, G_TX_RENDERTILE, qu105(0),
                             qu105(0), qu510(1.f / sprite->xscale), qu510(1.f / sprite->yscale));
-    gfx_synced = 0;
+    gfx_synced = FALSE;
 }
 
 s32 gfx_font_xheight(const struct gfx_font *font) {
@@ -638,7 +638,7 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
     for (s32 i = 0; i < n_tiles; ++i) {
         s32 tile_begin = chars_per_tile * i;
         s32 tile_end = tile_begin + chars_per_tile;
-        _Bool tile_loaded = 0;
+        bool tile_loaded = FALSE;
         s32 cx = 0;
         s32 cy = 0;
         for (s32 j = 0; j < l; ++j, cx += font->char_width + font->letter_spacing) {
@@ -652,7 +652,7 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
             }
             c -= tile_begin;
             if (!tile_loaded) {
-                tile_loaded = 1;
+                tile_loaded = TRUE;
                 gfx_rdp_load_tile(texture, i, 0);
             }
             gSPScisTextureRectangle(gfx_disp_p++, qs102(x + cx), qs102(y + cy), qs102(x + cx + font->char_width),
@@ -661,13 +661,13 @@ static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *bu
                                     qu105(c / font->chars_xtile * font->char_height), qu510(1), qu510(1));
         }
     }
-    gfx_synced = 0;
+    gfx_synced = FALSE;
 }
 
 static void flush_chars(void) {
     const struct gfx_font *font = gfx_char_font;
     u32 color = 0;
-    _Bool first = 1;
+    bool first = TRUE;
     for (s32 i = 0; i < CHAR_TILE_MAX; ++i) {
         struct vector *tile_vect = &gfx_chars[i];
         for (s32 j = 0; j < tile_vect->size; ++j) {
@@ -681,12 +681,12 @@ static void flush_chars(void) {
                 gDPSetPrimColor(gfx_disp_p++, 0, 0, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
                                 (color >> 0) & 0xFF);
             }
-            first = 0;
+            first = FALSE;
             gSPScisTextureRectangle(gfx_disp_p++, qs102(gc->x), qs102(gc->y), qs102(gc->x + font->char_width),
                                     qs102(gc->y + font->char_height), G_TX_RENDERTILE,
                                     qu105(gc->tile_char % font->chars_xtile * font->char_width),
                                     qu105(gc->tile_char / font->chars_xtile * font->char_height), qu510(1), qu510(1));
-            gfx_synced = 0;
+            gfx_synced = FALSE;
         }
         vector_clear(tile_vect);
     }
