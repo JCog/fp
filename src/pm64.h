@@ -489,7 +489,7 @@ typedef struct {
     /* 0x11 */ s8 homeCol; /* from xpos --> 0-3 */
     /* 0x12 */ s8 homeRow; /* from ypos --> 0-3 */
     /* 0x13 */ s8 layer;   /* from zpos? --> 0-1 */
-} pm_SelectableTarget; // size = 0x14
+} pm_SelectableTarget;     // size = 0x14
 
 struct pm_Evt;
 typedef s32 pm_Bytecode;

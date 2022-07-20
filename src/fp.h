@@ -4,11 +4,6 @@
 #include "settings.h"
 #include <vector/vector.h>
 
-enum cam_mode {
-    CAMMODE_CAMERA,
-    CAMMODE_VIEW,
-};
-
 enum cam_bhv {
     CAMBHV_MANUAL,
     CAMBHV_BIRDSEYE,
