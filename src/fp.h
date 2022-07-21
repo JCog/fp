@@ -30,9 +30,7 @@ typedef struct {
     bool timerMoving;
     bool menuActive;
     struct LogEntry log[SETTINGS_LOG_MAX];
-    f32 savedX;
-    f32 savedY;
-    f32 savedZ;
+    Vec3f savedPos;
     f32 savedFacingAngle;
     f32 savedMovementAngle;
     u16 savedArea;

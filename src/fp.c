@@ -54,9 +54,9 @@ void fpInit(void) {
         fp.log[i].msg = NULL;
     }
 
-    fp.savedX = 0;
-    fp.savedY = 0;
-    fp.savedZ = 0;
+    fp.savedPos.x = 0;
+    fp.savedPos.y = 0;
+    fp.savedPos.z = 0;
     fp.savedFacingAngle = 0;
     fp.savedArea = 0x1c;
     fp.savedMap = 0;

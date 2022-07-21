@@ -171,18 +171,18 @@ void commandTurboProc(void) {
 }
 
 void commandSavePosProc(void) {
-    fp.savedX = pm_gPlayerStatus.position.x;
-    fp.savedY = pm_gPlayerStatus.position.y;
-    fp.savedZ = pm_gPlayerStatus.position.z;
+    fp.savedPos.x = pm_gPlayerStatus.position.x;
+    fp.savedPos.y = pm_gPlayerStatus.position.y;
+    fp.savedPos.z = pm_gPlayerStatus.position.z;
     fp.savedFacingAngle = pm_gPlayerStatus.currentYaw;
     fp.savedMovementAngle = pm_gPlayerStatus.targetYaw;
     fpLog("position saved");
 }
 
 void commandLoadPosProc(void) {
-    pm_gPlayerStatus.position.x = fp.savedX;
-    pm_gPlayerStatus.position.y = fp.savedY;
-    pm_gPlayerStatus.position.z = fp.savedZ;
+    pm_gPlayerStatus.position.x = fp.savedPos.x;
+    pm_gPlayerStatus.position.y = fp.savedPos.y;
+    pm_gPlayerStatus.position.z = fp.savedPos.z;
     pm_gPlayerStatus.currentYaw = fp.savedFacingAngle;
     pm_gPlayerStatus.targetYaw = fp.savedMovementAngle;
     fpLog("position loaded");
