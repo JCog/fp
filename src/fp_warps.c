@@ -3,21 +3,21 @@
 #include "locations.h"
 #include "menu.h"
 
-struct menu *create_warps_menu(void) {
-    static struct menu menu;
-    static struct menu locations_menu;
-    static struct menu bosses_menu;
+struct Menu *createWarpsMenu(void) {
+    static struct Menu menu;
+    static struct Menu locationsMenu;
+    static struct Menu bossesMenu;
 
     /* initialize menu */
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
-    menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
-    menu_add_submenu(&menu, 0, 1, &locations_menu, "locations");
-    menu_add_submenu(&menu, 0, 2, &bosses_menu, "bosses");
+    menu.selector = menuAddSubmenu(&menu, 0, 0, NULL, "return");
+    menuAddSubmenu(&menu, 0, 1, &locationsMenu, "locations");
+    menuAddSubmenu(&menu, 0, 2, &bossesMenu, "bosses");
 
-    create_locations_menu(&locations_menu);
-    create_bosses_menu(&bosses_menu);
+    createLocationsMenu(&locationsMenu);
+    createBossesMenu(&bossesMenu);
 
     return &menu;
 }

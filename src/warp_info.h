@@ -1,21 +1,22 @@
 #ifndef WARP_INFO_H
 #define WARP_INFO_H
+#include "common.h"
 
-#define AREA_COUNT 0x1c
+#define AREA_COUNT 0x1C
 
-struct map_info {
-    const char *map_name;
-    s32 entrance_count;
+struct MapInfo {
+    const char *mapName;
+    s32 entranceCount;
 };
 
-struct area_info {
-    const char *area_name;
-    s32 map_count;
-    struct map_info maps[];
+struct AreaInfo {
+    const char *areaName;
+    s32 mapCount;
+    struct MapInfo maps[];
 };
 
 // clang-format off
-struct area_info area_goomba_village = {
+struct AreaInfo areaGoombaVillage = {
     "goomba village",
     0x11,
     {
@@ -39,7 +40,7 @@ struct area_info area_goomba_village = {
     }
 };
 
-struct area_info area_toad_town = {
+struct AreaInfo areaToadTown = {
     "toad town",
     0x8,
     {
@@ -54,7 +55,7 @@ struct area_info area_toad_town = {
     }
 };
 
-struct area_info area_sewers = {
+struct AreaInfo areaSewers = {
     "sewers",
     0x16,
     {
@@ -83,7 +84,7 @@ struct area_info area_sewers = {
     }
 };
 
-struct area_info area_whale = {
+struct AreaInfo areaWhale = {
     "whale",
     0x2,
     {
@@ -92,7 +93,7 @@ struct area_info area_whale = {
     }
 };
 
-struct area_info area_peachs_castle = {
+struct AreaInfo areaPeachsCastle = {
     "peach's castle",
     0x19,
     {
@@ -124,7 +125,7 @@ struct area_info area_peachs_castle = {
     }
 };
 
-struct area_info area_star_region = {
+struct AreaInfo areaStarRegion = {
     "star region",
     0x9,
     {
@@ -140,7 +141,7 @@ struct area_info area_star_region = {
     }
 };
 
-struct area_info area_koopa_village_pleasant_path = {
+struct AreaInfo areaKoopaVillagePleasantPath = {
     "koopa village/pleasant path",
     0x9,
     {
@@ -156,7 +157,7 @@ struct area_info area_koopa_village_pleasant_path = {
     }
 };
 
-struct area_info area_koopa_bros_fortress = {
+struct AreaInfo areaKoopaBrosFortress = {
     "koopa bros. fortress",
     0xB,
     {
@@ -174,7 +175,7 @@ struct area_info area_koopa_bros_fortress = {
     }
 };
 
-struct area_info area_mt_rugged = {
+struct AreaInfo areaMtRugged = {
     "mt. rugged",
     0x7,
     {
@@ -188,7 +189,7 @@ struct area_info area_mt_rugged = {
     }
 };
 
-struct area_info area_dry_dry_outpost = {
+struct AreaInfo areaDryDryOutpost = {
     "dry dry outpost",
     0x2,
     {
@@ -197,7 +198,7 @@ struct area_info area_dry_dry_outpost = {
     }
 };
 
-struct area_info area_dry_dry_desert = {
+struct AreaInfo areaDryDryDesert = {
     "dry dry desert",
     0x32,
     {
@@ -254,7 +255,7 @@ struct area_info area_dry_dry_desert = {
     }
 };
 
-struct area_info area_dry_dry_ruins = {
+struct AreaInfo areaDryDryRuins = {
     "dry dry ruins",
     0x11,
     {
@@ -278,7 +279,7 @@ struct area_info area_dry_dry_ruins = {
     }
 };
 
-struct area_info area_forever_forest = {
+struct AreaInfo areaForeverForest = {
     "forever forest",
     0xC,
     {
@@ -297,7 +298,7 @@ struct area_info area_forever_forest = {
     }
 };
 
-struct area_info area_boos_mansion = {
+struct AreaInfo areaBoosMansion = {
     "boo's mansion",
     0x9,
     {
@@ -313,7 +314,7 @@ struct area_info area_boos_mansion = {
     }
 };
 
-struct area_info area_gusty_gulch = {
+struct AreaInfo areaGustyGulch = {
     "gusty gulch",
     0xB,
     {
@@ -331,7 +332,7 @@ struct area_info area_gusty_gulch = {
     }
 };
 
-struct area_info area_tubbas_mansion = {
+struct AreaInfo areaTubbasMansion = {
     "tubba's mansion",
     0x13,
     {
@@ -357,7 +358,7 @@ struct area_info area_tubbas_mansion = {
     }
 };
 
-struct area_info area_shy_guys_toy_box = {
+struct AreaInfo areaShyGuysToyBox = {
     "shy guy's toy box",
     0x11,
     {
@@ -381,7 +382,7 @@ struct area_info area_shy_guys_toy_box = {
     }
 };
 
-struct area_info area_lava_lava_island = {
+struct AreaInfo areaLavaLavaIsland = {
     "lava lava island",
     0x16,
     {
@@ -410,7 +411,7 @@ struct area_info area_lava_lava_island = {
     }
 };
 
-struct area_info area_volcano = {
+struct AreaInfo areaVolcano = {
     "volcano",
     0x11,
     {
@@ -434,7 +435,7 @@ struct area_info area_volcano = {
     }
 };
 
-struct area_info area_flower_fields = {
+struct AreaInfo areaFlowerFields = {
     "flower fields",
     0x14,
     {
@@ -461,7 +462,7 @@ struct area_info area_flower_fields = {
     }
 };
 
-struct area_info area_shiver_region = {
+struct AreaInfo areaShiverRegion = {
     "shiver region",
     0xC,
     {
@@ -480,7 +481,7 @@ struct area_info area_shiver_region = {
     }
 };
 
-struct area_info area_crystal_palace = {
+struct AreaInfo areaCrystalPalace = {
     "crystal palace",
     0x20,
     {
@@ -519,7 +520,7 @@ struct area_info area_crystal_palace = {
     }
 };
 
-struct area_info area_bowsers_castle = {
+struct AreaInfo areaBowsersCastle = {
     "bowser's castle",
     0x32,
     {
@@ -576,7 +577,7 @@ struct area_info area_bowsers_castle = {
     }
 };
 
-struct area_info area_outside_peachs_castle = {
+struct AreaInfo areaOutsidePeachsCastle = {
     "outside peach's castle",
     0x5,
     {
@@ -588,7 +589,7 @@ struct area_info area_outside_peachs_castle = {
     }
 };
 
-struct area_info area_credits = {
+struct AreaInfo areaCredits = {
     "credits",
     0x2,
     {
@@ -597,7 +598,7 @@ struct area_info area_credits = {
     }
 };
 
-struct area_info area_mini_games = {
+struct AreaInfo areaMiniGames = {
     "mini games",
     0x4,
     {
@@ -608,7 +609,7 @@ struct area_info area_mini_games = {
     }
 };
 
-struct area_info area_game_over = {
+struct AreaInfo areaGameOver = {
     "game over",
     0x1,
     {
@@ -616,7 +617,7 @@ struct area_info area_game_over = {
     }
 };
 
-struct area_info area_debug = {
+struct AreaInfo areaDebug = {
     "debug",
     0x9,
     {
@@ -633,35 +634,35 @@ struct area_info area_debug = {
 };
 // clang-format on
 
-struct area_info *area_info_list[] = {
-    /* 0x00 */ &area_goomba_village,
-    /* 0x01 */ &area_toad_town,
-    /* 0x02 */ &area_sewers,
-    /* 0x03 */ &area_whale,
-    /* 0x04 */ &area_peachs_castle,
-    /* 0x05 */ &area_star_region,
-    /* 0x06 */ &area_koopa_village_pleasant_path,
-    /* 0x07 */ &area_koopa_bros_fortress,
-    /* 0x08 */ &area_mt_rugged,
-    /* 0x09 */ &area_dry_dry_outpost,
-    /* 0x0A */ &area_dry_dry_desert,
-    /* 0x0B */ &area_dry_dry_ruins,
-    /* 0x0C */ &area_forever_forest,
-    /* 0x0D */ &area_boos_mansion,
-    /* 0x0E */ &area_gusty_gulch,
-    /* 0x0F */ &area_tubbas_mansion,
-    /* 0x10 */ &area_shy_guys_toy_box,
-    /* 0x11 */ &area_lava_lava_island,
-    /* 0x12 */ &area_volcano,
-    /* 0x13 */ &area_flower_fields,
-    /* 0x14 */ &area_shiver_region,
-    /* 0x15 */ &area_crystal_palace,
-    /* 0x16 */ &area_bowsers_castle,
-    /* 0x17 */ &area_outside_peachs_castle,
-    /* 0x18 */ &area_credits,
-    /* 0x19 */ &area_mini_games,
-    /* 0x1A */ &area_game_over,
-    /* 0x1B */ &area_debug,
+struct AreaInfo *areaInfoList[] = {
+    /* 0x00 */ &areaGoombaVillage,
+    /* 0x01 */ &areaToadTown,
+    /* 0x02 */ &areaSewers,
+    /* 0x03 */ &areaWhale,
+    /* 0x04 */ &areaPeachsCastle,
+    /* 0x05 */ &areaStarRegion,
+    /* 0x06 */ &areaKoopaVillagePleasantPath,
+    /* 0x07 */ &areaKoopaBrosFortress,
+    /* 0x08 */ &areaMtRugged,
+    /* 0x09 */ &areaDryDryOutpost,
+    /* 0x0A */ &areaDryDryDesert,
+    /* 0x0B */ &areaDryDryRuins,
+    /* 0x0C */ &areaForeverForest,
+    /* 0x0D */ &areaBoosMansion,
+    /* 0x0E */ &areaGustyGulch,
+    /* 0x0F */ &areaTubbasMansion,
+    /* 0x10 */ &areaShyGuysToyBox,
+    /* 0x11 */ &areaLavaLavaIsland,
+    /* 0x12 */ &areaVolcano,
+    /* 0x13 */ &areaFlowerFields,
+    /* 0x14 */ &areaShiverRegion,
+    /* 0x15 */ &areaCrystalPalace,
+    /* 0x16 */ &areaBowsersCastle,
+    /* 0x17 */ &areaOutsidePeachsCastle,
+    /* 0x18 */ &areaCredits,
+    /* 0x19 */ &areaMiniGames,
+    /* 0x1A */ &areaGameOver,
+    /* 0x1B */ &areaDebug,
 };
 
 #endif

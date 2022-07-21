@@ -2,71 +2,71 @@
 #include <stdlib.h>
 #include <string.h>
 
-static struct menu prompt_menu;
-static menu_prompt_callback prompt_callback_proc;
-static void *prompt_callback_data;
+static struct Menu promptMenu;
+static MenuPromptCallback promptCallbackProc;
+static void *promptCallbackData;
 
-static s32 do_callback(s32 index) {
-    if (prompt_callback_proc) {
-        menu_prompt_callback proc = prompt_callback_proc;
-        prompt_callback_proc = NULL;
-        return proc(index, prompt_callback_data);
+static s32 doCallback(s32 index) {
+    if (promptCallbackProc) {
+        MenuPromptCallback proc = promptCallbackProc;
+        promptCallbackProc = NULL;
+        return proc(index, promptCallbackData);
     } else {
         return 0;
     }
 }
 
-static s32 leave_proc(struct menu_item *item, enum menu_switch_reason reason) {
+static s32 leaveProc(struct MenuItem *item, enum MenuSwitchReason reason) {
     if (reason == MENU_SWITCH_RETURN) {
-        do_callback(-1);
+        doCallback(-1);
     }
     return 0;
 }
 
-static s32 activate_proc(struct menu_item *item) {
+static s32 activateProc(struct MenuItem *item) {
     s32 index = (s32)item->data;
-    if (!do_callback(index)) {
-        menu_return(&prompt_menu);
+    if (!doCallback(index)) {
+        menuReturn(&promptMenu);
     }
     return 0;
 }
 
-static s32 destroy_proc(struct menu_item *item) {
+static s32 destroyProc(struct MenuItem *item) {
     item->data = NULL;
     return 0;
 }
 
-void menu_prompt(struct menu *menu, const char *prompt, const char *options, s32 default_option,
-                 menu_prompt_callback callback_proc, void *callback_data) {
+void menuPrompt(struct Menu *menu, const char *prompt, const char *options, s32 defaultOption,
+                MenuPromptCallback callbackProc, void *callbackData) {
     static bool ready = FALSE;
     if (ready) {
-        if (menu == &prompt_menu) {
-            menu = prompt_menu.parent;
-            menu_return(&prompt_menu);
+        if (menu == &promptMenu) {
+            menu = promptMenu.parent;
+            menuReturn(&promptMenu);
         }
-        menu_destroy(&prompt_menu);
+        menuDestroy(&promptMenu);
     } else {
         ready = TRUE;
     }
-    menu_init(&prompt_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    struct menu_item *item = menu_add_static(&prompt_menu, 0, 0, prompt, 0xC0C0C0);
-    item->leave_proc = leave_proc;
+    menuInit(&promptMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    struct MenuItem *item = menuAddStatic(&promptMenu, 0, 0, prompt, 0xC0C0C0);
+    item->leaveProc = leaveProc;
     const char *option = options;
     for (s32 i = 0; *option; ++i) {
-        item = menu_item_add(&prompt_menu, option - options, 1, NULL, 0xFFFFFF);
+        item = menuItemAdd(&promptMenu, option - options, 1, NULL, 0xFFFFFF);
         item->data = (void *)i;
-        size_t option_length = strlen(option);
-        char *new_option = malloc(option_length + 1);
-        strcpy(new_option, option);
-        item->text = new_option;
-        item->activate_proc = activate_proc;
-        item->destroy_proc = destroy_proc;
-        option += option_length + 1;
-        if (i == default_option) {
-            prompt_menu.selector = item;
+        size_t optionLength = strlen(option);
+        char *newOption = malloc(optionLength + 1);
+        strcpy(newOption, option);
+        item->text = newOption;
+        item->activateProc = activateProc;
+        item->destroyProc = destroyProc;
+        option += optionLength + 1;
+        if (i == defaultOption) {
+            promptMenu.selector = item;
         }
     }
-    prompt_callback_proc = callback_proc;
-    prompt_callback_data = callback_data;
-    menu_enter(menu, &prompt_menu);
+    promptCallbackProc = callbackProc;
+    promptCallbackData = callbackData;
+    menuEnter(menu, &promptMenu);
 }

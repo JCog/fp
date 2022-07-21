@@ -21,28 +21,28 @@
 #define BUTTON_B           0x4000
 #define BUTTON_A           0x8000
 
-u16 bind_make(s32 length, ...);
-s32 bind_get_component(u16 bind, s32 index);
-u16 bind_get_bitmask(u16 bind);
+u16 bindMake(s32 length, ...);
+s32 bindGetComponent(u16 bind, s32 index);
+u16 bindGetBitmask(u16 bind);
 
-void input_update(void);
-u16 input_z_pad(void);
-s8 input_x(void);
-s8 input_y(void);
-u16 input_pad(void);
-u16 input_pressed_raw(void);
-u16 input_pressed(void);
-u16 input_released(void);
-void input_reserve(u16 bitmask);
-void input_free(u16 bitmask);
-void input_bind_set_disable(s32 index, bool value);
-void input_bind_set_override(s32 index, bool value);
-bool input_bind_held(s32 index);
-bool input_bind_pressed_raw(s32 index);
-bool input_bind_pressed(s32 index);
+void inputUpdate(void);
+u16 inputZPad(void);
+s8 inputX(void);
+s8 inputY(void);
+u16 inputPad(void);
+u16 inputPressedRaw(void);
+u16 inputPressed(void);
+u16 inputReleased(void);
+void inputReserve(u16 bitmask);
+void inputFree(u16 bitmask);
+void inputBindSetDisable(s32 index, bool value);
+void inputBindSetOverride(s32 index, bool value);
+bool inputBindHeld(s32 index);
+bool inputBindPressedRaw(s32 index);
+bool inputBindPressed(s32 index);
 
-struct menu_item *binder_create(struct menu *menu, s32 x, s32 y, s32 bind_index);
+struct MenuItem *binderCreate(struct Menu *menu, s32 x, s32 y, s32 bindIndex);
 
-extern const u32 input_button_color[];
+extern const u32 inputButtonColor[];
 
 #endif

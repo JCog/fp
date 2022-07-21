@@ -1,12 +1,12 @@
-#ifndef _ITEMS_H_
-#define _ITEMS_H_
+#ifndef ITEMS_H
+#define ITEMS_H
 #include "gfx.h"
 #include "menu.h"
 
-void create_badges_menu(struct menu *menu, struct gfx_texture *item_texture_list[]);
-void create_normal_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]);
-void create_key_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]);
-void create_stored_items_menu(struct menu *menu, struct gfx_texture *item_texture_list[]);
-void create_item_selection_menu(struct gfx_texture *item_texture_list[]);
+void createBadgesMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);
+void createNormalItemsMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);
+void createKeyItemsMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);
+void createStoredItemsMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);
+void createItemSelectionMenu(struct GfxTexture *itemTextureList[]);
 
-#endif //_ITEMS_H_
+#endif // ITEMS_H

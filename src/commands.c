@@ -7,40 +7,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct command fp_commands[COMMAND_MAX] = {
-    {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                         },
-    {"return from menu", COMMAND_PRESS_ONCE, 0, NULL                         },
-    {"levitate",         COMMAND_HOLD,       0, command_levitate_proc        },
-    {"turbo",            COMMAND_PRESS_ONCE, 0, command_turbo_proc           },
-    {"save position",    COMMAND_PRESS_ONCE, 0, command_save_pos_proc        },
-    {"load position",    COMMAND_PRESS_ONCE, 0, command_load_pos_proc        },
-    {"lzs",              COMMAND_PRESS_ONCE, 0, command_lzs_proc             },
-    {"reload map",       COMMAND_PRESS_ONCE, 0, command_reload_proc          },
-    {"reload last warp", COMMAND_PRESS_ONCE, 0, command_reload_last_warp_proc},
-    {"toggle watches",   COMMAND_PRESS_ONCE, 0, command_toggle_watches_proc  },
-    {"reimport save",    COMMAND_PRESS_ONCE, 0, command_import_save_proc     },
-    {"save game",        COMMAND_PRESS_ONCE, 0, command_save_game_proc       },
-    {"load game",        COMMAND_PRESS_ONCE, 0, command_load_game_proc       },
-    {"start/stop timer", COMMAND_PRESS_ONCE, 0, command_start_timer_proc     },
-    {"reset timer",      COMMAND_PRESS_ONCE, 0, command_reset_timer_proc     },
-    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, command_show_hide_timer_proc },
-    {"break free",       COMMAND_PRESS_ONCE, 0, command_break_free_proc      },
+struct Command fpCommands[COMMAND_MAX] = {
+    {"show/hide menu",   COMMAND_PRESS_ONCE, 0, NULL                     },
+    {"return from menu", COMMAND_PRESS_ONCE, 0, NULL                     },
+    {"levitate",         COMMAND_HOLD,       0, commandLevitateProc      },
+    {"turbo",            COMMAND_PRESS_ONCE, 0, commandTurboProc         },
+    {"save position",    COMMAND_PRESS_ONCE, 0, commandSavePosProc       },
+    {"load position",    COMMAND_PRESS_ONCE, 0, commandLoadPosProc       },
+    {"lzs",              COMMAND_PRESS_ONCE, 0, commandLzsProc           },
+    {"reload map",       COMMAND_PRESS_ONCE, 0, commandReloadProc        },
+    {"reload last warp", COMMAND_PRESS_ONCE, 0, commandReloadLastWarpProc},
+    {"toggle watches",   COMMAND_PRESS_ONCE, 0, commandToggleWatchesProc },
+    {"reimport save",    COMMAND_PRESS_ONCE, 0, commandImportSaveProc    },
+    {"save game",        COMMAND_PRESS_ONCE, 0, commandSaveGameProc      },
+    {"load game",        COMMAND_PRESS_ONCE, 0, commandLoadGameProc      },
+    {"start/stop timer", COMMAND_PRESS_ONCE, 0, commandStartTimerProc    },
+    {"reset timer",      COMMAND_PRESS_ONCE, 0, commandResetTimerProc    },
+    {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
+    {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
 };
 
-void show_menu(void) {
-    menu_signal_enter(fp.main_menu, MENU_SWITCH_SHOW);
-    fp.menu_active = TRUE;
-    input_reserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
+void showMenu(void) {
+    menuSignalEnter(fp.mainMenu, MENU_SWITCH_SHOW);
+    fp.menuActive = TRUE;
+    inputReserve(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
 }
 
-void hide_menu(void) {
-    menu_signal_leave(fp.main_menu, MENU_SWITCH_HIDE);
-    fp.menu_active = FALSE;
-    input_free(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
+void hideMenu(void) {
+    menuSignalLeave(fp.mainMenu, MENU_SWITCH_HIDE);
+    fp.menuActive = FALSE;
+    inputFree(BUTTON_D_UP | BUTTON_D_DOWN | BUTTON_D_LEFT | BUTTON_D_RIGHT | BUTTON_L);
 }
 
-void fp_log(const char *fmt, ...) {
-    struct log_entry *ent = &fp.log[SETTINGS_LOG_MAX - 1];
+void fpLog(const char *fmt, ...) {
+    struct LogEntry *ent = &fp.log[SETTINGS_LOG_MAX - 1];
     if (ent->msg) {
         free(ent->msg);
     }
@@ -64,15 +64,15 @@ void fp_log(const char *fmt, ...) {
     ent->age = 0;
 }
 
-void fp_set_input_mask(u16 pad, u8 x, u8 y) {
-    fp.input_mask.buttons = pad;
-    fp.input_mask.xCardinal = x;
-    fp.input_mask.yCardinal = y;
+void fpSetInputMask(u16 pad, u8 x, u8 y) {
+    fp.inputMask.buttons = pad;
+    fp.inputMask.xCardinal = x;
+    fp.inputMask.yCardinal = y;
 }
 
-bool fp_warp(enum Areas area, u16 map, u16 entrance) {
+bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     if (pm_gameMode == 0xA || pm_gameMode == 0xB) { // paused/unpausing
-        fp_log("can't warp while paused");
+        fpLog("can't warp while paused");
         return FALSE;
     } else if ((pm_battleState == 0xD &&
                 (pm_battleState2 == 0xC9 || pm_battleState2 == 0x1F || pm_battleState2 == 0x29 ||
@@ -82,7 +82,7 @@ bool fp_warp(enum Areas area, u16 map, u16 entrance) {
                pm_battleState == 0x11) {
         // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
         // but the rest aren't. at some point we should figure out how to back out of these states automatically.
-        fp_log("can't warp in battle menu");
+        fpLog("can't warp in battle menu");
         return FALSE;
     } else if (pm_gGameStatus.isBattle) {
         pm_D_800A0900 = 1;
@@ -107,10 +107,10 @@ bool fp_warp(enum Areas area, u16 map, u16 entrance) {
     PRINTF("***** WARP TRIGGERED *****\n");
     if (pm_popupMenuVar == 1) {
         PRINTF("overworld popup is open, setting delay and hiding menu\n");
-        fp.warp_delay = 15;
+        fp.warpDelay = 15;
         pm_hidePopupMenu();
     } else {
-        fp.warp_delay = 0;
+        fp.warpDelay = 0;
     }
 
     // set the global curtain to default+off state
@@ -124,29 +124,29 @@ bool fp_warp(enum Areas area, u16 map, u16 entrance) {
     return TRUE;
 }
 
-static void set_flag(u32 *flags, s32 flag_index, bool value) {
-    s32 word_index = flag_index / 32;
-    s32 bit = flag_index % 32;
+static void setFlag(u32 *flags, s32 flagIndex, bool value) {
+    s32 wordIndex = flagIndex / 32;
+    s32 bit = flagIndex % 32;
     if (value) {
-        flags[word_index] |= (1 << bit);
+        flags[wordIndex] |= (1 << bit);
     } else {
-        flags[word_index] &= ~(1 << bit);
+        flags[wordIndex] &= ~(1 << bit);
     }
 }
 
-void fp_set_global_flag(s32 flag_index, bool value) {
-    set_flag(pm_gCurrentSaveFile.globalFlags, flag_index, value);
+void fpSetGlobalFlag(s32 flagIndex, bool value) {
+    setFlag(pm_gCurrentSaveFile.globalFlags, flagIndex, value);
 }
 
-void fp_set_area_flag(s32 flag_index, bool value) {
-    set_flag(pm_gCurrentSaveFile.areaFlags, flag_index, value);
+void fpSetAreaFlag(s32 flagIndex, bool value) {
+    setFlag(pm_gCurrentSaveFile.areaFlags, flagIndex, value);
 }
 
-void fp_set_global_byte(s32 byte_index, s8 value) {
-    pm_gCurrentSaveFile.globalBytes[byte_index] = value;
+void fpSetGlobalByte(s32 byteIndex, s8 value) {
+    pm_gCurrentSaveFile.globalBytes[byteIndex] = value;
 }
 
-void command_levitate_proc(void) {
+void commandLevitateProc(void) {
     // TODO: figure out how to get some version of this working for peach
     if (!(pm_gGameStatus.peachFlags & (1 << 0))) {
         pm_gPlayerStatus.flags |= 1 << 1;
@@ -160,108 +160,108 @@ void command_levitate_proc(void) {
     }
 }
 
-void command_turbo_proc(void) {
+void commandTurboProc(void) {
     if (fp.turbo) {
         fp.turbo = FALSE;
-        fp_log("turbo disabled");
+        fpLog("turbo disabled");
     } else {
         fp.turbo = TRUE;
-        fp_log("turbo enabled");
+        fpLog("turbo enabled");
     }
 }
 
-void command_save_pos_proc(void) {
-    fp.saved_x = pm_gPlayerStatus.position.x;
-    fp.saved_y = pm_gPlayerStatus.position.y;
-    fp.saved_z = pm_gPlayerStatus.position.z;
-    fp.saved_facing_angle = pm_gPlayerStatus.currentYaw;
-    fp.saved_movement_angle = pm_gPlayerStatus.targetYaw;
-    fp_log("position saved");
+void commandSavePosProc(void) {
+    fp.savedX = pm_gPlayerStatus.position.x;
+    fp.savedY = pm_gPlayerStatus.position.y;
+    fp.savedZ = pm_gPlayerStatus.position.z;
+    fp.savedFacingAngle = pm_gPlayerStatus.currentYaw;
+    fp.savedMovementAngle = pm_gPlayerStatus.targetYaw;
+    fpLog("position saved");
 }
 
-void command_load_pos_proc(void) {
-    pm_gPlayerStatus.position.x = fp.saved_x;
-    pm_gPlayerStatus.position.y = fp.saved_y;
-    pm_gPlayerStatus.position.z = fp.saved_z;
-    pm_gPlayerStatus.currentYaw = fp.saved_facing_angle;
-    pm_gPlayerStatus.targetYaw = fp.saved_movement_angle;
-    fp_log("position loaded");
+void commandLoadPosProc(void) {
+    pm_gPlayerStatus.position.x = fp.savedX;
+    pm_gPlayerStatus.position.y = fp.savedY;
+    pm_gPlayerStatus.position.z = fp.savedZ;
+    pm_gPlayerStatus.currentYaw = fp.savedFacingAngle;
+    pm_gPlayerStatus.targetYaw = fp.savedMovementAngle;
+    fpLog("position loaded");
 }
 
-void command_lzs_proc(void) {
+void commandLzsProc(void) {
     if (pm_timeFreezeMode == 0) {
         pm_timeFreezeMode = 1;
-        fp_log("easy lzs enabled");
+        fpLog("easy lzs enabled");
     } else if (pm_timeFreezeMode == 1) {
         pm_timeFreezeMode = 0;
-        fp_log("easy lzs disabled");
+        fpLog("easy lzs disabled");
     }
 }
 
-void command_reload_proc(void) {
-    fp_warp(pm_gGameStatus.areaID, pm_gGameStatus.mapID, pm_gGameStatus.entryID);
+void commandReloadProc(void) {
+    fpWarp(pm_gGameStatus.areaID, pm_gGameStatus.mapID, pm_gGameStatus.entryID);
 }
 
-void command_reload_last_warp_proc(void) {
-    if (fp.saved_area != 0x1c) {
-        fp_warp(fp.saved_area, fp.saved_map, fp.saved_entrance);
+void commandReloadLastWarpProc(void) {
+    if (fp.savedArea != 0x1c) {
+        fpWarp(fp.savedArea, fp.savedMap, fp.savedEntrance);
     }
 }
 
-void command_toggle_watches_proc(void) {
-    settings->bits.watches_visible = !settings->bits.watches_visible;
-    if (settings->bits.watches_visible) {
-        watchlist_show(fp.menu_watchlist);
+void commandToggleWatchesProc(void) {
+    settings->bits.watchesVisible = !settings->bits.watchesVisible;
+    if (settings->bits.watchesVisible) {
+        watchlistShow(fp.menuWatchlist);
     } else {
-        watchlist_hide(fp.menu_watchlist);
+        watchlistHide(fp.menuWatchlist);
     }
 }
 
-void command_import_save_proc(void) {
-    if (fp.last_imported_save_path) {
-        fp_import_file(fp.last_imported_save_path, NULL);
+void commandImportSaveProc(void) {
+    if (fp.lastImportedSavePath) {
+        fpImportFile(fp.lastImportedSavePath, NULL);
     }
 }
 
-void command_save_game_proc(void) {
+void commandSaveGameProc(void) {
     pm_saveGame();
     pm_playSfx(0x10);
-    fp_log("saved to slot %d", pm_gGameStatus.saveSlot);
+    fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void command_start_timer_proc(void) {
-    timer_start();
+void commandStartTimerProc(void) {
+    timerStart();
 }
 
-void command_reset_timer_proc(void) {
-    timer_reset();
+void commandResetTimerProc(void) {
+    timerReset();
 }
 
-void command_show_hide_timer_proc(void) {
-    settings->bits.timer_show = !settings->bits.timer_show;
+void commandShowHideTimerProc(void) {
+    settings->bits.timerShow = !settings->bits.timerShow;
 }
 
-void command_load_game_proc(void) {
+void commandLoadGameProc(void) {
     pm_SaveData *file = malloc(sizeof(*file));
     pm_fioFetchSavedFileInfo();
     pm_fioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
     if (pm_fioValidateFileChecksum(file)) {
         pm_gCurrentSaveFile = *file;
         pm_fioDeserializeState();
-        fp_warp(file->areaID, file->mapID, file->entryID);
-        fp_log("loaded from slot %d", pm_gGameStatus.saveSlot);
+        fpWarp(file->areaID, file->mapID, file->entryID);
+        fpLog("loaded from slot %d", pm_gGameStatus.saveSlot);
     } else {
-        fp_log("no file in slot %d", pm_gGameStatus.saveSlot);
+        fpLog("no file in slot %d", pm_gGameStatus.saveSlot);
     }
     free(file);
 }
 
-void command_break_free_proc(void) {
-    s32 third_byte_mask = 0xFFFF00FF;
-    s32 check_mask = 0x0000FF00;
+void commandBreakFreeProc(void) {
+    s32 thirdByteMask = 0xFFFF00FF;
+    s32 checkMask = 0x0000FF00;
 
-    if ((pm_gPlayerStatus.flags & check_mask) == 0x2000) {
-        pm_gPlayerStatus.flags &= third_byte_mask;
+    if ((pm_gPlayerStatus.flags & checkMask) == 0x2000) {
+        pm_gPlayerStatus.flags &= thirdByteMask;
     }
-    fp_log("broke free");
+    fpLog("broke free");
 }

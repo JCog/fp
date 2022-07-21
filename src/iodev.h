@@ -2,20 +2,20 @@
 #define IODEV_H
 #include "common.h"
 
-struct iodev {
+struct Iodev {
     s32 (*probe)(void);
 
-    s32 (*disk_init)(void);
-    s32 (*disk_read)(size_t lba, size_t n_blocks, void *dst);
-    s32 (*disk_write)(size_t lba, size_t n_blocks, const void *src);
+    s32 (*diskInit)(void);
+    s32 (*diskRead)(size_t lba, size_t nBlocks, void *dst);
+    s32 (*diskWrite)(size_t lba, size_t nBlocks, const void *src);
 
-    s32 (*fifo_poll)(void);
-    s32 (*fifo_read)(void *dst, size_t n_blocks);
-    s32 (*fifo_write)(const void *src, size_t n_blocks);
+    s32 (*fifoPoll)(void);
+    s32 (*fifoRead)(void *dst, size_t nBlocks);
+    s32 (*fifoWrite)(const void *src, size_t nBlocks);
 
-    u32 (*clock_ticks)(void);
-    u32 (*clock_freq)(void);
-    void (*cpu_reset)(void);
+    u32 (*clockTicks)(void);
+    u32 (*clockFreq)(void);
+    void (*cpuReset)(void);
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _MACROS_H_
-#define _MACROS_H_
+#ifndef MACROS_H
+#define MACROS_H
 #include "pm64.h"
 #include "types.h"
 
@@ -14,4 +14,4 @@
 
 #define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
-#endif //_MACROS_H_
+#endif // MACROS_H

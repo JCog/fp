@@ -3,22 +3,22 @@
 #include "timer.h"
 #include "trainer.h"
 
-struct menu *create_practice_menu(void) {
-    static struct menu menu;
-    static struct menu trainer_menu;
-    static struct menu timer_menu;
+struct Menu *createPracticeMenu(void) {
+    static struct Menu menu;
+    static struct Menu trainerMenu;
+    static struct Menu timerMenu;
 
     /* initialize menu */
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&trainer_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&trainerMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
-    menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
-    menu_add_submenu(&menu, 0, 1, &trainer_menu, "trainers");
-    menu_add_submenu(&menu, 0, 2, &timer_menu, "timer");
+    menu.selector = menuAddSubmenu(&menu, 0, 0, NULL, "return");
+    menuAddSubmenu(&menu, 0, 1, &trainerMenu, "trainers");
+    menuAddSubmenu(&menu, 0, 2, &timerMenu, "timer");
 
-    create_trainer_menu(&trainer_menu);
-    create_timer_menu(&timer_menu);
+    createTrainerMenu(&trainerMenu);
+    createTimerMenu(&timerMenu);
 
     return &menu;
 }

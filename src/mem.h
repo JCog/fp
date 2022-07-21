@@ -3,8 +3,8 @@
 #include "common.h"
 #include "menu.h"
 
-void mem_menu_create(struct menu *menu);
-void mem_goto(u32 address);
-void mem_open_watch(struct menu *menu, struct menu *menu_mem, u32 address, enum watch_type type);
+void memMenuCreate(struct Menu *menu);
+void memGoto(u32 address);
+void memOpenWatch(struct Menu *menu, struct Menu *menuMem, u32 address, enum WatchType type);
 
 #endif

@@ -5,131 +5,131 @@
 #include <stdlib.h>
 #include <string.h>
 
-void menu_init(struct menu *menu, s32 cell_width, s32 cell_height, struct gfx_font *font) {
+void menuInit(struct Menu *menu, s32 cellWidth, s32 cellHeight, struct GfxFont *font) {
     menu->cxoffset = MENU_NOVALUE;
     menu->cyoffset = MENU_NOVALUE;
     menu->pxoffset = MENU_NOVALUE;
     menu->pyoffset = MENU_NOVALUE;
-    menu->cell_width = cell_width;
-    menu->cell_height = cell_height;
+    menu->cellWidth = cellWidth;
+    menu->cellHeight = cellHeight;
     menu->font = font;
     menu->alpha = 1.f;
-    list_init(&menu->items, sizeof(struct menu_item));
+    list_init(&menu->items, sizeof(struct MenuItem));
     menu->selector = NULL;
     menu->parent = NULL;
     menu->child = NULL;
-    menu->highlight_color_animated = 0x000000;
-    menu->highlight_color_static = 0x2020FF;
-    menu->highlight_state[0] = 17;
-    menu->highlight_state[1] = 19;
-    menu->highlight_state[2] = 23;
+    menu->highlightColorAnimated = 0x000000;
+    menu->highlightColorStatic = 0x2020FF;
+    menu->highlightState[0] = 17;
+    menu->highlightState[1] = 19;
+    menu->highlightState[2] = 23;
 }
 
-void menu_imitate(struct menu *dest, struct menu *src) {
-    dest->cell_width = src->cell_width;
-    dest->cell_height = src->cell_height;
+void menuImitate(struct Menu *dest, struct Menu *src) {
+    dest->cellWidth = src->cellWidth;
+    dest->cellHeight = src->cellHeight;
     dest->font = src->font;
     dest->alpha = src->alpha;
-    dest->highlight_color_static = src->highlight_color_static;
+    dest->highlightColorStatic = src->highlightColorStatic;
 }
 
-void menu_destroy(struct menu *menu) {
+void menuDestroy(struct Menu *menu) {
     while (menu->items.first) {
-        menu_item_remove(menu->items.first);
+        menuItemRemove(menu->items.first);
     }
 }
 
-s32 menu_get_cxoffset(struct menu *menu, bool inherit) {
+s32 menuGetCxoffset(struct Menu *menu, bool inherit) {
     s32 cxoffset = menu->cxoffset;
     if (inherit && menu->parent) {
-        cxoffset += menu_get_cxoffset(menu->parent, TRUE);
+        cxoffset += menuGetCxoffset(menu->parent, TRUE);
     }
     return cxoffset;
 }
 
-void menu_set_cxoffset(struct menu *menu, s32 cxoffset) {
+void menuSetCxoffset(struct Menu *menu, s32 cxoffset) {
     menu->cxoffset = cxoffset;
 }
 
-s32 menu_get_cyoffset(struct menu *menu, bool inherit) {
+s32 menuGetCyoffset(struct Menu *menu, bool inherit) {
     s32 cyoffset = menu->cyoffset;
     if (inherit && menu->parent) {
-        cyoffset += menu_get_cyoffset(menu->parent, TRUE);
+        cyoffset += menuGetCyoffset(menu->parent, TRUE);
     }
     return cyoffset;
 }
 
-void menu_set_cyoffset(struct menu *menu, s32 cyoffset) {
+void menuSetCyoffset(struct Menu *menu, s32 cyoffset) {
     menu->cyoffset = cyoffset;
 }
 
-s32 menu_get_pxoffset(struct menu *menu, bool inherit) {
+s32 menuGetPxoffset(struct Menu *menu, bool inherit) {
     s32 pxoffset = menu->pxoffset;
     if (inherit && menu->parent) {
-        pxoffset += menu_get_pxoffset(menu->parent, TRUE);
+        pxoffset += menuGetPxoffset(menu->parent, TRUE);
     }
     return pxoffset;
 }
 
-void menu_set_pxoffset(struct menu *menu, s32 pxoffset) {
+void menuSetPxoffset(struct Menu *menu, s32 pxoffset) {
     menu->pxoffset = pxoffset;
 }
 
-s32 menu_get_pyoffset(struct menu *menu, bool inherit) {
+s32 menuGetPyoffset(struct Menu *menu, bool inherit) {
     s32 pyoffset = menu->pyoffset;
     if (inherit && menu->parent) {
-        pyoffset += menu_get_pyoffset(menu->parent, TRUE);
+        pyoffset += menuGetPyoffset(menu->parent, TRUE);
     }
     return pyoffset;
 }
 
-void menu_set_pyoffset(struct menu *menu, s32 pyoffset) {
+void menuSetPyoffset(struct Menu *menu, s32 pyoffset) {
     menu->pyoffset = pyoffset;
 }
 
-s32 menu_get_cell_width(struct menu *menu, bool inherit) {
-    if (inherit && menu->parent && menu->cell_width == MENU_NOVALUE) {
-        return menu_get_cell_width(menu->parent, TRUE);
+s32 menuGetCellWidth(struct Menu *menu, bool inherit) {
+    if (inherit && menu->parent && menu->cellWidth == MENU_NOVALUE) {
+        return menuGetCellWidth(menu->parent, TRUE);
     }
-    return menu->cell_width;
+    return menu->cellWidth;
 }
 
-void menu_set_cell_width(struct menu *menu, s32 cell_width) {
-    menu->cell_width = cell_width;
+void menuSetCellWidth(struct Menu *menu, s32 cellWidth) {
+    menu->cellWidth = cellWidth;
 }
 
-s32 menu_get_cell_height(struct menu *menu, bool inherit) {
-    if (inherit && menu->parent && menu->cell_height == MENU_NOVALUE) {
-        return menu_get_cell_height(menu->parent, TRUE);
+s32 menuGetCellHeight(struct Menu *menu, bool inherit) {
+    if (inherit && menu->parent && menu->cellHeight == MENU_NOVALUE) {
+        return menuGetCellHeight(menu->parent, TRUE);
     }
-    return menu->cell_height;
+    return menu->cellHeight;
 }
 
-void menu_set_cell_height(struct menu *menu, s32 cell_height) {
-    menu->cell_height = cell_height;
+void menuSetCellHeight(struct Menu *menu, s32 cellHeight) {
+    menu->cellHeight = cellHeight;
 }
 
-struct gfx_font *menu_get_font(struct menu *menu, bool inherit) {
+struct GfxFont *menuGetFont(struct Menu *menu, bool inherit) {
     if (inherit && menu->parent && menu->font == MENU_NOVALUE) {
-        return menu_get_font(menu->parent, TRUE);
+        return menuGetFont(menu->parent, TRUE);
     }
     return menu->font;
 }
 
-void menu_set_font(struct menu *menu, struct gfx_font *font) {
+void menuSetFont(struct Menu *menu, struct GfxFont *font) {
     menu->font = font;
 }
 
-f32 menu_get_alpha(struct menu *menu, bool inherit) {
+f32 menuGetAlpha(struct Menu *menu, bool inherit) {
     f32 alpha = menu->alpha;
     if (inherit && menu->parent) {
-        alpha *= menu_get_alpha(menu->parent, TRUE);
+        alpha *= menuGetAlpha(menu->parent, TRUE);
     }
     return alpha;
 }
 
-u8 menu_get_alpha_i(struct menu *menu, bool inherit) {
-    f32 alpha = menu_get_alpha(menu, inherit);
+u8 menuGetAlphaI(struct Menu *menu, bool inherit) {
+    f32 alpha = menuGetAlpha(menu, inherit);
     if (alpha < 0.f) {
         alpha = 0.f;
     } else if (alpha > 1.f) {
@@ -138,212 +138,210 @@ u8 menu_get_alpha_i(struct menu *menu, bool inherit) {
     return alpha * 0xFF;
 }
 
-void menu_set_alpha(struct menu *menu, f32 alpha) {
+void menuSetAlpha(struct Menu *menu, f32 alpha) {
     menu->alpha = alpha;
 }
 
-s32 menu_cell_screen_x(struct menu *menu, s32 x) {
-    return (x + menu_get_cxoffset(menu, TRUE)) * menu_get_cell_width(menu, TRUE) + menu_get_pxoffset(menu, TRUE);
+s32 menuCellScreenX(struct Menu *menu, s32 cellX) {
+    return (cellX + menuGetCxoffset(menu, TRUE)) * menuGetCellWidth(menu, TRUE) + menuGetPxoffset(menu, TRUE);
 }
 
-s32 menu_cell_screen_y(struct menu *menu, s32 y) {
-    return (y + menu_get_cyoffset(menu, TRUE)) * menu_get_cell_height(menu, TRUE) + menu_get_pyoffset(menu, TRUE);
+s32 menuCellScreenY(struct Menu *menu, s32 cellY) {
+    return (cellY + menuGetCyoffset(menu, TRUE)) * menuGetCellHeight(menu, TRUE) + menuGetPyoffset(menu, TRUE);
 }
 
-struct menu_item *menu_get_selector(struct menu *menu) {
+struct MenuItem *menuGetSelector(struct Menu *menu) {
     if (menu->child) {
-        return menu_get_selector(menu->child);
+        return menuGetSelector(menu->child);
     }
     return menu->selector;
 }
 
-struct menu *menu_get_top(struct menu *menu) {
+struct Menu *menuGetTop(struct Menu *menu) {
     if (menu->parent) {
-        return menu_get_top(menu->parent);
+        return menuGetTop(menu->parent);
     }
     return menu;
 }
 
-struct menu *menu_get_front(struct menu *menu) {
+struct Menu *menuGetFront(struct Menu *menu) {
     if (menu->child) {
-        return menu_get_front(menu->child);
+        return menuGetFront(menu->child);
     }
     return menu;
 }
 
-s32 menu_think(struct menu *menu) {
+s32 menuThink(struct Menu *menu) {
     if (menu->child) {
-        return menu_think(menu->child);
+        return menuThink(menu->child);
     }
-    for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
+    for (struct MenuItem *item = menu->items.first; item; item = list_next(item)) {
         if (!item->enabled) {
             continue;
         }
-        if (item->think_proc && item->think_proc(item)) {
+        if (item->thinkProc && item->thinkProc(item)) {
             return 1;
         }
-        if (item->imenu && menu_think(item->imenu)) {
+        if (item->imenu && menuThink(item->imenu)) {
             return 1;
         }
     }
     return 0;
 }
 
-void menu_draw(struct menu *menu) {
+void menuDraw(struct Menu *menu) {
     if (menu->child) {
-        return menu_draw(menu->child);
+        return menuDraw(menu->child);
     }
     for (s32 i = 0; i < 3; ++i) {
         s32 shift = i * 8;
         u32 mask = 0xFF << shift;
-        s32 v = (menu->highlight_color_animated & mask) >> shift;
-        v += menu->highlight_state[i];
+        s32 v = (menu->highlightColorAnimated & mask) >> shift;
+        v += menu->highlightState[i];
         if (v < 0x00 || v > 0xFF) {
             v = -v + (v > 0xFF ? 2 * 0xFF : 0);
-            menu->highlight_state[i] = -menu->highlight_state[i];
+            menu->highlightState[i] = -menu->highlightState[i];
         }
-        menu->highlight_color_animated &= ~mask;
-        menu->highlight_color_animated |= (u32)v << shift;
+        menu->highlightColorAnimated &= ~mask;
+        menu->highlightColorAnimated |= (u32)v << shift;
     }
-    struct gfx_font *font = menu_get_font(menu, TRUE);
-    u8 alpha = menu_get_alpha_i(menu, TRUE);
-    for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
+    struct GfxFont *font = menuGetFont(menu, TRUE);
+    u8 alpha = menuGetAlphaI(menu, TRUE);
+    for (struct MenuItem *item = menu->items.first; item; item = list_next(item)) {
         if (!item->enabled) {
             continue;
         }
-        struct menu_draw_params draw_params = {
-            menu_item_screen_x(item),
-            menu_item_screen_y(item),
+        struct MenuDrawParams drawParams = {
+            menuItemScreenX(item),
+            menuItemScreenY(item),
             item->text,
             font,
             (item == menu->selector
-                 ? (item->animate_highlight ? menu->highlight_color_animated : menu->highlight_color_static)
+                 ? (item->animateHighlight ? menu->highlightColorAnimated : menu->highlightColorStatic)
                  : item->color),
             alpha,
         };
-        if (item->draw_proc && item->draw_proc(item, &draw_params)) {
+        if (item->drawProc && item->drawProc(item, &drawParams)) {
             continue;
         }
         if (item->imenu) {
-            menu_draw(item->imenu);
+            menuDraw(item->imenu);
         }
-        if (!draw_params.text || !draw_params.font) {
+        if (!drawParams.text || !drawParams.font) {
             continue;
         }
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params.color, draw_params.alpha));
-        gfx_printf(draw_params.font, draw_params.x, draw_params.y, "%s", draw_params.text);
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams.color, drawParams.alpha));
+        gfxPrintf(drawParams.font, drawParams.x, drawParams.y, "%s", drawParams.text);
     }
 }
 
-static void menu_nav_compare(struct menu *menu, struct menu_item *selector, enum menu_navigation nav, s32 nav_x,
-                             s32 nav_y, struct menu_item **near_item, struct menu_item **far_item, s32 *npa, s32 *fpa,
-                             s32 *npe, s32 *fpe) {
+static void menuNavCompare(struct Menu *menu, struct MenuItem *selector, enum MenuNavigation nav, s32 navX, s32 navY,
+                           struct MenuItem **nearItem, struct MenuItem **farItem, s32 *npa, s32 *fpa, s32 *npe,
+                           s32 *fpe) {
     if (menu->child) {
-        return menu_nav_compare(menu->child, selector, nav, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
+        return menuNavCompare(menu->child, selector, nav, navX, navY, nearItem, farItem, npa, fpa, npe, fpe);
     }
-    s32 sel_x = selector ? menu_item_screen_x(selector) : 0;
-    s32 sel_y = selector ? menu_item_screen_y(selector) : 0;
-    for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
+    s32 selX = selector ? menuItemScreenX(selector) : 0;
+    s32 selY = selector ? menuItemScreenY(selector) : 0;
+    for (struct MenuItem *item = menu->items.first; item; item = list_next(item)) {
         if (!item->enabled) {
             continue;
         }
         if (item->imenu) {
-            menu_nav_compare(item->imenu, selector, nav, nav_x, nav_y, near_item, far_item, npa, fpa, npe, fpe);
+            menuNavCompare(item->imenu, selector, nav, navX, navY, nearItem, farItem, npa, fpa, npe, fpe);
         }
         if (item == menu->selector || !item->selectable) {
             continue;
         }
 
-        if (selector && selector->chain_links[nav] == item) {
-            *near_item = item;
+        if (selector && selector->chainLinks[nav] == item) {
+            *nearItem = item;
             *npe = 0;
             return;
         }
-        s32 distance_x = menu_item_screen_x(item) - sel_x;
-        s32 distance_y = menu_item_screen_y(item) - sel_y;
-        s32 distance_pa = (nav_x ? distance_x * nav_x : distance_y * nav_y);
-        s32 distance_pe = (nav_y ? distance_x : distance_y);
-        if (distance_pe < 0) {
-            distance_pe = -distance_pe;
+        s32 distanceX = menuItemScreenX(item) - selX;
+        s32 distanceY = menuItemScreenY(item) - selY;
+        s32 distancePa = (navX ? distanceX * navX : distanceY * navY);
+        s32 distancePe = (navY ? distanceX : distanceY);
+        if (distancePe < 0) {
+            distancePe = -distancePe;
         }
-        if (distance_pa > 0 &&
-            (*near_item == NULL || distance_pe < *npe || (distance_pe == *npe && distance_pa < *npa))) {
-            *npa = distance_pa;
-            *npe = distance_pe;
-            *near_item = item;
+        if (distancePa > 0 && (*nearItem == NULL || distancePe < *npe || (distancePe == *npe && distancePa < *npa))) {
+            *npa = distancePa;
+            *npe = distancePe;
+            *nearItem = item;
         }
-        if (distance_pa < 0 &&
-            (*far_item == NULL || -distance_pa > *fpa || (-distance_pa == *fpa && distance_pe < *fpe))) {
-            *fpa = -distance_pa;
-            *fpe = distance_pe;
-            *far_item = item;
+        if (distancePa < 0 && (*farItem == NULL || -distancePa > *fpa || (-distancePa == *fpa && distancePe < *fpe))) {
+            *fpa = -distancePa;
+            *fpe = distancePe;
+            *farItem = item;
         }
     }
 }
 
-void menu_navigate(struct menu *menu, enum menu_navigation nav) {
+void menuNavigate(struct Menu *menu, enum MenuNavigation nav) {
     if (menu->child) {
-        return menu_navigate(menu->child, nav);
+        return menuNavigate(menu->child, nav);
     }
-    if (menu->selector && menu->selector->navigate_proc && menu->selector->navigate_proc(menu->selector, nav)) {
+    if (menu->selector && menu->selector->navigateProc && menu->selector->navigateProc(menu->selector, nav)) {
         return;
     }
-    s32 nav_x = (nav == MENU_NAVIGATE_LEFT ? -1 : (nav == MENU_NAVIGATE_RIGHT ? 1 : 0));
-    s32 nav_y = (nav == MENU_NAVIGATE_UP ? -1 : (nav == MENU_NAVIGATE_DOWN ? 1 : 0));
-    if (nav_x == 0 && nav_y == 0) {
+    s32 navX = (nav == MENU_NAVIGATE_LEFT ? -1 : (nav == MENU_NAVIGATE_RIGHT ? 1 : 0));
+    s32 navY = (nav == MENU_NAVIGATE_UP ? -1 : (nav == MENU_NAVIGATE_DOWN ? 1 : 0));
+    if (navX == 0 && navY == 0) {
         return;
     }
     s32 npa = 0;
     s32 fpa = 0;
     s32 npe = 0;
     s32 fpe = 0;
-    struct menu_item *near_item = NULL;
-    struct menu_item *far_item = NULL;
-    menu_nav_compare(menu, menu->selector, nav, nav_x, nav_y, &near_item, &far_item, &npa, &fpa, &npe, &fpe);
-    if (near_item) {
-        menu_select(menu, near_item);
-    } else if (far_item) {
-        menu_select(menu, far_item);
+    struct MenuItem *nearItem = NULL;
+    struct MenuItem *farItem = NULL;
+    menuNavCompare(menu, menu->selector, nav, navX, navY, &nearItem, &farItem, &npa, &fpa, &npe, &fpe);
+    if (nearItem) {
+        menuSelect(menu, nearItem);
+    } else if (farItem) {
+        menuSelect(menu, farItem);
     }
 }
 
-void menu_activate(struct menu *menu) {
+void menuActivate(struct Menu *menu) {
     if (menu->child) {
-        return menu_activate(menu->child);
+        return menuActivate(menu->child);
     }
-    if (menu->selector && menu->selector->activate_proc) {
-        menu->selector->activate_proc(menu->selector);
+    if (menu->selector && menu->selector->activateProc) {
+        menu->selector->activateProc(menu->selector);
     }
 }
 
-void menu_enter(struct menu *menu, struct menu *submenu) {
+void menuEnter(struct Menu *menu, struct Menu *submenu) {
     if (menu->child) {
-        return menu_enter(menu->child, submenu);
+        return menuEnter(menu->child, submenu);
     }
-    menu_signal_leave(menu, MENU_SWITCH_ENTER);
+    menuSignalLeave(menu, MENU_SWITCH_ENTER);
     menu->child = submenu;
     submenu->parent = menu;
-    menu_signal_enter(submenu, MENU_SWITCH_ENTER);
+    menuSignalEnter(submenu, MENU_SWITCH_ENTER);
 }
 
-struct menu *menu_return(struct menu *menu) {
+struct Menu *menuReturn(struct Menu *menu) {
     if (menu->child) {
-        return menu_return(menu->child);
+        return menuReturn(menu->child);
     }
-    struct menu *parent = menu->parent;
+    struct Menu *parent = menu->parent;
     if (!parent || parent->child != menu) {
         return NULL;
     }
-    menu_signal_leave(menu, MENU_SWITCH_RETURN);
+    menuSignalLeave(menu, MENU_SWITCH_RETURN);
     menu->parent = NULL;
     parent->child = NULL;
-    menu_signal_enter(parent, MENU_SWITCH_RETURN);
+    menuSignalEnter(parent, MENU_SWITCH_RETURN);
     return parent;
 }
 
-void menu_select(struct menu *menu, struct menu_item *item) {
+void menuSelect(struct Menu *menu, struct MenuItem *item) {
     if (menu->child) {
-        return menu_select(menu->child, item);
+        return menuSelect(menu->child, item);
     }
     if (menu->selector) {
         menu->selector->owner->selector = NULL;
@@ -352,71 +350,71 @@ void menu_select(struct menu *menu, struct menu_item *item) {
     item->owner->selector = item;
 }
 
-void menu_signal_enter(struct menu *menu, enum menu_switch_reason reason) {
+void menuSignalEnter(struct Menu *menu, enum MenuSwitchReason reason) {
     if (menu->child) {
-        return menu_signal_enter(menu->child, reason);
+        return menuSignalEnter(menu->child, reason);
     }
-    for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
-        if (item->enter_proc && item->enter_proc(item, reason)) {
+    for (struct MenuItem *item = menu->items.first; item; item = list_next(item)) {
+        if (item->enterProc && item->enterProc(item, reason)) {
             continue;
         }
         if (item->imenu) {
-            menu_signal_enter(item->imenu, reason);
+            menuSignalEnter(item->imenu, reason);
         }
     }
 }
 
-void menu_signal_leave(struct menu *menu, enum menu_switch_reason reason) {
+void menuSignalLeave(struct Menu *menu, enum MenuSwitchReason reason) {
     if (menu->child) {
-        return menu_signal_leave(menu->child, reason);
+        return menuSignalLeave(menu->child, reason);
     }
-    for (struct menu_item *item = menu->items.first; item; item = list_next(item)) {
-        if (item->leave_proc && item->leave_proc(item, reason)) {
+    for (struct MenuItem *item = menu->items.first; item; item = list_next(item)) {
+        if (item->leaveProc && item->leaveProc(item, reason)) {
             continue;
         }
         if (item->imenu) {
-            menu_signal_leave(item->imenu, reason);
+            menuSignalLeave(item->imenu, reason);
         }
     }
 }
 
-void menu_navigate_top(struct menu *menu, enum menu_navigation nav) {
+void menuNavigateTop(struct Menu *menu, enum MenuNavigation nav) {
     if (menu->parent) {
-        return menu_navigate_top(menu->parent, nav);
+        return menuNavigateTop(menu->parent, nav);
     }
-    return menu_navigate(menu, nav);
+    return menuNavigate(menu, nav);
 }
 
-void menu_activate_top(struct menu *menu) {
+void menuActivateTop(struct Menu *menu) {
     if (menu->parent) {
-        return menu_activate_top(menu->parent);
+        return menuActivateTop(menu->parent);
     }
-    return menu_activate(menu);
+    return menuActivate(menu);
 }
 
-void menu_enter_top(struct menu *menu, struct menu *submenu) {
+void menuEnterTop(struct Menu *menu, struct Menu *submenu) {
     if (menu->parent) {
-        return menu_enter_top(menu->parent, submenu);
+        return menuEnterTop(menu->parent, submenu);
     }
-    return menu_enter(menu, submenu);
+    return menuEnter(menu, submenu);
 }
 
-struct menu *menu_return_top(struct menu *menu) {
+struct Menu *menuReturnTop(struct Menu *menu) {
     if (menu->parent) {
-        return menu_return_top(menu->parent);
+        return menuReturnTop(menu->parent);
     }
-    return menu_return(menu);
+    return menuReturn(menu);
 }
 
-void menu_select_top(struct menu *menu, struct menu_item *item) {
+void menuSelectTop(struct Menu *menu, struct MenuItem *item) {
     if (menu->parent) {
-        return menu_select_top(menu->parent, item);
+        return menuSelectTop(menu->parent, item);
     }
-    return menu_select(menu, item);
+    return menuSelect(menu, item);
 }
 
-struct menu_item *menu_item_add(struct menu *menu, s32 x, s32 y, const char *text, u32 color) {
-    struct menu_item *item = list_push_back(&menu->items, NULL);
+struct MenuItem *menuItemAdd(struct Menu *menu, s32 x, s32 y, const char *text, u32 color) {
+    struct MenuItem *item = list_push_back(&menu->items, NULL);
     if (item) {
         item->owner = menu;
         item->enabled = TRUE;
@@ -432,52 +430,52 @@ struct menu_item *menu_item_add(struct menu *menu, s32 x, s32 y, const char *tex
         }
         item->tooltip = NULL;
         item->color = color;
-        item->animate_highlight = FALSE;
+        item->animateHighlight = FALSE;
         item->data = NULL;
         item->selectable = TRUE;
         item->imenu = NULL;
-        item->enter_proc = NULL;
-        item->leave_proc = NULL;
-        item->think_proc = NULL;
-        item->draw_proc = NULL;
-        item->navigate_proc = NULL;
-        item->activate_proc = NULL;
-        item->destroy_proc = NULL;
+        item->enterProc = NULL;
+        item->leaveProc = NULL;
+        item->thinkProc = NULL;
+        item->drawProc = NULL;
+        item->navigateProc = NULL;
+        item->activateProc = NULL;
+        item->destroyProc = NULL;
     }
     return item;
 }
 
-static void menu_deselect(struct menu *menu, struct menu_item *item) {
+static void menuDeselect(struct Menu *menu, struct MenuItem *item) {
     if (menu->selector == item) {
         menu->selector = NULL;
     }
     if (menu->parent && menu->parent->child != menu) {
-        menu_deselect(menu->parent, item);
+        menuDeselect(menu->parent, item);
     }
 }
 
-void menu_item_enable(struct menu_item *item) {
+void menuItemEnable(struct MenuItem *item) {
     item->enabled = TRUE;
 }
 
-void menu_item_disable(struct menu_item *item) {
+void menuItemDisable(struct MenuItem *item) {
     item->enabled = FALSE;
-    menu_deselect(item->owner, item);
+    menuDeselect(item->owner, item);
 }
 
-void menu_item_transfer(struct menu_item *item, struct menu *menu) {
+void menuItemTransfer(struct MenuItem *item, struct Menu *menu) {
     if (menu == item->owner) {
         return;
     }
-    menu_deselect(item->owner, item);
+    menuDeselect(item->owner, item);
     list_transfer(&menu->items, NULL, &item->owner->items, item);
     item->owner = menu;
 }
 
-void menu_item_remove(struct menu_item *item) {
-    if (!item->destroy_proc || !item->destroy_proc(item)) {
+void menuItemRemove(struct MenuItem *item) {
+    if (!item->destroyProc || !item->destroyProc(item)) {
         if (item->imenu) {
-            menu_destroy(item->imenu);
+            menuDestroy(item->imenu);
             free(item->imenu);
         }
         if (item->text) {
@@ -487,37 +485,37 @@ void menu_item_remove(struct menu_item *item) {
             free(item->data);
         }
     }
-    menu_deselect(item->owner, item);
+    menuDeselect(item->owner, item);
     list_erase(&item->owner->items, item);
 }
 
-void menu_item_add_chain_link(struct menu_item *from_item, struct menu_item *to_item, enum menu_navigation direction) {
-    from_item->chain_links[direction] = to_item;
+void menuItemAddChainLink(struct MenuItem *fromItem, struct MenuItem *toItem, enum MenuNavigation direction) {
+    fromItem->chainLinks[direction] = toItem;
 }
 
-void menu_item_create_chain(struct menu_item *items[], s32 items_size, enum menu_navigation nav_direction, bool loop,
-                            bool reverse_chain) {
-    if (!reverse_chain) {
-        for (s32 i = 0; i < items_size - 1; i++) {
-            menu_item_add_chain_link(items[i], items[i + 1], nav_direction);
+void menuItemCreateChain(struct MenuItem *items[], s32 itemsSize, enum MenuNavigation navDirection, bool loop,
+                         bool reverseChain) {
+    if (!reverseChain) {
+        for (s32 i = 0; i < itemsSize - 1; i++) {
+            menuItemAddChainLink(items[i], items[i + 1], navDirection);
         }
         if (loop) {
-            menu_item_add_chain_link(items[items_size - 1], items[0], nav_direction);
+            menuItemAddChainLink(items[itemsSize - 1], items[0], navDirection);
         }
     } else {
-        for (s32 i = items_size - 1; i > 0; i--) {
-            menu_item_add_chain_link(items[i], items[i - 1], nav_direction);
+        for (s32 i = itemsSize - 1; i > 0; i--) {
+            menuItemAddChainLink(items[i], items[i - 1], navDirection);
         }
         if (loop) {
-            menu_item_add_chain_link(items[0], items[items_size - 1], nav_direction);
+            menuItemAddChainLink(items[0], items[itemsSize - 1], navDirection);
         }
     }
 }
 
-s32 menu_item_screen_x(struct menu_item *item) {
-    return menu_cell_screen_x(item->owner, item->x) + item->pxoffset;
+s32 menuItemScreenX(struct MenuItem *item) {
+    return menuCellScreenX(item->owner, item->x) + item->pxoffset;
 }
 
-s32 menu_item_screen_y(struct menu_item *item) {
-    return menu_cell_screen_y(item->owner, item->y) + item->pyoffset;
+s32 menuItemScreenY(struct MenuItem *item) {
+    return menuCellScreenY(item->owner, item->y) + item->pyoffset;
 }

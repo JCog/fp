@@ -7,211 +7,211 @@
 #include <n64.h>
 #include <stddef.h>
 
-static s32 cart_irqf;
-static u32 cart_lat;
-static u32 cart_pwd;
-static u16 spi_cfg;
+static s32 cartIrqf;
+static u32 cartLat;
+static u32 cartPwd;
+static u16 spiCfg;
 
-static void cart_lock_safe(void) {
+static void cartLockSafe(void) {
     __osPiGetAccess();
 
-    cart_irqf = set_irqf(0);
+    cartIrqf = setIrqf(0);
 
-    cart_lat = pi_regs.dom2_lat;
-    cart_pwd = pi_regs.dom2_pwd;
+    cartLat = pi_regs.dom2_lat;
+    cartPwd = pi_regs.dom2_pwd;
 }
 
-static void cart_lock(void) {
-    cart_lock_safe();
+static void cartLock(void) {
+    cartLockSafe();
 
     pi_regs.dom2_lat = 4;
     pi_regs.dom2_pwd = 12;
 }
 
-static void cart_unlock(void) {
-    pi_regs.dom2_lat = cart_lat;
-    pi_regs.dom2_pwd = cart_pwd;
+static void cartUnlock(void) {
+    pi_regs.dom2_lat = cartLat;
+    pi_regs.dom2_pwd = cartPwd;
 
     __osPiRelAccess();
 
-    set_irqf(cart_irqf);
+    setIrqf(cartIrqf);
 }
 
-static inline u32 reg_rd(s32 reg) {
-    return __pi_read_raw((u32)&REGS_PTR[reg]);
+static inline u32 regRd(s32 reg) {
+    return __piReadRaw((u32)&REGS_PTR[reg]);
 }
 
-static inline void reg_wr(s32 reg, u32 dat) {
-    return __pi_write_raw((u32)&REGS_PTR[reg], dat);
+static inline void regWr(s32 reg, u32 dat) {
+    return __piWriteRaw((u32)&REGS_PTR[reg], dat);
 }
 
-static inline void spi_tx(u8 dat) {
-    reg_wr(REG_SPI, dat);
+static inline void spiTx(u8 dat) {
+    regWr(REG_SPI, dat);
 
-    while (reg_rd(REG_STATUS) & STATUS_SPI) {
+    while (regRd(REG_STATUS) & STATUS_SPI) {
         ;
     }
 }
 
-static inline u8 spi_io(u8 dat) {
-    spi_tx(dat);
+static inline u8 spiIo(u8 dat) {
+    spiTx(dat);
 
-    return reg_rd(REG_SPI);
+    return regRd(REG_SPI);
 }
 
-static inline u8 spi_rx(void) {
-    return spi_io(0xFF);
+static inline u8 spiRx(void) {
+    return spiIo(0xFF);
 }
 
-static void sd_set_spd(s32 spd) {
-    spi_cfg &= ~SPI_SPEED;
+static void sdSetSpd(s32 spd) {
+    spiCfg &= ~SPI_SPEED;
 
     if (spd >= 50) {
-        spi_cfg |= SPI_SPEED_50;
+        spiCfg |= SPI_SPEED_50;
     } else if (spd >= 25) {
-        spi_cfg |= SPI_SPEED_25;
+        spiCfg |= SPI_SPEED_25;
     } else {
-        spi_cfg |= SPI_SPEED_LO;
+        spiCfg |= SPI_SPEED_LO;
     }
 
-    reg_wr(REG_SPI_CFG, spi_cfg);
+    regWr(REG_SPI_CFG, spiCfg);
 }
 
-static void sd_spi_ss(s32 ss) {
+static void sdSpiSs(s32 ss) {
     if (ss) {
-        spi_cfg &= ~SPI_SS;
+        spiCfg &= ~SPI_SS;
     } else {
-        spi_cfg |= SPI_SS;
+        spiCfg |= SPI_SS;
     }
 
-    reg_wr(REG_SPI_CFG, spi_cfg);
+    regWr(REG_SPI_CFG, spiCfg);
 }
 
-static s32 sd_spi_io(s32 dat) {
-    return spi_io(dat);
+static s32 sdSpiIo(s32 dat) {
+    return spiIo(dat);
 }
 
-static void sd_spi_rx_buf(void *buf, size_t size) {
+static void sdSpiRxBuf(void *buf, size_t size) {
     u8 *p = buf;
 
     for (size_t i = 0; i < size; i++) {
-        *p++ = spi_rx();
+        *p++ = spiRx();
     }
 }
 
-static void sd_spi_tx_buf(const void *buf, size_t size) {
+static void sdSpiTxBuf(const void *buf, size_t size) {
     const u8 *p = buf;
 
     for (size_t i = 0; i < size; i++) {
-        spi_tx(*p++);
+        spiTx(*p++);
     }
 }
 
-static void sd_spi_tx_clk(s32 dat, size_t n_clk) {
+static void sdSpiTxClk(s32 dat, size_t nClk) {
     if (dat & 0x1) {
         dat = 0xFF;
     } else {
         dat = 0x00;
     }
 
-    for (size_t i = 0; i < n_clk / 8; i++) {
-        spi_tx(dat);
+    for (size_t i = 0; i < nClk / 8; i++) {
+        spiTx(dat);
     }
 }
 
-static s32 sd_rx_mblk(void *buf, size_t blk_size, size_t n_blk) {
-    const u32 cart_addr = 0xB2000000;
+static s32 sdRxMblk(void *buf, size_t blkSize, size_t nBlk) {
+    const u32 cartAddr = 0xB2000000;
 
     /* dma to cart */
-    reg_wr(REG_DMA_LEN, n_blk - 1);
-    reg_wr(REG_DMA_ADDR, cart_addr >> 11);
-    reg_wr(REG_DMA_CFG, DMA_SD_TO_RAM);
-    while (reg_rd(REG_STATUS) & STATUS_DMA_BUSY) {
+    regWr(REG_DMA_LEN, nBlk - 1);
+    regWr(REG_DMA_ADDR, cartAddr >> 11);
+    regWr(REG_DMA_CFG, DMA_SD_TO_RAM);
+    while (regRd(REG_STATUS) & STATUS_DMA_BUSY) {
         ;
     }
 
     /* check for dma timeout */
-    if (reg_rd(REG_STATUS) & STATUS_DMA_TOUT) {
+    if (regRd(REG_STATUS) & STATUS_DMA_TOUT) {
         return -SD_ERR_TIMEOUT;
     }
 
     /* copy to ram */
-    pi_read_locked(cart_addr, buf, blk_size * n_blk);
+    piReadLocked(cartAddr, buf, blkSize * nBlk);
 
     return 0;
 }
 
-static struct sd_host sd_host = {
+static struct SdHost sdHost = {
     .proto = SD_PROTO_SPIBUS,
 
-    .lock = cart_lock,
-    .unlock = cart_unlock,
-    .set_spd = sd_set_spd,
+    .lock = cartLock,
+    .unlock = cartUnlock,
+    .setSpd = sdSetSpd,
 
-    .spi_ss = sd_spi_ss,
-    .spi_io = sd_spi_io,
-    .spi_rx_buf = sd_spi_rx_buf,
-    .spi_tx_buf = sd_spi_tx_buf,
-    .spi_tx_clk = sd_spi_tx_clk,
+    .spiSs = sdSpiSs,
+    .spiIo = sdSpiIo,
+    .spiRxBuf = sdSpiRxBuf,
+    .spiTxBuf = sdSpiTxBuf,
+    .spiTxClk = sdSpiTxClk,
 
-    .rx_mblk = sd_rx_mblk,
+    .rxMblk = sdRxMblk,
 };
 
 static s32 probe(void) {
-    cart_lock_safe();
+    cartLockSafe();
 
     /* open registers */
-    reg_wr(REG_KEY, 0x1234);
+    regWr(REG_KEY, 0x1234);
 
     /* check firmware version */
-    u16 fw_ver = reg_rd(REG_VER);
-    if (fw_ver < 0x0100 || fw_ver >= 0x0116) {
+    u16 fwVer = regRd(REG_VER);
+    if (fwVer < 0x0100 || fwVer >= 0x0116) {
         goto nodev;
     }
 
     /* check spi device */
     /* for a v1 device we expect a write to trigger eight clocks with the MISO
      * line high */
-    reg_wr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS);
-    reg_wr(REG_SPI, 0x00);
+    regWr(REG_SPI_CFG, SPI_SPEED_LO | SPI_SS);
+    regWr(REG_SPI, 0x00);
     for (s32 i = 0;; i++) {
         if (i > 32) {
             goto nodev;
         }
 
-        if ((reg_rd(REG_STATUS) & STATUS_SPI) == 0) {
+        if ((regRd(REG_STATUS) & STATUS_SPI) == 0) {
             break;
         }
     }
-    u16 dat = reg_rd(REG_SPI);
+    u16 dat = regRd(REG_SPI);
     if (dat == 0xFF) {
         /* spi seems to work as expected */
-        cart_unlock();
+        cartUnlock();
         return 0;
     }
 
 nodev:
-    reg_wr(REG_KEY, 0);
-    cart_unlock();
+    regWr(REG_KEY, 0);
+    cartUnlock();
     return -1;
 }
 
-static s32 disk_init(void) {
-    return sd_init(&sd_host);
+static s32 diskInit(void) {
+    return sdInit(&sdHost);
 }
 
-static s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
-    return sd_read(&sd_host, lba, dst, n_blocks);
+static s32 diskRead(size_t lba, size_t nBlocks, void *dst) {
+    return sdRead(&sdHost, lba, dst, nBlocks);
 }
 
-static s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
-    return sd_write(&sd_host, lba, src, n_blocks);
+static s32 diskWrite(size_t lba, size_t nBlocks, const void *src) {
+    return sdWrite(&sdHost, lba, src, nBlocks);
 }
 
-struct iodev everdrive64_v1 = {
+struct Iodev everdrive64V1 = {
     .probe = probe,
 
-    .disk_init = disk_init,
-    .disk_read = disk_read,
-    .disk_write = disk_write,
+    .diskInit = diskInit,
+    .diskRead = diskRead,
+    .diskWrite = diskWrite,
 };

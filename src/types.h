@@ -1,7 +1,8 @@
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef TYPES_H
+#define TYPES_H
 #include <stdint.h>
 
+// NOLINTBEGIN
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;
@@ -13,32 +14,33 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 typedef _Bool bool;
+// NOLINTEND
 
 typedef struct {
     /* 0x00 */ s8 x;
     /* 0x01 */ s8 y;
-} vec2b_t; // size = 0x02
+} Vec2b; // size = 0x02
 
 typedef struct {
     /* 0x00 */ u8 x;
     /* 0x01 */ u8 y;
-} vec2bu_t; // size = 0x02
+} Vec2bu; // size = 0x02
 
 typedef struct {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 z;
-} vec2xzf_t; // size = 0x08
+} Vec2XZf; // size = 0x08
 
 typedef struct {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 z;
-} vec3f_t; // size = 0x0C
+} Vec3f; // size = 0x0C
 
 typedef struct {
     /* 0x00 */ s16 x;
     /* 0x02 */ s16 y;
     /* 0x04 */ s16 z;
-} vec3s_t; // size = 0x06
+} Vec3s; // size = 0x06
 
-#endif //_TYPES_H_
+#endif // TYPES_H

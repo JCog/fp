@@ -13,12 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-__attribute__((section(".data"))) fp_ctxt_t fp = {
+__attribute__((section(".data"))) FpCtxt fp = {
     .ready = FALSE,
 };
 
 // Initializes and uses new stack instead of using games main thread stack.
-static void init_stack(void (*func)(void)) {
+static void initStack(void (*func)(void)) {
     static _Alignas(8) __attribute__((section(".stack"))) char stack[0x2000];
     __asm__ volatile("la     $t0, %1;"
                      "sw     $sp, -0x04($t0);"
@@ -31,265 +31,264 @@ static void init_stack(void (*func)(void)) {
                      "i"(&stack[sizeof(stack)]));
 }
 
-static void main_return_proc(struct menu_item *item, void *data) {
-    hide_menu();
+static void mainReturnProc(struct MenuItem *item, void *data) {
+    hideMenu();
 }
 
-void fp_init(void) {
+void fpInit(void) {
     clear_bss();
     do_global_ctors();
 
-    gfx_start();
-    gfx_mode_configure(GFX_MODE_FILTER, G_TF_POINT);
-    gfx_mode_configure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
+    gfxStart();
+    gfxModeConfigure(GFX_MODE_FILTER, G_TF_POINT);
+    gfxModeConfigure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
 
     fp.profile = 0;
-    fp.settings_loaded = FALSE;
-    fp.version_shown = FALSE;
-    fp.cpu_counter = 0;
-    fp.cpu_counter_freq = 0;
-    fp.menu_active = FALSE;
+    fp.settingsLoaded = FALSE;
+    fp.versionShown = FALSE;
+    fp.cpuCounter = 0;
+    fp.cpuCounterFreq = 0;
+    fp.menuActive = FALSE;
 
     for (s32 i = 0; i < SETTINGS_LOG_MAX; i++) {
         fp.log[i].msg = NULL;
     }
 
-    fp.saved_x = 0;
-    fp.saved_y = 0;
-    fp.saved_z = 0;
-    fp.saved_facing_angle = 0;
-    fp.saved_area = 0x1c;
-    fp.saved_map = 0;
-    fp.saved_entrance = 0;
+    fp.savedX = 0;
+    fp.savedY = 0;
+    fp.savedZ = 0;
+    fp.savedFacingAngle = 0;
+    fp.savedArea = 0x1c;
+    fp.savedMap = 0;
+    fp.savedEntrance = 0;
     fp.turbo = FALSE;
-    fp.ace_last_timer = 0;
-    fp.ace_last_flag_status = FALSE;
-    fp.ace_last_jump_status = FALSE;
-    fp.bowser_blocks_enabled = FALSE;
-    fp.bowser_block = 0;
-    fp.lzs_trainer_enabled = FALSE;
-    fp.prev_prev_action_state = 0;
-    fp.lz_stored = FALSE;
-    fp.record_lzs_jumps = 0;
-    fp.current_lzs_jumps = 0;
-    fp.player_landed = FALSE;
-    fp.frames_since_land = 0;
+    fp.aceLastTimer = 0;
+    fp.aceLastFlagStatus = FALSE;
+    fp.aceLastJumpStatus = FALSE;
+    fp.bowserBlocksEnabled = FALSE;
+    fp.bowserBlock = 0;
+    fp.lzsTrainerEnabled = FALSE;
+    fp.prevPrevActionState = 0;
+    fp.lzStored = FALSE;
+    fp.recordLzsJumps = 0;
+    fp.currentLzsJumps = 0;
+    fp.playerLanded = FALSE;
+    fp.framesSinceLand = 0;
     fp.warp = FALSE;
-    fp.warp_delay = 0;
-    fp.frames_since_battle = 0;
-    fp.clippy_status = 0;
-    fp.clippy_trainer_enabled = FALSE;
-    fp.last_imported_save_path = NULL;
-    fp.free_cam = FALSE;
-    fp.lock_cam = FALSE;
-    fp.cam_bhv = CAMBHV_MANUAL;
-    fp.cam_dist_min = 100;
-    fp.cam_dist_max = 400;
-    fp.cam_yaw = 0;
-    fp.cam_pitch = 0;
-    fp.cam_pos.x = 0;
-    fp.cam_pos.y = 0;
-    fp.cam_pos.z = 0;
-    fp.cam_enabled_before = FALSE;
-    fp.action_command_trainer_enabled = FALSE;
+    fp.warpDelay = 0;
+    fp.framesSinceBattle = 0;
+    fp.clippyStatus = 0;
+    fp.clippyTrainerEnabled = FALSE;
+    fp.lastImportedSavePath = NULL;
+    fp.freeCam = FALSE;
+    fp.lockCam = FALSE;
+    fp.camBhv = CAMBHV_MANUAL;
+    fp.camDistMin = 100;
+    fp.camDistMax = 400;
+    fp.camYaw = 0;
+    fp.camPitch = 0;
+    fp.camPos.x = 0;
+    fp.camPos.y = 0;
+    fp.camPos.z = 0;
+    fp.camEnabledBefore = FALSE;
+    fp.actionCommandTrainerEnabled = FALSE;
 
-    io_init();
+    ioInit();
 
-    settings_load_default();
+    settingsLoadDefault();
 
     // init menus
-    static struct menu main_menu;
-    static struct menu watches;
-    static struct menu global;
+    static struct Menu mainMenu;
+    static struct Menu watches;
+    static struct Menu global;
 
-    menu_init(&main_menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&watches, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&global, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&mainMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&watches, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&global, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
-    fp.main_menu = &main_menu;
+    fp.mainMenu = &mainMenu;
     fp.global = &global;
-    fp.menu_watches = &watches;
+    fp.menuWatches = &watches;
 
     // populate top level menus
-    s32 menu_index = 0;
-    main_menu.selector = menu_add_button(fp.main_menu, 0, menu_index++, "return", main_return_proc, NULL);
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_warps_menu(), "warps");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_cheats_menu(), "cheats");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_player_menu(), "player");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_file_menu(), "file");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_practice_menu(), "practice");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_camera_menu(), "camera");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, &watches, "watches");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_debug_menu(), "debug");
-    menu_add_submenu(fp.main_menu, 0, menu_index++, create_settings_menu(), "settings");
+    s32 menuIndex = 0;
+    mainMenu.selector = menuAddButton(fp.mainMenu, 0, menuIndex++, "return", mainReturnProc, NULL);
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createWarpsMenu(), "warps");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createCheatsMenu(), "cheats");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createPlayerMenu(), "player");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createFileMenu(), "file");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createPracticeMenu(), "practice");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createCameraMenu(), "camera");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, &watches, "watches");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createDebugMenu(), "debug");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createSettingsMenu(), "settings");
 
     // populate watches menu
-    watches.selector = menu_add_submenu(&watches, 0, 0, NULL, "return");
-    fp.menu_watchlist = watchlist_create(&watches, &global, 0, 1);
+    watches.selector = menuAddSubmenu(&watches, 0, 0, NULL, "return");
+    fp.menuWatchlist = watchlistCreate(&watches, &global, 0, 1);
 
     // configure menu related commands
-    input_bind_set_override(COMMAND_MENU, TRUE);
-    input_bind_set_override(COMMAND_RETURN, TRUE);
+    inputBindSetOverride(COMMAND_MENU, TRUE);
+    inputBindSetOverride(COMMAND_RETURN, TRUE);
 
     // get menu appearance
-    apply_menu_settings();
+    applyMenuSettings();
 
     // skip intro on boot
     pm_gGameStatus.bSkipIntro = 1;
 
     // calculate frame window for OoT ACE
     *(u16 *)0x807D0000 = 0;
-    s32 memory_value = 0;
+    s32 memoryValue = 0;
     s32 *pointer = (s32 *)0x807BFFF8;
 
-    while (memory_value == 0) {
+    while (memoryValue == 0) {
         pointer--;
-        memory_value = *pointer;
+        memoryValue = *pointer;
     }
 
-    s32 frame_window = (s32)pointer;
-    frame_window -= 0x80400000;
+    s32 frameWindow = (s32)pointer;
+    frameWindow -= 0x80400000;
 
-    if (frame_window % 0x4000 == 0) {
-        frame_window /= 0x40000;
-        frame_window -= 0x10;
+    if (frameWindow % 0x4000 == 0) {
+        frameWindow /= 0x40000;
+        frameWindow -= 0x10;
     } else {
-        frame_window /= 0x40000;
-        frame_window -= 0xf;
+        frameWindow /= 0x40000;
+        frameWindow -= 0xf;
     }
 
-    frame_window *= -1;
-    fp.ace_frame_window = frame_window;
+    frameWindow *= -1;
+    fp.aceFrameWindow = frameWindow;
 
 #if PM64_VERSION == JP
-    crash_screen_init();
+    crashScreenInit();
 #endif
 
     fp.ready = TRUE;
 }
 
-void fp_update_menu(void) {
-    if (input_bind_pressed_raw(COMMAND_MENU)) {
-        hide_menu();
-    } else if (input_bind_pressed(COMMAND_RETURN)) {
-        menu_return(fp.main_menu);
+void fpUpdateMenu(void) {
+    if (inputBindPressedRaw(COMMAND_MENU)) {
+        hideMenu();
+    } else if (inputBindPressed(COMMAND_RETURN)) {
+        menuReturn(fp.mainMenu);
     } else {
-        u16 pad_pressed = input_pressed();
-        if (pad_pressed & BUTTON_D_UP) {
-            menu_navigate(fp.main_menu, MENU_NAVIGATE_UP);
-        } else if (pad_pressed & BUTTON_D_DOWN) {
-            menu_navigate(fp.main_menu, MENU_NAVIGATE_DOWN);
-        } else if (pad_pressed & BUTTON_D_LEFT) {
-            menu_navigate(fp.main_menu, MENU_NAVIGATE_LEFT);
-        } else if (pad_pressed & BUTTON_D_RIGHT) {
-            menu_navigate(fp.main_menu, MENU_NAVIGATE_RIGHT);
-        } else if (pad_pressed & BUTTON_L) {
-            menu_activate(fp.main_menu);
+        u16 padPressed = inputPressed();
+        if (padPressed & BUTTON_D_UP) {
+            menuNavigate(fp.mainMenu, MENU_NAVIGATE_UP);
+        } else if (padPressed & BUTTON_D_DOWN) {
+            menuNavigate(fp.mainMenu, MENU_NAVIGATE_DOWN);
+        } else if (padPressed & BUTTON_D_LEFT) {
+            menuNavigate(fp.mainMenu, MENU_NAVIGATE_LEFT);
+        } else if (padPressed & BUTTON_D_RIGHT) {
+            menuNavigate(fp.mainMenu, MENU_NAVIGATE_RIGHT);
+        } else if (padPressed & BUTTON_L) {
+            menuActivate(fp.mainMenu);
         }
     }
 }
 
-static void fp_update_cpu_counter(void) {
+static void fpUpdateCpuCounter(void) {
     static u32 count = 0;
-    u32 new_count;
-    __asm__("mfc0    %0, $9;" : "=r"(new_count));
-    fp.cpu_counter_freq = OS_CPU_COUNTER;
-    fp.cpu_counter += new_count - count;
-    count = new_count;
+    u32 newCount;
+    __asm__("mfc0    %0, $9;" : "=r"(newCount));
+    fp.cpuCounterFreq = OS_CPU_COUNTER;
+    fp.cpuCounter += newCount - count;
+    count = newCount;
 }
 
-void fp_emergency_settings_reset(u16 pad_pressed) {
-    if (pad_pressed) {
-        static const u16 input_list[] = {
+void fpEmergencySettingsReset(u16 padPressed) {
+    if (padPressed) {
+        static const u16 inputList[] = {
             BUTTON_D_UP,    BUTTON_D_UP,   BUTTON_D_DOWN,  BUTTON_D_DOWN, BUTTON_D_LEFT,
             BUTTON_D_RIGHT, BUTTON_D_LEFT, BUTTON_D_RIGHT, BUTTON_B,      BUTTON_A,
         };
-        static s32 input_pos = 0;
-        size_t input_list_length = sizeof(input_list) / sizeof(*input_list);
-        if (pad_pressed == input_list[input_pos]) {
-            ++input_pos;
-            if (input_pos == input_list_length) {
-                input_pos = 0;
-                settings_load_default();
-                apply_menu_settings();
-                fp_log("default settings restored");
+        static s32 inputPos = 0;
+        size_t inputListLength = sizeof(inputList) / sizeof(*inputList);
+        if (padPressed == inputList[inputPos]) {
+            ++inputPos;
+            if (inputPos == inputListLength) {
+                inputPos = 0;
+                settingsLoadDefault();
+                applyMenuSettings();
+                fpLog("default settings restored");
             }
         } else {
-            input_pos = 0;
+            inputPos = 0;
         }
     }
 }
 
 #define STRINGIFY(S)  STRINGIFY_(S)
 #define STRINGIFY_(S) #S
-void fp_draw_version(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    static struct gfx_texture *fp_icon_tex;
+void fpDrawVersion(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
+    static struct GfxTexture *fpIconTex;
     if (pm_gGameStatus.introState == 5) {
-        fp.version_shown = TRUE;
+        fp.versionShown = TRUE;
     } else {
-        if (fp_icon_tex == NULL) {
-            fp_icon_tex = resource_load_pmicon_item(ITEM_FP_PLUS_A, FALSE);
+        if (fpIconTex == NULL) {
+            fpIconTex = resourceLoadPmiconItem(ITEM_FP_PLUS_A, FALSE);
         }
-        struct gfx_sprite fp_icon_sprite = {
-            fp_icon_tex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,
+        struct GfxSprite fpIconSprite = {
+            fpIconTex, 0, 0, 15, SCREEN_HEIGHT - 65, 1.f, 1.f,
         };
-        gfx_mode_replace(GFX_MODE_DROPSHADOW, 0);
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-        gfx_sprite_draw(&fp_icon_sprite);
-        gfx_mode_pop(GFX_MODE_DROPSHADOW);
+        gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+        gfxSpriteDraw(&fpIconSprite);
+        gfxModePop(GFX_MODE_DROPSHADOW);
 
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menu_alpha));
-        gfx_printf(font, 16, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(FP_VERSION));
-        gfx_printf(font, SCREEN_WIDTH - cell_width * 21, SCREEN_HEIGHT - 35 + cell_height * 1, STRINGIFY(URL));
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0, 0, menuAlpha));
+        gfxPrintf(font, 16, SCREEN_HEIGHT - 35 + cellHeight * 1, STRINGIFY(FP_VERSION));
+        gfxPrintf(font, SCREEN_WIDTH - cellWidth * 21, SCREEN_HEIGHT - 35 + cellHeight * 1, STRINGIFY(URL));
     }
 }
 
-void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    u16 d_pad = pm_gGameStatus.currentButtons[0].buttons;
-    s8 d_x = pm_gGameStatus.stickX[0];
-    s8 d_y = pm_gGameStatus.stickY[0];
+void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
+    u16 dPad = pm_gGameStatus.currentButtons[0].buttons;
+    s8 dX = pm_gGameStatus.stickX[0];
+    s8 dY = pm_gGameStatus.stickY[0];
 
-    struct gfx_texture *texture = resource_get(RES_ICON_BUTTONS);
-    struct gfx_texture *control_stick = resource_get(RES_TEXTURE_CONTROL_STICK);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
-    if (settings->control_stick == 1 || settings->control_stick == 2) {
-        s32 image_range = control_stick->tile_width / 2;
-        s32 image_dx, image_dy;
-        if (d_x > settings->control_stick_range) {
-            image_dx = image_range;
-        } else if (d_x < -settings->control_stick_range) {
-            image_dx = -image_range;
+    struct GfxTexture *texture = resourceGet(RES_ICON_BUTTONS);
+    struct GfxTexture *controlStick = resourceGet(RES_TEXTURE_CONTROL_STICK);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menuAlpha));
+    if (settings->controlStick == 1 || settings->controlStick == 2) {
+        s32 imageRange = controlStick->tileWidth / 2;
+        s32 imageDx, imageDy;
+        if (dX > settings->controlStickRange) {
+            imageDx = imageRange;
+        } else if (dX < -settings->controlStickRange) {
+            imageDx = -imageRange;
         } else {
-            image_dx = d_x * image_range / settings->control_stick_range;
+            imageDx = dX * imageRange / settings->controlStickRange;
         }
-        if (d_y > settings->control_stick_range) {
-            image_dy = -image_range;
-        } else if (d_y < -settings->control_stick_range) {
-            image_dy = image_range;
+        if (dY > settings->controlStickRange) {
+            imageDy = -imageRange;
+        } else if (dY < -settings->controlStickRange) {
+            imageDy = imageRange;
         } else {
-            image_dy = -d_y * image_range / settings->control_stick_range;
+            imageDy = -dY * imageRange / settings->controlStickRange;
         }
-        struct gfx_sprite in_background = {
-            control_stick, 0,   0, settings->input_display_x, settings->input_display_y - control_stick->tile_height,
-            1.f,           1.f,
+        struct GfxSprite inBackground = {
+            controlStick, 0, 0, settings->inputDisplayX, settings->inputDisplayY - controlStick->tileHeight, 1.f, 1.f,
         };
-        struct gfx_sprite in_stick = {
-            control_stick,
+        struct GfxSprite inStick = {
+            controlStick,
             1,
             0,
-            settings->input_display_x + image_dx,
-            settings->input_display_y - control_stick->tile_height + image_dy,
+            settings->inputDisplayX + imageDx,
+            settings->inputDisplayY - controlStick->tileHeight + imageDy,
             1.f,
             1.f,
         };
-        gfx_sprite_draw(&in_background);
-        gfx_sprite_draw(&in_stick);
+        gfxSpriteDraw(&inBackground);
+        gfxSpriteDraw(&inStick);
     }
-    if (settings->control_stick == 0) {
-        gfx_printf(font, settings->input_display_x, settings->input_display_y, "%4i %4i", d_x, d_y);
-    } else if (settings->control_stick == 2) {
-        gfx_printf(font, settings->input_display_x + control_stick->tile_width + cell_width,
-                   settings->input_display_y - cell_height * 2, "%4i %4i", d_x, d_y);
+    if (settings->controlStick == 0) {
+        gfxPrintf(font, settings->inputDisplayX, settings->inputDisplayY, "%4i %4i", dX, dY);
+    } else if (settings->controlStick == 2) {
+        gfxPrintf(font, settings->inputDisplayX + controlStick->tileWidth + cellWidth,
+                  settings->inputDisplayY - cellHeight * 2, "%4i %4i", dX, dY);
     }
 
     static const s32 buttons[] = {
@@ -298,27 +297,27 @@ void fp_draw_input_display(struct gfx_font *font, s32 cell_width, s32 cell_heigh
 
     for (s32 i = 0; i < sizeof(buttons) / sizeof(*buttons); ++i) {
         s32 b = buttons[i];
-        if (!(d_pad & (1 << b))) {
+        if (!(dPad & (1 << b))) {
             continue;
         }
-        s32 x = (cell_width - texture->tile_width) / 2 + i * 10;
-        s32 y = -(gfx_font_xheight(font) + texture->tile_height + 1) / 2;
-        s32 button_dx;
-        if (settings->control_stick == 0) {
-            button_dx = cell_width * 10;
+        s32 x = (cellWidth - texture->tileWidth) / 2 + i * 10;
+        s32 y = -(gfxFontXheight(font) + texture->tileHeight + 1) / 2;
+        s32 buttonDx;
+        if (settings->controlStick == 0) {
+            buttonDx = cellWidth * 10;
         } else {
-            button_dx = control_stick->tile_width + cell_width;
+            buttonDx = controlStick->tileWidth + cellWidth;
         }
-        struct gfx_sprite sprite = {
-            texture, b, 0, settings->input_display_x + button_dx + x, settings->input_display_y + y, 1.f, 1.f,
+        struct GfxSprite sprite = {
+            texture, b, 0, settings->inputDisplayX + buttonDx + x, settings->inputDisplayY + y, 1.f, 1.f,
         };
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(input_button_color[b], menu_alpha));
-        gfx_sprite_draw(&sprite);
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(inputButtonColor[b], menuAlpha));
+        gfxSpriteDraw(&sprite);
     }
 }
 
-void fp_draw_timer(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
-    s32 hundredths = timer_get_timer_count() * 100 / fp.cpu_counter_freq;
+void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
+    s32 hundredths = timerGetTimerCount() * 100 / fp.cpuCounterFreq;
     s32 seconds = hundredths / 100;
     s32 minutes = seconds / 60;
     s32 hours = minutes / 60;
@@ -327,23 +326,23 @@ void fp_draw_timer(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 me
     seconds %= 60;
     minutes %= 60;
 
-    s32 x = settings->timer_x;
-    s32 y = settings->timer_y;
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menu_alpha));
+    s32 x = settings->timerX;
+    s32 y = settings->timerY;
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menuAlpha));
 
     if (hours > 0) {
-        gfx_printf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
+        gfxPrintf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
     } else if (minutes > 0) {
-        gfx_printf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
+        gfxPrintf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
     } else {
-        gfx_printf(font, x, y, "%d.%02d", seconds, hundredths);
+        gfxPrintf(font, x, y, "%d.%02d", seconds, hundredths);
     }
 
-    gfx_printf(font, x, y + cell_height, "%d", timer_get_lag_frames());
+    gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
 }
 
 // this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
-void fp_bowser_block_trainer(void) {
+void fpBowserBlockTrainer(void) {
     if (pm_gGameStatus.isBattle && pm_gGameStatus.areaID == 0x4 &&
         (pm_gGameStatus.mapID == 0x7 || pm_gGameStatus.mapID == 0x13) && STORY_PROGRESS != STORY_INTRO &&
         !(pm_gGameStatus.peachFlags & (1 << 0))) {
@@ -352,42 +351,42 @@ void fp_bowser_block_trainer(void) {
 
         if (bowser != NULL) {
             s32 *turn = &bowser->state.varTable[0];
-            s32 *turns_since_wave = &bowser->state.varTable[2];
-            s32 *turns_since_beam = &bowser->state.varTable[3];
-            s32 *turns_since_claw = &bowser->state.varTable[4];
-            s32 *turns_since_stomp = &bowser->state.varTable[5];
-            s32 *turns_since_heal = &bowser->state.varTable[6];
-            *turns_since_heal = 0;
-            *turns_since_beam = 0;
-            switch (fp.bowser_block) {
+            s32 *turnsSinceWave = &bowser->state.varTable[2];
+            s32 *turnsSinceBeam = &bowser->state.varTable[3];
+            s32 *turnsSinceClaw = &bowser->state.varTable[4];
+            s32 *turnsSinceStomp = &bowser->state.varTable[5];
+            s32 *turnsSinceHeal = &bowser->state.varTable[6];
+            *turnsSinceHeal = 0;
+            *turnsSinceBeam = 0;
+            switch (fp.bowserBlock) {
                 case 0: // fire
                     *turn = 3;
-                    *turns_since_claw = 0;
-                    *turns_since_stomp = 0;
-                    *turns_since_wave = 0;
+                    *turnsSinceClaw = 0;
+                    *turnsSinceStomp = 0;
+                    *turnsSinceWave = 0;
                     break;
                 case 1: // butt stomp
                     *turn = 3;
-                    *turns_since_claw = 0;
-                    *turns_since_stomp = 1;
-                    *turns_since_wave = 0;
+                    *turnsSinceClaw = 0;
+                    *turnsSinceStomp = 1;
+                    *turnsSinceWave = 0;
                     pm_randSeed = 0x03D49DFF;
                     break;
                 case 2: // claw
                     *turn = 3;
-                    *turns_since_stomp = 0;
-                    *turns_since_claw = 1;
-                    *turns_since_wave = 0;
+                    *turnsSinceStomp = 0;
+                    *turnsSinceClaw = 1;
+                    *turnsSinceWave = 0;
                     pm_randSeed = 0x9CB89EDA;
                     break;
                 case 3: // wave
                     *turn = 4;
-                    *turns_since_wave = 6;
+                    *turnsSinceWave = 6;
                     pm_randSeed = 0x77090261;
                     break;
                 case 4: // lightning, still gives wave for hallway bowser
                     *turn = 4;
-                    *turns_since_wave = 6;
+                    *turnsSinceWave = 6;
                     pm_randSeed = 0x72A5DCE5;
                     break;
             }
@@ -402,14 +401,14 @@ void fp_bowser_block_trainer(void) {
     }
 }
 
-void fp_lzs_trainer(void) {
+void fpLzsTrainer(void) {
     // detect if loading zone is stored
-    for (s32 evt_idx = 0; evt_idx < pm_gNumScripts; evt_idx++) {
-        pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evt_idx]];
+    for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
+        pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
         if (script && script->ptrNextLine) {
-            u32 callback_function = script->ptrNextLine[5];
-            if (callback_function == (uintptr_t)pm_gotoMap) {
-                fp.lz_stored = TRUE;
+            u32 callbackFunction = script->ptrNextLine[5];
+            if (callbackFunction == (uintptr_t)pm_gotoMap) {
+                fp.lzStored = TRUE;
             }
         }
     }
@@ -417,128 +416,128 @@ void fp_lzs_trainer(void) {
     // Count frames since mario landed
     if (pm_gPlayerStatus.actionState == ACTION_STATE_LAND || pm_gPlayerStatus.actionState == ACTION_STATE_WALK ||
         pm_gPlayerStatus.actionState == ACTION_STATE_RUN) {
-        fp.player_landed = TRUE;
+        fp.playerLanded = TRUE;
     }
-    if (fp.player_landed) {
-        fp.frames_since_land++;
+    if (fp.playerLanded) {
+        fp.framesSinceLand++;
     } else {
-        fp.frames_since_land = 0;
+        fp.framesSinceLand = 0;
     }
     if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
-        fp.player_landed = FALSE;
+        fp.playerLanded = FALSE;
     }
 
     // log lzs status
-    if (fp.lz_stored && pm_gGameStatus.pressedButtons[0].a) {
-        if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
+    if (fp.lzStored && pm_gGameStatus.pressedButtons[0].a) {
+        if (fp.prevPrevActionState == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
             pm_mapChangeState == 0) {
-            fp_log("control early");
+            fpLog("control early");
         } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
                    pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
                    pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
-            fp_log("jump >= 2 frames early");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
-                fp_log("control early");
+            fpLog("jump >= 2 frames early");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
+                fpLog("control early");
             }
         } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
-            fp_log("jump 1 frame early");
+            fpLog("jump 1 frame early");
             if (pm_gPlayerStatus.actionState == ACTION_STATE_RUN || pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
-                fp_log("control early");
+                fpLog("control early");
             }
-        } else if (fp.prev_prev_action_state == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
-            fp_log("jump 1 frame late");
-            fp_log("control early");
-        } else if (fp.frames_since_land == 3) {
-            fp_log("jump 1 frame late");
+        } else if (fp.prevPrevActionState == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
+            fpLog("jump 1 frame late");
+            fpLog("control early");
+        } else if (fp.framesSinceLand == 3) {
+            fpLog("jump 1 frame late");
             if (pm_gGameStatus.pressedButtons[0].yCardinal) {
-                fp_log("control late");
+                fpLog("control late");
             }
-        } else if (fp.frames_since_land == 4) {
-            fp_log("jump 2 frames late");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
-                fp_log("control late");
+        } else if (fp.framesSinceLand == 4) {
+            fpLog("jump 2 frames late");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
+                fpLog("control late");
             }
-        } else if (fp.frames_since_land == 0 &&
-                   (fp.prev_prev_action_state == ACTION_STATE_RUN || fp.prev_prev_action_state == ACTION_STATE_WALK)) {
-            fp_log("jump >= 2 frames late");
-            fp_log("control early");
-        } else if (fp.frames_since_land >= 5 && pm_mapChangeState == 0) {
-            fp_log("jump > 2 frames late");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prev_pressed_y) {
-                fp_log("control late");
+        } else if (fp.framesSinceLand == 0 &&
+                   (fp.prevPrevActionState == ACTION_STATE_RUN || fp.prevPrevActionState == ACTION_STATE_WALK)) {
+            fpLog("jump >= 2 frames late");
+            fpLog("control early");
+        } else if (fp.framesSinceLand >= 5 && pm_mapChangeState == 0) {
+            fpLog("jump > 2 frames late");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
+                fpLog("control late");
             }
-        } else if (fp.frames_since_land == 2) {
-            fp.current_lzs_jumps++;
+        } else if (fp.framesSinceLand == 2) {
+            fp.currentLzsJumps++;
         }
     }
 
-    if (fp.current_lzs_jumps > fp.record_lzs_jumps) {
-        fp.record_lzs_jumps = fp.current_lzs_jumps;
+    if (fp.currentLzsJumps > fp.recordLzsJumps) {
+        fp.recordLzsJumps = fp.currentLzsJumps;
     }
 
-    fp.prev_pressed_y = pm_gGameStatus.pressedButtons[0].yCardinal;
-    fp.prev_prev_action_state = pm_gPlayerStatus.prevActionState;
+    fp.prevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
+    fp.prevPrevActionState = pm_gPlayerStatus.prevActionState;
 
     if (pm_mapChangeState == 1) {
-        fp.lz_stored = FALSE;
-        fp.player_landed = FALSE;
-        fp.frames_since_land = 0;
-        fp.current_lzs_jumps = 0;
+        fp.lzStored = FALSE;
+        fp.playerLanded = FALSE;
+        fp.framesSinceLand = 0;
+        fp.currentLzsJumps = 0;
     }
 }
 
-void fp_clippy_trainer(void) {
+void fpClippyTrainer(void) {
     if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
         if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
-            fp.clippy_status = 1;
-        } else if (fp.frames_since_battle > 0) {
-            fp.clippy_status = 3;
-        } else if (pm_gameState == 3 && fp.frames_since_battle == 0) {
-            fp.clippy_status = 2;
+            fp.clippyStatus = 1;
+        } else if (fp.framesSinceBattle > 0) {
+            fp.clippyStatus = 3;
+        } else if (pm_gameState == 3 && fp.framesSinceBattle == 0) {
+            fp.clippyStatus = 2;
         }
     }
 
     if (pm_gameState == 3) {
-        fp.frames_since_battle++;
-        switch (fp.clippy_status) {
-            case 1: fp_log("early"); break;
+        fp.framesSinceBattle++;
+        switch (fp.clippyStatus) {
+            case 1: fpLog("early"); break;
             case 2: break; // Got clippy
-            case 3: fp_log("late"); break;
+            case 3: fpLog("late"); break;
         }
-        fp.clippy_status = 0;
+        fp.clippyStatus = 0;
     } else if (pm_gameState != 3) {
-        fp.frames_since_battle = 0;
+        fp.framesSinceBattle = 0;
     }
 }
 
-void fp_action_command_trainer(void) {
+void fpActionCommandTrainer(void) {
     // Either goombario or mario attacking
     if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
         pm_battleState2 == 4) {
         if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
-            fp.last_a_press = pm_gGameStatus.frameCounter;
+            fp.lastAPress = pm_gGameStatus.frameCounter;
         } else if (pm_gActionCommandStatus.state == 11) {
-            if (fp.last_a_press) {
-                u16 frames_early = pm_gGameStatus.frameCounter - fp.last_a_press;
-                fp_log("pressed A %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
-                fp.last_a_press = 0;
+            if (fp.lastAPress) {
+                u16 framesEarly = pm_gGameStatus.frameCounter - fp.lastAPress;
+                fpLog("pressed A %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
+                fp.lastAPress = 0;
             }
             if (pm_gGameStatus.pressedButtons[0].a) {
-                fp_log("pressed A frame %d out of %d",
-                       pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
-                       pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
+                fpLog("pressed A frame %d out of %d",
+                      pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
+                      pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
             }
-            fp.last_valid_frame = pm_gGameStatus.frameCounter;
+            fp.lastValidFrame = pm_gGameStatus.frameCounter;
             // check for a press up to 10 frames late
         } else if (pm_gActionCommandStatus.state == 12 && pm_gGameStatus.pressedButtons[0].a &&
-                   pm_gGameStatus.frameCounter - fp.last_valid_frame <= 10) {
-            u16 frames_late = pm_gGameStatus.frameCounter - fp.last_valid_frame;
-            fp_log("pressed A %d frame%s late", frames_late, frames_late > 1 ? "s" : "");
+                   pm_gGameStatus.frameCounter - fp.lastValidFrame <= 10) {
+            u16 framesLate = pm_gGameStatus.frameCounter - fp.lastValidFrame;
+            fpLog("pressed A %d frame%s late", framesLate, framesLate > 1 ? "s" : "");
         }
     }
 }
 
-void fp_update_cheats(void) {
+void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
     }
@@ -571,13 +570,13 @@ void fp_update_cheats(void) {
     }
 }
 
-void fp_update_warps(void) {
-    if (fp.warp_delay > 0) {
-        PRINTF("fp.warp_delay: %d\n", fp.warp_delay);
-        fp.warp_delay--;
+void fpUpdateWarps(void) {
+    if (fp.warpDelay > 0) {
+        PRINTF("fp.warp_delay: %d\n", fp.warpDelay);
+        fp.warpDelay--;
     }
 
-    if (fp.warp && fp.warp_delay == 0) {
+    if (fp.warp && fp.warpDelay == 0) {
         // if a popup menu is currently hidden, destroy it
         if (pm_popupMenuVar == 10) {
             PRINTF("destroying popup menu\n");
@@ -591,53 +590,53 @@ void fp_update_warps(void) {
     }
 }
 
-void fp_draw_log(struct gfx_font *font, s32 cell_width, s32 cell_height, u8 menu_alpha) {
+void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
     for (s32 i = SETTINGS_LOG_MAX - 1; i >= 0; --i) {
-        const s32 fade_begin = 20;
-        const s32 fade_duration = 20;
-        struct log_entry *ent = &fp.log[i];
-        u8 msg_alpha;
+        const s32 fadeBegin = 20;
+        const s32 fadeDuration = 20;
+        struct LogEntry *ent = &fp.log[i];
+        u8 msgAlpha;
         if (!ent->msg) {
             continue;
         }
         ++ent->age;
-        if (ent->age > (fade_begin + fade_duration)) {
+        if (ent->age > (fadeBegin + fadeDuration)) {
             free(ent->msg);
             ent->msg = NULL;
             continue;
         } else if (!settings->bits.log) {
             continue;
-        } else if (ent->age > fade_begin) {
-            msg_alpha = 0xFF - (ent->age - fade_begin) * 0xFF / fade_duration;
+        } else if (ent->age > fadeBegin) {
+            msgAlpha = 0xFF - (ent->age - fadeBegin) * 0xFF / fadeDuration;
         } else {
-            msg_alpha = 0xFF;
+            msgAlpha = 0xFF;
         }
-        msg_alpha = msg_alpha * menu_alpha / 0xFF;
-        s32 msg_x = settings->log_x - cell_width * strlen(ent->msg);
-        s32 msg_y = settings->log_y - cell_height * i;
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(0xC0C0C0, msg_alpha));
-        gfx_printf(font, msg_x, msg_y, "%s", ent->msg);
+        msgAlpha = msgAlpha * menuAlpha / 0xFF;
+        s32 msgX = settings->logX - cellWidth * strlen(ent->msg);
+        s32 msgY = settings->logY - cellHeight * i;
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(0xC0C0C0, msgAlpha));
+        gfxPrintf(font, msgX, msgY, "%s", ent->msg);
     }
 }
 
-void fp_cam_update(void) {
-    if (fp.free_cam) {
-        if (!fp.cam_enabled_before) {
-            fp.cam_pos.x = pm_gCameras->lookAt_eye.x;
-            fp.cam_pos.y = pm_gCameras->lookAt_eye.y;
-            fp.cam_pos.z = pm_gCameras->lookAt_eye.z;
-            fp.cam_enabled_before = TRUE;
+void fpCamUpdate(void) {
+    if (fp.freeCam) {
+        if (!fp.camEnabledBefore) {
+            fp.camPos.x = pm_gCameras->lookAt_eye.x;
+            fp.camPos.y = pm_gCameras->lookAt_eye.y;
+            fp.camPos.z = pm_gCameras->lookAt_eye.z;
+            fp.camEnabledBefore = TRUE;
         } else {
-            fp_update_cam();
+            fpUpdateCam();
         }
-        vec3f_t *camera_at = &pm_gCameras->lookAt_obj;
-        vec3f_t *camera_eye = &pm_gCameras->lookAt_eye;
+        Vec3f *cameraAt = &pm_gCameras->lookAt_obj;
+        Vec3f *cameraEye = &pm_gCameras->lookAt_eye;
 
-        *camera_eye = fp.cam_pos;
+        *cameraEye = fp.camPos;
 
-        vec3f_t vf;
-        vec3f_py(&vf, fp.cam_pitch, fp.cam_yaw);
-        vec3f_add(camera_at, camera_eye, &vf);
+        Vec3f vf;
+        vec3fPy(&vf, fp.camPitch, fp.camYaw);
+        vec3fAdd(cameraAt, cameraEye, &vf);
     }
 }
 
@@ -645,50 +644,50 @@ void fp_cam_update(void) {
  * fp's main update function
  * This runs after the base games full update loop every frame
  */
-void fp_update(void) {
-    fp_update_cpu_counter();
-    input_update();
+void fpUpdate(void) {
+    fpUpdateCpuCounter();
+    inputUpdate();
 
-    u16 pad_pressed = input_pressed();
+    u16 padPressed = inputPressed();
 
-    if (!fp.version_shown) {
+    if (!fp.versionShown) {
         pm_gGameStatus.bSkipIntro = 1;
     }
 
-    if (!fp.settings_loaded) {
-        if (!(input_pressed() & BUTTON_START) && settings_load(fp.profile)) {
-            apply_menu_settings();
+    if (!fp.settingsLoaded) {
+        if (!(inputPressed() & BUTTON_START) && settingsLoad(fp.profile)) {
+            applyMenuSettings();
         }
-        fp.settings_loaded = TRUE;
+        fp.settingsLoaded = TRUE;
     }
 
-    fp_emergency_settings_reset(pad_pressed);
+    fpEmergencySettingsReset(padPressed);
 
-    if (fp.menu_active) {
-        fp_update_menu();
-    } else if (input_bind_pressed_raw(COMMAND_MENU)) {
-        show_menu();
+    if (fp.menuActive) {
+        fpUpdateMenu();
+    } else if (inputBindPressedRaw(COMMAND_MENU)) {
+        showMenu();
     }
 
-    timer_update();
+    timerUpdate();
 
-    if (fp.bowser_blocks_enabled) {
-        fp_bowser_block_trainer();
+    if (fp.bowserBlocksEnabled) {
+        fpBowserBlockTrainer();
     }
 
-    if (fp.lzs_trainer_enabled) {
-        fp_lzs_trainer();
+    if (fp.lzsTrainerEnabled) {
+        fpLzsTrainer();
     }
 
-    if (fp.clippy_trainer_enabled) {
-        fp_clippy_trainer();
+    if (fp.clippyTrainerEnabled) {
+        fpClippyTrainer();
     }
 
-    if (fp.action_command_trainer_enabled) {
-        fp_action_command_trainer();
+    if (fp.actionCommandTrainerEnabled) {
+        fpActionCommandTrainer();
     }
 
-    fp_update_cheats();
+    fpUpdateCheats();
 
     if (fp.turbo) {
         pm_gPlayerStatus.runSpeed = 24.0f;
@@ -699,30 +698,30 @@ void fp_update(void) {
     for (s32 i = 0; i < COMMAND_MAX; ++i) {
         bool active = FALSE;
 
-        switch (fp_commands[i].command_type) {
-            case COMMAND_HOLD: active = input_bind_held(i); break;
-            case COMMAND_PRESS: active = input_bind_pressed(i); break;
-            case COMMAND_PRESS_ONCE: active = input_bind_pressed_raw(i); break;
+        switch (fpCommands[i].commandType) {
+            case COMMAND_HOLD: active = inputBindHeld(i); break;
+            case COMMAND_PRESS: active = inputBindPressed(i); break;
+            case COMMAND_PRESS_ONCE: active = inputBindPressedRaw(i); break;
         }
 
-        if (fp_commands[i].proc && active) {
-            fp_commands[i].proc();
+        if (fpCommands[i].proc && active) {
+            fpCommands[i].proc();
         }
     }
 
-    fp_update_warps();
+    fpUpdateWarps();
 
     // Override updateMode so update_cameras switch always defaults
-    if (fp.free_cam) {
+    if (fp.freeCam) {
         pm_gCameras[pm_gCurrentCameraID].updateMode = 7;
     }
-    fp_cam_update();
+    fpCamUpdate();
 
-    while (fp.menu_active && menu_think(fp.main_menu)) {
+    while (fp.menuActive && menuThink(fp.mainMenu)) {
         // wait
     }
 
-    while (menu_think(fp.global)) {
+    while (menuThink(fp.global)) {
         // wait
     }
 }
@@ -731,70 +730,70 @@ void fp_update(void) {
  * fp's main draw function
  * This runs after the game draws the front UI every frame
  */
-void fp_draw(void) {
-    gfx_mode_init();
+void fpDraw(void) {
+    gfxModeInit();
 
-    struct gfx_font *font = menu_get_font(fp.main_menu, TRUE);
-    u8 menu_alpha = menu_get_alpha_i(fp.main_menu, TRUE);
-    s32 cell_width = menu_get_cell_width(fp.main_menu, TRUE);
-    s32 cell_height = menu_get_cell_height(fp.main_menu, TRUE);
+    struct GfxFont *font = menuGetFont(fp.mainMenu, TRUE);
+    u8 menuAlpha = menuGetAlphaI(fp.mainMenu, TRUE);
+    s32 cellWidth = menuGetCellWidth(fp.mainMenu, TRUE);
+    s32 cellHeight = menuGetCellHeight(fp.mainMenu, TRUE);
 
-    if (!fp.version_shown) {
-        fp_draw_version(font, cell_width, cell_height, menu_alpha);
+    if (!fp.versionShown) {
+        fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    if (settings->bits.input_display) {
-        fp_draw_input_display(font, cell_width, cell_height, menu_alpha);
+    if (settings->bits.inputDisplay) {
+        fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    enum timer_state timer_state = timer_get_state();
-    if (fp.timer_moving || (timer_state == TIMER_STOPPED && !fp.menu_active) ||
-        (settings->bits.timer_show && !fp.menu_active && timer_state != TIMER_INACTIVE)) {
-        fp_draw_timer(font, cell_width, cell_height, menu_alpha);
+    enum TimerState timerState = timerGetState();
+    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
+        (settings->bits.timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    if (fp.menu_active) {
-        menu_draw(fp.main_menu);
+    if (fp.menuActive) {
+        menuDraw(fp.mainMenu);
     }
 
-    menu_draw(fp.global);
-    fp_draw_log(font, cell_width, cell_height, menu_alpha);
-    gfx_flush();
+    menuDraw(fp.global);
+    fpDrawLog(font, cellWidth, cellHeight, menuAlpha);
+    gfxFlush();
 }
 
 /* ========================== HOOK ENTRY POINTS ========================== */
 
-ENTRY void fp_update_entry(void) {
+ENTRY void fpUpdateEntry(void) {
     init_gp();
 
     if (!fp.ready) {
-        init_stack(fp_init);
+        initStack(fpInit);
         PRINTF("\n**** fp initialized ****\n\n");
     }
 
     pm_step_game_loop();
-    init_stack(fp_update);
+    initStack(fpUpdate);
 }
 
-ENTRY void fp_draw_entry(void) {
+ENTRY void fpDrawEntry(void) {
     init_gp();
     pm_state_render_frontUI();
-    init_stack(fp_draw);
+    initStack(fpDraw);
 }
 
-ENTRY void fp_after_draw_entry(void) {
-    crash_screen_set_draw_info_custom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+ENTRY void fpAfterDrawEntry(void) {
+    crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-HOOK void fp_update_camera_mode_6(pm_Camera *cam) {
-    if (!fp.free_cam) {
+HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
+    if (!fp.freeCam) {
         pm_update_camera_mode_6(cam);
     }
 }
 
-HOOK void fp_update_input(void) {
+HOOK void fpUpdateInput(void) {
     pm_update_player_input();
-    pm_Controller *mask = &fp.input_mask;
+    pm_Controller *mask = &fp.inputMask;
 
     pm_gPlayerStatus.currentButtons.buttons &= ~mask->buttons;
     pm_gPlayerStatus.previousButtons.buttons &= ~mask->buttons;
@@ -804,7 +803,7 @@ HOOK void fp_update_input(void) {
     pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
 }
 
-HOOK s32 fp_check_block_input(s32 buttonMask) {
+HOOK s32 fpCheckBlockInput(s32 buttonMask) {
     s32 mashWindow;
     s32 blockWindow;
     s32 block;
@@ -851,9 +850,9 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         }
 
         if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
-            if (fp.action_command_trainer_enabled) {
+            if (fp.actionCommandTrainerEnabled) {
                 s32 frames_early = mashWindow - i;
-                fp_log("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
+                fpLog("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
             }
             mash = 1;
             break;
@@ -873,8 +872,8 @@ HOOK s32 fp_check_block_input(s32 buttonMask) {
         }
 
         if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
-            if (!mash && fp.action_command_trainer_enabled) {
-                fp_log("blocked frame %d out of %d", i + 1, blockWindow);
+            if (!mash && fp.actionCommandTrainerEnabled) {
+                fpLog("blocked frame %d out of %d", i + 1, blockWindow);
             }
             pm_gBattleStatus.blockResult = 1; // Block
             block = 1;

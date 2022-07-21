@@ -1,12 +1,13 @@
 #ifndef SYS_H
 #define SYS_H
+#include <stddef.h>
 #include <sys/stat.h>
 
 typedef void *DIR;
 
-struct dirent {
-    ino_t d_ino;
-    char d_name[256];
+struct Dirent {
+    ino_t dIno;
+    char dName[256];
     /* extensions */
     mode_t mode;
     time_t ctime;
@@ -24,12 +25,12 @@ int close(int fildes);
 int read(int fildes, void *buf, unsigned int nbyte);
 int write(int fildes, void *buf, unsigned int nbyte);
 int truncate(const char *path, off_t length);
-int rename(const char *old_path, const char *new_path);
+int rename(const char *oldPath, const char *newPath);
 int chmod(const char *path, mode_t mode);
 int unlink(const char *path);
 DIR *opendir(const char *dirname);
 int closedir(DIR *dirp);
-struct dirent *readdir(DIR *dirp);
+struct Dirent *readdir(DIR *dirp);
 void seekdir(DIR *dirp, long loc);
 long telldir(DIR *dirp);
 void rewinddir(DIR *dirp);
@@ -40,6 +41,6 @@ int lstat(const char *path, struct stat *buf);
 int chdir(const char *path);
 char *getcwd(char *buf, size_t size);
 time_t time(time_t *tloc);
-void sys_reset(void);
+void sysReset(void);
 
 #endif

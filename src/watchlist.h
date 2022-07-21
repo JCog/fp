@@ -3,11 +3,11 @@
 #include "common.h"
 #include "menu.h"
 
-struct menu_item *watchlist_create(struct menu *menu, struct menu *menu_release, s32 x, s32 y);
-void watchlist_store(struct menu_item *item);
-void watchlist_fetch(struct menu_item *item);
-void watchlist_show(struct menu_item *item);
-void watchlist_hide(struct menu_item *item);
-s32 watchlist_add(struct menu_item *item, u32 address, enum watch_type type);
+struct MenuItem *watchlistCreate(struct Menu *menu, struct Menu *menuRelease, s32 x, s32 y);
+void watchlistStore(struct MenuItem *item);
+void watchlistFetch(struct MenuItem *item);
+void watchlistShow(struct MenuItem *item);
+void watchlistHide(struct MenuItem *item);
+s32 watchlistAdd(struct MenuItem *item, u32 address, enum WatchType type);
 
 #endif

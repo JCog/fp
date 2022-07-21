@@ -2,6 +2,6 @@
 #define LOCATIONS_H
 #include "menu.h"
 
-void create_locations_menu(struct menu *menu);
+void createLocationsMenu(struct Menu *menu);
 
 #endif

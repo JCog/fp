@@ -5,12 +5,14 @@
 
 // clang-format off
 #define M_PI 3.14159265358979323846
+// NOLINTBEGIN
 #define guDefMtxF(xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, wx, wy, wz, ww) \
     {                                                                             \
         .f = { xx, xy, xz, xw, yx, yy, yz, yw, zx, zy, zz, zw, wx, wy, wz, ww }   \
     }
 
 typedef f32 MtxF_t[4][4];
+// NOLINTEND
 typedef union {
     MtxF_t mf;
     f32 f[16];

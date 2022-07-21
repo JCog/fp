@@ -3,7 +3,7 @@
 #include "common.h"
 #include "gfx.h"
 
-enum resource_id {
+enum ResourceId {
     RES_FONT_FIPPS,
     RES_FONT_NOTALOT35,
     RES_FONT_ORIGAMIMOMMY,
@@ -31,7 +31,7 @@ enum resource_id {
 };
 
 // currently no support for animated icons
-enum icon_global_offset {
+enum IconGlobalOffset {
     ICON_ARROW_LEFT = 0x0,
     ICON_ARROW_RIGHT = 0x28,
     ICON_HAND_POINTER = 0x50,
@@ -232,11 +232,11 @@ enum icon_global_offset {
     ICON_MOVE_RED_ORB_DISABLED = 0x4AA0
 };
 
-void *resource_get(enum resource_id res);
-void resource_free(enum resource_id res);
-struct gfx_texture *resource_load_grc_texture(const char *grc_resource_name);
+void *resourceGet(enum ResourceId res);
+void resourceFree(enum ResourceId res);
+struct GfxTexture *resourceLoadGrcTexture(const char *grcResourceName);
 /// @param safe disable to save memory by reusing duplicate textures. enable if editing the texture.
-struct gfx_texture *resource_load_pmicon_item(u16 item, bool safe);
-struct gfx_texture *resource_load_pmicon_global(enum icon_global_offset icon_global_offset, s8 palette_count);
+struct GfxTexture *resourceLoadPmiconItem(u16 item, bool safe);
+struct GfxTexture *resourceLoadPmiconGlobal(enum IconGlobalOffset iconGlobalOffset, s8 paletteCount);
 
 #endif

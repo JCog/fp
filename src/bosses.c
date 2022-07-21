@@ -3,326 +3,326 @@
 #include "menu.h"
 #include <stdlib.h>
 
-static s32 byte_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p) {
-            menu_intinput_set(item, *p);
+        if (menuIntinputGet(item) != *p) {
+            menuIntinputSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menu_intinput_get(item);
+        *p = menuIntinputGet(item);
     }
     return 0;
 }
 
-static void bowser_hallway_proc(struct menu_item *item, void *data) {
+static void bowserHallwayProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fa, FALSE); // hallway not defeated
-    fp_warp(AREA_PEACHS_CASTLE, 0x7, 0x0);
+    fpSetGlobalFlag(0x1fa, FALSE); // hallway not defeated
+    fpWarp(AREA_PEACHS_CASTLE, 0x7, 0x0);
 }
 
-static void bowser_phase1_proc(struct menu_item *item, void *data) {
+static void bowserPhase1Proc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fc, FALSE); // bridge not broken
-    fp_set_global_flag(0x1fd, FALSE); // not sure, but prevents a crash
-    fp_set_global_flag(0x1fe, TRUE);  // skip camera zoom in
-    fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x0);
+    fpSetGlobalFlag(0x1fc, FALSE); // bridge not broken
+    fpSetGlobalFlag(0x1fd, FALSE); // not sure, but prevents a crash
+    fpSetGlobalFlag(0x1fe, TRUE);  // skip camera zoom in
+    fpWarp(AREA_PEACHS_CASTLE, 0x13, 0x0);
 }
 
-static void bowser_phase2_proc(struct menu_item *item, void *data) {
+static void bowserPhase2Proc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
-    fp_set_global_flag(0x1fc, TRUE); // bridge broken
-    fp_warp(AREA_PEACHS_CASTLE, 0x13, 0x1);
+    fpSetGlobalFlag(0x1fc, TRUE); // bridge broken
+    fpWarp(AREA_PEACHS_CASTLE, 0x13, 0x1);
 }
 
-static void goomba_king_proc(struct menu_item *item, void *data) {
+static void goombaKingProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH0_DEFEATED_GOOMBA_BROS;
-    fp_set_global_flag(0x02d, TRUE); // skip cutscene
-    fp_warp(AREA_GOOMBA_VILLAGE, 0x9, 0x0);
+    fpSetGlobalFlag(0x02d, TRUE); // skip cutscene
+    fpWarp(AREA_GOOMBA_VILLAGE, 0x9, 0x0);
 }
 
-static void koopa_bros_proc(struct menu_item *item, void *data) {
+static void koopaBrosProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH1_KOOPA_BROS_FIRING_BLASTERS;
-    fp_warp(AREA_KOOPA_BROS_FORTRESS, 0xa, 0x0);
+    fpWarp(AREA_KOOPA_BROS_FORTRESS, 0xa, 0x0);
 }
 
-static void tutankoopa_proc(struct menu_item *item, void *data) {
+static void tutankoopaProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH2_SOLVED_ARTIFACT_PUZZLE;
-    fp_warp(AREA_DRY_DRY_RUINS, 0xe, 0x0);
+    fpWarp(AREA_DRY_DRY_RUINS, 0xe, 0x0);
 }
 
-static void tubba_blubba_proc(struct menu_item *item, void *data) {
+static void tubbaBlubbaProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH3_HEART_ESCAPED_WINDY_MILL;
-    fp_warp(AREA_GUSTY_GULCH, 0x4, 0x0);
+    fpWarp(AREA_GUSTY_GULCH, 0x4, 0x0);
 }
 
-static void general_guy_proc(struct menu_item *item, void *data) {
+static void generalGuyProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH4_OPENED_GENERAL_GUY_ROOM;
-    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xe, 0x0);
+    fpWarp(AREA_SHY_GUYS_TOY_BOX, 0xe, 0x0);
 }
 
-static void lava_piranha_proc(struct menu_item *item, void *data) {
+static void lavaPiranhaProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH5_KOLORADO_IN_TREASURE_ROOM;
-    fp_warp(AREA_VOLCANO, 0xd, 0x1);
+    fpWarp(AREA_VOLCANO, 0xd, 0x1);
 }
 
-static void huff_n_puff_proc(struct menu_item *item, void *data) {
+static void huffNPuffProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH6_GREW_MAGIC_BEANSTALK;
-    fp_warp(AREA_FLOWER_FIELDS, 0xf, 0x0);
+    fpWarp(AREA_FLOWER_FIELDS, 0xf, 0x0);
 }
 
-static void crystal_king_proc(struct menu_item *item, void *data) {
+static void crystalKingProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH7_SOLVED_ALBINO_DINO_PUZZLE;
-    fp_warp(AREA_CRYSTAL_PALACE, 0x17, 0x0);
+    fpWarp(AREA_CRYSTAL_PALACE, 0x17, 0x0);
 }
 
-static void jr_playground_proc(struct menu_item *item, void *data) {
+static void jrPlaygroundProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH0_FOUND_HAMMER;
     u8 *partner = &pm_gPlayerStatus.playerData.currentPartner;
     if (*partner == 4 || *partner == 6 || *partner == 8 || *partner == 9) { // flying partners cause a softlock
         *partner = 1;                                                       // goombario
     }
-    fp_warp(AREA_GOOMBA_VILLAGE, 0x3, 0x0);
+    fpWarp(AREA_GOOMBA_VILLAGE, 0x3, 0x0);
 }
 
-static void jr_pleasant_path_proc(struct menu_item *item, void *data) {
+static void jrPleasantPathProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH1_STAR_SPRIT_DEPARTED;
-    fp_warp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x1);
+    fpWarp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x1);
 }
 
-static void jr_forever_forest_proc(struct menu_item *item, void *data) {
+static void jrForeverForestProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH3_STAR_SPRIT_DEPARTED;
-    fp_set_global_flag(0x39f, FALSE); // jr not defeated
-    fp_warp(AREA_FOREVER_FOREST, 0x6, 0x3);
+    fpSetGlobalFlag(0x39f, FALSE); // jr not defeated
+    fpWarp(AREA_FOREVER_FOREST, 0x6, 0x3);
 }
 
-static void jr_toad_town_port_proc(struct menu_item *item, void *data) {
+static void jrToadTownPortProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH5_STAR_SPIRIT_DEPARTED;
-    fp_set_global_flag(0x4c2, FALSE); // jr not defeated
-    fp_warp(AREA_TOAD_TOWN, 0x6, 0x1);
+    fpSetGlobalFlag(0x4c2, FALSE); // jr not defeated
+    fpWarp(AREA_TOAD_TOWN, 0x6, 0x1);
 }
 
-static void jr_shiver_snowfield_proc(struct menu_item *item, void *data) {
+static void jrShiverSnowfieldProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH7_MAYOR_MURDER_SOLVED;
-    fp_warp(AREA_SHIVER_REGION, 0x2, 0x0);
+    fpWarp(AREA_SHIVER_REGION, 0x2, 0x0);
 }
 
-static void jr_bowsers_castle_proc(struct menu_item *item, void *data) {
+static void jrBowsersCastleProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
-    fp_set_global_byte(0x12c, 0);
-    fp_warp(AREA_BOWSERS_CASTLE, 0x1c, 0x0);
+    fpSetGlobalByte(0x12c, 0);
+    fpWarp(AREA_BOWSERS_CASTLE, 0x1c, 0x0);
 }
 
-static void goomba_bros_proc(struct menu_item *item, void *data) {
+static void goombaBrosProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH0_SMASHED_GATE_BLOCK;
-    fp_warp(AREA_GOOMBA_VILLAGE, 0x6, 0x0);
+    fpWarp(AREA_GOOMBA_VILLAGE, 0x6, 0x0);
 }
 
-static void tubbas_heart_proc(struct menu_item *item, void *data) {
+static void tubbasHeartProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH3_WENT_DOWN_THE_WELL;
-    fp_warp(AREA_GUSTY_GULCH, 0x8, 0x0);
+    fpWarp(AREA_GUSTY_GULCH, 0x8, 0x0);
 }
 
-static void lantern_ghost_proc(struct menu_item *item, void *data) {
+static void lanternGhostProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH4_SOLVED_COLOR_PUZZLE;
-    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xb, 0x0);
+    fpWarp(AREA_SHY_GUYS_TOY_BOX, 0xb, 0x0);
 }
 
-static void fuzzipede_proc(struct menu_item *item, void *data) {
+static void fuzzipedeProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH5_ENTERED_WHALE;
-    fp_warp(AREA_WHALE, 0x1, 0x0);
+    fpWarp(AREA_WHALE, 0x1, 0x0);
 }
 
-static void lakilester_proc(struct menu_item *item, void *data) {
+static void lakilesterProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH6_SPOKE_WITH_THE_SUN;
-    fp_warp(AREA_FLOWER_FIELDS, 0x8, 0x1);
+    fpWarp(AREA_FLOWER_FIELDS, 0x8, 0x1);
 }
 
-static void monstar_proc(struct menu_item *item, void *data) {
+static void monstarProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH7_DEFEATED_JR_TROOPA;
-    fp_warp(AREA_SHIVER_REGION, 0x4, 0x0);
+    fpWarp(AREA_SHIVER_REGION, 0x4, 0x0);
 }
 
-static void blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, FALSE); // blooper not defeated
-    fp_set_global_flag(0x1ac, FALSE); // electro blooper not defeated
-    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
-    fp_warp(AREA_SEWERS, 0x7, 0x1);
+static void blooperProc(struct MenuItem *item, void *data) {
+    fpSetGlobalFlag(0x1ab, FALSE); // blooper not defeated
+    fpSetGlobalFlag(0x1ac, FALSE); // electro blooper not defeated
+    fpSetGlobalFlag(0x1af, FALSE); // ch5 pipe switch
+    fpWarp(AREA_SEWERS, 0x7, 0x1);
 }
 
-static void electro_blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, TRUE);  // blooper defeated
-    fp_set_global_flag(0x1ac, FALSE); // electro blooper not defeated
-    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
-    fp_warp(AREA_SEWERS, 0x7, 0x1);
+static void electroBlooperProc(struct MenuItem *item, void *data) {
+    fpSetGlobalFlag(0x1ab, TRUE);  // blooper defeated
+    fpSetGlobalFlag(0x1ac, FALSE); // electro blooper not defeated
+    fpSetGlobalFlag(0x1af, FALSE); // ch5 pipe switch
+    fpWarp(AREA_SEWERS, 0x7, 0x1);
 }
 
-static void super_blooper_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x1ab, TRUE);  // blooper defeated
-    fp_set_global_flag(0x1ac, TRUE);  // electro blooper defeated
-    fp_set_global_flag(0x1af, FALSE); // ch5 pipe switch
-    fp_warp(AREA_SEWERS, 0x7, 0x1);
+static void superBlooperProc(struct MenuItem *item, void *data) {
+    fpSetGlobalFlag(0x1ab, TRUE);  // blooper defeated
+    fpSetGlobalFlag(0x1ac, TRUE);  // electro blooper defeated
+    fpSetGlobalFlag(0x1af, FALSE); // ch5 pipe switch
+    fpWarp(AREA_SEWERS, 0x7, 0x1);
 }
 
-static void buzzar_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x2c4, FALSE); // buzzar not defeated
-    fp_warp(AREA_MT_RUGGED, 0x4, 0x1);
+static void buzzarProc(struct MenuItem *item, void *data) {
+    fpSetGlobalFlag(0x2c4, FALSE); // buzzar not defeated
+    fpWarp(AREA_MT_RUGGED, 0x4, 0x1);
 }
 
-static void anti_guy_proc(struct menu_item *item, void *data) {
-    fp_set_global_flag(0x451, FALSE); // anti guy not defeated
-    fp_warp(AREA_SHY_GUYS_TOY_BOX, 0xc, 0x1);
+static void antiGuyProc(struct MenuItem *item, void *data) {
+    fpSetGlobalFlag(0x451, FALSE); // anti guy not defeated
+    fpWarp(AREA_SHY_GUYS_TOY_BOX, 0xc, 0x1);
 }
 
-static void kent_c_koopa_proc(struct menu_item *item, void *data) {
+static void kentCKoopaProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH6_RETURNED_TO_TOAD_TOWN;
-    fp_set_global_flag(0x262, FALSE); // kent not defeated
-    fp_warp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
+    fpSetGlobalFlag(0x262, FALSE); // kent not defeated
+    fpWarp(AREA_KOOPA_VILLAGE_PLEASANT_PATH, 0x4, 0x0);
 }
 
-static void anti_guys_unit_proc(struct menu_item *item, void *data) {
+static void antiGuysUnitProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_BOWSERS_CASTLE;
-    fp_set_global_byte(0x12b, 0);
-    fp_warp(AREA_BOWSERS_CASTLE, 0x1b, 0x0);
+    fpSetGlobalByte(0x12b, 0);
+    fpWarp(AREA_BOWSERS_CASTLE, 0x1b, 0x0);
 }
 
-static void chan_proc(struct menu_item *item, void *data) {
-    fp_set_global_byte(0x1C, 0);
+static void chanProc(struct MenuItem *item, void *data) {
+    fpSetGlobalByte(0x1C, 0);
     if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
-        fp_log("dojo set to chan");
+        fpLog("dojo set to chan");
     } else {
-        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
+        fpWarp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
-static void lee_proc(struct menu_item *item, void *data) {
-    fp_set_global_byte(0x1C, 1);
+static void leeProc(struct MenuItem *item, void *data) {
+    fpSetGlobalByte(0x1C, 1);
     if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
-        fp_log("dojo set to lee");
+        fpLog("dojo set to lee");
     } else {
-        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
+        fpWarp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
-static void master1_proc(struct menu_item *item, void *data) {
-    fp_set_global_byte(0x1C, 2);
+static void master1Proc(struct MenuItem *item, void *data) {
+    fpSetGlobalByte(0x1C, 2);
     if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
-        fp_log("dojo set to master 1");
+        fpLog("dojo set to master 1");
     } else {
-        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
+        fpWarp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
-static void master2_proc(struct menu_item *item, void *data) {
-    fp_set_global_byte(0x1C, 3);
+static void master2Proc(struct MenuItem *item, void *data) {
+    fpSetGlobalByte(0x1C, 3);
     if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
-        fp_log("dojo set to master 2");
+        fpLog("dojo set to master 2");
     } else {
-        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
+        fpWarp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
-static void master3_proc(struct menu_item *item, void *data) {
-    fp_set_global_byte(0x1C, 4);
+static void master3Proc(struct MenuItem *item, void *data) {
+    fpSetGlobalByte(0x1C, 4);
     if (pm_gGameStatus.areaID == 0x1 && pm_gGameStatus.mapID == 0x1 && !pm_gGameStatus.isBattle) {
-        fp_log("dojo set to master 3");
+        fpLog("dojo set to master 3");
     } else {
-        fp_warp(AREA_TOAD_TOWN, 0x1, 0x1);
+        fpWarp(AREA_TOAD_TOWN, 0x1, 0x1);
     }
 }
 
-static void tab_prev_proc(struct menu_item *item, void *data) {
-    menu_tab_previous(data);
+static void tabPrevProc(struct MenuItem *item, void *data) {
+    menuTabPrevious(data);
 }
 
-static void tab_next_proc(struct menu_item *item, void *data) {
-    menu_tab_next(data);
+static void tabNextProc(struct MenuItem *item, void *data) {
+    menuTabNext(data);
 }
 
-void create_bosses_menu(struct menu *menu) {
-    s32 y_main = 0;
+void createBossesMenu(struct Menu *menu) {
+    s32 yMain = 0;
 
     /* initialize menu */
-    menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu->selector = menu_add_submenu(menu, 0, y_main++, NULL, "return");
+    menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu->selector = menuAddSubmenu(menu, 0, yMain++, NULL, "return");
 
-    s32 page_count = 6;
-    struct menu *pages = malloc(sizeof(*pages) * page_count);
-    struct menu_item *tab = menu_add_tab(menu, 0, y_main++, pages, page_count);
-    for (s32 i = 0; i < page_count; ++i) {
-        struct menu *page = &pages[i];
-        menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    s32 pageCount = 6;
+    struct Menu *pages = malloc(sizeof(*pages) * pageCount);
+    struct MenuItem *tab = menuAddTab(menu, 0, yMain++, pages, pageCount);
+    for (s32 i = 0; i < pageCount; ++i) {
+        struct Menu *page = &pages[i];
+        menuInit(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     }
 
     /* bowser */
-    s32 y_tab = 0;
-    struct menu *page = &pages[0];
-    menu_add_static(page, 0, y_tab++, "bowser", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "hallway", bowser_hallway_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "final phase 1", bowser_phase1_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "final phase 2", bowser_phase2_proc, NULL);
-    y_tab++;
-    menu_add_static(page, 0, y_tab, "phase 2 hp:", 0xC0C0C0);
-    menu_add_intinput(page, 12, y_tab++, 10, 2, byte_mod_proc, &pm_gCurrentSaveFile.globalBytes[0x18a]);
+    s32 yTab = 0;
+    struct Menu *page = &pages[0];
+    menuAddStatic(page, 0, yTab++, "bowser", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "hallway", bowserHallwayProc, NULL);
+    menuAddButton(page, 0, yTab++, "final phase 1", bowserPhase1Proc, NULL);
+    menuAddButton(page, 0, yTab++, "final phase 2", bowserPhase2Proc, NULL);
+    yTab++;
+    menuAddStatic(page, 0, yTab, "phase 2 hp:", 0xC0C0C0);
+    menuAddIntinput(page, 12, yTab++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x18a]);
 
     /* chapter bosses */
-    y_tab = 0;
+    yTab = 0;
     page = &pages[1];
-    menu_add_static(page, 0, y_tab++, "chapter bosses", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "goomba king", goomba_king_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "koopa bros.", koopa_bros_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "tutankoopa", tutankoopa_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "tubba blubba", tubba_blubba_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "general guy", general_guy_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "lava piranha", lava_piranha_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "huff n. puff", huff_n_puff_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "crystal king", crystal_king_proc, NULL);
+    menuAddStatic(page, 0, yTab++, "chapter bosses", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "goomba king", goombaKingProc, NULL);
+    menuAddButton(page, 0, yTab++, "koopa bros.", koopaBrosProc, NULL);
+    menuAddButton(page, 0, yTab++, "tutankoopa", tutankoopaProc, NULL);
+    menuAddButton(page, 0, yTab++, "tubba blubba", tubbaBlubbaProc, NULL);
+    menuAddButton(page, 0, yTab++, "general guy", generalGuyProc, NULL);
+    menuAddButton(page, 0, yTab++, "lava piranha", lavaPiranhaProc, NULL);
+    menuAddButton(page, 0, yTab++, "huff n. puff", huffNPuffProc, NULL);
+    menuAddButton(page, 0, yTab++, "crystal king", crystalKingProc, NULL);
 
     /* jr troopa */
-    y_tab = 0;
+    yTab = 0;
     page = &pages[2];
-    menu_add_static(page, 0, y_tab++, "jr. troopa", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "playground", jr_playground_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "pleasant path", jr_pleasant_path_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "forever forest", jr_forever_forest_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "toad town port", jr_toad_town_port_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "shiver snowfield", jr_shiver_snowfield_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "bowser's castle", jr_bowsers_castle_proc, NULL);
+    menuAddStatic(page, 0, yTab++, "jr. troopa", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "playground", jrPlaygroundProc, NULL);
+    menuAddButton(page, 0, yTab++, "pleasant path", jrPleasantPathProc, NULL);
+    menuAddButton(page, 0, yTab++, "forever forest", jrForeverForestProc, NULL);
+    menuAddButton(page, 0, yTab++, "toad town port", jrToadTownPortProc, NULL);
+    menuAddButton(page, 0, yTab++, "shiver snowfield", jrShiverSnowfieldProc, NULL);
+    menuAddButton(page, 0, yTab++, "bowser's castle", jrBowsersCastleProc, NULL);
 
     /* minor bosses */
-    y_tab = 0;
+    yTab = 0;
     page = &pages[3];
-    menu_add_static(page, 0, y_tab++, "minor bosses", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "goomba bros.", goomba_bros_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "tubba's heart", tubbas_heart_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "big lantern ghost", lantern_ghost_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "fuzzipede", fuzzipede_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "lakilester", lakilester_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "monstar", monstar_proc, NULL);
+    menuAddStatic(page, 0, yTab++, "minor bosses", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "goomba bros.", goombaBrosProc, NULL);
+    menuAddButton(page, 0, yTab++, "tubba's heart", tubbasHeartProc, NULL);
+    menuAddButton(page, 0, yTab++, "big lantern ghost", lanternGhostProc, NULL);
+    menuAddButton(page, 0, yTab++, "fuzzipede", fuzzipedeProc, NULL);
+    menuAddButton(page, 0, yTab++, "lakilester", lakilesterProc, NULL);
+    menuAddButton(page, 0, yTab++, "monstar", monstarProc, NULL);
 
     /* optional bosses */
-    y_tab = 0;
+    yTab = 0;
     page = &pages[4];
-    menu_add_static(page, 0, y_tab++, "optional bosses", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "blooper", blooper_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "electro blooper", electro_blooper_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "super blooper", super_blooper_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "buzzar", buzzar_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "anti guy", anti_guy_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "kent c. koopa", kent_c_koopa_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "anti guys unit", anti_guys_unit_proc, NULL);
+    menuAddStatic(page, 0, yTab++, "optional bosses", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "blooper", blooperProc, NULL);
+    menuAddButton(page, 0, yTab++, "electro blooper", electroBlooperProc, NULL);
+    menuAddButton(page, 0, yTab++, "super blooper", superBlooperProc, NULL);
+    menuAddButton(page, 0, yTab++, "buzzar", buzzarProc, NULL);
+    menuAddButton(page, 0, yTab++, "anti guy", antiGuyProc, NULL);
+    menuAddButton(page, 0, yTab++, "kent c. koopa", kentCKoopaProc, NULL);
+    menuAddButton(page, 0, yTab++, "anti guys unit", antiGuysUnitProc, NULL);
 
     /* dojo */
-    y_tab = 0;
+    yTab = 0;
     page = &pages[5];
-    menu_add_static(page, 0, y_tab++, "dojo", 0xC0C0C0);
-    menu_add_button(page, 0, y_tab++, "chan", chan_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "lee", lee_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "master 1", master1_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "master 2", master2_proc, NULL);
-    menu_add_button(page, 0, y_tab++, "master 3", master3_proc, NULL);
+    menuAddStatic(page, 0, yTab++, "dojo", 0xC0C0C0);
+    menuAddButton(page, 0, yTab++, "chan", chanProc, NULL);
+    menuAddButton(page, 0, yTab++, "lee", leeProc, NULL);
+    menuAddButton(page, 0, yTab++, "master 1", master1Proc, NULL);
+    menuAddButton(page, 0, yTab++, "master 2", master2Proc, NULL);
+    menuAddButton(page, 0, yTab++, "master 3", master3Proc, NULL);
 
-    menu_tab_goto(tab, 0);
-    menu_add_button(menu, 8, 0, "<", tab_prev_proc, tab);
-    menu_add_button(menu, 10, 0, ">", tab_next_proc, tab);
+    menuTabGoto(tab, 0);
+    menuAddButton(menu, 8, 0, "<", tabPrevProc, tab);
+    menuAddButton(menu, 10, 0, ">", tabNextProc, tab);
 }

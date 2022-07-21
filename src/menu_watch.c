@@ -6,22 +6,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct item_data {
+struct ItemData {
     u32 address;
-    enum watch_type type;
+    enum WatchType type;
 };
 
-static s32 watch_type_size[] = {
+static s32 watchTypeSize[] = {
     1, 1, 1, 2, 2, 2, 4, 4, 4, 4,
 };
 
-static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    struct item_data *data = item->data;
+static s32 drawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    struct ItemData *data = item->data;
     u32 address = data->address;
     if (address < 0x80000000 || address >= 0x80800000 || data->type < 0 || data->type >= WATCH_TYPE_MAX) {
         return 1;
     }
-    address -= address % watch_type_size[data->type];
+    address -= address % watchTypeSize[data->type];
     switch (data->type) {
         case WATCH_TYPE_U8: snprintf(item->text, 17, "%" PRIu8, *(u8 *)address); break;
         case WATCH_TYPE_S8: snprintf(item->text, 17, "%" PRIi8, *(s8 *)address); break;
@@ -34,7 +34,7 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
         case WATCH_TYPE_X32: snprintf(item->text, 17, "0x%" PRIx32, *(u32 *)address); break;
         case WATCH_TYPE_F32: {
             f32 v = *(f32 *)address;
-            if (is_nan(v)) {
+            if (isNan(v)) {
                 strcpy(item->text, "nan");
             } else if (v == INFINITY) {
                 strcpy(item->text, "inf");
@@ -53,34 +53,34 @@ static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_param
     return 0;
 }
 
-struct menu_item *menu_add_watch(struct menu *menu, s32 x, s32 y, u32 address, enum watch_type type) {
-    struct item_data *data = malloc(sizeof(*data));
+struct MenuItem *menuAddWatch(struct Menu *menu, s32 x, s32 y, u32 address, enum WatchType type) {
+    struct ItemData *data = malloc(sizeof(*data));
     data->address = address;
     data->type = type;
-    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xC0C0C0);
+    struct MenuItem *item = menuItemAdd(menu, x, y, NULL, 0xC0C0C0);
     item->text = malloc(17);
     item->selectable = FALSE;
     item->data = data;
-    item->draw_proc = draw_proc;
+    item->drawProc = drawProc;
     return item;
 }
 
-u32 menu_watch_get_address(struct menu_item *item) {
-    struct item_data *data = item->data;
+u32 menuWatchGetAddress(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     return data->address;
 }
 
-void menu_watch_set_address(struct menu_item *item, u32 address) {
-    struct item_data *data = item->data;
+void menuWatchSetAddress(struct MenuItem *item, u32 address) {
+    struct ItemData *data = item->data;
     data->address = address;
 }
 
-enum watch_type menu_watch_get_type(struct menu_item *item) {
-    struct item_data *data = item->data;
+enum WatchType menuWatchGetType(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     return data->type;
 }
 
-void menu_watch_set_type(struct menu_item *item, enum watch_type type) {
-    struct item_data *data = item->data;
+void menuWatchSetType(struct MenuItem *item, enum WatchType type) {
+    struct ItemData *data = item->data;
     data->type = type;
 }

@@ -2,7 +2,7 @@
 #define FLAGS_H
 #include "menu.h"
 
-void update_flag_records(void);
-void flag_menu_create(struct menu *menu);
+void updateFlagRecords(void);
+void flagMenuCreate(struct Menu *menu);
 
 #endif

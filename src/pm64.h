@@ -26,6 +26,7 @@
 #define ICONS_BP_ROM_START           0x13C820
 #endif
 
+// NOLINTBEGIN
 typedef struct {
     /* 0x00 */ s8 xCardinal;
     /* 0x01 */ s8 yCardinal;
@@ -99,7 +100,7 @@ typedef struct {
     /* 0x090 */ u16 unk_0x90;
     /* 0x092 */ u16 unk_0x92;
     /* 0x094 */ f32 loadingZoneTangent;
-    /* 0x098 */ vec3f_t playerPos;
+    /* 0x098 */ Vec3f playerPos;
     /* 0x0A4 */ f32 playerYaw;
     /* 0x0A8 */ s8 creditsViewportMode;
     /* 0x0A9 */ s8 unk_A9;
@@ -116,8 +117,8 @@ typedef struct {
     /* 0x0BA */ s16 bootGreen;
     /* 0x0BC */ s16 bootRed;
     /* 0x0BE */ char unk_BE[94];
-    /* 0x11C */ vec3f_t playerGroundTraceAngles;
-    /* 0x128 */ vec3f_t playerGroundTraceNormal;
+    /* 0x11C */ Vec3f playerGroundTraceAngles;
+    /* 0x128 */ Vec3f playerGroundTraceNormal;
     /* 0x134 */ u16 frameCounter;
     /* 0x136 */ char unk_136[2];
     /* 0x138 */ s32 nextRNG;
@@ -133,7 +134,7 @@ typedef struct {
     /* 0x158 */ void *backgroundPalette;
     /* 0x15C */ s16 unk_15C;
     /* 0x15E */ u16 unk_15E;
-    /* 0x160 */ vec3s_t savedPos;
+    /* 0x160 */ Vec3s savedPos;
     /* 0x166 */ u8 saveSlot;
     /* 0x167 */ u8 loadType; /* 0 = from map, 1 = from main menu */
     /* 0x168 */ s32 saveCount;
@@ -331,12 +332,12 @@ typedef struct {
     /* 0x012 */ s16 moveFrames;
     /* 0x014 */ s8 enableCollisionOverlapsCheck; /*changed when talking/opening doors/loading zones*/
     /* 0x015 */ s8 inputEnabledCounter;          /* whether the C-up menu can appear */
-    /* 0x016 */ vec3s_t lastGoodPosition;
-    /* 0x01C */ vec3f_t extraVelocity;
-    /* 0x028 */ vec3f_t position;
-    /* 0x034 */ vec2xzf_t groundAngles; /* angles along X/Z axes of ground beneath player */
-    /* 0x03C */ vec2xzf_t jumpFromPos;
-    /* 0x044 */ vec2xzf_t landPos;
+    /* 0x016 */ Vec3s lastGoodPosition;
+    /* 0x01C */ Vec3f extraVelocity;
+    /* 0x028 */ Vec3f position;
+    /* 0x034 */ Vec2XZf groundAngles; /* angles along X/Z axes of ground beneath player */
+    /* 0x03C */ Vec2XZf jumpFromPos;
+    /* 0x044 */ Vec2XZf landPos;
     /* 0x04C */ f32 jumpFromHeight;
     /* 0x050 */ f32 jumpApexHeight;
     /* 0x054 */ f32 currentSpeed;
@@ -438,7 +439,7 @@ typedef struct {
     /* 0x12E2 */ s8 unk_12E2;
     /* 0x12E3 */ s8 musicEnabled;
     /* 0x12E4 */ s8 unk_12E4[0x2];
-    /* 0x12E6 */ vec3s_t savePos;
+    /* 0x12E6 */ Vec3s savePos;
     /* 0x12EC */ pm_SaveMetadata saveMetadata;
     /* 0x1304 */ char unk_1304[0x7C];
 } pm_SaveData; // size = 0x1380
@@ -446,7 +447,7 @@ typedef struct {
 typedef struct {
     /* 0x00 */ s16 actorID;
     /* 0x02 */ s16 partID; /* sometimes loaded as byte from 0x3 */
-    /* 0x04 */ vec3s_t pos;
+    /* 0x04 */ Vec3s pos;
     /* 0x0A */ s16 unk_0A;
     /* 0x0C */ s16 unk_0C;
     /* 0x0E */ s16 unk_0E;
@@ -462,13 +463,13 @@ typedef s32 pm_ApiStatus;
 typedef pm_ApiStatus (*pm_ApiFunc)(struct pm_Evt *, s32);
 
 typedef struct {
-    /* 0x00 */ vec3f_t currentPos;
-    /* 0x0C */ vec3f_t goalPos;
-    /* 0x18 */ vec3f_t unk_18;
+    /* 0x00 */ Vec3f currentPos;
+    /* 0x0C */ Vec3f goalPos;
+    /* 0x18 */ Vec3f unk_18;
     /* 0x24 */ f32 unk_24;
     /* 0x28 */ f32 unk_28;
     /* 0x2C */ char unk_2C[0x4];
-    /* 0x30 */ vec3f_t unk_30;
+    /* 0x30 */ Vec3f unk_30;
     /* 0x3C */ f32 acceleration;
     /* 0x40 */ f32 speed;
     /* 0x44 */ f32 velocity;
@@ -493,9 +494,9 @@ typedef struct {
 } pm_ActorState; // size = 0xBC;
 
 typedef struct {
-    /* 0x00 */ vec3f_t currentPos;
-    /* 0x0C */ vec3f_t goalPos;
-    /* 0x18 */ vec3f_t unk_18;
+    /* 0x00 */ Vec3f currentPos;
+    /* 0x0C */ Vec3f goalPos;
+    /* 0x18 */ Vec3f unk_18;
     /* 0x24 */ char unk_24[24];
     /* 0x3C */ f32 acceleration;
     /* 0x40 */ f32 speed;
@@ -519,24 +520,24 @@ typedef struct {
     /* 0x135 */ u8 footStepCounter;
     /* 0x136 */ u8 actorType;
     /* 0x137 */ char unk_137;
-    /* 0x138 */ vec3f_t homePos;
-    /* 0x144 */ vec3f_t currentPos;
-    /* 0x150 */ vec3s_t headOffset;
-    /* 0x156 */ vec3s_t healthBarPosition;
-    /* 0x15C */ vec3f_t rotation;
-    /* 0x168 */ vec3s_t rotationPivotOffset;
+    /* 0x138 */ Vec3f homePos;
+    /* 0x144 */ Vec3f currentPos;
+    /* 0x150 */ Vec3s headOffset;
+    /* 0x156 */ Vec3s healthBarPosition;
+    /* 0x15C */ Vec3f rotation;
+    /* 0x168 */ Vec3s rotationPivotOffset;
     /* 0x16E */ char unk_16E[2];
-    /* 0x170 */ vec3f_t scale;
-    /* 0x17C */ vec3f_t scaleModifier; /* multiplies normal scale factors componentwise */
+    /* 0x170 */ Vec3f scale;
+    /* 0x17C */ Vec3f scaleModifier; /* multiplies normal scale factors componentwise */
     /* 0x188 */ f32 scalingFactor;
     /* 0x18C */ f32 yaw;
-    /* 0x190 */ vec2bu_t size;
+    /* 0x190 */ Vec2bu size;
     /* 0x192 */ s16 actorID;
     /* 0x194 */ s8 unk_194;
     /* 0x195 */ s8 unk_195;
     /* 0x196 */ s8 unk_196;
     /* 0x197 */ s8 unk_197;
-    /* 0x198 */ vec2b_t unk_198;
+    /* 0x198 */ Vec2b unk_198;
     /* 0x19A */ s8 unk_19A;
     /* 0x19B */ char unk_19B[1];
     /* 0x19C */ s32 actorTypeData1[6]; /* 4 = jump sound, 5 = attack sound */ // TODO: struct
@@ -868,22 +869,22 @@ typedef struct {
     /* 0x028 */ s16 unk_28;
     /* 0x02A */ s16 zoomPercent;
     /* 0x02C */ s16 bgColor[3];
-    /* 0x032 */ vec3s_t targetScreenCoords;
+    /* 0x032 */ Vec3s targetScreenCoords;
     /* 0x038 */ u16 perspNorm;
     /* 0x03A */ char unk_3A[2];
-    /* 0x03C */ vec3f_t lookAt_eye;
-    /* 0x048 */ vec3f_t lookAt_obj;
+    /* 0x03C */ Vec3f lookAt_eye;
+    /* 0x048 */ Vec3f lookAt_obj;
     /* 0x054 */ f32 unk_54;
     /* 0x058 */ f32 unk_58;
     /* 0x05C */ f32 unk_5C;
-    /* 0x060 */ vec3f_t targetPos;
+    /* 0x060 */ Vec3f targetPos;
     /* 0x06C */ f32 currentYaw;
     /* 0x070 */ f32 unk_70;
     /* 0x074 */ f32 currentBoomYaw;
     /* 0x078 */ f32 currentBoomLength;
     /* 0x07C */ f32 currentYOffset;
     /* 0x080 */ char unk_80[4];
-    /* 0x084 */ vec3f_t trueRotation;
+    /* 0x084 */ Vec3f trueRotation;
     /* 0x090 */ f32 currentBlendedYawNegated;
     /* 0x094 */ f32 currentPitch;
 } pm_Camera; // size = 0x558
@@ -1056,5 +1057,6 @@ void pm_update_player_input(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]
+// NOLINTEND
 
 #endif
