@@ -4,7 +4,40 @@
 #include "settings.h"
 #include <math.h>
 
-char messageForASM[] = "Success";
+enum BowserVariant {
+    BOWSER_VARIANT_HALLWAY = 0xC1,
+    BOWSER_VARIANT_FINAL_1 = 0xC3,
+    BOWSER_VARIANT_FINAL_2 = 0xC5,
+};
+
+const char messageForASM[] = "Success";
+
+const static u32 bowserAttacksHallway[] = {
+    SCRIPT_BOWSER_HALLWAY_FIRE, SCRIPT_BOWSER_HALLWAY_STOMP, SCRIPT_BOWSER_HALLWAY_CLAW,
+    SCRIPT_BOWSER_HALLWAY_WAVE, SCRIPT_BOWSER_HALLWAY_WAVE,
+};
+
+const static u32 bowserAttacksFinal1[] = {
+    SCRIPT_BOWSER_FINAL_1_FIRE, SCRIPT_BOWSER_FINAL_1_STOMP,     SCRIPT_BOWSER_FINAL_1_CLAW,
+    SCRIPT_BOWSER_FINAL_1_WAVE, SCRIPT_BOWSER_FINAL_1_LIGHTNING,
+};
+
+const static u32 bowserAttacksFinal2[] = {
+    SCRIPT_BOWSER_FINAL_2_FIRE, SCRIPT_BOWSER_FINAL_2_STOMP,     SCRIPT_BOWSER_FINAL_2_CLAW,
+    SCRIPT_BOWSER_FINAL_2_WAVE, SCRIPT_BOWSER_FINAL_2_LIGHTNING,
+};
+
+static bool bowserBlocksEnabled = FALSE;
+static u8 bowserAttack = 0;
+// clang-format off
+static u32 customBowserScript[] = {
+    EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, FALSE,
+    EVT_OP_EXEC_WAIT, 1, 0, // replaced with attack script
+    EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, TRUE,
+    EVT_OP_RETURN, 0,
+    EVT_OP_END, 0,
+};
+// clang-format on
 
 extern void setACEHook(void);
 
@@ -261,6 +294,48 @@ static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
     return 1;
 }
 
+void updateBowserBlockTrainer(void) {
+    if (pm_gGameStatus.isBattle) {
+        pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
+        if (enemy0) {
+            bool isBowser = FALSE;
+            u32 vanillaScript;
+            switch (enemy0->actorType) {
+                case BOWSER_VARIANT_HALLWAY:
+                    isBowser = TRUE;
+                    customBowserScript[7] = bowserAttacksHallway[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_HALLWAY_TAKE_TURN;
+                    break;
+                case BOWSER_VARIANT_FINAL_1:
+                    isBowser = TRUE;
+                    customBowserScript[7] = bowserAttacksFinal1[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_FINAL_1_TAKE_TURN;
+                    break;
+                case BOWSER_VARIANT_FINAL_2:
+                    isBowser = TRUE;
+                    customBowserScript[7] = bowserAttacksFinal2[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_FINAL_2_TAKE_TURN;
+                    break;
+            }
+
+            if (isBowser) {
+                //                PRINTF("taketurnscript: %X\n", enemy0->takeTurnScriptSource);
+                if (bowserBlocksEnabled) {
+                    enemy0->state.varTable[0] = 2; // total turns, to make bowser stop talking
+                    enemy0->takeTurnScriptSource = (void *)&customBowserScript;
+
+                    // never let wave KO last more than one turn so you can keep practicing the block
+                    if (pm_gBattleStatus.partnerActor && pm_gBattleStatus.partnerActor->koDuration > 1) {
+                        pm_gBattleStatus.partnerActor->koDuration = 1;
+                    }
+                } else {
+                    enemy0->takeTurnScriptSource = (void *)vanillaScript;
+                }
+            }
+        }
+    }
+}
+
 void createTrainerMenu(struct Menu *menu) {
     static struct Menu bowserMenu;
     static struct Menu issMenu;
@@ -296,7 +371,7 @@ void createTrainerMenu(struct Menu *menu) {
     yValue = 0;
     bowserMenu.selector = menuAddSubmenu(&bowserMenu, 0, yValue++, NULL, "return");
     menuAddStatic(&bowserMenu, 0, yValue, "enabled", 0xC0C0C0);
-    menuAddCheckbox(&bowserMenu, 8, yValue++, checkboxModProc, &fp.bowserBlocksEnabled);
+    menuAddCheckbox(&bowserMenu, 8, yValue++, checkboxModProc, &bowserBlocksEnabled);
     menuAddStatic(&bowserMenu, 0, yValue, "attack", 0xC0C0C0);
     menuAddOption(&bowserMenu, 8, yValue++,
                   "fire\0"
@@ -304,7 +379,7 @@ void createTrainerMenu(struct Menu *menu) {
                   "claw\0"
                   "wave\0"
                   "lightning\0",
-                  byteOptionmodProc, &fp.bowserBlock);
+                  byteOptionmodProc, &bowserAttack);
 
     /*build iss menu*/
     issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");

@@ -1,6 +1,5 @@
 osMemSize = 0x80000318;
 pm_gGameStatus = 0x80074004;
-pm_randSeed = 0x800743F0;
 pm_gCurrentCameraID = 0x800773E0;
 pm_gItemTable = 0x800878B0;
 pm_gItemHudScripts = 0x8008A650;
@@ -71,6 +70,7 @@ pm_setMapTransitionEffect = 0x8013D350;
 pm_playSfx = 0x8014ED64;
 pm_sfxStopSound = 0x8014ED1C;
 pm_bgmSetSong = 0x8014F9C8;
+pm_useIdleAnimation = 0x8026F26C;
 pm_gotoMap = 0x802CA400;
 pm_saveGame = 0x802DC150;
 

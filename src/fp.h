@@ -41,8 +41,6 @@ typedef struct {
     bool aceLastFlagStatus;
     bool aceLastJumpStatus;
     bool turbo;
-    bool bowserBlocksEnabled;
-    s8 bowserBlock;
     bool lzsTrainerEnabled;
     s8 prevPressedY;
     u8 prevPrevActionState;

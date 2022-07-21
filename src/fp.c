@@ -7,6 +7,7 @@
 #include "io.h"
 #include "resource.h"
 #include "timer.h"
+#include "trainer.h"
 #include "watchlist.h"
 #include <n64.h>
 #include <startup.h>
@@ -65,8 +66,6 @@ void fpInit(void) {
     fp.aceLastTimer = 0;
     fp.aceLastFlagStatus = FALSE;
     fp.aceLastJumpStatus = FALSE;
-    fp.bowserBlocksEnabled = FALSE;
-    fp.bowserBlock = 0;
     fp.lzsTrainerEnabled = FALSE;
     fp.prevPrevActionState = 0;
     fp.lzStored = FALSE;
@@ -341,66 +340,6 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
 }
 
-// this whole thing should be redone once battles are better understood - freezing rng isn't very reliable
-void fpBowserBlockTrainer(void) {
-    if (pm_gGameStatus.isBattle && pm_gGameStatus.areaID == 0x4 &&
-        (pm_gGameStatus.mapID == 0x7 || pm_gGameStatus.mapID == 0x13) && STORY_PROGRESS != STORY_INTRO &&
-        !(pm_gGameStatus.peachFlags & (1 << 0))) {
-
-        pm_Actor *bowser = pm_gBattleStatus.enemyActors[0];
-
-        if (bowser != NULL) {
-            s32 *turn = &bowser->state.varTable[0];
-            s32 *turnsSinceWave = &bowser->state.varTable[2];
-            s32 *turnsSinceBeam = &bowser->state.varTable[3];
-            s32 *turnsSinceClaw = &bowser->state.varTable[4];
-            s32 *turnsSinceStomp = &bowser->state.varTable[5];
-            s32 *turnsSinceHeal = &bowser->state.varTable[6];
-            *turnsSinceHeal = 0;
-            *turnsSinceBeam = 0;
-            switch (fp.bowserBlock) {
-                case 0: // fire
-                    *turn = 3;
-                    *turnsSinceClaw = 0;
-                    *turnsSinceStomp = 0;
-                    *turnsSinceWave = 0;
-                    break;
-                case 1: // butt stomp
-                    *turn = 3;
-                    *turnsSinceClaw = 0;
-                    *turnsSinceStomp = 1;
-                    *turnsSinceWave = 0;
-                    pm_randSeed = 0x03D49DFF;
-                    break;
-                case 2: // claw
-                    *turn = 3;
-                    *turnsSinceStomp = 0;
-                    *turnsSinceClaw = 1;
-                    *turnsSinceWave = 0;
-                    pm_randSeed = 0x9CB89EDA;
-                    break;
-                case 3: // wave
-                    *turn = 4;
-                    *turnsSinceWave = 6;
-                    pm_randSeed = 0x77090261;
-                    break;
-                case 4: // lightning, still gives wave for hallway bowser
-                    *turn = 4;
-                    *turnsSinceWave = 6;
-                    pm_randSeed = 0x72A5DCE5;
-                    break;
-            }
-        }
-
-        if (pm_gBattleStatus.partnerActor != NULL) {
-            // if partner is KO'd by wave, never let it last more than one turn so you can keep practicing the block
-            if (pm_gBattleStatus.partnerActor->koDuration > 1) {
-                pm_gBattleStatus.partnerActor->koDuration = 1;
-            }
-        }
-    }
-}
-
 void fpLzsTrainer(void) {
     // detect if loading zone is stored
     for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
@@ -670,10 +609,7 @@ void fpUpdate(void) {
     }
 
     timerUpdate();
-
-    if (fp.bowserBlocksEnabled) {
-        fpBowserBlockTrainer();
-    }
+    updateBowserBlockTrainer();
 
     if (fp.lzsTrainerEnabled) {
         fpLzsTrainer();

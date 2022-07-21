@@ -728,4 +728,102 @@ enum HudElementOps {
     /* 0x1B */ HUD_ELEMENT_OP_SetPivot,
 };
 
+enum EvtOps {
+    /* 0x00 */ EVT_OP_INTERNAL_FETCH,
+    /* 0x01 */ EVT_OP_END,
+    /* 0x02 */ EVT_OP_RETURN,
+    /* 0x03 */ EVT_OP_LABEL, ///< Args: index
+    /* 0x04 */ EVT_OP_GOTO,  ///< Args: index
+    /* 0x05 */ EVT_OP_LOOP,  ///< Args: number of repeats (0 = infinite)
+    /* 0x06 */ EVT_OP_END_LOOP,
+    /* 0x07 */ EVT_OP_BREAK_LOOP,
+    /* 0x08 */ EVT_OP_WAIT_FRAMES,
+    /* 0x09 */ EVT_OP_WAIT_SECS,
+    /* 0x0A */ EVT_OP_IF_EQ,       ///< Args: a, b
+    /* 0x0B */ EVT_OP_IF_NE,       ///< Args: a, b
+    /* 0x0C */ EVT_OP_IF_LT,       ///< Args: a, b
+    /* 0x0D */ EVT_OP_IF_GT,       ///< Args: a, b
+    /* 0x0E */ EVT_OP_IF_LE,       ///< Args: a, b
+    /* 0x0F */ EVT_OP_IF_GE,       ///< Args: a, b
+    /* 0x10 */ EVT_OP_IF_FLAG,     ///< Args: a, b
+    /* 0x11 */ EVT_OP_IF_NOT_FLAG, ///< Args: a, b
+    /* 0x12 */ EVT_OP_ELSE,
+    /* 0x13 */ EVT_OP_END_IF,
+    /* 0x14 */ EVT_OP_SWITCH,       ///< Args: expression to test against
+    /* 0x15 */ EVT_OP_SWITCH_CONST, ///< Args: value to test against
+    /* 0x16 */ EVT_OP_CASE_EQ,      ///< Args: expression to test for
+    /* 0x17 */ EVT_OP_CASE_NE,      ///< Args: expression to test for
+    /* 0x18 */ EVT_OP_CASE_LT,      ///< Args: expression to test for
+    /* 0x19 */ EVT_OP_CASE_GT,      ///< Args: expression to test for
+    /* 0x1A */ EVT_OP_CASE_LE,      ///< Args: expression to test for
+    /* 0x1B */ EVT_OP_CASE_GE,      ///< Args: expression to test for
+    /* 0x1C */ EVT_OP_CASE_DEFAULT,
+    /* 0x1D */ EVT_OP_CASE_OR_EQ,     ///< Args: expression to test for
+    /* 0x1E */ EVT_OP_CASE_AND_EQ,    ///< Args: expression to test for
+    /* 0x1F */ EVT_OP_CASE_FLAG,      ///< Args: expression to test for
+    /* 0x20 */ EVT_OP_END_CASE_GROUP, ///< Ends the case block of EVT_OP_CASE_OR_EQ condition(s).
+    /* 0x21 */ EVT_OP_CASE_RANGE,     ///< Args: from, to
+    /* 0x22 */ EVT_OP_BREAK_SWITCH,
+    /* 0x23 */ EVT_OP_END_SWITCH,
+    /* 0x24 */ EVT_OP_SET,               ///< Args: container, expression
+    /* 0x25 */ EVT_OP_SET_CONST,         ///< Args: container, value
+    /* 0x26 */ EVT_OP_SETF,              ///< Args: container, expression
+    /* 0x27 */ EVT_OP_ADD,               ///< Args: container, expression to increment by
+    /* 0x28 */ EVT_OP_SUB,               ///< Args: container, expression to decrement by
+    /* 0x29 */ EVT_OP_MUL,               ///< Args: container, expression to multiply by
+    /* 0x2A */ EVT_OP_DIV,               ///< Integer division. Args: container, expression to divide by
+    /* 0x2B */ EVT_OP_MOD,               ///< Args: container, expression to divide by
+    /* 0x2C */ EVT_OP_ADDF,              ///< Args: container, expression to increment by
+    /* 0x2D */ EVT_OP_SUBF,              ///< Args: container, expression to decrement by
+    /* 0x2E */ EVT_OP_MULF,              ///< Args: container, expression to multiply by
+    /* 0x2F */ EVT_OP_DIVF,              ///< Args: container, expression to divide by
+    /* 0x30 */ EVT_OP_USE_BUF,           ///< Args: s32*
+    /* 0x31 */ EVT_OP_BUF_READ1,         /// Args: container
+    /* 0x32 */ EVT_OP_BUF_READ2,         /// Args: container, container
+    /* 0x33 */ EVT_OP_BUF_READ3,         /// Args: container, container, container
+    /* 0x34 */ EVT_OP_BUF_READ4,         /// Args: container, container, container, container
+    /* 0x35 */ EVT_OP_BUF_PEEK,          ///< Args: index, container
+    /* 0x36 */ EVT_OP_USE_FBUF,          ///< Identical to USE_BUFFER. Args: f32*
+    /* 0x37 */ EVT_OP_FBUF_READ1,        /// Args: container
+    /* 0x38 */ EVT_OP_FBUF_READ2,        /// Args: container, container
+    /* 0x39 */ EVT_OP_FBUF_READ3,        /// Args: container, container, container
+    /* 0x3A */ EVT_OP_FBUF_READ4,        /// Args: container, container, container, container
+    /* 0x3B */ EVT_OP_FBUF_PEEK,         ///< Args: index, container
+    /* 0x3C */ EVT_OP_USE_ARRAY,         ///< Args: *s32
+    /* 0x3D */ EVT_OP_USE_FLAGS,         ///< Args: *s32
+    /* 0x3E */ EVT_OP_MALLOC_ARRAY,      ///< Allocates a new array. Args: length, s32*
+    /* 0x3F */ EVT_OP_BITWISE_AND,       ///< Args: container, expression to bitwise AND with
+    /* 0x40 */ EVT_OP_BITWISE_AND_CONST, ///< Args: container, value to bitwise AND with
+    /* 0x41 */ EVT_OP_BITWISE_OR,        ///< Args: container, expression to bitwise OR with
+    /* 0x42 */ EVT_OP_BITWISE_OR_CONST,  ///< Args: container, value to bitwise OR with
+    /* 0x43 */ EVT_OP_CALL,              ///< Args: *function, ...
+    /* 0x44 */ EVT_OP_EXEC,              ///< Args: EvtScript*
+    /* 0x45 */ EVT_OP_EXEC_GET_TID,      ///< Args: EvtScript*, container
+    /* 0x46 */ EVT_OP_EXEC_WAIT,     ///< Spawns a script and waits for it to return before continuing. Args: EvtScript*
+    /* 0x47 */ EVT_OP_BIND_TRIGGER,  ///< Args: EvtScript*, trigger flags, s32 target, 1, Trigger*
+    /* 0x48 */ EVT_OP_UNBIND,        ///< Unbinds any triggers bound to this script.
+    /* 0x49 */ EVT_OP_KILL_THREAD,   ///< Args: ScriptID
+    /* 0x4A */ EVT_OP_JUMP,          ///< Args: EvtScript*
+    /* 0x4B */ EVT_OP_SET_PRIORITY,  ///< Args: priority
+    /* 0x4C */ EVT_OP_SET_TIMESCALE, ///< Args: timescale
+    /* 0x4D */ EVT_OP_SET_GROUP,     ///< Args: group
+    /* 0x4E */ EVT_OP_BIND_PADLOCK,  ///< Args: EvtScript*, trigger flags, s32 target, ItemList*, 0, 1
+    /* 0x4F */ EVT_OP_SUSPEND_GROUP, ///< Args: group
+    /* 0x50 */ EVT_OP_RESUME_GROUP,  ///< Args: group
+    /* 0x51 */ EVT_OP_SUSPEND_OTHERS,    ///< Args: group
+    /* 0x52 */ EVT_OP_RESUME_OTHERS,     ///< Args: group
+    /* 0x53 */ EVT_OP_SUSPEND_THREAD,    ///< Args: ScriptID
+    /* 0x54 */ EVT_OP_RESUME_THREAD,     ///< Args: ScriptID
+    /* 0x55 */ EVT_OP_IS_THREAD_RUNNING, ///< Args: ScriptID, container
+    /* 0x56 */ EVT_OP_THREAD,
+    /* 0x57 */ EVT_OP_END_THREAD,
+    /* 0x58 */ EVT_OP_CHILD_THREAD, ///< Parallel threads are killed as soon as the parent script returns.
+    /* 0x59 */ EVT_OP_END_CHILD_THREAD,
+    /* 0x5A */ EVT_OP_90,
+    /* 0x5B */ EVT_OP_DEBUG_PRINT, ///< Args: expression
+    /* 0x5C */ EVT_OP_92,
+    /* 0x5D */ EVT_OP_93,
+    /* 0x5E */ EVT_OP_94,
+};
+
 #endif
