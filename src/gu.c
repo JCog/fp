@@ -1,7 +1,6 @@
-#include <stdint.h>
+#include "gu.h"
 #include <math.h>
 #include <n64.h>
-#include "gu.h"
 
 void guMtxIdent(Mtx *m) {
     *m = (Mtx)gdSPDefMtx(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);

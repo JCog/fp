@@ -1,51 +1,45 @@
-#include <errno.h>
-#include <n64.h>
 #include "ed64_io.h"
 #include "hb_io.h"
 #include "iodev.h"
-//#include "zu.h"
+#include <errno.h>
+#include <n64.h>
 
-static u32 clock_ticks_dflt(void) {
+static u32 clockTicksDflt(void) {
     u32 count;
     __asm__("mfc0    %0, $9;" : "=r"(count));
     return count;
 }
 
-static u32 clock_freq_dflt(void) {
+static u32 clockFreqDflt(void) {
     return OS_CPU_COUNTER;
 }
 
-// static void cpu_reset_dflt(void)
-//{
-//   return zu_reset();
-// }
+static struct Iodev *currentDev;
 
-static struct iodev *current_dev;
-
-s32 io_init(void) {
-    struct iodev *devs[] = {
-        &homeboy_iodev,
-        &everdrive64_x,
-        &everdrive64_v2,
-        &everdrive64_v1,
+s32 ioInit(void) {
+    struct Iodev *devs[] = {
+        &homeboyIodev,
+        &everdrive64X,
+        &everdrive64V2,
+        &everdrive64V1,
     };
 
-    s32 n_devs = sizeof(devs) / sizeof(devs[0]);
-    for (s32 i = 0; i < n_devs; i++) {
-        current_dev = devs[i];
-        if (current_dev->probe() == 0) {
+    s32 nDevs = sizeof(devs) / sizeof(devs[0]);
+    for (s32 i = 0; i < nDevs; i++) {
+        currentDev = devs[i];
+        if (currentDev->probe() == 0) {
             return 0;
         }
     }
 
-    current_dev = NULL;
+    currentDev = NULL;
     errno = ENODEV;
     return -1;
 }
 
-s32 disk_init(void) {
-    if (current_dev && current_dev->disk_init) {
-        if (current_dev->disk_init()) {
+s32 diskInit(void) {
+    if (currentDev && currentDev->diskInit) {
+        if (currentDev->diskInit()) {
             errno = ENODEV;
             return -1;
         } else {
@@ -57,9 +51,9 @@ s32 disk_init(void) {
     }
 }
 
-s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
-    if (current_dev && current_dev->disk_read) {
-        if (current_dev->disk_read(lba, n_blocks, dst)) {
+s32 diskRead(size_t lba, size_t nBlocks, void *dst) {
+    if (currentDev && currentDev->diskRead) {
+        if (currentDev->diskRead(lba, nBlocks, dst)) {
             errno = EIO;
             return -1;
         } else {
@@ -71,9 +65,9 @@ s32 disk_read(size_t lba, size_t n_blocks, void *dst) {
     }
 }
 
-s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
-    if (current_dev && current_dev->disk_write) {
-        if (current_dev->disk_write(lba, n_blocks, src)) {
+s32 diskWrite(size_t lba, size_t nBlocks, const void *src) {
+    if (currentDev && currentDev->diskWrite) {
+        if (currentDev->diskWrite(lba, nBlocks, src)) {
             errno = EIO;
             return -1;
         } else {
@@ -85,18 +79,18 @@ s32 disk_write(size_t lba, size_t n_blocks, const void *src) {
     }
 }
 
-s32 fifo_poll(void) {
-    if (current_dev && current_dev->fifo_poll) {
-        return current_dev->fifo_poll();
+s32 fifoPoll(void) {
+    if (currentDev && currentDev->fifoPoll) {
+        return currentDev->fifoPoll();
     } else {
         errno = ENODEV;
         return 0;
     }
 }
 
-s32 fifo_read(void *dst, size_t n_blocks) {
-    if (current_dev && current_dev->fifo_read) {
-        if (current_dev->fifo_read(dst, n_blocks)) {
+s32 fifoRead(void *dst, size_t nBlocks) {
+    if (currentDev && currentDev->fifoRead) {
+        if (currentDev->fifoRead(dst, nBlocks)) {
             errno = EIO;
             return -1;
         } else {
@@ -108,9 +102,9 @@ s32 fifo_read(void *dst, size_t n_blocks) {
     }
 }
 
-s32 fifo_write(const void *src, size_t n_blocks) {
-    if (current_dev && current_dev->fifo_write) {
-        if (current_dev->fifo_write(src, n_blocks)) {
+s32 fifoWrite(const void *src, size_t nBlocks) {
+    if (currentDev && currentDev->fifoWrite) {
+        if (currentDev->fifoWrite(src, nBlocks)) {
             errno = EIO;
             return -1;
         } else {
@@ -122,26 +116,26 @@ s32 fifo_write(const void *src, size_t n_blocks) {
     }
 }
 
-u32 clock_ticks(void) {
-    if (current_dev && current_dev->clock_ticks) {
-        return current_dev->clock_ticks();
+u32 clockTicks(void) {
+    if (currentDev && currentDev->clockTicks) {
+        return currentDev->clockTicks();
     } else {
-        return clock_ticks_dflt();
+        return clockTicksDflt();
     }
 }
 
-u32 clock_freq(void) {
-    if (current_dev && current_dev->clock_freq) {
-        return current_dev->clock_freq();
+u32 clockFreq(void) {
+    if (currentDev && currentDev->clockFreq) {
+        return currentDev->clockFreq();
     } else {
-        return clock_freq_dflt();
+        return clockFreqDflt();
     }
 }
 
 // s32 cpu_reset(void)
 //{
-//   if (current_dev && current_dev->cpu_reset)
-//     current_dev->cpu_reset();
+//   if (currentDev && currentDev->cpu_reset)
+//     currentDev->cpu_reset();
 //   else
 //     cpu_reset_dflt();
 //

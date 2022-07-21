@@ -1,10 +1,9 @@
 #ifndef ADEX_H
 #define ADEX_H
-#include <stdint.h>
+#include "common.h"
 #include <vector/vector.h>
-#include "pm64.h"
 
-enum adex_error {
+enum AdexError {
     ADEX_ERROR_SUCCESS,
     ADEX_ERROR_MEMORY,
     ADEX_ERROR_SYNTAX,
@@ -12,14 +11,14 @@ enum adex_error {
     ADEX_ERROR_ADDRESS,
 };
 
-struct adex {
+struct Adex {
     struct vector expr;
 };
 
-enum adex_error adex_parse(struct adex *adex, const char *str);
-enum adex_error adex_eval(struct adex *adex, u32 *result);
-void adex_destroy(struct adex *adex);
+enum AdexError adexParse(struct Adex *adex, const char *str);
+enum AdexError adexEval(struct Adex *adex, u32 *result);
+void adexDestroy(struct Adex *adex);
 
-extern const char *adex_error_name[];
+extern const char *adexErrorName[];
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef ED64_L_H
 #define ED64_L_H
-#include <stdint.h>
-#include "fp.h"
+#include "common.h"
 
 /*
  *  FW < 1.16:

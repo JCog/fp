@@ -1,103 +1,104 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
+#include "gfx.h"
+#include "common.h"
 #include <malloc.h>
 #include <mips.h>
 #include <n64.h>
-#include "gfx.h"
-#include "pm64.h"
-#include "fp.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector/vector.h>
 
 #define GFX_DISP_SIZE 0x10000
-static Gfx *gfx_disp;
-static Gfx *gfx_disp_w;
-static Gfx *gfx_disp_p;
-static Gfx *gfx_disp_d;
+static Gfx *gfxDisp;
+static Gfx *gfxDispW;
+static Gfx *gfxDispP;
+static Gfx *gfxDispD;
 
 #define GFX_STACK_LENGTH 8
-static u64 gfx_modes[GFX_MODE_ALL];
-static u64 gfx_mode_stack[GFX_MODE_ALL][GFX_STACK_LENGTH];
-static s32 gfx_mode_stack_pos[GFX_MODE_ALL];
-static _Bool gfx_synced;
+static u64 gfxModes[GFX_MODE_ALL];
+static u64 gfxModeStack[GFX_MODE_ALL][GFX_STACK_LENGTH];
+static s32 gfxModeStackPos[GFX_MODE_ALL];
+static bool gfxSynced;
 
 #define CHAR_TILE_MAX 8
-struct gfx_char {
-    s32 tile_char;
+struct GfxChar {
+    s32 tileChar;
     u32 color;
     s32 x;
     s32 y;
 };
-static const struct gfx_font *gfx_char_font;
-static struct vector gfx_chars[CHAR_TILE_MAX];
+static const struct GfxFont *gfxCharFont;
+static struct vector gfxChars[CHAR_TILE_MAX];
 
-static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *buf, size_t l);
-static void flush_chars(void);
-static void gfx_printf_n_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
-static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args);
+static void drawChars(const struct GfxFont *font, s32 x, s32 y, const char *buf, size_t l);
+static void flushChars(void);
+static void gfxPrintfNVa(const struct GfxFont *font, s32 x, s32 y, const char *format, va_list args);
+static void gfxPrintfFVa(const struct GfxFont *font, s32 x, s32 y, const char *format, va_list args);
 
-static inline void gfx_sync(void) {
-    if (!gfx_synced) {
-        gDPPipeSync(gfx_disp_p++);
-        gfx_synced = 1;
+static inline void gfxSync(void) {
+    if (!gfxSynced) {
+        gDPPipeSync(gfxDispP++);
+        gfxSynced = TRUE;
     }
 }
 
-const MtxF gfx_cm_desaturate = guDefMtxF(0.3086f, 0.6094f, 0.0820f, 0.f, 0.3086f, 0.6094f, 0.0820f, 0.f, 0.3086f,
-                                         0.6094f, 0.0820f, 0.f, 0.f, 0.f, 0.f, 1.f);
+const MtxF gfxCmDesaturate = guDefMtxF(0.3086f, 0.6094f, 0.0820f, 0.f, 0.3086f, 0.6094f, 0.0820f, 0.f, 0.3086f, 0.6094f,
+                                       0.0820f, 0.f, 0.f, 0.f, 0.f, 1.f);
 
-void gfx_start(void) {
-    for (s32 i = 0; i < CHAR_TILE_MAX; ++i)
-        vector_init(&gfx_chars[i], sizeof(struct gfx_char));
-    gfx_disp = malloc(GFX_DISP_SIZE);
-    gfx_disp_w = malloc(GFX_DISP_SIZE);
-    gfx_disp_p = gfx_disp;
-    gfx_disp_d = gfx_disp + (GFX_DISP_SIZE + sizeof(*gfx_disp) - 1) / sizeof(*gfx_disp);
+void gfxStart(void) {
+    for (s32 i = 0; i < CHAR_TILE_MAX; ++i) {
+        vector_init(&gfxChars[i], sizeof(struct GfxChar));
+    }
+    gfxDisp = malloc(GFX_DISP_SIZE);
+    gfxDispW = malloc(GFX_DISP_SIZE);
+    gfxDispP = gfxDisp;
+    gfxDispD = gfxDisp + (GFX_DISP_SIZE + sizeof(*gfxDisp) - 1) / sizeof(*gfxDisp);
 }
 
-void gfx_mode_init(void) {
-    gfx_sync();
-    gSPLoadGeometryMode(gfx_disp_p++, 0);
-    gDPSetCycleType(gfx_disp_p++, G_CYC_1CYCLE);
-    gDPSetRenderMode(gfx_disp_p++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gDPSetScissor(gfx_disp_p++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    gDPSetAlphaDither(gfx_disp_p++, G_AD_DISABLE);
-    gDPSetColorDither(gfx_disp_p++, G_CD_DISABLE);
-    gDPSetAlphaCompare(gfx_disp_p++, G_AC_NONE);
-    gDPSetDepthSource(gfx_disp_p++, G_ZS_PRIM);
-    gDPSetCombineKey(gfx_disp_p++, G_CK_NONE);
-    gDPSetTextureConvert(gfx_disp_p++, G_TC_FILT);
-    gDPSetTextureDetail(gfx_disp_p++, G_TD_CLAMP);
-    gDPSetTexturePersp(gfx_disp_p++, G_TP_NONE);
-    gDPSetTextureLOD(gfx_disp_p++, G_TL_TILE);
-    gDPSetTextureLUT(gfx_disp_p++, G_TT_NONE);
-    gDPPipelineMode(gfx_disp_p++, G_PM_NPRIMITIVE);
-    gfx_mode_apply(GFX_MODE_ALL);
+void gfxModeInit(void) {
+    gfxSync();
+    gSPLoadGeometryMode(gfxDispP++, 0);
+    gDPSetCycleType(gfxDispP++, G_CYC_1CYCLE);
+    gDPSetRenderMode(gfxDispP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetScissor(gfxDispP++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    gDPSetAlphaDither(gfxDispP++, G_AD_DISABLE);
+    gDPSetColorDither(gfxDispP++, G_CD_DISABLE);
+    gDPSetAlphaCompare(gfxDispP++, G_AC_NONE);
+    gDPSetDepthSource(gfxDispP++, G_ZS_PRIM);
+    gDPSetCombineKey(gfxDispP++, G_CK_NONE);
+    gDPSetTextureConvert(gfxDispP++, G_TC_FILT);
+    gDPSetTextureDetail(gfxDispP++, G_TD_CLAMP);
+    gDPSetTexturePersp(gfxDispP++, G_TP_NONE);
+    gDPSetTextureLOD(gfxDispP++, G_TL_TILE);
+    gDPSetTextureLUT(gfxDispP++, G_TT_NONE);
+    gDPPipelineMode(gfxDispP++, G_PM_NPRIMITIVE);
+    gfxModeApply(GFX_MODE_ALL);
 }
 
-void gfx_mode_configure(enum gfx_mode mode, u64 value) {
-    gfx_modes[mode] = value;
+void gfxModeConfigure(enum GfxMode mode, u64 value) {
+    gfxModes[mode] = value;
 }
 
-void gfx_mode_apply(enum gfx_mode mode) {
+void gfxModeApply(enum GfxMode mode) {
     Gfx dl[GFX_MODE_ALL];
     Gfx *pdl = dl;
     switch (mode) {
         case GFX_MODE_ALL:
         case GFX_MODE_FILTER: {
-            gDPSetTextureFilter(pdl++, gfx_modes[GFX_MODE_FILTER]);
+            gDPSetTextureFilter(pdl++, gfxModes[GFX_MODE_FILTER]);
             if (mode != GFX_MODE_ALL) {
                 break;
             }
         }
         case GFX_MODE_COMBINE: {
-            gDPSetCombine(pdl++, gfx_modes[GFX_MODE_COMBINE]);
+            gDPSetCombine(pdl++, gfxModes[GFX_MODE_COMBINE]);
             if (mode != GFX_MODE_ALL) {
                 break;
             }
         }
         case GFX_MODE_COLOR: {
-            u32 c = gfx_modes[GFX_MODE_COLOR];
+            u32 c = gfxModes[GFX_MODE_COLOR];
             gDPSetPrimColor(pdl++, 0, 0, (c >> 24) & 0xFF, (c >> 16) & 0xFF, (c >> 8) & 0xFF, (c >> 0) & 0xFF);
             if (mode != GFX_MODE_ALL) {
                 break;
@@ -107,275 +108,274 @@ void gfx_mode_apply(enum gfx_mode mode) {
     }
     size_t s = pdl - dl;
     if (s > 0) {
-        gfx_sync();
-        memcpy(gfx_disp_p, dl, s * sizeof(*dl));
-        gfx_disp_p += s;
+        gfxSync();
+        memcpy(gfxDispP, dl, s * sizeof(*dl));
+        gfxDispP += s;
     }
 }
 
-void gfx_mode_set(enum gfx_mode mode, u64 value) {
-    gfx_mode_configure(mode, value);
-    gfx_mode_apply(mode);
+void gfxModeSet(enum GfxMode mode, u64 value) {
+    gfxModeConfigure(mode, value);
+    gfxModeApply(mode);
 }
 
-void gfx_mode_push(enum gfx_mode mode) {
+void gfxModePush(enum GfxMode mode) {
     if (mode == GFX_MODE_ALL) {
         for (s32 i = 0; i < GFX_MODE_ALL; ++i) {
-            s32 *p = &gfx_mode_stack_pos[i];
-            gfx_mode_stack[i][*p] = gfx_modes[i];
+            s32 *p = &gfxModeStackPos[i];
+            gfxModeStack[i][*p] = gfxModes[i];
             *p = (*p + 1) % GFX_STACK_LENGTH;
         }
     } else {
-        s32 *p = &gfx_mode_stack_pos[mode];
-        gfx_mode_stack[mode][*p] = gfx_modes[mode];
+        s32 *p = &gfxModeStackPos[mode];
+        gfxModeStack[mode][*p] = gfxModes[mode];
         *p = (*p + 1) % GFX_STACK_LENGTH;
     }
 }
 
-void gfx_mode_pop(enum gfx_mode mode) {
+void gfxModePop(enum GfxMode mode) {
     if (mode == GFX_MODE_ALL) {
         for (s32 i = 0; i < GFX_MODE_ALL; ++i) {
-            s32 *p = &gfx_mode_stack_pos[i];
+            s32 *p = &gfxModeStackPos[i];
             *p = (*p + GFX_STACK_LENGTH - 1) % GFX_STACK_LENGTH;
-            gfx_mode_set(i, gfx_mode_stack[i][*p]);
+            gfxModeSet(i, gfxModeStack[i][*p]);
         }
     } else {
-        s32 *p = &gfx_mode_stack_pos[mode];
+        s32 *p = &gfxModeStackPos[mode];
         *p = (*p + GFX_STACK_LENGTH - 1) % GFX_STACK_LENGTH;
-        gfx_mode_set(mode, gfx_mode_stack[mode][*p]);
+        gfxModeSet(mode, gfxModeStack[mode][*p]);
     }
 }
 
-void gfx_mode_replace(enum gfx_mode mode, u64 value) {
-    gfx_mode_push(mode);
-    gfx_mode_configure(mode, value);
-    gfx_mode_apply(mode);
+void gfxModeReplace(enum GfxMode mode, u64 value) {
+    gfxModePush(mode);
+    gfxModeConfigure(mode, value);
+    gfxModeApply(mode);
 }
 
-Gfx *gfx_disp_append(Gfx *disp, size_t size) {
-    Gfx *p = gfx_disp_p;
-    memcpy(gfx_disp_p, disp, size);
-    gfx_disp_p += (size + sizeof(*gfx_disp_p) - 1) / sizeof(*gfx_disp_p);
-    gfx_synced = 0;
+Gfx *gfxDispAppend(Gfx *disp, size_t size) {
+    Gfx *p = gfxDispP;
+    memcpy(gfxDispP, disp, size);
+    gfxDispP += (size + sizeof(*gfxDispP) - 1) / sizeof(*gfxDispP);
+    gfxSynced = FALSE;
     return p;
 }
 
-void *gfx_data_append(void *data, size_t size) {
-    gfx_disp_d -= (size + sizeof(*gfx_disp_d) - 1) / sizeof(*gfx_disp_d);
-    memcpy(gfx_disp_d, data, size);
-    return gfx_disp_d;
+void *gfxDataAppend(void *data, size_t size) {
+    gfxDispD -= (size + sizeof(*gfxDispD) - 1) / sizeof(*gfxDispD);
+    memcpy(gfxDispD, data, size);
+    return gfxDispD;
 }
 
-void gfx_flush(void) {
-    flush_chars();
-    gSPEndDisplayList(gfx_disp_p++);
-    gSPDisplayList(pm_MasterGfxPos++, gfx_disp);
-    Gfx *disp_w = gfx_disp_w;
-    gfx_disp_w = gfx_disp;
-    gfx_disp = disp_w;
-    gfx_disp_p = gfx_disp;
-    gfx_disp_d = gfx_disp + (GFX_DISP_SIZE + sizeof(*gfx_disp) - 1) / sizeof(*gfx_disp);
-    gfx_synced = 0;
+void gfxFlush(void) {
+    flushChars();
+    gSPEndDisplayList(gfxDispP++);
+    gSPDisplayList(pm_masterGfxPos++, gfxDisp);
+    Gfx *disp_w = gfxDispW;
+    gfxDispW = gfxDisp;
+    gfxDisp = disp_w;
+    gfxDispP = gfxDisp;
+    gfxDispD = gfxDisp + (GFX_DISP_SIZE + sizeof(*gfxDisp) - 1) / sizeof(*gfxDisp);
+    gfxSynced = FALSE;
 }
 
-void gfx_texldr_init(struct gfx_texldr *texldr) {
-    texldr->file_vaddr = GFX_FILE_DRAM;
-    texldr->file_data = NULL;
+void gfxTexldrInit(struct GfxTexldr *texldr) {
+    texldr->fileVaddr = GFX_FILE_DRAM;
+    texldr->fileData = NULL;
 }
 
-static s32 get_texture_tile_raster_size(const struct gfx_texture *texture) {
-    return texture->tile_width * texture->tile_height * G_SIZ_BITS(texture->im_siz) / 8;
+static s32 getTextureTileRasterSize(const struct GfxTexture *texture) {
+    return texture->tileWidth * texture->tileHeight * G_SIZ_BITS(texture->imSiz) / 8;
 }
 
-static _Bool texture_data_is_on_heap(struct gfx_texture *texture) {
+static bool textureDataIsOnHeap(struct GfxTexture *texture) {
     return (uintptr_t)texture->data >= 0x80400000;
 }
 
-struct gfx_texture *gfx_texldr_load(struct gfx_texldr *texldr, const struct gfx_texdesc *texdesc,
-                                    struct gfx_texture *texture) {
-    struct gfx_texture *new_texture = NULL;
+struct GfxTexture *gfxTexldrLoad(struct GfxTexldr *texldr, const struct GfxTexdesc *texdesc,
+                                 struct GfxTexture *texture) {
+    struct GfxTexture *newTexture = NULL;
     if (!texture) {
-        new_texture = malloc(sizeof(*new_texture));
-        if (!new_texture) {
-            return new_texture;
+        newTexture = malloc(sizeof(*newTexture));
+        if (!newTexture) {
+            return newTexture;
         }
-        texture = new_texture;
+        texture = newTexture;
     }
-    texture->im_fmt = texdesc->im_fmt;
-    texture->im_siz = texdesc->im_siz;
-    texture->tile_width = texdesc->tile_width;
-    texture->tile_height = texdesc->tile_height;
-    texture->tiles_x = texdesc->tiles_x;
-    texture->tiles_y = texdesc->tiles_y;
-    texture->tile_size = (get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count + 7) / 8 * 8;
-    texture->pal_count = texdesc->pal_count;
-    size_t texture_size = texture->tile_size * texture->tiles_x * texture->tiles_y;
-    void *texture_data = NULL;
-    void *file_start = NULL;
-    if (texdesc->file_vaddr == GFX_FILE_DRAM_PM) {
+    texture->imFmt = texdesc->imFmt;
+    texture->imSiz = texdesc->imSiz;
+    texture->tileWidth = texdesc->tileWidth;
+    texture->tileHeight = texdesc->tileHeight;
+    texture->tilesX = texdesc->tilesX;
+    texture->tilesY = texdesc->tilesY;
+    texture->tileSize = (getTextureTileRasterSize(texture) + ICON_PALETTE_SIZE * texdesc->palCount + 7) / 8 * 8;
+    texture->palCount = texdesc->palCount;
+    size_t textureSize = texture->tileSize * texture->tilesX * texture->tilesY;
+    void *textureData = NULL;
+    void *fileStart = NULL;
+    if (texdesc->fileVaddr == GFX_FILE_DRAM_PM) {
         // these textures are always loaded in memory by the base game, so no need to waste memory copying them
-        texture_data = (void *)texdesc->address;
-        texture->tile_size = get_texture_tile_raster_size(texture) + ICON_PALETTE_SIZE * texdesc->pal_count;
-    } else if (texdesc->file_vaddr != GFX_FILE_DRAM) {
-        if (texldr->file_vaddr != texdesc->file_vaddr) {
-            if (texldr->file_data) {
-                free(texldr->file_data);
+        textureData = (void *)texdesc->address;
+        texture->tileSize = getTextureTileRasterSize(texture) + ICON_PALETTE_SIZE * texdesc->palCount;
+    } else if (texdesc->fileVaddr != GFX_FILE_DRAM) {
+        if (texldr->fileVaddr != texdesc->fileVaddr) {
+            if (texldr->fileData) {
+                free(texldr->fileData);
             }
-            texldr->file_data = malloc(texdesc->file_vsize);
-            if (!texldr->file_data) {
-                texldr->file_vaddr = GFX_FILE_DRAM;
-                if (new_texture) {
-                    free(new_texture);
+            texldr->fileData = malloc(texdesc->fileVsize);
+            if (!texldr->fileData) {
+                texldr->fileVaddr = GFX_FILE_DRAM;
+                if (newTexture) {
+                    free(newTexture);
                 }
                 return NULL;
             }
-            texldr->file_vaddr = texdesc->file_vaddr;
-            nuPiReadRom(texldr->file_vaddr, texldr->file_data, texdesc->file_vsize);
+            texldr->fileVaddr = texdesc->fileVaddr;
+            nuPiReadRom(texldr->fileVaddr, texldr->fileData, texdesc->fileVsize);
         }
-        if (texdesc->file_vsize == texture_size) {
-            texture_data = texldr->file_data;
-            texldr->file_vaddr = GFX_FILE_DRAM;
-            texldr->file_data = NULL;
+        if (texdesc->fileVsize == textureSize) {
+            textureData = texldr->fileData;
+            texldr->fileVaddr = GFX_FILE_DRAM;
+            texldr->fileData = NULL;
         } else {
-            file_start = texldr->file_data;
+            fileStart = texldr->fileData;
         }
     }
-    if (!texture_data) {
-        texture_data = malloc(texture_size);
-        if (!texture_data) {
-            if (new_texture) {
-                free(new_texture);
+    if (!textureData) {
+        textureData = malloc(textureSize);
+        if (!textureData) {
+            if (newTexture) {
+                free(newTexture);
             }
             return NULL;
         }
-        memcpy(texture_data, (char *)file_start + texdesc->address, texture_size);
+        memcpy(textureData, (char *)fileStart + texdesc->address, textureSize);
     }
-    texture->data = texture_data;
+    texture->data = textureData;
     return texture;
 }
 
-void gfx_texldr_destroy(struct gfx_texldr *texldr) {
-    if (texldr->file_data) {
-        free(texldr->file_data);
+void gfxTexldrDestroy(struct GfxTexldr *texldr) {
+    if (texldr->fileData) {
+        free(texldr->fileData);
     }
 }
 
-struct gfx_texture *gfx_texture_create(g_ifmt_t im_fmt, g_isiz_t im_siz, s32 tile_width, s32 tile_height, s32 tiles_x,
-                                       s32 tiles_y) {
-    struct gfx_texture *texture = malloc(sizeof(*texture));
+struct GfxTexture *gfxTextureCreate(g_ifmt_t imFmt, g_isiz_t imSiz, s32 tileWidth, s32 tileHeight, s32 tilesX,
+                                    s32 tilesY) {
+    struct GfxTexture *texture = malloc(sizeof(*texture));
     if (!texture) {
         return texture;
     }
-    texture->tile_size = (tile_width * tile_height * G_SIZ_BITS(im_siz) + 63) / 64 * 8;
-    texture->data = memalign(64, tiles_x * tiles_y * texture->tile_size);
+    texture->tileSize = (tileWidth * tileHeight * G_SIZ_BITS(imSiz) + 63) / 64 * 8;
+    texture->data = memalign(64, tilesX * tilesY * texture->tileSize);
     if (!texture->data) {
         free(texture);
         return NULL;
     }
-    texture->im_fmt = im_fmt;
-    texture->im_siz = im_siz;
-    texture->tile_width = tile_width;
-    texture->tile_height = tile_height;
-    texture->tiles_x = tiles_x;
-    texture->tiles_y = tiles_y;
+    texture->imFmt = imFmt;
+    texture->imSiz = imSiz;
+    texture->tileWidth = tileWidth;
+    texture->tileHeight = tileHeight;
+    texture->tilesX = tilesX;
+    texture->tilesY = tilesY;
     return texture;
 }
 
-struct gfx_texture *gfx_texture_load(const struct gfx_texdesc *texdesc, struct gfx_texture *texture) {
-    struct gfx_texldr texldr;
-    gfx_texldr_init(&texldr);
-    texture = gfx_texldr_load(&texldr, texdesc, texture);
-    gfx_texldr_destroy(&texldr);
+struct GfxTexture *gfxTextureLoad(const struct GfxTexdesc *texdesc, struct GfxTexture *texture) {
+    struct GfxTexldr texldr;
+    gfxTexldrInit(&texldr);
+    texture = gfxTexldrLoad(&texldr, texdesc, texture);
+    gfxTexldrDestroy(&texldr);
     return texture;
 }
 
-void gfx_texture_destroy(struct gfx_texture *texture) {
-    if (texture->data && texture_data_is_on_heap(texture)) {
+void gfxTextureDestroy(struct GfxTexture *texture) {
+    if (texture->data && textureDataIsOnHeap(texture)) {
         free(texture->data);
     }
 }
 
-void gfx_texture_free(struct gfx_texture *texture) {
-    gfx_texture_destroy(texture);
+void gfxTextureFree(struct GfxTexture *texture) {
+    gfxTextureDestroy(texture);
     free(texture);
 }
 
-void *gfx_texture_data(const struct gfx_texture *texture, s16 tile) {
-    return (char *)texture->data + texture->tile_size * tile;
+void *gfxTextureData(const struct GfxTexture *texture, s16 image) {
+    return (char *)texture->data + texture->tileSize * image;
 }
 
-struct gfx_texture *gfx_texture_copy(const struct gfx_texture *src, struct gfx_texture *dest) {
-    struct gfx_texture *new_texture = NULL;
+struct GfxTexture *gfxTextureCopy(const struct GfxTexture *src, struct GfxTexture *dest) {
+    struct GfxTexture *newTexture = NULL;
     if (!dest) {
-        new_texture = malloc(sizeof(*new_texture));
-        if (!new_texture) {
-            return new_texture;
+        newTexture = malloc(sizeof(*newTexture));
+        if (!newTexture) {
+            return newTexture;
         }
-        dest = new_texture;
+        dest = newTexture;
     }
-    size_t texture_size = src->tile_size * src->tiles_x * src->tiles_y;
-    void *texture_data = memalign(64, texture_size);
-    if (!texture_data) {
-        if (new_texture) {
-            free(new_texture);
+    size_t textureSize = src->tileSize * src->tilesX * src->tilesY;
+    void *textureData = memalign(64, textureSize);
+    if (!textureData) {
+        if (newTexture) {
+            free(newTexture);
         }
         return NULL;
     }
     *dest = *src;
-    dest->data = texture_data;
-    memcpy(dest->data, src->data, texture_size);
+    dest->data = textureData;
+    memcpy(dest->data, src->data, textureSize);
     return dest;
 }
 
-void gfx_texture_copy_tile(struct gfx_texture *dest, s32 dest_tile, const struct gfx_texture *src, s32 src_tile,
-                           _Bool blend) {
-    if (src->im_fmt != G_IM_FMT_RGBA || src->im_siz != G_IM_SIZ_32b || dest->im_fmt != src->im_fmt ||
-        dest->im_siz != src->im_siz || dest->tile_width != src->tile_width || dest->tile_height != src->tile_height) {
+void gfxTextureCopyTile(struct GfxTexture *dest, s32 destTile, const struct GfxTexture *src, s32 srcTile, bool blend) {
+    if (src->imFmt != G_IM_FMT_RGBA || src->imSiz != G_IM_SIZ_32b || dest->imFmt != src->imFmt ||
+        dest->imSiz != src->imSiz || dest->tileWidth != src->tileWidth || dest->tileHeight != src->tileHeight) {
         return;
     }
-    struct rgba32 {
+    struct RGBA32 {
         u8 r;
         u8 g;
         u8 b;
         u8 a;
     };
-    size_t tile_pixels = src->tile_width * src->tile_height;
-    struct rgba32 *p_dest = gfx_texture_data(dest, dest_tile);
-    struct rgba32 *p_src = gfx_texture_data(src, src_tile);
-    for (size_t i = 0; i < tile_pixels; ++i) {
+    size_t tilePixels = src->tileWidth * src->tileHeight;
+    struct RGBA32 *pDest = gfxTextureData(dest, destTile);
+    struct RGBA32 *pSrc = gfxTextureData(src, srcTile);
+    for (size_t i = 0; i < tilePixels; ++i) {
         if (blend) {
-            p_dest->r = p_dest->r + (p_src->r - p_dest->r) * p_src->a / 0xFF;
-            p_dest->g = p_dest->g + (p_src->g - p_dest->g) * p_src->a / 0xFF;
-            p_dest->b = p_dest->b + (p_src->b - p_dest->b) * p_src->a / 0xFF;
-            p_dest->a = p_src->a + (0xFF - p_src->a) * p_dest->a / 0xFF;
+            pDest->r = pDest->r + (pSrc->r - pDest->r) * pSrc->a / 0xFF;
+            pDest->g = pDest->g + (pSrc->g - pDest->g) * pSrc->a / 0xFF;
+            pDest->b = pDest->b + (pSrc->b - pDest->b) * pSrc->a / 0xFF;
+            pDest->a = pSrc->a + (0xFF - pSrc->a) * pDest->a / 0xFF;
         } else {
-            *p_dest = *p_src;
+            *pDest = *pSrc;
         }
-        ++p_dest;
-        ++p_src;
+        ++pDest;
+        ++pSrc;
     }
 }
 
-void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix) {
-    if (texture->im_fmt != G_IM_FMT_RGBA || texture->im_siz != G_IM_SIZ_32b) {
+void gfxTextureColortransform(struct GfxTexture *texture, const MtxF *matrix) {
+    if (texture->imFmt != G_IM_FMT_RGBA || texture->imSiz != G_IM_SIZ_32b) {
         return;
     }
-    struct rgba32 {
+    struct RGBA32 {
         u8 r;
         u8 g;
         u8 b;
         u8 a;
     };
-    size_t texture_pixels = texture->tile_width * texture->tile_height * texture->tiles_x * texture->tiles_y;
-    struct rgba32 *pixel_data = texture->data;
+    size_t texturePixels = texture->tileWidth * texture->tileHeight * texture->tilesX * texture->tilesY;
+    struct RGBA32 *pixelData = texture->data;
     MtxF m = *matrix;
-    for (size_t i = 0; i < texture_pixels; ++i) {
-        struct rgba32 p = pixel_data[i];
+    for (size_t i = 0; i < texturePixels; ++i) {
+        struct RGBA32 p = pixelData[i];
         f32 r = p.r * m.xx + p.g * m.xy + p.b * m.xz + p.a * m.xw;
         f32 g = p.r * m.yx + p.g * m.yy + p.b * m.yz + p.a * m.yw;
         f32 b = p.r * m.zx + p.g * m.zy + p.b * m.zz + p.a * m.zw;
         f32 a = p.r * m.wx + p.g * m.wy + p.b * m.wz + p.a * m.ww;
-        struct rgba32 n = {
+        struct RGBA32 n = {
             r < 0x00   ? 0x00
             : r > 0xFF ? 0xFF
                        : r,
@@ -389,121 +389,121 @@ void gfx_texture_colortransform(struct gfx_texture *texture, const MtxF *matrix)
             : a > 0xFF ? 0xFF
                        : a,
         };
-        pixel_data[i] = n;
+        pixelData[i] = n;
     }
 }
 
-void gfx_texture_mirror_horizontal(struct gfx_texture *texture, s16 tile) {
-    s32 adj_width = texture->tile_width;
-    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
-    if (bytes_per_pixel == 0) {
-        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
-        adj_width /= 2;
+void gfxTextureMirrorHorizontal(struct GfxTexture *texture, s16 tile) {
+    s32 adjWidth = texture->tileWidth;
+    s32 bytesPerPixel = G_SIZ_BITS(texture->imSiz) / 8;
+    if (bytesPerPixel == 0) {
+        bytesPerPixel = 1; // 0.5, but we'll handle it manually
+        adjWidth /= 2;
     }
 
-    if (!texture_data_is_on_heap(texture)) {
-        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
-        memcpy(new_data, texture->data, sizeof(*new_data));
-        texture->data = new_data;
+    if (!textureDataIsOnHeap(texture)) {
+        void *newData = malloc(texture->tilesX * texture->tilesY * texture->tileSize);
+        memcpy(newData, texture->data, sizeof(*newData));
+        texture->data = newData;
     }
 
-    unsigned char *new_raster = malloc(get_texture_tile_raster_size(texture));
-    unsigned char *new_pos = new_raster;
-    unsigned char *old_raster = texture->data + tile * texture->tile_size;
-    unsigned char *old_pos;
-    for (s32 y = 0; y < texture->tile_height; y++) {
-        s32 y_offset = bytes_per_pixel * (texture->tile_height * y + texture->tile_width - 1);
-        if (texture->im_siz == G_IM_SIZ_4b) {
-            y_offset /= 2;
+    unsigned char *newRaster = malloc(getTextureTileRasterSize(texture));
+    unsigned char *newPos = newRaster;
+    unsigned char *oldRaster = texture->data + tile * texture->tileSize;
+    unsigned char *oldPos;
+    for (s32 y = 0; y < texture->tileHeight; y++) {
+        s32 yOffset = bytesPerPixel * (texture->tileHeight * y + texture->tileWidth - 1);
+        if (texture->imSiz == G_IM_SIZ_4b) {
+            yOffset /= 2;
         }
-        old_pos = old_raster + y_offset;
-        for (s32 x = 0; x < adj_width; x++) {
-            memcpy(new_pos, old_pos, bytes_per_pixel);
-            if (texture->im_siz == G_IM_SIZ_4b) {
-                *new_pos = (*new_pos & 0xF0) >> 4 | (*new_pos & 0x0F) << 4;
+        oldPos = oldRaster + yOffset;
+        for (s32 x = 0; x < adjWidth; x++) {
+            memcpy(newPos, oldPos, bytesPerPixel);
+            if (texture->imSiz == G_IM_SIZ_4b) {
+                *newPos = (*newPos & 0xF0) >> 4 | (*newPos & 0x0F) << 4;
             }
-            new_pos += bytes_per_pixel;
-            old_pos -= bytes_per_pixel;
+            newPos += bytesPerPixel;
+            oldPos -= bytesPerPixel;
         }
     }
-    memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
-    free(new_raster);
+    memcpy(oldRaster, newRaster, getTextureTileRasterSize(texture));
+    free(newRaster);
 }
 
-void gfx_texture_translate(struct gfx_texture *texture, s16 tile, s32 x_offset, s32 y_offset) {
-    s32 adj_width = texture->tile_width;
-    s32 adj_height = texture->tile_height;
-    s32 bytes_per_pixel = G_SIZ_BITS(texture->im_siz) / 8;
-    s32 adj_x_offset = x_offset;
-    if (bytes_per_pixel == 0) {
-        bytes_per_pixel = 1; // 0.5, but we'll handle it manually
-        adj_width /= 2;
-        adj_height /= 2;
-        adj_x_offset /= 2;
+void gfxTextureTranslate(struct GfxTexture *texture, s16 tile, s32 xOffset, s32 yOffset) {
+    s32 adjWidth = texture->tileWidth;
+    s32 adjHeight = texture->tileHeight;
+    s32 bytesPerPixel = G_SIZ_BITS(texture->imSiz) / 8;
+    s32 adjXOffset = xOffset;
+    if (bytesPerPixel == 0) {
+        bytesPerPixel = 1; // 0.5, but we'll handle it manually
+        adjWidth /= 2;
+        adjHeight /= 2;
+        adjXOffset /= 2;
     }
 
-    if (!texture_data_is_on_heap(texture)) {
-        void *new_data = malloc(texture->tiles_x * texture->tiles_y * texture->tile_size);
-        memcpy(new_data, texture->data, sizeof(*new_data));
-        texture->data = new_data;
+    if (!textureDataIsOnHeap(texture)) {
+        void *newData = malloc(texture->tilesX * texture->tilesY * texture->tileSize);
+        memcpy(newData, texture->data, sizeof(*newData));
+        texture->data = newData;
     }
 
-    if (x_offset != 0) {
-        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
-        unsigned char *new_pos;
-        unsigned char *old_raster = texture->data + tile * texture->tile_size;
-        unsigned char *old_pos;
-        for (s32 y = 0; y < texture->tile_height; y++) {
-            new_pos = new_raster + bytes_per_pixel * (adj_height * y);
-            old_pos = old_raster + bytes_per_pixel * (adj_height * y - adj_x_offset);
-            for (s32 x = 0; x < adj_width; x++) {
-                if (x >= adj_x_offset && x < adj_width + adj_x_offset) {
-                    if (texture->im_siz == G_IM_SIZ_4b && (x_offset % 2 == 1 || x_offset % 2 == -1)) {
-                        if (x_offset > 0) {
-                            *new_pos = (*old_pos & 0xF0) >> 4;
-                            if (x > adj_x_offset) {
-                                *new_pos |= (*(old_pos - 1) & 0x0F) << 4;
+    if (xOffset != 0) {
+        unsigned char *newRaster = calloc(getTextureTileRasterSize(texture), 1);
+        unsigned char *newPos;
+        unsigned char *oldRaster = texture->data + tile * texture->tileSize;
+        unsigned char *oldPos;
+        for (s32 y = 0; y < texture->tileHeight; y++) {
+            newPos = newRaster + bytesPerPixel * (adjHeight * y);
+            oldPos = oldRaster + bytesPerPixel * (adjHeight * y - adjXOffset);
+            for (s32 x = 0; x < adjWidth; x++) {
+                if (x >= adjXOffset && x < adjWidth + adjXOffset) {
+                    if (texture->imSiz == G_IM_SIZ_4b && (xOffset % 2 == 1 || xOffset % 2 == -1)) {
+                        if (xOffset > 0) {
+                            *newPos = (*oldPos & 0xF0) >> 4;
+                            if (x > adjXOffset) {
+                                *newPos |= (*(oldPos - 1) & 0x0F) << 4;
                             }
                         } else {
-                            *new_pos = (*old_pos & 0x0F) << 4;
-                            if (x < adj_width + adj_x_offset - 1) {
-                                *new_pos |= (*(old_pos + 1) & 0xF0) >> 4;
+                            *newPos = (*oldPos & 0x0F) << 4;
+                            if (x < adjWidth + adjXOffset - 1) {
+                                *newPos |= (*(oldPos + 1) & 0xF0) >> 4;
                             }
                         }
                     } else {
-                        memcpy(new_pos, old_pos, bytes_per_pixel);
+                        memcpy(newPos, oldPos, bytesPerPixel);
                     }
                 }
-                new_pos += bytes_per_pixel;
-                old_pos += bytes_per_pixel;
+                newPos += bytesPerPixel;
+                oldPos += bytesPerPixel;
             }
         }
-        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
-        free(new_raster);
+        memcpy(oldRaster, newRaster, getTextureTileRasterSize(texture));
+        free(newRaster);
     }
-    if (y_offset != 0) {
-        unsigned char *new_raster = calloc(get_texture_tile_raster_size(texture), 1);
-        unsigned char *new_pos;
-        unsigned char *old_raster = texture->data + tile * texture->tile_size;
-        unsigned char *old_pos;
-        for (s32 y = 0; y < texture->tile_height; y++) {
-            if (y >= y_offset && y < texture->tile_height + y_offset) {
-                new_pos = new_raster + bytes_per_pixel * (adj_height * y);
-                old_pos = old_raster + bytes_per_pixel * (adj_height * y - y_offset * adj_width);
-                for (s32 x = 0; x < adj_width; x++) {
-                    memcpy(new_pos, old_pos, bytes_per_pixel);
-                    new_pos += bytes_per_pixel;
-                    old_pos += bytes_per_pixel;
+    if (yOffset != 0) {
+        unsigned char *newRaster = calloc(getTextureTileRasterSize(texture), 1);
+        unsigned char *newPos;
+        unsigned char *oldRaster = texture->data + tile * texture->tileSize;
+        unsigned char *oldPos;
+        for (s32 y = 0; y < texture->tileHeight; y++) {
+            if (y >= yOffset && y < texture->tileHeight + yOffset) {
+                newPos = newRaster + bytesPerPixel * (adjHeight * y);
+                oldPos = oldRaster + bytesPerPixel * (adjHeight * y - yOffset * adjWidth);
+                for (s32 x = 0; x < adjWidth; x++) {
+                    memcpy(newPos, oldPos, bytesPerPixel);
+                    newPos += bytesPerPixel;
+                    oldPos += bytesPerPixel;
                 }
             }
         }
-        memcpy(old_raster, new_raster, get_texture_tile_raster_size(texture));
-        free(new_raster);
+        memcpy(oldRaster, newRaster, getTextureTileRasterSize(texture));
+        free(newRaster);
     }
 }
 
-void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_index) {
-    if (texture->im_fmt != G_IM_FMT_CI || texture->im_siz != G_IM_SIZ_4b) {
+void gfxAddGrayscalePalette(struct GfxTexture *texture, s8 basePaletteIndex) {
+    if (texture->imFmt != G_IM_FMT_CI || texture->imSiz != G_IM_SIZ_4b) {
         return;
     }
     typedef struct {
@@ -511,205 +511,205 @@ void gfx_add_grayscale_palette(struct gfx_texture *texture, s8 base_palette_inde
         u16 g : 5;
         u16 b : 5;
         u16 a : 1;
-    } rgba;
+    } RGBA;
 
-    s32 tile_count = texture->tiles_x * texture->tiles_y;
-    char *new_texture_data = malloc((texture->tile_size + ICON_PALETTE_SIZE) * tile_count);
-    size_t new_tile_size = texture->tile_size + ICON_PALETTE_SIZE;
+    s32 tileCount = texture->tilesX * texture->tilesY;
+    char *newTextureData = malloc((texture->tileSize + ICON_PALETTE_SIZE) * tileCount);
+    size_t newTileSize = texture->tileSize + ICON_PALETTE_SIZE;
 
-    u32 raster_size = get_texture_tile_raster_size(texture);
+    u32 rasterSize = getTextureTileRasterSize(texture);
 
-    for (s32 i_tile = 0; i_tile < tile_count; i_tile++) {
-        char *base_tile = texture->data + texture->tile_size * i_tile;
-        char *new_tile = new_texture_data + new_tile_size * i_tile;
-        memcpy(new_tile, base_tile, texture->tile_size);
+    for (s32 iTile = 0; iTile < tileCount; iTile++) {
+        char *baseTile = texture->data + texture->tileSize * iTile;
+        char *newTile = newTextureData + newTileSize * iTile;
+        memcpy(newTile, baseTile, texture->tileSize);
 
-        rgba *base_palette = (rgba *)(base_tile + raster_size + ICON_PALETTE_SIZE * base_palette_index);
-        rgba *new_palette = (rgba *)(new_texture_data + raster_size + ICON_PALETTE_SIZE * texture->pal_count);
-        u8 pixel_count = ICON_PALETTE_SIZE / 2;
-        for (u32 i_pixel = 0; i_pixel < pixel_count; i_pixel++) {
-            rgba *old_pixel = &base_palette[i_pixel];
-            rgba *new_pixel = &((rgba *)new_palette)[i_pixel];
+        RGBA *basePalette = (RGBA *)(baseTile + rasterSize + ICON_PALETTE_SIZE * basePaletteIndex);
+        RGBA *newPalette = (RGBA *)(newTextureData + rasterSize + ICON_PALETTE_SIZE * texture->palCount);
+        u8 pixelCount = ICON_PALETTE_SIZE / 2;
+        for (u32 iPixel = 0; iPixel < pixelCount; iPixel++) {
+            RGBA *oldPixel = &basePalette[iPixel];
+            RGBA *newPixel = &((RGBA *)newPalette)[iPixel];
 
-            f32 lum = 0.2782f * old_pixel->r + 0.6562f * old_pixel->g + 0.0656f * old_pixel->b;
+            f32 lum = 0.2782f * oldPixel->r + 0.6562f * oldPixel->g + 0.0656f * oldPixel->b;
             u16 gray = (lum * 14 / 31) + 12;
-            new_pixel->r = gray;
-            new_pixel->g = gray;
-            new_pixel->b = gray;
-            new_pixel->a = old_pixel->a;
+            newPixel->r = gray;
+            newPixel->g = gray;
+            newPixel->b = gray;
+            newPixel->a = oldPixel->a;
         }
     }
 
-    if (texture_data_is_on_heap(texture)) {
+    if (textureDataIsOnHeap(texture)) {
         free(texture->data);
     }
-    texture->data = new_texture_data;
-    texture->tile_size = new_tile_size;
-    texture->pal_count++;
+    texture->data = newTextureData;
+    texture->tileSize = newTileSize;
+    texture->palCount++;
 }
 
-void gfx_disp_rdp_load_tile(Gfx **disp, const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
-    if (texture->im_fmt == G_IM_FMT_CI) {
+void gfxDispRdpLoadTile(Gfx **disp, const struct GfxTexture *texture, s16 textureTile, s8 paletteIndex) {
+    if (texture->imFmt == G_IM_FMT_CI) {
         gDPSetTextureLUT((*disp)++, G_TT_RGBA16);
         gDPLoadTLUT_pal16((*disp)++, 0,
-                          gfx_texture_data(texture, texture_tile) + get_texture_tile_raster_size(texture) +
-                              ICON_PALETTE_SIZE * palette_index);
+                          gfxTextureData(texture, textureTile) + getTextureTileRasterSize(texture) +
+                              ICON_PALETTE_SIZE * paletteIndex);
     } else {
         gDPSetTextureLUT((*disp)++, G_TT_NONE);
     }
-    if (texture->im_siz == G_IM_SIZ_4b) {
-        gDPLoadTextureTile_4b((*disp)++, gfx_texture_data(texture, texture_tile), texture->im_fmt, texture->tile_width,
-                              texture->tile_height, 0, 0, texture->tile_width - 1, texture->tile_height - 1, 0,
+    if (texture->imSiz == G_IM_SIZ_4b) {
+        gDPLoadTextureTile_4b((*disp)++, gfxTextureData(texture, textureTile), texture->imFmt, texture->tileWidth,
+                              texture->tileHeight, 0, 0, texture->tileWidth - 1, texture->tileHeight - 1, 0,
                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                               G_TX_NOLOD, G_TX_NOLOD);
     } else {
-        gDPLoadTextureTile((*disp)++, gfx_texture_data(texture, texture_tile), texture->im_fmt, texture->im_siz,
-                           texture->tile_width, texture->tile_height, 0, 0, texture->tile_width - 1,
-                           texture->tile_height - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+        gDPLoadTextureTile((*disp)++, gfxTextureData(texture, textureTile), texture->imFmt, texture->imSiz,
+                           texture->tileWidth, texture->tileHeight, 0, 0, texture->tileWidth - 1,
+                           texture->tileHeight - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     }
 }
 
-void gfx_rdp_load_tile(const struct gfx_texture *texture, s16 texture_tile, s8 palette_index) {
-    gfx_disp_rdp_load_tile(&gfx_disp_p, texture, texture_tile, palette_index);
-    gfx_synced = 1;
+void gfxRdpLoadTile(const struct GfxTexture *texture, s16 textureTile, s8 paletteIndex) {
+    gfxDispRdpLoadTile(&gfxDispP, texture, textureTile, paletteIndex);
+    gfxSynced = TRUE;
 }
 
-void gfx_sprite_draw(const struct gfx_sprite *sprite) {
-    struct gfx_texture *texture = sprite->texture;
-    gfx_rdp_load_tile(texture, sprite->texture_tile, sprite->palette_index);
-    if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+void gfxSpriteDraw(const struct GfxSprite *sprite) {
+    struct GfxTexture *texture = sprite->texture;
+    gfxRdpLoadTile(texture, sprite->textureTile, sprite->paletteIndex);
+    if (gfxModes[GFX_MODE_DROPSHADOW]) {
+        u8 a = gfxModes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
-        gfx_mode_replace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
-        gSPScisTextureRectangle(gfx_disp_p++, qs102(sprite->x + 1) & ~3, qs102(sprite->y + 1) & ~3,
-                                qs102(sprite->x + texture->tile_width * sprite->xscale + 1) & ~3,
-                                qs102(sprite->y + texture->tile_height * sprite->yscale + 1) & ~3, G_TX_RENDERTILE,
-                                qu105(0), qu105(0), qu510(1.f / sprite->xscale), qu510(1.f / sprite->yscale));
-        gfx_mode_pop(GFX_MODE_COLOR);
+        gfxModeReplace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
+        gSPScisTextureRectangle(gfxDispP++, qs102(sprite->x + 1) & ~3, qs102(sprite->y + 1) & ~3,
+                                qs102(sprite->x + texture->tileWidth * sprite->xScale + 1) & ~3,
+                                qs102(sprite->y + texture->tileHeight * sprite->yScale + 1) & ~3, G_TX_RENDERTILE,
+                                qu105(0), qu105(0), qu510(1.f / sprite->xScale), qu510(1.f / sprite->yScale));
+        gfxModePop(GFX_MODE_COLOR);
     }
-    gfx_sync();
-    gSPScisTextureRectangle(gfx_disp_p++, qs102(sprite->x) & ~3, qs102(sprite->y) & ~3,
-                            qs102(sprite->x + texture->tile_width * sprite->xscale) & ~3,
-                            qs102(sprite->y + texture->tile_height * sprite->yscale) & ~3, G_TX_RENDERTILE, qu105(0),
-                            qu105(0), qu510(1.f / sprite->xscale), qu510(1.f / sprite->yscale));
-    gfx_synced = 0;
+    gfxSync();
+    gSPScisTextureRectangle(gfxDispP++, qs102(sprite->x) & ~3, qs102(sprite->y) & ~3,
+                            qs102(sprite->x + texture->tileWidth * sprite->xScale) & ~3,
+                            qs102(sprite->y + texture->tileHeight * sprite->yScale) & ~3, G_TX_RENDERTILE, qu105(0),
+                            qu105(0), qu510(1.f / sprite->xScale), qu510(1.f / sprite->yScale));
+    gfxSynced = FALSE;
 }
 
-s32 gfx_font_xheight(const struct gfx_font *font) {
+s32 gfxFontXheight(const struct GfxFont *font) {
     return font->baseline - font->median;
 }
 
-void gfx_printf(const struct gfx_font *font, s32 x, s32 y, const char *format, ...) {
-    if (gfx_modes[GFX_MODE_TEXT] == GFX_TEXT_NORMAL) {
+void gfxPrintf(const struct GfxFont *font, s32 x, s32 y, const char *format, ...) {
+    if (gfxModes[GFX_MODE_TEXT] == GFX_TEXT_NORMAL) {
         va_list args;
         va_start(args, format);
-        gfx_printf_n_va(font, x, y, format, args);
+        gfxPrintfNVa(font, x, y, format, args);
         va_end(args);
-    } else if (gfx_modes[GFX_MODE_TEXT] == GFX_TEXT_FAST) {
+    } else if (gfxModes[GFX_MODE_TEXT] == GFX_TEXT_FAST) {
         va_list args;
         va_start(args, format);
-        gfx_printf_f_va(font, x, y, format, args);
+        gfxPrintfFVa(font, x, y, format, args);
         va_end(args);
     }
 }
 
-void gfx_printf_n(const struct gfx_font *font, s32 x, s32 y, const char *format, ...) {
+void gfxPrintfN(const struct GfxFont *font, s32 x, s32 y, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    gfx_printf_n_va(font, x, y, format, args);
+    gfxPrintfNVa(font, x, y, format, args);
     va_end(args);
 }
 
-void gfx_printf_f(const struct gfx_font *font, s32 x, s32 y, const char *format, ...) {
+void gfxPrintfF(const struct GfxFont *font, s32 x, s32 y, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    gfx_printf_f_va(font, x, y, format, args);
+    gfxPrintfFVa(font, x, y, format, args);
     va_end(args);
 }
 
-static void draw_chars(const struct gfx_font *font, s32 x, s32 y, const char *buf, size_t l) {
+static void drawChars(const struct GfxFont *font, s32 x, s32 y, const char *buf, size_t l) {
     x -= font->x;
     y -= font->baseline;
-    struct gfx_texture *texture = font->texture;
-    s32 chars_per_tile = font->chars_xtile * font->chars_ytile;
-    s32 n_tiles = texture->tiles_x * texture->tiles_y;
-    s32 n_chars = chars_per_tile * n_tiles;
-    for (s32 i = 0; i < n_tiles; ++i) {
-        s32 tile_begin = chars_per_tile * i;
-        s32 tile_end = tile_begin + chars_per_tile;
-        _Bool tile_loaded = 0;
+    struct GfxTexture *texture = font->texture;
+    s32 charsPerTile = font->charsXtile * font->charsYtile;
+    s32 nTiles = texture->tilesX * texture->tilesY;
+    s32 nChars = charsPerTile * nTiles;
+    for (s32 i = 0; i < nTiles; ++i) {
+        s32 tileBegin = charsPerTile * i;
+        s32 tileEnd = tileBegin + charsPerTile;
+        bool tileLoaded = FALSE;
         s32 cx = 0;
         s32 cy = 0;
-        for (s32 j = 0; j < l; ++j, cx += font->char_width + font->letter_spacing) {
+        for (s32 j = 0; j < l; ++j, cx += font->charWidth + font->letterSpacing) {
             u8 c = buf[j];
-            if (c < font->code_start || c >= font->code_start + n_chars) {
+            if (c < font->codeStart || c >= font->codeStart + nChars) {
                 continue;
             }
-            c -= font->code_start;
-            if (c < tile_begin || c >= tile_end) {
+            c -= font->codeStart;
+            if (c < tileBegin || c >= tileEnd) {
                 continue;
             }
-            c -= tile_begin;
-            if (!tile_loaded) {
-                tile_loaded = 1;
-                gfx_rdp_load_tile(texture, i, 0);
+            c -= tileBegin;
+            if (!tileLoaded) {
+                tileLoaded = TRUE;
+                gfxRdpLoadTile(texture, i, 0);
             }
-            gSPScisTextureRectangle(gfx_disp_p++, qs102(x + cx), qs102(y + cy), qs102(x + cx + font->char_width),
-                                    qs102(y + cy + font->char_height), G_TX_RENDERTILE,
-                                    qu105(c % font->chars_xtile * font->char_width),
-                                    qu105(c / font->chars_xtile * font->char_height), qu510(1), qu510(1));
+            gSPScisTextureRectangle(gfxDispP++, qs102(x + cx), qs102(y + cy), qs102(x + cx + font->charWidth),
+                                    qs102(y + cy + font->charHeight), G_TX_RENDERTILE,
+                                    qu105(c % font->charsXtile * font->charWidth),
+                                    qu105(c / font->charsXtile * font->charHeight), qu510(1), qu510(1));
         }
     }
-    gfx_synced = 0;
+    gfxSynced = FALSE;
 }
 
-static void flush_chars(void) {
-    const struct gfx_font *font = gfx_char_font;
+static void flushChars(void) {
+    const struct GfxFont *font = gfxCharFont;
     u32 color = 0;
-    _Bool first = 1;
+    bool first = TRUE;
     for (s32 i = 0; i < CHAR_TILE_MAX; ++i) {
-        struct vector *tile_vect = &gfx_chars[i];
-        for (s32 j = 0; j < tile_vect->size; ++j) {
-            struct gfx_char *gc = vector_at(tile_vect, j);
+        struct vector *tileVect = &gfxChars[i];
+        for (s32 j = 0; j < tileVect->size; ++j) {
+            struct GfxChar *gc = vector_at(tileVect, j);
             if (j == 0) {
-                gfx_rdp_load_tile(font->texture, i, 0);
+                gfxRdpLoadTile(font->texture, i, 0);
             }
             if (first || color != gc->color) {
                 color = gc->color;
-                gfx_sync();
-                gDPSetPrimColor(gfx_disp_p++, 0, 0, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
+                gfxSync();
+                gDPSetPrimColor(gfxDispP++, 0, 0, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF,
                                 (color >> 0) & 0xFF);
             }
-            first = 0;
-            gSPScisTextureRectangle(gfx_disp_p++, qs102(gc->x), qs102(gc->y), qs102(gc->x + font->char_width),
-                                    qs102(gc->y + font->char_height), G_TX_RENDERTILE,
-                                    qu105(gc->tile_char % font->chars_xtile * font->char_width),
-                                    qu105(gc->tile_char / font->chars_xtile * font->char_height), qu510(1), qu510(1));
-            gfx_synced = 0;
+            first = FALSE;
+            gSPScisTextureRectangle(gfxDispP++, qs102(gc->x), qs102(gc->y), qs102(gc->x + font->charWidth),
+                                    qs102(gc->y + font->charHeight), G_TX_RENDERTILE,
+                                    qu105(gc->tileChar % font->charsXtile * font->charWidth),
+                                    qu105(gc->tileChar / font->charsXtile * font->charHeight), qu510(1), qu510(1));
+            gfxSynced = FALSE;
         }
-        vector_clear(tile_vect);
+        vector_clear(tileVect);
     }
 }
 
-static void gfx_printf_n_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args) {
+static void gfxPrintfNVa(const struct GfxFont *font, s32 x, s32 y, const char *format, va_list args) {
     const size_t bufsize = 1024;
     char buf[bufsize];
     s32 l = vsnprintf(buf, bufsize, format, args);
     if (l > bufsize - 1) {
         l = bufsize - 1;
     }
-    if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+    if (gfxModes[GFX_MODE_DROPSHADOW]) {
+        u8 a = gfxModes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
-        gfx_mode_replace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
-        draw_chars(font, x + 1, y + 1, buf, l);
-        gfx_mode_pop(GFX_MODE_COLOR);
+        gfxModeReplace(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0x00, 0x00, a));
+        drawChars(font, x + 1, y + 1, buf, l);
+        gfxModePop(GFX_MODE_COLOR);
     }
-    draw_chars(font, x, y, buf, l);
+    drawChars(font, x, y, buf, l);
 }
 
-static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const char *format, va_list args) {
+static void gfxPrintfFVa(const struct GfxFont *font, s32 x, s32 y, const char *format, va_list args) {
     const size_t bufsize = 1024;
     char buf[bufsize];
     s32 l = vsnprintf(buf, bufsize, format, args);
@@ -718,51 +718,51 @@ static void gfx_printf_f_va(const struct gfx_font *font, s32 x, s32 y, const cha
     }
     x -= font->x;
     y -= font->baseline;
-    struct gfx_texture *texture = font->texture;
-    s32 chars_per_tile = font->chars_xtile * font->chars_ytile;
-    s32 n_tiles = texture->tiles_x * texture->tiles_y;
-    s32 n_chars = chars_per_tile * n_tiles;
-    if (gfx_modes[GFX_MODE_DROPSHADOW]) {
-        u8 a = gfx_modes[GFX_MODE_COLOR] & 0xFF;
+    struct GfxTexture *texture = font->texture;
+    s32 charsPerTile = font->charsXtile * font->charsYtile;
+    s32 nTiles = texture->tilesX * texture->tilesY;
+    s32 nChars = charsPerTile * nTiles;
+    if (gfxModes[GFX_MODE_DROPSHADOW]) {
+        u8 a = gfxModes[GFX_MODE_COLOR] & 0xFF;
         a = a * a / 0xFF;
         u32 color = GPACK_RGBA8888(0x00, 0x00, 0x00, a);
         s32 cx = x + 1;
         s32 cy = y + 1;
-        for (s32 i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
+        for (s32 i = 0; i < l; ++i, cx += font->charWidth + font->letterSpacing) {
             u8 c = buf[i];
-            if (c < font->code_start || c >= font->code_start + n_chars) {
+            if (c < font->codeStart || c >= font->codeStart + nChars) {
                 continue;
             }
-            c -= font->code_start;
-            s32 tile_idx = c / chars_per_tile;
-            s32 tile_char = c % chars_per_tile;
-            struct gfx_char gc = {
-                tile_char,
+            c -= font->codeStart;
+            s32 tileIdx = c / charsPerTile;
+            s32 tileChar = c % charsPerTile;
+            struct GfxChar gc = {
+                tileChar,
                 color,
                 cx,
                 cy,
             };
-            vector_push_back(&gfx_chars[tile_idx], 1, &gc);
+            vector_push_back(&gfxChars[tileIdx], 1, &gc);
         }
     }
     s32 cx = x;
     s32 cy = y;
-    for (s32 i = 0; i < l; ++i, cx += font->char_width + font->letter_spacing) {
+    for (s32 i = 0; i < l; ++i, cx += font->charWidth + font->letterSpacing) {
         u8 c = buf[i];
-        if (c < font->code_start || c >= font->code_start + n_chars) {
+        if (c < font->codeStart || c >= font->codeStart + nChars) {
             continue;
         }
-        c -= font->code_start;
-        s32 tile_idx = c / chars_per_tile;
-        s32 tile_char = c % chars_per_tile;
-        struct gfx_char gc = {
-            tile_char,
-            gfx_modes[GFX_MODE_COLOR],
+        c -= font->codeStart;
+        s32 tileIdx = c / charsPerTile;
+        s32 tileChar = c % charsPerTile;
+        struct GfxChar gc = {
+            tileChar,
+            gfxModes[GFX_MODE_COLOR],
             cx,
             cy,
         };
-        vector_push_back(&gfx_chars[tile_idx], 1, &gc);
+        vector_push_back(&gfxChars[tileIdx], 1, &gc);
     }
 
-    gfx_char_font = font;
+    gfxCharFont = font;
 }

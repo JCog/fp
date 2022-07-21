@@ -1,7 +1,6 @@
 #ifndef SD_HOST_H
 #define SD_HOST_H
-#include <stddef.h>
-#include <stdint.h>
+#include "common.h"
 
 #define SD_PROTO_SDBUS  0
 #define SD_PROTO_SPIBUS 1
@@ -21,39 +20,39 @@
 #define SD_ERR_RANGE    10
 #define SD_ERR_GEN      11
 
-struct sd_host {
+struct SdHost {
     s32 proto;
 
     void (*lock)(void);
     void (*unlock)(void);
-    void (*set_spd)(s32 spd);
+    void (*setSpd)(s32 spd);
     union {
         struct {
-            void (*spi_ss)(s32 ss);
-            s32 (*spi_io)(s32 dat);
-            void (*spi_rx_buf)(void *buf, size_t size);
-            void (*spi_tx_buf)(const void *buf, size_t size);
-            void (*spi_tx_clk)(s32 dat, size_t n_clk);
+            void (*spiSs)(s32 ss);
+            s32 (*spiIo)(s32 dat);
+            void (*spiRxBuf)(void *buf, size_t size);
+            void (*spiTxBuf)(const void *buf, size_t size);
+            void (*spiTxClk)(s32 dat, size_t nClk);
         };
         struct {
-            s32 (*cmd_rx)(void);
-            s32 (*dat_rx)(void);
-            void (*dat_tx)(s32 dat);
-            void (*cmd_rx_buf)(void *buf, size_t size);
-            void (*cmd_tx_buf)(const void *buf, size_t size);
-            void (*dat_rx_buf)(void *buf, size_t size);
-            void (*dat_tx_buf)(const void *buf, size_t size);
-            void (*dat_tx_clk)(s32 dat, size_t n_clk);
+            s32 (*cmdRx)(void);
+            s32 (*datRx)(void);
+            void (*datTx)(s32 dat);
+            void (*cmdRxBuf)(void *buf, size_t size);
+            void (*cmdTxBuf)(const void *buf, size_t size);
+            void (*datRxBuf)(void *buf, size_t size);
+            void (*datTxBuf)(const void *buf, size_t size);
+            void (*datTxClk)(s32 dat, size_t nClk);
         };
     };
-    s32 (*rx_mblk)(void *buf, size_t blk_size, size_t n_blk);
-    s32 (*tx_mblk)(const void *buf, size_t blk_size, size_t n_blk);
+    s32 (*rxMblk)(void *buf, size_t blkSize, size_t nBlk);
+    s32 (*txMblk)(const void *buf, size_t blkSize, size_t nBlk);
 
-    s32 card_type;
+    s32 cardType;
 };
 
-s32 sd_init(struct sd_host *host);
-s32 sd_read(struct sd_host *host, size_t lba, void *dst, size_t n_blk);
-s32 sd_write(struct sd_host *host, size_t lba, const void *src, size_t n_blk);
+s32 sdInit(struct SdHost *host);
+s32 sdRead(struct SdHost *host, size_t lba, void *dst, size_t nBlk);
+s32 sdWrite(struct SdHost *host, size_t lba, const void *src, size_t nBlk);
 
 #endif

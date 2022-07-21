@@ -1,24 +1,24 @@
 #ifndef UTIL_H
 #define UTIL_H
-#include <stdint.h>
+#include "common.h"
 #include <mips.h>
 #include <n64.h>
 #include <startup.h>
 
 /* set irq bit and return previous value */
-static inline s32 set_irqf(s32 irqf) {
+static inline s32 setIrqf(s32 irqf) {
     u32 sr;
 
     __asm__("mfc0    %[sr], $12;" : [sr] "=r"(sr));
-    s32 old_irqf = sr & MIPS_STATUS_IE;
+    s32 oldIrqf = sr & MIPS_STATUS_IE;
 
     sr = (sr & ~MIPS_STATUS_IE) | (irqf & MIPS_STATUS_IE);
     __asm__("mtc0    %[sr], $12;" ::[sr] "r"(sr));
 
-    return old_irqf;
+    return oldIrqf;
 }
 
-static inline s32 get_irqf(void) {
+static inline s32 getIrqf(void) {
     u32 sr;
 
     __asm__("mfc0    %[sr], $12;" : [sr] "=r"(sr));
@@ -26,7 +26,7 @@ static inline s32 get_irqf(void) {
     return sr & MIPS_STATUS_IE;
 }
 
-static inline void dcache_inv(const void *ptr, size_t len) {
+static inline void dcacheInv(const void *ptr, size_t len) {
     uintptr_t p = (uintptr_t)ptr & ~0xF;
     uintptr_t e = (uintptr_t)ptr + len;
     while (p < e) {
@@ -35,7 +35,7 @@ static inline void dcache_inv(const void *ptr, size_t len) {
     }
 }
 
-static inline void dcache_wbinv(const void *ptr, size_t len) {
+static inline void dcacheWbinv(const void *ptr, size_t len) {
     uintptr_t p = (uintptr_t)ptr & ~0xF;
     uintptr_t e = (uintptr_t)ptr + len;
     while (p < e) {
@@ -44,7 +44,7 @@ static inline void dcache_wbinv(const void *ptr, size_t len) {
     }
 }
 
-static inline void dcache_wb(const void *ptr, size_t len) {
+static inline void dcacheWb(const void *ptr, size_t len) {
     uintptr_t p = (uintptr_t)ptr & ~0xF;
     uintptr_t e = (uintptr_t)ptr + len;
     while (p < e) {
@@ -54,29 +54,21 @@ static inline void dcache_wb(const void *ptr, size_t len) {
 }
 
 /* safe (non-signaling) nan check */
-static inline _Bool is_nan(f32 f) {
-    u32 exp_mask = 0b01111111100000000000000000000000;
-    u32 sig_mask = 0b00000000011111111111111111111111;
+static inline bool isNan(f32 f) {
+    u32 expMask = 0b01111111100000000000000000000000;
+    u32 sigMask = 0b00000000011111111111111111111111;
     union {
         u32 w;
         f32 f;
     } pun;
     pun.f = f;
-    return (pun.w & exp_mask) == exp_mask && (pun.w & sig_mask) != 0;
+    return (pun.w & expMask) == expMask && (pun.w & sigMask) != 0;
 }
 
-static inline void maybe_init_gp(void) {
+static inline void maybeInitGp(void) {
 #ifndef NO_GP
     init_gp();
 #endif
 }
-
-#ifdef NDEBUG
-#define PRINTF(...) ((void)0)
-#else
-#define PRINTF(...) (osSyncPrintf(__VA_ARGS__))
-#endif
-
-#define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
 #endif

@@ -18,9 +18,9 @@ if (( $# > 0 )); then
     exit
 fi
 
-echo "Formatting C files. This will take a bit"
+echo "Formatting C files. This may take a bit."
 echo "Running clang-tidy..."
-clang-tidy-14 ${TIDY_OPTS} src/*.c -- ${COMPILER_OPTS} &> /dev/null
+clang-tidy-14 ${TIDY_OPTS} src/*{.c,.h} -- ${COMPILER_OPTS} &> /dev/null
 echo "Running clang-format..."
 clang-format-14 ${FORMAT_OPTS} src/*{.c,.h}
 echo "Adding missing final new lines..."

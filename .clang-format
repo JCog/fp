@@ -3,7 +3,7 @@ IndentWidth: 4
 ColumnLimit: 120
 IndentCaseLabels: true
 AlignEscapedNewlines: Left
-SortIncludes: false
+SortIncludes: CaseInsensitive
 AlignArrayOfStructures: Left
 AllowShortEnumsOnASingleLine: false
 AlignConsecutiveMacros: AcrossEmptyLinesAndComments

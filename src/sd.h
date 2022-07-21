@@ -1,7 +1,6 @@
 #ifndef SD_H
 #define SD_H
-#include <stdint.h>
-#include "pm64.h"
+#include "common.h"
 
 /* Common commands */
 #define GO_IDLE_STATE          0
@@ -97,7 +96,7 @@
 #define IF_COND_PCIE_VDD3      0x00002000
 
 /* Response fields */
-static inline u32 sd_r1_cs(const void *resp) {
+static inline u32 sdR1Cs(const void *resp) {
     u32 cs = 0;
 
     const u8 *p = resp;
@@ -110,7 +109,7 @@ static inline u32 sd_r1_cs(const void *resp) {
     return cs;
 }
 
-static inline u32 r3_ocr(const void *resp) {
+static inline u32 r3Ocr(const void *resp) {
     u32 ocr = 0;
 
     const u8 *p = resp;
@@ -123,7 +122,7 @@ static inline u32 r3_ocr(const void *resp) {
     return ocr;
 }
 
-static inline u32 r6_rca(const void *resp) {
+static inline u32 r6Rca(const void *resp) {
     u32 rca = 0;
 
     const u8 *p = resp;
@@ -134,7 +133,7 @@ static inline u32 r6_rca(const void *resp) {
     return rca;
 }
 
-static inline u32 r6_status(const void *resp) {
+static inline u32 r6Status(const void *resp) {
     u32 st = 0;
 
     const u8 *p = resp;
@@ -150,7 +149,7 @@ static inline u32 r6_status(const void *resp) {
 #define SWFN_SET      0x80000000
 #define SWFN_DAT_SIZE 64
 
-static inline u32 swfn_pow(const void *dat) {
+static inline u32 swfnPow(const void *dat) {
     u32 pow = 0;
 
     const u8 *p = dat;
@@ -160,7 +159,7 @@ static inline u32 swfn_pow(const void *dat) {
     return pow;
 }
 
-static inline u32 swfn_sup(const void *dat, s32 group) {
+static inline u32 swfnSup(const void *dat, s32 group) {
     u32 sup = 0;
 
     const u8 *p = dat;
@@ -171,21 +170,22 @@ static inline u32 swfn_sup(const void *dat, s32 group) {
     return sup;
 }
 
-static inline u32 swfn_sel(const void *dat, s32 group) {
+static inline u32 swfnSel(const void *dat, s32 group) {
     const u8 *p = dat;
     p += 17 - ((group + 1) >> 1);
-    if (group & 1)
+    if (group & 1) {
         return *p & 0xF;
-    else
+    } else {
         return *p >> 4;
+    }
 }
 
-static inline u32 swfn_ver(const void *dat) {
+static inline u32 swfnVer(const void *dat) {
     const u8 *p = dat;
     return p[17];
 }
 
-static inline u32 swfn_bsy(const void *dat, s32 group) {
+static inline u32 swfnBsy(const void *dat, s32 group) {
     u32 bsy = 0;
 
     const u8 *p = dat;
@@ -218,7 +218,7 @@ static inline u32 swfn_bsy(const void *dat, s32 group) {
 /* SD Bus application specific commands */
 #define SET_BUS_WIDTH       6
 
-static inline s32 sd_resp_type(s32 cmd) {
+static inline s32 sdRespType(s32 cmd) {
     switch (cmd) {
         case GO_IDLE_STATE:
         case SET_DSR:
@@ -233,8 +233,8 @@ static inline s32 sd_resp_type(s32 cmd) {
     }
 }
 
-static inline s32 sd_resp_size(s32 resp_type) {
-    switch (resp_type) {
+static inline s32 sdRespSize(s32 respType) {
+    switch (respType) {
         case R1:
         case R3:
         case R6:
@@ -271,7 +271,7 @@ static inline s32 sd_resp_size(s32 resp_type) {
 #define SPI_MBW_START        0xFC
 #define SPI_MBW_STOP         0xFD
 
-static inline s32 spi_resp_type(s32 cmd) {
+static inline s32 spiRespType(s32 cmd) {
     switch (cmd) {
         case SEND_STATUS: return R2;
         case READ_OCR: return R3;
@@ -280,8 +280,8 @@ static inline s32 spi_resp_type(s32 cmd) {
     }
 }
 
-static inline s32 spi_resp_size(s32 resp_type) {
-    switch (resp_type) {
+static inline s32 spiRespSize(s32 respType) {
+    switch (respType) {
         case R1: return 1;
         case R2: return 2;
         case R3:

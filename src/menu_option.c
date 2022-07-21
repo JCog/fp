@@ -1,36 +1,36 @@
+#include "menu.h"
 #include <stdlib.h>
 #include <string.h>
 #include <vector/vector.h>
-#include "menu.h"
 
-struct item_data {
+struct ItemData {
     struct vector options;
-    menu_generic_callback callback_proc;
-    void *callback_data;
+    MenuGenericCallback callbackProc;
+    void *callbackData;
     s32 value;
-    _Bool active;
+    bool active;
 };
 
-static s32 think_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
-    if (data->callback_proc) {
-        s32 r = data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+static s32 thinkProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
+    if (data->callbackProc) {
+        s32 r = data->callbackProc(item, MENU_CALLBACK_THINK, data->callbackData);
         if (r) {
             return r;
         }
         if (data->active) {
-            r = data->callback_proc(item, MENU_CALLBACK_THINK_ACTIVE, data->callback_data);
+            r = data->callbackProc(item, MENU_CALLBACK_THINK_ACTIVE, data->callbackData);
         } else {
-            r = data->callback_proc(item, MENU_CALLBACK_THINK_INACTIVE, data->callback_data);
+            r = data->callbackProc(item, MENU_CALLBACK_THINK_INACTIVE, data->callbackData);
         }
         return r;
     }
     return 0;
 }
 
-static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
-    struct item_data *data = item->data;
-    if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data)) {
+static s32 navigateProc(struct MenuItem *item, enum MenuNavigation nav) {
+    struct ItemData *data = item->data;
+    if (data->callbackProc && data->callbackProc(item, MENU_CALLBACK_NAV_UP + nav, data->callbackData)) {
         return 1;
     }
     s32 value = data->value;
@@ -47,33 +47,33 @@ static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
     data->value = value;
     char **option = vector_at(&data->options, data->value);
     item->text = *option;
-    if (data->callback_proc) {
-        data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+    if (data->callbackProc) {
+        data->callbackProc(item, MENU_CALLBACK_CHANGED, data->callbackData);
     }
     return 1;
 };
 
-static s32 activate_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
+static s32 activateProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     if (data->active) {
-        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_DEACTIVATE, data->callback_data)) {
+        if (data->callbackProc && data->callbackProc(item, MENU_CALLBACK_DEACTIVATE, data->callbackData)) {
             return 1;
         }
-        item->navigate_proc = NULL;
-        item->animate_highlight = 0;
+        item->navigateProc = NULL;
+        item->animateHighlight = FALSE;
     } else {
-        if (data->callback_proc && data->callback_proc(item, MENU_CALLBACK_ACTIVATE, data->callback_data)) {
+        if (data->callbackProc && data->callbackProc(item, MENU_CALLBACK_ACTIVATE, data->callbackData)) {
             return 1;
         }
-        item->navigate_proc = navigate_proc;
-        item->animate_highlight = 1;
+        item->navigateProc = navigateProc;
+        item->animateHighlight = TRUE;
     }
     data->active = !data->active;
     return 1;
 }
 
-static s32 destroy_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
+static s32 destroyProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     item->text = NULL;
     for (size_t i = 0; i < data->options.size; ++i) {
         char **option = vector_at(&data->options, i);
@@ -83,38 +83,38 @@ static s32 destroy_proc(struct menu_item *item) {
     return 0;
 }
 
-struct menu_item *menu_add_option(struct menu *menu, s32 x, s32 y, const char *options,
-                                  menu_generic_callback callback_proc, void *callback_data) {
-    struct item_data *data = malloc(sizeof(*data));
+struct MenuItem *menuAddOption(struct Menu *menu, s32 x, s32 y, const char *options, MenuGenericCallback callbackProc,
+                               void *callbackData) {
+    struct ItemData *data = malloc(sizeof(*data));
     vector_init(&data->options, sizeof(char *));
     for (const char *option = options; *option;) {
-        size_t option_length = strlen(option);
-        char *new_option = malloc(option_length + 1);
-        strcpy(new_option, option);
-        vector_push_back(&data->options, 1, &new_option);
-        option += option_length + 1;
+        size_t optionLength = strlen(option);
+        char *newOption = malloc(optionLength + 1);
+        strcpy(newOption, option);
+        vector_push_back(&data->options, 1, &newOption);
+        option += optionLength + 1;
     }
-    data->callback_proc = callback_proc;
-    data->callback_data = callback_data;
+    data->callbackProc = callbackProc;
+    data->callbackData = callbackData;
     data->value = 0;
-    data->active = 0;
-    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
+    data->active = FALSE;
+    struct MenuItem *item = menuItemAdd(menu, x, y, NULL, 0xFFFFFF);
     char **option = vector_at(&data->options, data->value);
     item->text = *option;
     item->data = data;
-    item->think_proc = think_proc;
-    item->activate_proc = activate_proc;
-    item->destroy_proc = destroy_proc;
+    item->thinkProc = thinkProc;
+    item->activateProc = activateProc;
+    item->destroyProc = destroyProc;
     return item;
 }
 
-s32 menu_option_get(struct menu_item *item) {
-    struct item_data *data = item->data;
+s32 menuOptionGet(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     return data->value;
 }
 
-void menu_option_set(struct menu_item *item, s32 value) {
-    struct item_data *data = item->data;
+void menuOptionSet(struct MenuItem *item, s32 value) {
+    struct ItemData *data = item->data;
     data->value = value;
     char **option = vector_at(&data->options, data->value);
     item->text = *option;

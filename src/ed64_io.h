@@ -1,10 +1,10 @@
 #ifndef ED64_IO_H
 #define ED64_IO_H
 
-struct iodev;
+struct Iodev;
 
-extern struct iodev everdrive64_v1;
-extern struct iodev everdrive64_v2;
-extern struct iodev everdrive64_x;
+extern struct Iodev everdrive64V1;
+extern struct Iodev everdrive64V2;
+extern struct Iodev everdrive64X;
 
 #endif

@@ -1,53 +1,55 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <set/set.h>
-#include <vector/vector.h>
 #include "files.h"
 #include "menu.h"
 #include "osk.h"
 #include "resource.h"
 #include "sys.h"
+#include <errno.h>
+#include <set/set.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+#include <vector/vector.h>
 
 #define FILE_VIEW_ROWS 14
 
 /* params */
-static enum get_file_mode gf_mode;
-static char *gf_suffix;
-static s32 gf_suffix_length;
-static get_file_callback_t gf_callback_proc;
-static void *gf_callback_data;
+static enum GetFileMode gfMode;
+static char *gfSuffix;
+static s32 gfSuffixLength;
+static GetFileCallback gfCallbackProc;
+static void *gfCallbackData;
 /* data */
-static struct menu gf_menu;
-static struct vector gf_dir_state;
-static struct set gf_dir_entries;
-static _Bool gf_untitled;
-static _Bool gf_dirty_name;
+static struct Menu gfMenu;
+static struct vector gfDirState;
+static struct set gfDirEntries;
+static bool gfUntitled;
+static bool gfDirtyName;
 /* menus */
-static struct menu_item *gf_reset;
-static struct menu_item *gf_location;
-static struct menu_item *gf_name;
-static struct menu_item *gf_accept;
-static struct menu_item *gf_clear;
-static struct menu_item *gf_mkdir;
-static struct menu_item *gf_scroll_up;
-static struct menu_item *gf_scroll_down;
-static struct menu_item *gf_files[FILE_VIEW_ROWS];
+static struct MenuItem *gfReset;
+static struct MenuItem *gfLocation;
+static struct MenuItem *gfName;
+static struct MenuItem *gfAccept;
+static struct MenuItem *gfClear;
+static struct MenuItem *gfMkdir;
+static struct MenuItem *gfScrollUp;
+static struct MenuItem *gfScrollDown;
+static struct MenuItem *gfFiles[FILE_VIEW_ROWS];
 
-struct dir_state {
+struct DirState {
     s32 scroll;
     s32 index;
 };
 
-struct dir_entry {
+struct DirEntry {
     char name[256];
-    _Bool dir;
+    bool dir;
     s32 tile;
     char text[32];
-    s32 anim_state;
+    s32 animState;
 };
 
-static _Bool stricmp(const char *a, const char *b) {
+static bool stricmp(const char *a, const char *b) {
     while (*a && *b) {
         char ca = *a++;
         char cb = *b++;
@@ -58,46 +60,46 @@ static _Bool stricmp(const char *a, const char *b) {
             cb += 'A' - 'a';
         }
         if (ca != cb) {
-            return 0;
+            return FALSE;
         }
     }
     return *a == *b;
 }
 
-static _Bool update_list(void) {
+static bool updateList(void) {
     /* clear entries */
-    vector_clear(&gf_dir_entries.container);
+    vector_clear(&gfDirEntries.container);
     /* update location */
     DIR *dir = opendir(".");
     if (!dir) {
         if (errno == ENODEV) {
-            strcpy(gf_location->text, "no disk");
+            strcpy(gfLocation->text, "no disk");
         } else if (errno == ENOENT) {
-            strcpy(gf_location->text, "no file system");
+            strcpy(gfLocation->text, "no file system");
         } else {
-            strncpy(gf_location->text, strerror(errno), 31);
-            gf_location->text[31] = 0;
+            strncpy(gfLocation->text, strerror(errno), 31);
+            gfLocation->text[31] = 0;
         }
-        return 0;
+        return FALSE;
     }
-    getcwd(gf_location->text, 32);
-    gf_location->text[31] = 0;
+    getcwd(gfLocation->text, 32);
+    gfLocation->text[31] = 0;
     /* enumerate and sort entries */
-    struct dirent *dirent;
+    struct Dirent *dirent;
     while ((dirent = readdir(dir))) {
-        if ((dirent->d_name[0] == '.' && strcmp(dirent->d_name, "..") != 0) || !(dirent->mode & S_IRUSR)) {
+        if ((dirent->dName[0] == '.' && strcmp(dirent->dName, "..") != 0) || !(dirent->mode & S_IRUSR)) {
             continue;
         }
-        _Bool dir = ((dirent->mode & S_IFMT) == S_IFDIR);
-        s32 nl = strlen(dirent->d_name);
-        s32 sl = gf_suffix_length;
-        if (!dir && (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix))) {
+        bool dir = ((dirent->mode & S_IFMT) == S_IFDIR);
+        s32 nl = strlen(dirent->dName);
+        s32 sl = gfSuffixLength;
+        if (!dir && (nl < sl || !stricmp(&dirent->dName[nl - sl], gfSuffix))) {
             continue;
         }
-        struct dir_entry entry;
-        strcpy(entry.name, dirent->d_name);
+        struct DirEntry entry;
+        strcpy(entry.name, dirent->dName);
         entry.dir = dir;
-        if (strcmp(dirent->d_name, "..") == 0) {
+        if (strcmp(dirent->dName, "..") == 0) {
             entry.tile = 0;
             strcpy(entry.text, "back");
         } else {
@@ -106,293 +108,293 @@ static _Bool update_list(void) {
             } else {
                 entry.tile = 2;
             }
-            memcpy(entry.text, dirent->d_name, 32);
+            memcpy(entry.text, dirent->dName, 32);
             if (nl > 31) {
                 strcpy(&entry.text[28], "...");
             }
         }
-        entry.anim_state = 0;
-        set_insert(&gf_dir_entries, &entry);
+        entry.animState = 0;
+        set_insert(&gfDirEntries, &entry);
     }
     closedir(dir);
-    return 1;
+    return TRUE;
 }
 
-static void update_view(_Bool enable, _Bool select) {
+static void updateView(bool enable, bool select) {
     if (enable) {
         s32 y = 3;
-        if (gf_mode == GETFILE_SAVE || gf_mode == GETFILE_SAVE_PREFIX_INC) {
-            menu_item_enable(gf_name);
-            menu_item_enable(gf_mkdir);
-            menu_item_enable(gf_accept);
-            menu_item_enable(gf_clear);
-            gf_name->y = y++;
-            gf_accept->y = gf_clear->y = y++;
-        } else if (gf_mode == GETFILE_LOAD) {
-            menu_item_disable(gf_name);
-            menu_item_disable(gf_mkdir);
-            menu_item_disable(gf_accept);
-            menu_item_disable(gf_clear);
+        if (gfMode == GETFILE_SAVE || gfMode == GETFILE_SAVE_PREFIX_INC) {
+            menuItemEnable(gfName);
+            menuItemEnable(gfMkdir);
+            menuItemEnable(gfAccept);
+            menuItemEnable(gfClear);
+            gfName->y = y++;
+            gfAccept->y = gfClear->y = y++;
+        } else if (gfMode == GETFILE_LOAD) {
+            menuItemDisable(gfName);
+            menuItemDisable(gfMkdir);
+            menuItemDisable(gfAccept);
+            menuItemDisable(gfClear);
         }
-        menu_item_enable(gf_scroll_up);
-        menu_item_enable(gf_scroll_down);
-        gf_scroll_up->y = y;
-        gf_scroll_down->y = y + FILE_VIEW_ROWS - 1;
-        struct dir_state *ds = vector_at(&gf_dir_state, 0);
-        _Bool selected = 0;
+        menuItemEnable(gfScrollUp);
+        menuItemEnable(gfScrollDown);
+        gfScrollUp->y = y;
+        gfScrollDown->y = y + FILE_VIEW_ROWS - 1;
+        struct DirState *ds = vector_at(&gfDirState, 0);
+        bool selected = FALSE;
         for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
             s32 index = ds->scroll + i;
-            struct menu_item *item = gf_files[i];
-            if (index < gf_dir_entries.container.size) {
+            struct MenuItem *item = gfFiles[i];
+            if (index < gfDirEntries.container.size) {
                 item->y = y++;
-                menu_item_enable(item);
+                menuItemEnable(item);
                 if (select && index == ds->index) {
-                    menu_select(&gf_menu, item);
-                    selected = 1;
+                    menuSelect(&gfMenu, item);
+                    selected = TRUE;
                 }
             } else {
-                menu_item_disable(item);
+                menuItemDisable(item);
             }
         }
         if (select && !selected) {
-            if (gf_mode == GETFILE_LOAD) {
-                menu_select(&gf_menu, gf_reset);
+            if (gfMode == GETFILE_LOAD) {
+                menuSelect(&gfMenu, gfReset);
             } else {
-                menu_select(&gf_menu, gf_name);
+                menuSelect(&gfMenu, gfName);
             }
         }
     } else {
-        menu_item_disable(gf_name);
-        menu_item_disable(gf_mkdir);
-        menu_item_disable(gf_accept);
-        menu_item_disable(gf_clear);
-        menu_item_disable(gf_scroll_up);
-        menu_item_disable(gf_scroll_down);
+        menuItemDisable(gfName);
+        menuItemDisable(gfMkdir);
+        menuItemDisable(gfAccept);
+        menuItemDisable(gfClear);
+        menuItemDisable(gfScrollUp);
+        menuItemDisable(gfScrollDown);
         for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
-            menu_item_disable(gf_files[i]);
+            menuItemDisable(gfFiles[i]);
         }
         if (select) {
-            menu_select(&gf_menu, gf_reset);
+            menuSelect(&gfMenu, gfReset);
         }
     }
 }
 
-static s32 get_next_prefix_number() {
+static s32 getNextPrefixNumber(void) {
     DIR *dir = opendir(".");
     if (!dir) {
         return 0;
     }
 
-    s32 max_num_found = -1;
-    s32 sl = strlen(gf_suffix);
+    s32 maxNumFound = -1;
+    s32 sl = strlen(gfSuffix);
 
     /* enumerate entries */
-    struct dirent *dirent;
+    struct Dirent *dirent;
     while ((dirent = readdir(dir))) {
         if (!(dirent->mode & S_IRUSR)) {
             continue;
         }
-        s32 nl = strlen(dirent->d_name);
-        if (nl < sl || !stricmp(&dirent->d_name[nl - sl], gf_suffix)) {
+        s32 nl = strlen(dirent->dName);
+        if (nl < sl || !stricmp(&dirent->dName[nl - sl], gfSuffix)) {
             continue;
         }
 
-        s32 cur_num;
-        s32 ret = sscanf(dirent->d_name, "%ld", &cur_num);
+        s32 curNum;
+        s32 ret = sscanf(dirent->dName, "%ld", &curNum);
         if (ret == EOF || ret < 1) {
             continue;
         }
-        if (cur_num > max_num_found) {
-            max_num_found = cur_num;
+        if (curNum > maxNumFound) {
+            maxNumFound = curNum;
         }
     }
 
     closedir(dir);
-    return max_num_found + 1;
+    return maxNumFound + 1;
 }
 
-static void set_name(const char *name, _Bool dirty) {
-    gf_dirty_name |= dirty;
+static void setName(const char *name, bool dirty) {
+    gfDirtyName |= dirty;
     if (!name || strlen(name) == 0) {
-        strcpy(gf_name->text, "untitled");
-        gf_untitled = 1;
+        strcpy(gfName->text, "untitled");
+        gfUntitled = TRUE;
     } else {
-        if (gf_dirty_name || gf_mode != GETFILE_SAVE_PREFIX_INC) {
-            strncpy(gf_name->text, name, 31);
+        if (gfDirtyName || gfMode != GETFILE_SAVE_PREFIX_INC) {
+            strncpy(gfName->text, name, 31);
         } else {
-            s32 ignore, prefix_length;
-            sscanf(name, "%ld%ln", &ignore, &prefix_length);
-            s32 prefix = get_next_prefix_number();
-            snprintf(gf_name->text, 32, "%03ld%s", prefix, name + prefix_length);
+            s32 ignore, prefixLength;
+            sscanf(name, "%ld%ln", &ignore, &prefixLength);
+            s32 prefix = getNextPrefixNumber();
+            snprintf(gfName->text, 32, "%03ld%s", prefix, name + prefixLength);
         }
-        gf_name->text[31] = 0;
-        gf_untitled = 0;
+        gfName->text[31] = 0;
+        gfUntitled = FALSE;
     }
 }
 
-static s32 overwrite_prompt_proc(s32 option_index, void *data) {
+static s32 overwritePromptProc(s32 optionIndex, void *data) {
     char *path = data;
-    if (option_index != -1) {
-        menu_return(&gf_menu);
-        if (option_index == 0 && !gf_callback_proc(path, gf_callback_data)) {
-            menu_return(&gf_menu);
+    if (optionIndex != -1) {
+        menuReturn(&gfMenu);
+        if (optionIndex == 0 && !gfCallbackProc(path, gfCallbackData)) {
+            menuReturn(&gfMenu);
         }
     }
     free(path);
     return 1;
 }
 
-static void return_path(const char *name) {
+static void returnPath(const char *name) {
     char *path = malloc(PATH_MAX);
     if (getcwd(path, PATH_MAX)) {
         s32 dl = strlen(path);
         s32 nl = strlen(name);
-        if (dl + 1 + nl + gf_suffix_length < PATH_MAX) {
+        if (dl + 1 + nl + gfSuffixLength < PATH_MAX) {
             path[dl] = '/';
             strcpy(&path[dl + 1], name);
-            strcpy(&path[dl + 1 + nl], gf_suffix);
-            if ((gf_mode == GETFILE_SAVE || gf_mode == GETFILE_SAVE_PREFIX_INC) && stat(path, NULL) == 0) {
+            strcpy(&path[dl + 1 + nl], gfSuffix);
+            if ((gfMode == GETFILE_SAVE || gfMode == GETFILE_SAVE_PREFIX_INC) && stat(path, NULL) == 0) {
                 char prompt[48];
                 sprintf(prompt, "'%.31s' exists", name);
-                menu_prompt(&gf_menu, prompt,
-                            "overwrite\0"
-                            "cancel\0",
-                            1, overwrite_prompt_proc, path);
+                menuPrompt(&gfMenu, prompt,
+                           "overwrite\0"
+                           "cancel\0",
+                           1, overwritePromptProc, path);
                 return;
             }
-            if (!gf_callback_proc(path, gf_callback_data)) {
-                menu_return(&gf_menu);
+            if (!gfCallbackProc(path, gfCallbackData)) {
+                menuReturn(&gfMenu);
             }
         }
     }
     free(path);
 }
 
-static s32 file_enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
+static s32 fileEnterProc(struct MenuItem *item, enum MenuSwitchReason reason) {
     s32 row = (s32)item->data;
-    struct dir_state *ds = vector_at(&gf_dir_state, 0);
+    struct DirState *ds = vector_at(&gfDirState, 0);
     s32 index = ds->scroll + row;
-    if (index < gf_dir_entries.container.size) {
-        struct dir_entry *entry = set_at(&gf_dir_entries, index);
-        entry->anim_state = 0;
+    if (index < gfDirEntries.container.size) {
+        struct DirEntry *entry = set_at(&gfDirEntries, index);
+        entry->animState = 0;
     }
     return 0;
 }
 
-static s32 file_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
+static s32 fileDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     s32 row = (s32)item->data;
-    struct dir_state *ds = vector_at(&gf_dir_state, 0);
-    struct dir_entry *entry = set_at(&gf_dir_entries, ds->scroll + row);
-    if (entry->anim_state > 0) {
-        ++draw_params->x;
-        ++draw_params->y;
-        entry->anim_state = (entry->anim_state + 1) % 3;
+    struct DirState *ds = vector_at(&gfDirState, 0);
+    struct DirEntry *entry = set_at(&gfDirEntries, ds->scroll + row);
+    if (entry->animState > 0) {
+        ++drawParams->x;
+        ++drawParams->y;
+        entry->animState = (entry->animState + 1) % 3;
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
-    struct gfx_texture *texture = resource_get(RES_ICON_FILE);
-    struct gfx_sprite sprite = {
+    s32 cw = menuGetCellWidth(item->owner, TRUE);
+    struct GfxTexture *texture = resourceGet(RES_ICON_FILE);
+    struct GfxSprite sprite = {
         texture,
         entry->tile,
         0,
-        draw_params->x + (cw - texture->tile_width) / 2,
-        draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
+        drawParams->x + (cw - texture->tileWidth) / 2,
+        drawParams->y - (gfxFontXheight(drawParams->font) + texture->tileHeight + 1) / 2,
         1.f,
         1.f,
     };
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, draw_params->alpha));
-    gfx_sprite_draw(&sprite);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    gfx_printf(draw_params->font, draw_params->x + cw * 2, draw_params->y, "%s", entry->text);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, drawParams->alpha));
+    gfxSpriteDraw(&sprite);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    gfxPrintf(drawParams->font, drawParams->x + cw * 2, drawParams->y, "%s", entry->text);
     return 1;
 }
 
-static s32 file_activate_proc(struct menu_item *item) {
+static s32 fileActivateProc(struct MenuItem *item) {
     s32 row = (s32)item->data;
-    struct dir_state *ds = vector_at(&gf_dir_state, 0);
+    struct DirState *ds = vector_at(&gfDirState, 0);
     s32 index = ds->scroll + row;
-    struct dir_entry *entry = set_at(&gf_dir_entries, index);
-    entry->anim_state = 1;
+    struct DirEntry *entry = set_at(&gfDirEntries, index);
+    entry->animState = 1;
     if (entry->dir) {
         if (chdir(entry->name)) {
             return 0;
         }
         if (strcmp(entry->name, "..") == 0) {
-            vector_erase(&gf_dir_state, 0, 1);
+            vector_erase(&gfDirState, 0, 1);
         } else {
-            struct dir_state *ds = vector_at(&gf_dir_state, 0);
+            struct DirState *ds = vector_at(&gfDirState, 0);
             ds->index = index;
-            ds = vector_insert(&gf_dir_state, 0, 1, NULL);
+            ds = vector_insert(&gfDirState, 0, 1, NULL);
             ds->scroll = 0;
             ds->index = 0;
         }
 
         /* Update the prefix */
-        if (gf_mode == GETFILE_SAVE_PREFIX_INC) {
-            set_name(gf_name->text, 0);
+        if (gfMode == GETFILE_SAVE_PREFIX_INC) {
+            setName(gfName->text, FALSE);
         }
 
-        update_view(update_list(), 1);
+        updateView(updateList(), TRUE);
     } else {
-        struct dir_state *ds = vector_at(&gf_dir_state, 0);
+        struct DirState *ds = vector_at(&gfDirState, 0);
         ds->index = index;
-        s32 l = strlen(entry->name) - gf_suffix_length;
+        s32 l = strlen(entry->name) - gfSuffixLength;
         char *name = malloc(l + 1);
         memcpy(name, entry->name, l);
         name[l] = 0;
-        if (gf_mode == GETFILE_SAVE || gf_mode == GETFILE_SAVE_PREFIX_INC) {
-            set_name(name, 1);
-            menu_select(&gf_menu, gf_accept);
+        if (gfMode == GETFILE_SAVE || gfMode == GETFILE_SAVE_PREFIX_INC) {
+            setName(name, TRUE);
+            menuSelect(&gfMenu, gfAccept);
         } else {
-            return_path(name);
+            returnPath(name);
         }
         free(name);
     }
     return 1;
 }
 
-static s32 file_nav_proc(struct menu_item *item, enum menu_navigation nav) {
+static s32 fileNavProc(struct MenuItem *item, enum MenuNavigation nav) {
     s32 row = (s32)item->data;
-    s32 n_entries = gf_dir_entries.container.size;
+    s32 nEntries = gfDirEntries.container.size;
     if (row == 0 && nav == MENU_NAVIGATE_UP) {
-        struct dir_state *ds = vector_at(&gf_dir_state, 0);
+        struct DirState *ds = vector_at(&gfDirState, 0);
         --ds->scroll;
-        if (ds->scroll + FILE_VIEW_ROWS > n_entries) {
-            ds->scroll = n_entries - FILE_VIEW_ROWS;
+        if (ds->scroll + FILE_VIEW_ROWS > nEntries) {
+            ds->scroll = nEntries - FILE_VIEW_ROWS;
         }
         if (ds->scroll < 0) {
-            if (n_entries < FILE_VIEW_ROWS) {
+            if (nEntries < FILE_VIEW_ROWS) {
                 ds->scroll = 0;
-                menu_select(item->owner, gf_files[n_entries - 1]);
+                menuSelect(item->owner, gfFiles[nEntries - 1]);
             } else {
-                ds->scroll = n_entries - FILE_VIEW_ROWS;
-                menu_select(item->owner, gf_files[FILE_VIEW_ROWS - 1]);
+                ds->scroll = nEntries - FILE_VIEW_ROWS;
+                menuSelect(item->owner, gfFiles[FILE_VIEW_ROWS - 1]);
             }
         }
         return 1;
-    } else if ((row == FILE_VIEW_ROWS - 1 || row == gf_dir_entries.container.size - 1) && nav == MENU_NAVIGATE_DOWN) {
-        struct dir_state *ds = vector_at(&gf_dir_state, 0);
+    } else if ((row == FILE_VIEW_ROWS - 1 || row == gfDirEntries.container.size - 1) && nav == MENU_NAVIGATE_DOWN) {
+        struct DirState *ds = vector_at(&gfDirState, 0);
         ++ds->scroll;
         s32 index = ds->scroll + row;
-        if (index == gf_dir_entries.container.size) {
+        if (index == gfDirEntries.container.size) {
             ds->scroll = 0;
-            menu_select(item->owner, gf_files[0]);
+            menuSelect(item->owner, gfFiles[0]);
         }
         return 1;
     }
     return 0;
 }
 
-static _Bool dir_entry_comp(void *a, void *b) {
-    struct dir_entry *da = a;
-    struct dir_entry *db = b;
+static bool dirEntryComp(void *a, void *b) {
+    struct DirEntry *da = a;
+    struct DirEntry *db = b;
     if (strcmp(da->name, "..") == 0) {
-        return 1;
+        return TRUE;
     }
     if (da->dir && !db->dir) {
-        return 1;
+        return TRUE;
     }
     if (!da->dir && db->dir) {
-        return 0;
+        return FALSE;
     }
     char *sa = da->name;
     char *sb = db->name;
@@ -418,18 +420,18 @@ static _Bool dir_entry_comp(void *a, void *b) {
             }
             d = (sa - na) - (sb - nb);
             if (d < 0) {
-                return 1;
+                return TRUE;
             }
             if (d > 0) {
-                return 0;
+                return FALSE;
             }
             while (na != sa && nb != sb) {
                 d = *na++ - *nb++;
                 if (d < 0) {
-                    return 1;
+                    return TRUE;
                 }
                 if (d > 0) {
-                    return 0;
+                    return FALSE;
                 }
             }
             continue;
@@ -443,10 +445,10 @@ static _Bool dir_entry_comp(void *a, void *b) {
         }
         d = ca - cb;
         if (d < 0) {
-            return 1;
+            return TRUE;
         }
         if (d > 0) {
-            return 0;
+            return FALSE;
         }
     }
     /* length comparison */
@@ -458,132 +460,132 @@ static _Bool dir_entry_comp(void *a, void *b) {
     }
     d = (sa - da->name) - (sb - db->name);
     if (d < 0) {
-        return 1;
+        return TRUE;
     } else {
-        return 0;
+        return FALSE;
     }
 }
 
-static s32 osk_callback_proc(const char *str, void *data) {
-    set_name(str, strcmp(str, gf_name->text) != 0);
-    gf_menu.selector = gf_accept;
+static s32 oskCallbackProc(const char *str, void *data) {
+    setName(str, strcmp(str, gfName->text) != FALSE);
+    gfMenu.selector = gfAccept;
     return 0;
 }
 
-static s32 name_activate_proc(struct menu_item *item) {
-    menu_get_osk_string(item->owner, gf_untitled ? NULL : item->text, osk_callback_proc, NULL);
+static s32 nameActivateProc(struct MenuItem *item) {
+    menuGetOskString(item->owner, gfUntitled ? NULL : item->text, oskCallbackProc, NULL);
     return 1;
 }
 
-static void accept_proc(struct menu_item *item, void *data) {
-    return_path(gf_name->text);
+static void acceptProc(struct MenuItem *item, void *data) {
+    returnPath(gfName->text);
 }
 
-static void clear_proc(struct menu_item *item, void *data) {
-    set_name(NULL, 1);
+static void clearProc(struct MenuItem *item, void *data) {
+    setName(NULL, TRUE);
 }
 
-static void reset_proc(struct menu_item *item, void *data) {
-    sys_reset();
-    vector_clear(&gf_dir_state);
-    struct dir_state *ds = vector_insert(&gf_dir_state, 0, 1, NULL);
+static void resetProc(struct MenuItem *item, void *data) {
+    sysReset();
+    vector_clear(&gfDirState);
+    struct DirState *ds = vector_insert(&gfDirState, 0, 1, NULL);
     ds->scroll = 0;
     ds->index = 0;
-    update_view(update_list(), 1);
+    updateView(updateList(), TRUE);
 }
 
-static void scroll_up_proc(struct menu_item *item, void *data) {
-    struct dir_state *ds = vector_at(&gf_dir_state, 0);
+static void scrollUpProc(struct MenuItem *item, void *data) {
+    struct DirState *ds = vector_at(&gfDirState, 0);
     --ds->scroll;
     if (ds->scroll < 0) {
         ds->scroll = 0;
     }
 }
 
-static void scroll_down_proc(struct menu_item *item, void *data) {
-    struct dir_state *ds = vector_at(&gf_dir_state, 0);
+static void scrollDownProc(struct MenuItem *item, void *data) {
+    struct DirState *ds = vector_at(&gfDirState, 0);
     ++ds->scroll;
-    s32 n_entries = gf_dir_entries.container.size;
-    if (ds->scroll + FILE_VIEW_ROWS > n_entries) {
-        ds->scroll = n_entries - FILE_VIEW_ROWS;
+    s32 nEntries = gfDirEntries.container.size;
+    if (ds->scroll + FILE_VIEW_ROWS > nEntries) {
+        ds->scroll = nEntries - FILE_VIEW_ROWS;
     }
     if (ds->scroll < 0) {
         ds->scroll = 0;
     }
 }
 
-static s32 mkdir_osk_callback_proc(const char *str, void *data) {
+static s32 mkdirOskCallbackProc(const char *str, void *data) {
     if (*str == '\0') {
         return 0;
     } else if (mkdir(str, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) {
-        menu_prompt(&gf_menu, strerror(errno), "return\0", 0, NULL, NULL);
+        menuPrompt(&gfMenu, strerror(errno), "return\0", 0, NULL, NULL);
         return 1;
     } else {
-        menu_return(&gf_menu);
-        update_view(update_list(), 1);
+        menuReturn(&gfMenu);
+        updateView(updateList(), TRUE);
         return 1;
     }
 }
 
-static void mkdir_proc(struct menu_item *item, void *data) {
-    menu_get_osk_string(item->owner, NULL, mkdir_osk_callback_proc, NULL);
+static void mkdirProc(struct MenuItem *item, void *data) {
+    menuGetOskString(item->owner, NULL, mkdirOskCallbackProc, NULL);
 }
 
-static void gf_menu_init(void) {
-    static _Bool ready = 0;
+static void gfMenuInit(void) {
+    static bool ready = FALSE;
     if (!ready) {
-        ready = 1;
+        ready = TRUE;
         /* initialize data */
-        vector_init(&gf_dir_state, sizeof(struct dir_state));
-        set_init(&gf_dir_entries, sizeof(struct dir_entry), dir_entry_comp);
-        struct dir_state *ds = vector_insert(&gf_dir_state, 0, 1, NULL);
-        struct gfx_texture *file_icons = resource_get(RES_ICON_FILE);
+        vector_init(&gfDirState, sizeof(struct DirState));
+        set_init(&gfDirEntries, sizeof(struct DirEntry), dirEntryComp);
+        struct DirState *ds = vector_insert(&gfDirState, 0, 1, NULL);
+        struct GfxTexture *fileIcons = resourceGet(RES_ICON_FILE);
         ds->scroll = 0;
         ds->index = 0;
         /* initialize menus */
-        struct menu *menu = &gf_menu;
-        menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-        menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
-        gf_reset = menu_add_button(menu, 0, 1, "reset disk", reset_proc, NULL);
-        gf_location = menu_add_static(menu, 0, 2, NULL, 0xC0C0C0);
-        gf_location->text = malloc(32);
-        gf_mkdir = menu_add_button_icon(menu, 0, 3, file_icons, 3, 0, 0xFFFFFF, 1.0f, mkdir_proc, NULL);
-        gf_name = menu_item_add(menu, 2, 2, NULL, 0xFFFFFF);
-        gf_name->text = malloc(32);
-        gf_name->text[0] = 0;
-        gf_name->activate_proc = name_activate_proc;
-        gf_accept = menu_add_button(menu, 0, 4, "accept", accept_proc, NULL);
-        gf_clear = menu_add_button(menu, 7, 4, "clear", clear_proc, NULL);
+        struct Menu *menu = &gfMenu;
+        menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+        menu->selector = menuAddSubmenu(menu, 0, 0, NULL, "return");
+        gfReset = menuAddButton(menu, 0, 1, "reset disk", resetProc, NULL);
+        gfLocation = menuAddStatic(menu, 0, 2, NULL, 0xC0C0C0);
+        gfLocation->text = malloc(32);
+        gfMkdir = menuAddButtonIcon(menu, 0, 3, fileIcons, 3, 0, 0xFFFFFF, 1.0f, mkdirProc, NULL);
+        gfName = menuItemAdd(menu, 2, 2, NULL, 0xFFFFFF);
+        gfName->text = malloc(32);
+        gfName->text[0] = 0;
+        gfName->activateProc = nameActivateProc;
+        gfAccept = menuAddButton(menu, 0, 4, "accept", acceptProc, NULL);
+        gfClear = menuAddButton(menu, 7, 4, "clear", clearProc, NULL);
         for (s32 i = 0; i < FILE_VIEW_ROWS; ++i) {
-            struct menu_item *item = menu_item_add(menu, 2, 5 + i, NULL, 0xFFFFFF);
+            struct MenuItem *item = menuItemAdd(menu, 2, 5 + i, NULL, 0xFFFFFF);
             item->data = (void *)i;
-            item->enter_proc = file_enter_proc;
-            item->draw_proc = file_draw_proc;
-            item->activate_proc = file_activate_proc;
-            item->navigate_proc = file_nav_proc;
-            gf_files[i] = item;
+            item->enterProc = fileEnterProc;
+            item->drawProc = fileDrawProc;
+            item->activateProc = fileActivateProc;
+            item->navigateProc = fileNavProc;
+            gfFiles[i] = item;
         }
-        struct gfx_texture *t_arrow = resource_get(RES_ICON_ARROW);
-        gf_scroll_up = menu_add_button_icon(menu, 0, 5, t_arrow, 0, 0, 0xFFFFFF, 1.0f, scroll_up_proc, NULL);
-        gf_scroll_down = menu_add_button_icon(menu, 0, 5 + FILE_VIEW_ROWS - 1, t_arrow, 1, 0, 0xFFFFFF, 1.0f,
-                                              scroll_down_proc, NULL);
+        struct GfxTexture *tArrow = resourceGet(RES_ICON_ARROW);
+        gfScrollUp = menuAddButtonIcon(menu, 0, 5, tArrow, 0, 0, 0xFFFFFF, 1.0f, scrollUpProc, NULL);
+        gfScrollDown =
+            menuAddButtonIcon(menu, 0, 5 + FILE_VIEW_ROWS - 1, tArrow, 1, 0, 0xFFFFFF, 1.0f, scrollDownProc, NULL);
     }
-    update_view(update_list(), 1);
+    updateView(updateList(), TRUE);
 }
 
-void menu_get_file(struct menu *menu, enum get_file_mode mode, const char *defname, const char *suffix,
-                   get_file_callback_t callback_proc, void *callback_data) {
-    gf_mode = mode;
-    gf_dirty_name = 0;
-    if (gf_suffix) {
-        free(gf_suffix);
+void menuGetFile(struct Menu *menu, enum GetFileMode mode, const char *defname, const char *suffix,
+                 GetFileCallback callbackProc, void *callbackData) {
+    gfMode = mode;
+    gfDirtyName = FALSE;
+    if (gfSuffix) {
+        free(gfSuffix);
     }
-    gf_suffix = malloc(strlen(suffix) + 1);
-    strcpy(gf_suffix, suffix);
-    gf_suffix_length = strlen(gf_suffix);
-    gf_callback_proc = callback_proc;
-    gf_callback_data = callback_data;
-    gf_menu_init();
-    set_name(defname, 0);
-    menu_enter(menu, &gf_menu);
+    gfSuffix = malloc(strlen(suffix) + 1);
+    strcpy(gfSuffix, suffix);
+    gfSuffixLength = strlen(gfSuffix);
+    gfCallbackProc = callbackProc;
+    gfCallbackData = callbackData;
+    gfMenuInit();
+    setName(defname, FALSE);
+    menuEnter(menu, &gfMenu);
 }

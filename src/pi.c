@@ -1,69 +1,65 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <n64.h>
 #include "pi.h"
 #include "util.h"
-#include "pm64.h"
 
-typedef void io_func_t(u32 dev_addr, u32 ram_addr, size_t size);
+typedef void IoFunc(u32 devAddr, u32 ramAddr, size_t size);
 
-static void pio_write(u32 dev_addr, u32 ram_addr, size_t size) {
+static void pioWrite(u32 devAddr, u32 ramAddr, size_t size) {
     if (size == 0) {
         return;
     }
 
-    u32 dev_s = dev_addr & ~0x3;
-    u32 dev_e = (dev_addr + size + 0x3) & ~0x3;
-    u32 dev_p = dev_s;
+    u32 devS = devAddr & ~0x3;
+    u32 devE = (devAddr + size + 0x3) & ~0x3;
+    u32 devP = devS;
 
-    u32 ram_s = ram_addr;
-    u32 ram_e = ram_s + size;
-    u32 ram_p = ram_addr - (dev_addr - dev_s);
+    u32 ramS = ramAddr;
+    u32 ramE = ramS + size;
+    u32 ramP = ramAddr - (devAddr - devS);
 
-    while (dev_p < dev_e) {
-        u32 w = __pi_read_raw(dev_p);
+    while (devP < devE) {
+        u32 w = __piReadRaw(devP);
         for (s32 i = 0; i < 4; i++) {
             u8 b;
-            if (ram_p >= ram_s && ram_p < ram_e) {
-                b = *(u8 *)ram_p;
+            if (ramP >= ramS && ramP < ramE) {
+                b = *(u8 *)ramP;
             } else {
                 b = w >> 24;
             }
             w = (w << 8) | b;
-            ram_p++;
+            ramP++;
         }
-        __pi_write_raw(dev_p, w);
-        dev_p += 4;
+        __piWriteRaw(devP, w);
+        devP += 4;
     }
 }
 
-static void pio_read(u32 dev_addr, u32 ram_addr, size_t size) {
+static void pioRead(u32 devAddr, u32 ramAddr, size_t size) {
     if (size == 0) {
         return;
     }
 
-    u32 dev_s = dev_addr & ~0x3;
-    u32 dev_e = (dev_addr + size + 0x3) & ~0x3;
-    u32 dev_p = dev_s;
+    u32 devS = devAddr & ~0x3;
+    u32 devE = (devAddr + size + 0x3) & ~0x3;
+    u32 devP = devS;
 
-    u32 ram_s = ram_addr;
-    u32 ram_e = ram_s + size;
-    u32 ram_p = ram_addr - (dev_addr - dev_s);
+    u32 ramS = ramAddr;
+    u32 ramE = ramS + size;
+    u32 ramP = ramAddr - (devAddr - devS);
 
-    while (dev_p < dev_e) {
-        u32 w = __pi_read_raw(dev_p);
+    while (devP < devE) {
+        u32 w = __piReadRaw(devP);
         for (s32 i = 0; i < 4; i++) {
-            if (ram_p >= ram_s && ram_p < ram_e) {
-                *(u8 *)ram_p = w >> 24;
+            if (ramP >= ramS && ramP < ramE) {
+                *(u8 *)ramP = w >> 24;
             }
             w <<= 8;
-            ram_p++;
+            ramP++;
         }
-        dev_p += 4;
+        devP += 4;
     }
 }
 
-static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
+static void dmaWrite(u32 devAddr, u32 ramAddr, size_t size) {
     if (size == 0) {
         return;
     }
@@ -72,7 +68,7 @@ static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
     OSMesg m;
     __OSEventState pi_event;
 
-    s32 irqf = get_irqf();
+    s32 irqf = getIrqf();
     if (irqf) {
         osCreateMesgQueue(&mq, &m, 1);
 
@@ -80,9 +76,9 @@ static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
         __osEventStateTab[OS_EVENT_PI].messageQueue = &mq;
     }
 
-    dcache_wb((void *)ram_addr, size);
-    pi_regs.dram_addr = ram_addr & 0x1FFFFFFF;
-    pi_regs.cart_addr = dev_addr & 0x1FFFFFFF;
+    dcacheWb((void *)ramAddr, size);
+    pi_regs.dram_addr = ramAddr & 0x1FFFFFFF;
+    pi_regs.cart_addr = devAddr & 0x1FFFFFFF;
     pi_regs.rd_len = size - 1;
 
     if (irqf) {
@@ -90,12 +86,12 @@ static void dma_write(u32 dev_addr, u32 ram_addr, size_t size) {
 
         __osEventStateTab[OS_EVENT_PI] = pi_event;
     } else {
-        __pi_wait();
+        __piWait();
         pi_regs.status = PI_STATUS_CLR_INTR;
     }
 }
 
-static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
+static void dmaRead(u32 devAddr, u32 ramAddr, size_t size) {
     if (size == 0) {
         return;
     }
@@ -104,7 +100,7 @@ static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
     OSMesg m;
     __OSEventState pi_event;
 
-    s32 irqf = get_irqf();
+    s32 irqf = getIrqf();
     if (irqf) {
         osCreateMesgQueue(&mq, &m, 1);
 
@@ -112,9 +108,9 @@ static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
         __osEventStateTab[OS_EVENT_PI].messageQueue = &mq;
     }
 
-    dcache_wbinv((void *)ram_addr, size);
-    pi_regs.dram_addr = ram_addr & 0x1FFFFFFF;
-    pi_regs.cart_addr = dev_addr & 0x1FFFFFFF;
+    dcacheWbinv((void *)ramAddr, size);
+    pi_regs.dram_addr = ramAddr & 0x1FFFFFFF;
+    pi_regs.cart_addr = devAddr & 0x1FFFFFFF;
     pi_regs.wr_len = size - 1;
 
     if (irqf) {
@@ -122,57 +118,57 @@ static void dma_read(u32 dev_addr, u32 ram_addr, size_t size) {
 
         __osEventStateTab[OS_EVENT_PI] = pi_event;
     } else {
-        __pi_wait();
+        __piWait();
         pi_regs.status = PI_STATUS_CLR_INTR;
     }
 }
 
-static void do_transfer(u32 dev_addr, u32 ram_addr, size_t size, io_func_t *pio_func, io_func_t *dma_func) {
-    if ((dev_addr ^ ram_addr) & 1) {
+static void doTransfer(u32 devAddr, u32 ramAddr, size_t size, IoFunc *pioFunc, IoFunc *dmaFunc) {
+    if ((devAddr ^ ramAddr) & 1) {
         /* Impossible alignment for DMA transfer,
          * we have to PIO the whole thing.
          */
-        pio_func(dev_addr, ram_addr, size);
+        pioFunc(devAddr, ramAddr, size);
     } else {
-        u32 ram_s = ram_addr;
-        u32 ram_e = ram_addr + size;
-        u32 ram_align_s = (ram_s + 0x7) & ~0x7;
-        u32 dev_s = dev_addr;
+        u32 ramS = ramAddr;
+        u32 ramE = ramAddr + size;
+        u32 ramAlignS = (ramS + 0x7) & ~0x7;
+        u32 devS = devAddr;
 
-        if (ram_e > ram_align_s) {
-            u32 ram_align_e = ram_e & ~0x1;
-            size_t pio_s = ram_align_s - ram_s;
-            size_t pio_e = ram_e - ram_align_e;
-            size_t dma = size - pio_s - pio_e;
-            u32 dev_e = dev_addr + size;
-            u32 dev_align_s = dev_s + pio_s;
-            u32 dev_align_e = dev_e - pio_e;
+        if (ramE > ramAlignS) {
+            u32 ramAlignE = ramE & ~0x1;
+            size_t pioS = ramAlignS - ramS;
+            size_t pioE = ramE - ramAlignE;
+            size_t dma = size - pioS - pioE;
+            u32 devE = devAddr + size;
+            u32 devAlignS = devS + pioS;
+            u32 devAlignE = devE - pioE;
 
-            pio_func(dev_s, ram_s, pio_s);
-            pio_func(dev_align_e, ram_align_e, pio_e);
-            dma_func(dev_align_s, ram_align_s, dma);
+            pioFunc(devS, ramS, pioS);
+            pioFunc(devAlignE, ramAlignE, pioE);
+            dmaFunc(devAlignS, ramAlignS, dma);
         } else {
-            pio_func(dev_s, ram_s, size);
+            pioFunc(devS, ramS, size);
         }
     }
 }
 
-void pi_write_locked(u32 dev_addr, const void *src, size_t size) {
-    do_transfer(dev_addr, (u32)src, size, pio_write, dma_write);
+void piWriteLocked(u32 devAddr, const void *src, size_t size) {
+    doTransfer(devAddr, (u32)src, size, pioWrite, dmaWrite);
 }
 
-void pi_read_locked(u32 dev_addr, void *dst, size_t size) {
-    do_transfer(dev_addr, (u32)dst, size, pio_read, dma_read);
+void piReadLocked(u32 devAddr, void *dst, size_t size) {
+    doTransfer(devAddr, (u32)dst, size, pioRead, dmaRead);
 }
 
-void pi_write(u32 dev_addr, const void *src, size_t size) {
+void piWrite(u32 devAddr, const void *src, size_t size) {
     __osPiGetAccess();
-    pi_write_locked(dev_addr, src, size);
+    piWriteLocked(devAddr, src, size);
     __osPiRelAccess();
 }
 
-void pi_read(u32 dev_addr, void *dst, size_t size) {
+void piRead(u32 devAddr, void *dst, size_t size) {
     __osPiGetAccess();
-    pi_read_locked(dev_addr, dst, size);
+    piReadLocked(devAddr, dst, size);
     __osPiRelAccess();
 }

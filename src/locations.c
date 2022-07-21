@@ -1,14 +1,13 @@
-#include <stdint.h>
-#include "menu.h"
-#include "settings.h"
-#include "warp_info.h"
+#include "common.h"
 #include "fp.h"
+#include "menu.h"
+#include "warp_info.h"
 
 static u16 area;
 static u16 map;
 static u16 entrance;
 
-static void area_prev_proc(struct menu_item *item, void *data) {
+static void areaPrevProc(struct MenuItem *item, void *data) {
     if (area == 0) {
         area = AREA_COUNT - 1;
     } else {
@@ -18,7 +17,7 @@ static void area_prev_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void area_next_proc(struct menu_item *item, void *data) {
+static void areaNextProc(struct MenuItem *item, void *data) {
     if (area == AREA_COUNT - 1) {
         area = 0;
     } else {
@@ -28,9 +27,9 @@ static void area_next_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void map_prev_proc(struct menu_item *item, void *data) {
+static void mapPrevProc(struct MenuItem *item, void *data) {
     if (map == 0) {
-        map = AREAS[area].map_count - 1;
+        map = areaInfoList[area]->mapCount - 1;
     } else {
         map--;
     }
@@ -38,8 +37,8 @@ static void map_prev_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void map_next_proc(struct menu_item *item, void *data) {
-    if (map == AREAS[area].map_count - 1) {
+static void mapNextProc(struct MenuItem *item, void *data) {
+    if (map == areaInfoList[area]->mapCount - 1) {
         map = 0;
     } else {
         map++;
@@ -48,9 +47,9 @@ static void map_next_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void entrance_prev_proc(struct menu_item *item, void *data) {
+static void entrancePrevProc(struct MenuItem *item, void *data) {
     if (entrance == 0) {
-        entrance = AREAS[area].maps[map].entrance_count - 1;
+        entrance = areaInfoList[area]->maps[map].entranceCount - 1;
     } else {
         entrance--;
     }
@@ -58,8 +57,8 @@ static void entrance_prev_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static void entrance_next_proc(struct menu_item *item, void *data) {
-    if (entrance == AREAS[area].maps[map].entrance_count - 1) {
+static void entranceNextProc(struct MenuItem *item, void *data) {
+    if (entrance == areaInfoList[area]->maps[map].entranceCount - 1) {
         entrance = 0;
     } else {
         entrance++;
@@ -68,71 +67,74 @@ static void entrance_next_proc(struct menu_item *item, void *data) {
     return;
 }
 
-static s32 warp_info_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 ch = menu_get_cell_height(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 warpInfoDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 ch = menuGetCellHeight(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    if (map >= AREAS[area].map_count) {
+    if (map >= areaInfoList[area]->mapCount) {
         map = 0;
     }
-    if (entrance >= AREAS[area].maps[map].entrance_count) {
+    if (entrance >= areaInfoList[area]->maps[map].entranceCount) {
         entrance = 0;
     }
 
-    gfx_printf(font, x, y + ch * 0, "%x %s", area, AREAS[area].area_name);
-    gfx_printf(font, x, y + ch * 3, "%x %s", map, AREAS[area].maps[map].map_name);
-    gfx_printf(font, x, y + ch * 6, "%d/%d", entrance, AREAS[area].maps[map].entrance_count);
+    gfxPrintf(font, x, y + ch * 0, "%x %s", area, areaInfoList[area]->areaName);
+    gfxPrintf(font, x, y + ch * 3, "%x %s", map, areaInfoList[area]->maps[map].mapName);
+    gfxPrintf(font, x, y + ch * 6, "%d/%d", entrance, areaInfoList[area]->maps[map].entranceCount);
 
     return 1;
 }
 
-static s32 current_map_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 ch = menu_get_cell_height(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
-    gfx_printf(font, x, y + ch * 0, "current map");
-    gfx_printf(font, x, y + ch * 1, "a: %x %s", pm_status.area_id, AREAS[pm_status.area_id].area_name);
-    gfx_printf(font, x, y + ch * 2, "m: %x %s", pm_status.map_id,
-               AREAS[pm_status.area_id].maps[pm_status.map_id].map_name);
-    gfx_printf(font, x, y + ch * 3, "e: %x", pm_status.entrance_id);
+static s32 currentMapDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 ch = menuGetCellHeight(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
+    u16 areaID = pm_gGameStatus.areaID;
+    u16 mapID = pm_gGameStatus.mapID;
+    char **mapName = &pm_gAreas[areaID].maps[mapID].id;
+    gfxPrintf(font, x, y + ch * 0, "current map");
+    gfxPrintf(font, x, y + ch * 1, "a: %x %s", areaID, areaInfoList[areaID]->areaName);
+    gfxPrintf(font, x, y + ch * 2, "m: %x %s", mapID, areaInfoList[areaID]->maps[mapID].mapName);
+    gfxPrintf(font, x, y + ch * 3, "e: %x", pm_gGameStatus.entryID);
+    gfxPrintf(font, x, y + ch * 5, "%s", *mapName);
 
     return 1;
 }
 
-static void warp_proc() {
-    if (fp_warp(area, map, entrance)) {
-        fp.saved_area = area;
-        fp.saved_map = map;
-        fp.saved_entrance = entrance;
+static void warpProc(struct MenuItem *item, void *data) {
+    if (fpWarp(area, map, entrance)) {
+        fp.savedArea = area;
+        fp.savedMap = map;
+        fp.savedEntrance = entrance;
     }
 }
 
-void create_locations_menu(struct menu *menu) {
+void createLocationsMenu(struct Menu *menu) {
 
     /* initialize menu */
-    menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
+    menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu->selector = menuAddSubmenu(menu, 0, 0, NULL, "return");
 
-    menu_add_static(menu, 0, 1, "area:", 0xC0C0C0);
-    menu_add_button(menu, 0, 2, "<", area_prev_proc, NULL);
-    menu_add_button(menu, 1, 2, ">", area_next_proc, NULL);
+    menuAddStatic(menu, 0, 1, "area:", 0xC0C0C0);
+    menuAddButton(menu, 0, 2, "<", areaPrevProc, NULL);
+    menuAddButton(menu, 1, 2, ">", areaNextProc, NULL);
 
-    menu_add_static(menu, 0, 4, "map:", 0xC0C0C0);
-    menu_add_button(menu, 0, 5, "<", map_prev_proc, NULL);
-    menu_add_button(menu, 1, 5, ">", map_next_proc, NULL);
+    menuAddStatic(menu, 0, 4, "map:", 0xC0C0C0);
+    menuAddButton(menu, 0, 5, "<", mapPrevProc, NULL);
+    menuAddButton(menu, 1, 5, ">", mapNextProc, NULL);
 
-    menu_add_static(menu, 0, 7, "entrance:", 0xC0C0C0);
-    menu_add_button(menu, 0, 8, "<", entrance_prev_proc, NULL);
-    menu_add_button(menu, 1, 8, ">", entrance_next_proc, NULL);
+    menuAddStatic(menu, 0, 7, "entrance:", 0xC0C0C0);
+    menuAddButton(menu, 0, 8, "<", entrancePrevProc, NULL);
+    menuAddButton(menu, 1, 8, ">", entranceNextProc, NULL);
 
-    menu_add_static_custom(menu, 3, 2, warp_info_draw_proc, NULL, 0xC0C0C0);
+    menuAddStaticCustom(menu, 3, 2, warpInfoDrawProc, NULL, 0xC0C0C0);
 
-    menu_add_button(menu, 0, 9, "warp", warp_proc, NULL);
+    menuAddButton(menu, 0, 9, "warp", warpProc, NULL);
 
-    menu_add_static_custom(menu, 0, 12, current_map_draw_proc, NULL, 0xC0C0C0);
+    menuAddStaticCustom(menu, 0, 12, currentMapDrawProc, NULL, 0xC0C0C0);
 }

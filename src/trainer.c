@@ -1,8 +1,8 @@
-#include <math.h>
-#include "menu.h"
 #include "trainer.h"
-#include "settings.h"
 #include "fp.h"
+#include "menu.h"
+#include "settings.h"
+#include <math.h>
 
 char messageForASM[] = "Success";
 
@@ -12,8 +12,8 @@ s32 getMatrixTotal(void) {
     s32 matrixCount = 0;
 
     for (s32 i = 0; i < 0x60; i++) {
-        if (pm_effects[i] != NULL) {
-            matrixCount += pm_effects[i]->matrixTotal;
+        if (pm_gEffectInstances[i] != NULL) {
+            matrixCount += pm_gEffectInstances[i]->numParts;
         }
     }
     return matrixCount;
@@ -24,20 +24,20 @@ void clearAllEffectsManual(s32 matrixCount) {
 
     if (matrixCount == 0x215) {
         var = 1;
-        fp.ace_last_flag_status = pm_player.anim_flags == 0x01000000;
-        fp.ace_last_timer = pm_player.idle_timer;
-        fp.ace_last_jump_status = (pm_player.flags & 0xff) == 3;
-        fp_log("Successful ACE, jump prevented");
+        fp.aceLastFlagStatus = pm_gPlayerStatus.animFlags == 0x01000000;
+        fp.aceLastTimer = pm_gPlayerStatus.currentStateTime;
+        fp.aceLastJumpStatus = (pm_gPlayerStatus.flags & 0xff) == 3;
+        fpLog("Successful ACE, jump prevented");
     }
     if (matrixCount > 0x215) { // matrix limit reached, destroy all effects
         var = 1;
-        fp_log("Matrix overflow, crash prevented");
+        fpLog("Matrix overflow, crash prevented");
     }
 
     if (var == 1) {
         for (s32 i = 0; i < 0x60; i++) {
-            if (pm_effects[i] != NULL) {
-                pm_RemoveEffect(pm_effects[i]);
+            if (pm_gEffectInstances[i] != NULL) {
+                pm_removeEffect(pm_gEffectInstances[i]);
             }
         }
     }
@@ -66,269 +66,269 @@ asm(".set noreorder;"
     "JR $ra;"
     "SW $t1, 0x0000 ($t0);");
 
-static s32 checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 checkboxModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *p = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         *p = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, *p);
+        menuCheckboxSet(item, *p);
     }
     return 0;
 }
 
-static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p) {
-            menu_option_set(item, *p);
+        if (menuOptionGet(item) != *p) {
+            menuOptionSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menu_option_get(item);
+        *p = menuOptionGet(item);
     }
     return 0;
 }
 
-static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
+    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    s32 xPos = ceil(pm_player.position.x);
-    s32 zPos = ceil(pm_player.position.z);
-    _Bool goodPos = 0;
-    _Bool willClip = 0;
+    s32 xPos = ceil(pm_gPlayerStatus.position.x);
+    s32 zPos = ceil(pm_gPlayerStatus.position.z);
+    bool goodPos = 0;
+    bool willClip = 0;
 
-    if (pm_player.position.z >= -26.3686f) {
+    if (pm_gPlayerStatus.position.z >= -26.3686f) {
         // check if in a known position that will clip and respawn OoB
         if (zPos == -24 && xPos == -184) {
-            goodPos = 1;
+            goodPos = TRUE;
         } else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
-            goodPos = 1;
+            goodPos = TRUE;
         } else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
-            goodPos = 1;
+            goodPos = TRUE;
         }
 
         // check if in a known position that will clip
         if (xPos == -186 && (zPos >= -26 && zPos <= -21)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
-            willClip = 1;
+            willClip = TRUE;
         } else if (xPos == -181 && zPos == -26) {
-            willClip = 1;
+            willClip = TRUE;
         }
     }
 
     s32 menuY = 0;
-    gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
-    gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
-    gfx_printf(font, x, y + chHeight * menuY, "angle: ");
-    if (pm_player.facing_angle >= 43.9f && pm_player.facing_angle <= 46.15f) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+    gfxPrintf(font, x, y + chHeight * menuY++, "x: %.4f", pm_gPlayerStatus.position.x);
+    gfxPrintf(font, x, y + chHeight * menuY++, "z: %.4f", pm_gPlayerStatus.position.z);
+    gfxPrintf(font, x, y + chHeight * menuY, "angle: ");
+    if (pm_gPlayerStatus.currentYaw >= 43.9f && pm_gPlayerStatus.currentYaw <= 46.15f) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
     }
-    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.facing_angle);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x, y + chHeight * menuY, "position: ");
+    gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_gPlayerStatus.currentYaw);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
+    gfxPrintf(font, x, y + chHeight * menuY, "position: ");
     if (goodPos) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "good");
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "good");
     } else if (willClip) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "inconsistent");
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
+        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "inconsistent");
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "bad");
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
+        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "bad");
     }
     return 1;
 }
 
-static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
+    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    s32 effect_count = 0;
+    s32 effectCount = 0;
     s32 i;
     for (i = 0; i < 96; i++) {
-        if (pm_effects[i]) {
-            effect_count++;
+        if (pm_gEffectInstances[i]) {
+            effectCount++;
         }
     }
 
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
 
-    if (effect_count == 81) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+    if (effectCount == 81) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
     }
-    gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    if (pm_player.anim_flags == 0x01000000) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-        gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
+    gfxPrintf(font, x + chWidth * 14, y + chHeight * 0, "%d", effectCount);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+    if (pm_gPlayerStatus.animFlags == 0x01000000) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-        gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "bad");
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+        gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    gfx_printf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.ace_frame_window);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+    gfxPrintf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.aceFrameWindow);
 
-    if (fp.ace_last_timer != 0) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
+    if (fp.aceLastTimer != 0) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
 
-        if (fp.ace_last_timer <= 0x81f && fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        if (fp.aceLastTimer <= 0x81f && fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
         }
-        gfx_printf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.ace_last_timer);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.aceLastTimer);
 
-        if (fp.ace_last_flag_status) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "good");
+        if (fp.aceLastFlagStatus) {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "good");
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "bad");
-        }
-
-        if (fp.ace_last_jump_status) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "good");
-        } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "bad");
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "bad");
         }
 
-        if (fp.ace_last_flag_status && fp.ace_last_jump_status && fp.ace_last_timer <= 0x81f &&
-            fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "success");
+        if (fp.aceLastJumpStatus) {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "good");
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "failure");
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "bad");
+        }
+
+        if (fp.aceLastFlagStatus && fp.aceLastJumpStatus && fp.aceLastTimer <= 0x81f &&
+            fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "success");
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "failure");
         }
     }
     return 1;
 }
 
-static void ace_practice_payload_proc(struct menu_item *item, void *data) {
+static void acePracticePayloadProc(struct MenuItem *item, void *data) {
     setACEHook();
-    fp_log("practice payload placed");
+    fpLog("practice payload placed");
 }
 
-static void ace_oot_instr_proc(struct menu_item *item, void *data) {
+static void aceOotInstrProc(struct MenuItem *item, void *data) {
     // write jump to jp file names to addr 0x807C0000
-    fp_log("oot instruction placed");
+    fpLog("oot instruction placed");
     __asm__("LA $t0, 0x807C0000;"
             "LA $t1, 0x0801DE67;"
             "SW $t1, 0x0000 ($t0);");
 }
 
-static s32 lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
+    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    gfx_printf(font, x, y + chHeight * 1, "current lzs jumps: ");
-    gfx_printf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.current_lzs_jumps);
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "record lzs jumps: ");
-    gfx_printf(font, x + chWidth * 20, y + chHeight * 2, "%d", fp.record_lzs_jumps);
+    gfxPrintf(font, x, y + chHeight * 1, "current lzs jumps: ");
+    gfxPrintf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.currentLzsJumps);
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "record lzs jumps: ");
+    gfxPrintf(font, x + chWidth * 20, y + chHeight * 2, "%d", fp.recordLzsJumps);
 
     return 1;
 }
 
-void create_trainer_menu(struct menu *menu) {
-    static struct menu bowserMenu;
-    static struct menu issMenu;
-    static struct menu aceMenu;
-    static struct menu lzsMenu;
-    static struct menu clippyMenu;
-    static struct menu actionCommandMenu;
+void createTrainerMenu(struct Menu *menu) {
+    static struct Menu bowserMenu;
+    static struct Menu issMenu;
+    static struct Menu aceMenu;
+    static struct Menu lzsMenu;
+    static struct Menu clippyMenu;
+    static struct Menu actionCommandMenu;
 
     /* initialize menu */
-    menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&actionCommandMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
+    menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&actionCommandMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu->selector = menuAddSubmenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    s32 y_value = 1;
-    menu_add_submenu(menu, 0, y_value++, &actionCommandMenu, "action commands");
-    menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
-    menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
+    s32 yValue = 1;
+    menuAddSubmenu(menu, 0, yValue++, &actionCommandMenu, "action commands");
+    menuAddSubmenu(menu, 0, yValue++, &bowserMenu, "bowser blocks");
+    menuAddSubmenu(menu, 0, yValue++, &clippyMenu, "clippy");
 #if PM64_VERSION == JP
-    menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
+    menuAddSubmenu(menu, 0, yValue++, &issMenu, "ice staircase skip");
 #endif
-    menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
+    menuAddSubmenu(menu, 0, yValue++, &lzsMenu, "lzs jumps");
 #if PM64_VERSION == JP
-    menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace");
+    menuAddSubmenu(menu, 0, yValue++, &aceMenu, "oot ace");
 #endif
 
     /*build bowser menu*/
-    y_value = 0;
-    bowserMenu.selector = menu_add_submenu(&bowserMenu, 0, y_value++, NULL, "return");
-    menu_add_static(&bowserMenu, 0, y_value, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&bowserMenu, 8, y_value++, checkbox_mod_proc, &fp.bowser_blocks_enabled);
-    menu_add_static(&bowserMenu, 0, y_value, "attack", 0xC0C0C0);
-    menu_add_option(&bowserMenu, 8, y_value++,
-                    "fire\0"
-                    "butt stomp\0"
-                    "claw\0"
-                    "wave\0"
-                    "lightning\0",
-                    byte_optionmod_proc, &fp.bowser_block);
+    yValue = 0;
+    bowserMenu.selector = menuAddSubmenu(&bowserMenu, 0, yValue++, NULL, "return");
+    menuAddStatic(&bowserMenu, 0, yValue, "enabled", 0xC0C0C0);
+    menuAddCheckbox(&bowserMenu, 8, yValue++, checkboxModProc, &fp.bowserBlocksEnabled);
+    menuAddStatic(&bowserMenu, 0, yValue, "attack", 0xC0C0C0);
+    menuAddOption(&bowserMenu, 8, yValue++,
+                  "fire\0"
+                  "butt stomp\0"
+                  "claw\0"
+                  "wave\0"
+                  "lightning\0",
+                  byteOptionmodProc, &fp.bowserBlock);
 
     /*build iss menu*/
-    issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");
-    menu_add_static_custom(&issMenu, 0, 1, iss_draw_proc, NULL, 0xFFFFFF);
+    issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
+    menuAddStaticCustom(&issMenu, 0, 1, issDrawProc, NULL, 0xFFFFFF);
 
     /*build ace menu*/
-    aceMenu.selector = menu_add_submenu(&aceMenu, 0, 0, NULL, "return");
-    menu_add_static_custom(&aceMenu, 0, 1, ace_draw_proc, NULL, 0xFFFFFF);
-    menu_add_button(&aceMenu, 0, 5, "practice payload", ace_practice_payload_proc, NULL);
-    menu_add_button(&aceMenu, 0, 6, "oot instruction", ace_oot_instr_proc, NULL);
+    aceMenu.selector = menuAddSubmenu(&aceMenu, 0, 0, NULL, "return");
+    menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xFFFFFF);
+    menuAddButton(&aceMenu, 0, 5, "practice payload", acePracticePayloadProc, NULL);
+    menuAddButton(&aceMenu, 0, 6, "oot instruction", aceOotInstrProc, NULL);
 
     /*build lzs jump menu*/
-    lzsMenu.selector = menu_add_submenu(&lzsMenu, 0, 0, NULL, "return");
-    menu_add_static(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&lzsMenu, 8, 1, checkbox_mod_proc, &fp.lzs_trainer_enabled);
-    menu_add_static_custom(&lzsMenu, 0, 2, lzs_draw_proc, NULL, 0xFFFFFF);
+    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
+    menuAddStatic(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
+    menuAddCheckbox(&lzsMenu, 8, 1, checkboxModProc, &fp.lzsTrainerEnabled);
+    menuAddStaticCustom(&lzsMenu, 0, 2, lzsDrawProc, NULL, 0xFFFFFF);
 
     /*build clippy menu*/
-    clippyMenu.selector = menu_add_submenu(&clippyMenu, 0, 0, NULL, "return");
-    menu_add_static(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&clippyMenu, 8, 1, checkbox_mod_proc, &fp.clippy_trainer_enabled);
+    clippyMenu.selector = menuAddSubmenu(&clippyMenu, 0, 0, NULL, "return");
+    menuAddStatic(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
+    menuAddCheckbox(&clippyMenu, 8, 1, checkboxModProc, &fp.clippyTrainerEnabled);
 
     /*build action command menu*/
-    actionCommandMenu.selector = menu_add_submenu(&actionCommandMenu, 0, 0, NULL, "return");
-    menu_add_static(&actionCommandMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&actionCommandMenu, 8, 1, checkbox_mod_proc, &fp.action_command_trainer_enabled);
+    actionCommandMenu.selector = menuAddSubmenu(&actionCommandMenu, 0, 0, NULL, "return");
+    menuAddStatic(&actionCommandMenu, 0, 1, "enabled", 0xC0C0C0);
+    menuAddCheckbox(&actionCommandMenu, 8, 1, checkboxModProc, &fp.actionCommandTrainerEnabled);
 }

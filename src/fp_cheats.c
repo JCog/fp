@@ -1,73 +1,70 @@
 #include "menu.h"
 #include "settings.h"
 
-// clang-format off
 static const char *labels[] = {
-    "hp", "fp", "coins", "star power", "star pieces",
-    "peril", "auto mash", "auto action command", "brighten room"
+    "hp", "fp", "coins", "star power", "star pieces", "peril", "auto mash", "auto action command", "brighten room",
 };
-// clang-format on
 
-static s32 battle_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 battleProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != pm_status.battle_debug) {
-            menu_option_set(item, pm_status.battle_debug);
+        if (menuOptionGet(item) != pm_gGameStatus.debugEnemyContact) {
+            menuOptionSet(item, pm_gGameStatus.debugEnemyContact);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_status.battle_debug = menu_option_get(item);
-        settings->bits.battle_debug = pm_status.battle_debug;
+        pm_gGameStatus.debugEnemyContact = menuOptionGet(item);
+        settings->bits.battleDebug = pm_gGameStatus.debugEnemyContact;
     }
     return 0;
 }
 
-static s32 quizmo_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 quizmoProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_status.quizmo_debug = 1;
-        settings->bits.quizmo_debug = 1;
+        pm_gGameStatus.debugQuizmo = 1;
+        settings->bits.quizmoDebug = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_status.quizmo_debug = 0;
-        settings->bits.quizmo_debug = 0;
+        pm_gGameStatus.debugQuizmo = 0;
+        settings->bits.quizmoDebug = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, pm_status.quizmo_debug);
+        menuCheckboxSet(item, pm_gGameStatus.debugQuizmo);
     }
     return 0;
 }
 
-static s32 cheat_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    s32 cheat_index = (s32)data;
+static s32 cheatProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    s32 cheatIndex = (s32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->cheats |= (1 << cheat_index);
+        settings->cheats |= (1 << cheatIndex);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->cheats &= ~(1 << cheat_index);
+        settings->cheats &= ~(1 << cheatIndex);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, settings->cheats & (1 << cheat_index));
+        menuCheckboxSet(item, settings->cheats & (1 << cheatIndex));
     }
     return 0;
 }
 
-struct menu *create_cheats_menu(void) {
-    static struct menu menu;
+struct Menu *createCheatsMenu(void) {
+    static struct Menu menu;
 
     /* initialize menu */
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu.selector = menu_add_submenu(&menu, 0, 0, NULL, "return");
+    menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu.selector = menuAddSubmenu(&menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    menu_add_static(&menu, 0, 1, "encounters", 0xC0C0C0);
-    menu_add_option(&menu, 11, 1,
-                    "normal\0"
-                    "no encounters\0"
-                    "defeat on contact\0"
-                    "auto-win\0"
-                    "auto-runaway\0",
-                    battle_proc, NULL);
+    menuAddStatic(&menu, 0, 1, "encounters", 0xC0C0C0);
+    menuAddOption(&menu, 11, 1,
+                  "normal\0"
+                  "no encounters\0"
+                  "defeat on contact\0"
+                  "auto-win\0"
+                  "auto-runaway\0",
+                  battleProc, NULL);
     s32 i;
     for (i = 0; i < CHEAT_MAX; ++i) {
-        menu_add_checkbox(&menu, 0, 3 + i, cheat_proc, (void *)i);
-        menu_add_static(&menu, 2, 3 + i, labels[i], 0xC0C0C0);
+        menuAddCheckbox(&menu, 0, 3 + i, cheatProc, (void *)i);
+        menuAddStatic(&menu, 2, 3 + i, labels[i], 0xC0C0C0);
     }
-    menu_add_checkbox(&menu, 0, 3 + i, quizmo_proc, NULL);
-    menu_add_static(&menu, 2, 3 + i, "quizmo spawns", 0xC0C0C0);
+    menuAddCheckbox(&menu, 0, 3 + i, quizmoProc, NULL);
+    menuAddStatic(&menu, 2, 3 + i, "quizmo spawns", 0xC0C0C0);
 
     return &menu;
 }
