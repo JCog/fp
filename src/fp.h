@@ -43,9 +43,6 @@ typedef struct {
     bool turbo;
     bool warp;
     u8 warpDelay;
-    u16 framesSinceBattle;
-    u8 clippyStatus;
-    bool clippyTrainerEnabled;
     char *lastImportedSavePath;
     bool freeCam;
     bool lockCam;

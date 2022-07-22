@@ -68,9 +68,6 @@ void fpInit(void) {
     fp.aceLastJumpStatus = FALSE;
     fp.warp = FALSE;
     fp.warpDelay = 0;
-    fp.framesSinceBattle = 0;
-    fp.clippyStatus = 0;
-    fp.clippyTrainerEnabled = FALSE;
     fp.lastImportedSavePath = NULL;
     fp.freeCam = FALSE;
     fp.lockCam = FALSE;
@@ -333,30 +330,6 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
 }
 
-void fpClippyTrainer(void) {
-    if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
-        if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
-            fp.clippyStatus = 1;
-        } else if (fp.framesSinceBattle > 0) {
-            fp.clippyStatus = 3;
-        } else if (pm_gameState == 3 && fp.framesSinceBattle == 0) {
-            fp.clippyStatus = 2;
-        }
-    }
-
-    if (pm_gameState == 3) {
-        fp.framesSinceBattle++;
-        switch (fp.clippyStatus) {
-            case 1: fpLog("early"); break;
-            case 2: break; // Got clippy
-            case 3: fpLog("late"); break;
-        }
-        fp.clippyStatus = 0;
-    } else if (pm_gameState != 3) {
-        fp.framesSinceBattle = 0;
-    }
-}
-
 void fpActionCommandTrainer(void) {
     // Either goombario or mario attacking
     if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
@@ -518,10 +491,6 @@ void fpUpdate(void) {
 
     timerUpdate();
     trainerUpdate();
-
-    if (fp.clippyTrainerEnabled) {
-        fpClippyTrainer();
-    }
 
     if (fp.actionCommandTrainerEnabled) {
         fpActionCommandTrainer();

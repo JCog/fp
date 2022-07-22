@@ -51,6 +51,11 @@ static u16 lzsFramesSinceLand = 0;
 static u16 lzsCurrentJumps = 0;
 static u16 lzsRecordJumps = 0;
 
+// clippy trainer vars
+static u16 clippyFramesSinceBattle = 0;
+static u8 clippyStatus = 0;
+static bool clippyTrainerEnabled = FALSE;
+
 extern void setACEHook(void);
 
 s32 getMatrixTotal(void) {
@@ -415,9 +420,34 @@ static void updateLzsTrainer(void) {
     }
 }
 
+void updateClippyTrainer(void) {
+    if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
+        if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+            clippyStatus = 1;
+        } else if (clippyFramesSinceBattle > 0) {
+            clippyStatus = 3;
+        } else if (pm_gameState == 3 && clippyFramesSinceBattle == 0) {
+            clippyStatus = 2;
+        }
+    }
+
+    if (pm_gameState == 3) {
+        clippyFramesSinceBattle++;
+        switch (clippyStatus) {
+            case 1: fpLog("early"); break;
+            case 2: break; // Got clippy
+            case 3: fpLog("late"); break;
+        }
+        clippyStatus = 0;
+    } else if (pm_gameState != 3) {
+        clippyFramesSinceBattle = 0;
+    }
+}
+
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
+    updateClippyTrainer();
 }
 
 void createTrainerMenu(struct Menu *menu) {
@@ -459,7 +489,7 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &fp.actionCommandTrainerEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &fp.clippyTrainerEnabled);
+    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &clippyTrainerEnabled);
 #if PM64_VERSION == JP
     menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
