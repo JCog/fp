@@ -134,54 +134,50 @@ static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
 
     s32 xPos = ceil(pm_gPlayerStatus.position.x);
     s32 zPos = ceil(pm_gPlayerStatus.position.z);
-    bool goodPos = 0;
-    bool willClip = 0;
+    bool goodPos = FALSE;
+    bool willClip = FALSE;
 
     if (pm_gPlayerStatus.position.z >= -26.3686f) {
         // check if in a known position that will clip and respawn OoB
-        if (zPos == -24 && xPos == -184) {
-            goodPos = TRUE;
-        } else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
-            goodPos = TRUE;
-        } else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
+        if ((zPos == -24 && xPos == -184) || (zPos == -25 && (xPos >= -186 && xPos <= -183)) ||
+            (zPos == -26 && (xPos >= -186 && xPos <= -182))) {
             goodPos = TRUE;
         }
 
         // check if in a known position that will clip
-        if (xPos == -186 && (zPos >= -26 && zPos <= -21)) {
-            willClip = TRUE;
-        } else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
-            willClip = TRUE;
-        } else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
-            willClip = TRUE;
-        } else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
-            willClip = TRUE;
-        } else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
-            willClip = TRUE;
-        } else if (xPos == -181 && zPos == -26) {
+        if ((xPos == -186 && (zPos >= -26 && zPos <= -21)) || (xPos == -185 && (zPos >= -26 && zPos <= -22)) ||
+            (xPos == -184 && (zPos >= -26 && zPos <= -23)) || (xPos == -183 && (zPos >= -26 && zPos <= -24)) ||
+            (xPos == -182 && (zPos >= -26 && zPos <= -25)) || (xPos == -181 && zPos == -26)) {
             willClip = TRUE;
         }
     }
 
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
+    u32 colorYellow = GPACK_RGB24A8(0xFFFF00, 0xFF);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
     s32 menuY = 0;
-    gfxPrintf(font, x, y + chHeight * menuY++, "x: %.4f", pm_gPlayerStatus.position.x);
-    gfxPrintf(font, x, y + chHeight * menuY++, "z: %.4f", pm_gPlayerStatus.position.z);
-    gfxPrintf(font, x, y + chHeight * menuY, "angle: ");
+
+    gfxPrintf(font, x, y + chHeight * menuY++, "x:     %.4f", pm_gPlayerStatus.position.x);
+    gfxPrintf(font, x, y + chHeight * menuY++, "z:     %.4f", pm_gPlayerStatus.position.z);
+    gfxPrintf(font, x, y + chHeight * menuY, "angle:");
     if (pm_gPlayerStatus.currentYaw >= 43.9f && pm_gPlayerStatus.currentYaw <= 46.15f) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+    } else {
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
     }
     gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_gPlayerStatus.currentYaw);
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfxPrintf(font, x, y + chHeight * menuY, "position: ");
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    gfxPrintf(font, x, y + chHeight * menuY, "pos:");
     if (goodPos) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "good");
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "good");
     } else if (willClip) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
-        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "inconsistent");
+        gfxModeSet(GFX_MODE_COLOR, colorYellow);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "inconsistent");
     } else {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-        gfxPrintf(font, x + chWidth * 10, y + chHeight * menuY++, "bad");
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "bad");
     }
     return 1;
 }
@@ -202,64 +198,67 @@ static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
         }
     }
 
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
+
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
 
     if (effectCount == 81) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
     } else {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
     }
     gfxPrintf(font, x + chWidth * 14, y + chHeight * 0, "%d", effectCount);
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
     if (pm_gPlayerStatus.animFlags == 0x01000000) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
         gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
         gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
     gfxPrintf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.aceFrameWindow);
 
     if (fp.aceLastTimer != 0) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
 
         if (fp.aceLastTimer <= 0x81f && fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
         } else {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
         }
         gfxPrintf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.aceLastTimer);
 
         if (fp.aceLastFlagStatus) {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
             gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "good");
         } else {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
             gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "bad");
         }
 
         if (fp.aceLastJumpStatus) {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
             gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "good");
         } else {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
             gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "bad");
         }
 
         if (fp.aceLastFlagStatus && fp.aceLastJumpStatus && fp.aceLastTimer <= 0x81f &&
             fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
             gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "success");
         } else {
-            gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
             gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "failure");
         }
     }
@@ -377,11 +376,11 @@ void createTrainerMenu(struct Menu *menu) {
 
     /*build iss menu*/
     issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
-    menuAddStaticCustom(&issMenu, 0, 1, issDrawProc, NULL, 0xFFFFFF);
+    menuAddStaticCustom(&issMenu, 0, 1, issDrawProc, NULL, 0xC0C0C0);
 
     /*build ace menu*/
     aceMenu.selector = menuAddSubmenu(&aceMenu, 0, 0, NULL, "return");
-    menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xFFFFFF);
+    menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xC0C0C0);
     menuAddButton(&aceMenu, 0, 5, "practice payload", acePracticePayloadProc, NULL);
     menuAddButton(&aceMenu, 0, 6, "oot instruction", aceOotInstrProc, NULL);
 }
