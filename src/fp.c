@@ -66,13 +66,6 @@ void fpInit(void) {
     fp.aceLastTimer = 0;
     fp.aceLastFlagStatus = FALSE;
     fp.aceLastJumpStatus = FALSE;
-    fp.lzsTrainerEnabled = FALSE;
-    fp.prevPrevActionState = 0;
-    fp.lzStored = FALSE;
-    fp.recordLzsJumps = 0;
-    fp.currentLzsJumps = 0;
-    fp.playerLanded = FALSE;
-    fp.framesSinceLand = 0;
     fp.warp = FALSE;
     fp.warpDelay = 0;
     fp.framesSinceBattle = 0;
@@ -340,91 +333,6 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
 }
 
-void fpLzsTrainer(void) {
-    // detect if loading zone is stored
-    for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
-        pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
-        if (script && script->ptrNextLine) {
-            u32 callbackFunction = script->ptrNextLine[5];
-            if (callbackFunction == (uintptr_t)pm_gotoMap) {
-                fp.lzStored = TRUE;
-            }
-        }
-    }
-
-    // Count frames since mario landed
-    if (pm_gPlayerStatus.actionState == ACTION_STATE_LAND || pm_gPlayerStatus.actionState == ACTION_STATE_WALK ||
-        pm_gPlayerStatus.actionState == ACTION_STATE_RUN) {
-        fp.playerLanded = TRUE;
-    }
-    if (fp.playerLanded) {
-        fp.framesSinceLand++;
-    } else {
-        fp.framesSinceLand = 0;
-    }
-    if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
-        fp.playerLanded = FALSE;
-    }
-
-    // log lzs status
-    if (fp.lzStored && pm_gGameStatus.pressedButtons[0].a) {
-        if (fp.prevPrevActionState == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
-            pm_mapChangeState == 0) {
-            fpLog("control early");
-        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
-                   pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
-                   pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
-            fpLog("jump >= 2 frames early");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
-                fpLog("control early");
-            }
-        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
-            fpLog("jump 1 frame early");
-            if (pm_gPlayerStatus.actionState == ACTION_STATE_RUN || pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
-                fpLog("control early");
-            }
-        } else if (fp.prevPrevActionState == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
-            fpLog("jump 1 frame late");
-            fpLog("control early");
-        } else if (fp.framesSinceLand == 3) {
-            fpLog("jump 1 frame late");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal) {
-                fpLog("control late");
-            }
-        } else if (fp.framesSinceLand == 4) {
-            fpLog("jump 2 frames late");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
-                fpLog("control late");
-            }
-        } else if (fp.framesSinceLand == 0 &&
-                   (fp.prevPrevActionState == ACTION_STATE_RUN || fp.prevPrevActionState == ACTION_STATE_WALK)) {
-            fpLog("jump >= 2 frames late");
-            fpLog("control early");
-        } else if (fp.framesSinceLand >= 5 && pm_mapChangeState == 0) {
-            fpLog("jump > 2 frames late");
-            if (pm_gGameStatus.pressedButtons[0].yCardinal || fp.prevPressedY) {
-                fpLog("control late");
-            }
-        } else if (fp.framesSinceLand == 2) {
-            fp.currentLzsJumps++;
-        }
-    }
-
-    if (fp.currentLzsJumps > fp.recordLzsJumps) {
-        fp.recordLzsJumps = fp.currentLzsJumps;
-    }
-
-    fp.prevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
-    fp.prevPrevActionState = pm_gPlayerStatus.prevActionState;
-
-    if (pm_mapChangeState == 1) {
-        fp.lzStored = FALSE;
-        fp.playerLanded = FALSE;
-        fp.framesSinceLand = 0;
-        fp.currentLzsJumps = 0;
-    }
-}
-
 void fpClippyTrainer(void) {
     if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
         if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
@@ -609,11 +517,7 @@ void fpUpdate(void) {
     }
 
     timerUpdate();
-    updateBowserBlockTrainer();
-
-    if (fp.lzsTrainerEnabled) {
-        fpLzsTrainer();
-    }
+    trainerUpdate();
 
     if (fp.clippyTrainerEnabled) {
         fpClippyTrainer();

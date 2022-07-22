@@ -28,10 +28,11 @@ const static u32 bowserAttacksFinal2[] = {
     SCRIPT_BOWSER_FINAL_2_WAVE, SCRIPT_BOWSER_FINAL_2_LIGHTNING,
 };
 
+// bowser block trainer vars
 static bool bowserBlocksEnabled = FALSE;
 static u8 bowserAttack = 0;
 // clang-format off
-static u32 customBowserScript[] = {
+static u32 bowserCustomScript[] = {
     EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, FALSE,
     EVT_OP_EXEC_WAIT, 1, 0, // replaced with attack script
     EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, TRUE,
@@ -39,6 +40,16 @@ static u32 customBowserScript[] = {
     EVT_OP_END, 0,
 };
 // clang-format on
+
+// LZS trainer vars
+static bool lzsTrainerEnabled = NULL;
+static s8 lzsPrevPressedY = 0;
+static u8 lzsPrevPrevActionState = 0;
+static bool lzsLzStored = NULL;
+static bool lzsPlayerLanded = NULL;
+static u16 lzsFramesSinceLand = 0;
+static u16 lzsCurrentJumps = 0;
+static u16 lzsRecordJumps = 0;
 
 extern void setACEHook(void);
 
@@ -278,7 +289,7 @@ static void aceOotInstrProc(struct MenuItem *item, void *data) {
             "SW $t1, 0x0000 ($t0);");
 }
 
-void updateBowserBlockTrainer(void) {
+static void updateBowserBlockTrainer(void) {
     if (pm_gGameStatus.isBattle) {
         pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
         if (enemy0) {
@@ -287,17 +298,17 @@ void updateBowserBlockTrainer(void) {
             switch (enemy0->actorType) {
                 case BOWSER_VARIANT_HALLWAY:
                     isBowser = TRUE;
-                    customBowserScript[7] = bowserAttacksHallway[bowserAttack];
+                    bowserCustomScript[7] = bowserAttacksHallway[bowserAttack];
                     vanillaScript = SCRIPT_BOWSER_HALLWAY_TAKE_TURN;
                     break;
                 case BOWSER_VARIANT_FINAL_1:
                     isBowser = TRUE;
-                    customBowserScript[7] = bowserAttacksFinal1[bowserAttack];
+                    bowserCustomScript[7] = bowserAttacksFinal1[bowserAttack];
                     vanillaScript = SCRIPT_BOWSER_FINAL_1_TAKE_TURN;
                     break;
                 case BOWSER_VARIANT_FINAL_2:
                     isBowser = TRUE;
-                    customBowserScript[7] = bowserAttacksFinal2[bowserAttack];
+                    bowserCustomScript[7] = bowserAttacksFinal2[bowserAttack];
                     vanillaScript = SCRIPT_BOWSER_FINAL_2_TAKE_TURN;
                     break;
             }
@@ -305,7 +316,7 @@ void updateBowserBlockTrainer(void) {
             if (isBowser) {
                 if (bowserBlocksEnabled) {
                     enemy0->state.varTable[0] = 2; // total turns, to make bowser stop talking
-                    enemy0->takeTurnScriptSource = (void *)&customBowserScript;
+                    enemy0->takeTurnScriptSource = (void *)&bowserCustomScript;
 
                     // never let wave KO last more than one turn so you can keep practicing the block
                     if (pm_gBattleStatus.partnerActor && pm_gBattleStatus.partnerActor->koDuration > 1) {
@@ -317,6 +328,96 @@ void updateBowserBlockTrainer(void) {
             }
         }
     }
+}
+
+static void updateLzsTrainer(void) {
+    // detect if loading zone is stored
+    for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
+        pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
+        if (script && script->ptrNextLine) {
+            u32 callbackFunction = script->ptrNextLine[5];
+            if (callbackFunction == (uintptr_t)pm_gotoMap) {
+                lzsLzStored = TRUE;
+            }
+        }
+    }
+
+    // Count frames since mario landed
+    if (pm_gPlayerStatus.actionState == ACTION_STATE_LAND || pm_gPlayerStatus.actionState == ACTION_STATE_WALK ||
+        pm_gPlayerStatus.actionState == ACTION_STATE_RUN) {
+        lzsPlayerLanded = TRUE;
+    }
+    if (lzsPlayerLanded) {
+        lzsFramesSinceLand++;
+    } else {
+        lzsFramesSinceLand = 0;
+    }
+    if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
+        lzsPlayerLanded = FALSE;
+    }
+
+    // log lzs status
+    if (lzsLzStored && pm_gGameStatus.pressedButtons[0].a) {
+        if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
+            pm_mapChangeState == 0) {
+            fpLog("control early");
+        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
+                   pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
+                   pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
+            fpLog("jump >= 2 frames early");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                fpLog("control early");
+            }
+        } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
+            fpLog("jump 1 frame early");
+            if (pm_gPlayerStatus.actionState == ACTION_STATE_RUN || pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
+                fpLog("control early");
+            }
+        } else if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
+            fpLog("jump 1 frame late");
+            fpLog("control early");
+        } else if (lzsFramesSinceLand == 3) {
+            fpLog("jump 1 frame late");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal) {
+                fpLog("control late");
+            }
+        } else if (lzsFramesSinceLand == 4) {
+            fpLog("jump 2 frames late");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                fpLog("control late");
+            }
+        } else if (lzsFramesSinceLand == 0 &&
+                   (lzsPrevPrevActionState == ACTION_STATE_RUN || lzsPrevPrevActionState == ACTION_STATE_WALK)) {
+            fpLog("jump >= 2 frames late");
+            fpLog("control early");
+        } else if (lzsFramesSinceLand >= 5 && pm_mapChangeState == 0) {
+            fpLog("jump > 2 frames late");
+            if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                fpLog("control late");
+            }
+        } else if (lzsFramesSinceLand == 2) {
+            lzsCurrentJumps++;
+        }
+    }
+
+    if (lzsCurrentJumps > lzsRecordJumps) {
+        lzsRecordJumps = lzsCurrentJumps;
+    }
+
+    lzsPrevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
+    lzsPrevPrevActionState = pm_gPlayerStatus.prevActionState;
+
+    if (pm_mapChangeState == 1) {
+        lzsLzStored = FALSE;
+        lzsPlayerLanded = FALSE;
+        lzsFramesSinceLand = 0;
+        lzsCurrentJumps = 0;
+    }
+}
+
+void trainerUpdate(void) {
+    updateBowserBlockTrainer();
+    updateLzsTrainer();
 }
 
 void createTrainerMenu(struct Menu *menu) {
@@ -351,7 +452,7 @@ void createTrainerMenu(struct Menu *menu) {
                   byteOptionmodProc, &bowserAttack);
 
     menuAddStatic(menu, 0, y, "lzs jumps", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y, checkboxModProc, &fp.lzsTrainerEnabled);
+    menuAddCheckbox(menu, xOffset, y, checkboxModProc, &lzsTrainerEnabled);
     menuAddSubmenuIcon(menu, xOffset + 2, y++, &lzsMenu, wrench, 0, 0, 1.0f);
 
     menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
@@ -370,9 +471,9 @@ void createTrainerMenu(struct Menu *menu) {
     /*build lzs jump menu*/
     lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
     menuAddStatic(&lzsMenu, 0, 1, "current lzs jumps: ", 0xC0C0C0);
-    menuAddWatch(&lzsMenu, 20, 1, (u32)&fp.currentLzsJumps, WATCH_TYPE_U16);
+    menuAddWatch(&lzsMenu, 20, 1, (u32)&lzsCurrentJumps, WATCH_TYPE_U16);
     menuAddStatic(&lzsMenu, 0, 2, "record lzs jumps: ", 0xC0C0C0);
-    menuAddWatch(&lzsMenu, 20, 2, (u32)&fp.recordLzsJumps, WATCH_TYPE_U16);
+    menuAddWatch(&lzsMenu, 20, 2, (u32)&lzsRecordJumps, WATCH_TYPE_U16);
 
     /*build iss menu*/
     issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
