@@ -1,6 +1,7 @@
 #include "trainer.h"
 #include "fp.h"
 #include "menu.h"
+#include "resource.h"
 #include "settings.h"
 #include <math.h>
 
@@ -278,22 +279,6 @@ static void aceOotInstrProc(struct MenuItem *item, void *data) {
             "SW $t1, 0x0000 ($t0);");
 }
 
-static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
-    struct GfxFont *font = drawParams->font;
-    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
-    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
-    s32 x = drawParams->x;
-    s32 y = drawParams->y;
-
-    gfxPrintf(font, x, y + chHeight * 1, "current lzs jumps: ");
-    gfxPrintf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.currentLzsJumps);
-    gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "record lzs jumps: ");
-    gfxPrintf(font, x + chWidth * 20, y + chHeight * 2, "%d", fp.recordLzsJumps);
-
-    return 1;
-}
-
 void updateBowserBlockTrainer(void) {
     if (pm_gGameStatus.isBattle) {
         pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
@@ -319,7 +304,6 @@ void updateBowserBlockTrainer(void) {
             }
 
             if (isBowser) {
-                //                PRINTF("taketurnscript: %X\n", enemy0->takeTurnScriptSource);
                 if (bowserBlocksEnabled) {
                     enemy0->state.varTable[0] = 2; // total turns, to make bowser stop talking
                     enemy0->takeTurnScriptSource = (void *)&customBowserScript;
@@ -337,49 +321,59 @@ void updateBowserBlockTrainer(void) {
 }
 
 void createTrainerMenu(struct Menu *menu) {
-    static struct Menu bowserMenu;
+    static struct Menu lzsMenu;
     static struct Menu issMenu;
     static struct Menu aceMenu;
-    static struct Menu lzsMenu;
-    static struct Menu clippyMenu;
-    static struct Menu actionCommandMenu;
 
     /* initialize menu */
     menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&actionCommandMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu->selector = menuAddSubmenu(menu, 0, 0, NULL, "return");
 
     /*build menu*/
-    s32 yValue = 1;
-    menuAddSubmenu(menu, 0, yValue++, &actionCommandMenu, "action commands");
-    menuAddSubmenu(menu, 0, yValue++, &bowserMenu, "bowser blocks");
-    menuAddSubmenu(menu, 0, yValue++, &clippyMenu, "clippy");
+    struct GfxTexture *wrench = resourceLoadGrcTexture("wrench");
+    s32 y = 0;
 #if PM64_VERSION == JP
-    menuAddSubmenu(menu, 0, yValue++, &issMenu, "ice staircase skip");
+    s32 xOffset = 19;
+#else
+    s32 xOffset = 16;
 #endif
-    menuAddSubmenu(menu, 0, yValue++, &lzsMenu, "lzs jumps");
-#if PM64_VERSION == JP
-    menuAddSubmenu(menu, 0, yValue++, &aceMenu, "oot ace");
-#endif
+    menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
 
-    /*build bowser menu*/
-    yValue = 0;
-    bowserMenu.selector = menuAddSubmenu(&bowserMenu, 0, yValue++, NULL, "return");
-    menuAddStatic(&bowserMenu, 0, yValue, "enabled", 0xC0C0C0);
-    menuAddCheckbox(&bowserMenu, 8, yValue++, checkboxModProc, &bowserBlocksEnabled);
-    menuAddStatic(&bowserMenu, 0, yValue, "attack", 0xC0C0C0);
-    menuAddOption(&bowserMenu, 8, yValue++,
+    menuAddStatic(menu, 0, y, "bowser blocks", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y, checkboxModProc, &bowserBlocksEnabled);
+    menuAddOption(menu, xOffset + 2, y++,
                   "fire\0"
                   "butt stomp\0"
                   "claw\0"
                   "wave\0"
                   "lightning\0",
                   byteOptionmodProc, &bowserAttack);
+
+    menuAddStatic(menu, 0, y, "lzs jumps", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y, checkboxModProc, &fp.lzsTrainerEnabled);
+    menuAddSubmenuIcon(menu, xOffset + 2, y++, &lzsMenu, wrench, 0, 0, 1.0f);
+
+    menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &fp.actionCommandTrainerEnabled);
+
+    menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &fp.clippyTrainerEnabled);
+#if PM64_VERSION == JP
+    menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
+    menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
+
+    menuAddStatic(menu, 0, y, "oot ace", 0xC0C0C0);
+    menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
+#endif
+
+    /*build lzs jump menu*/
+    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
+    menuAddStatic(&lzsMenu, 0, 1, "current lzs jumps: ", 0xC0C0C0);
+    menuAddWatch(&lzsMenu, 20, 1, (u32)&fp.currentLzsJumps, WATCH_TYPE_U16);
+    menuAddStatic(&lzsMenu, 0, 2, "record lzs jumps: ", 0xC0C0C0);
+    menuAddWatch(&lzsMenu, 20, 2, (u32)&fp.recordLzsJumps, WATCH_TYPE_U16);
 
     /*build iss menu*/
     issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
@@ -390,20 +384,4 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xFFFFFF);
     menuAddButton(&aceMenu, 0, 5, "practice payload", acePracticePayloadProc, NULL);
     menuAddButton(&aceMenu, 0, 6, "oot instruction", aceOotInstrProc, NULL);
-
-    /*build lzs jump menu*/
-    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
-    menuAddStatic(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
-    menuAddCheckbox(&lzsMenu, 8, 1, checkboxModProc, &fp.lzsTrainerEnabled);
-    menuAddStaticCustom(&lzsMenu, 0, 2, lzsDrawProc, NULL, 0xFFFFFF);
-
-    /*build clippy menu*/
-    clippyMenu.selector = menuAddSubmenu(&clippyMenu, 0, 0, NULL, "return");
-    menuAddStatic(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
-    menuAddCheckbox(&clippyMenu, 8, 1, checkboxModProc, &fp.clippyTrainerEnabled);
-
-    /*build action command menu*/
-    actionCommandMenu.selector = menuAddSubmenu(&actionCommandMenu, 0, 0, NULL, "return");
-    menuAddStatic(&actionCommandMenu, 0, 1, "enabled", 0xC0C0C0);
-    menuAddCheckbox(&actionCommandMenu, 8, 1, checkboxModProc, &fp.actionCommandTrainerEnabled);
 }
