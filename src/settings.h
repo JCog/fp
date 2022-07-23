@@ -3,18 +3,13 @@
 #include "commands.h"
 #include "common.h"
 
-#define SETTINGS_SAVE_FILE_SIZE   0x1380
-#define SETTINGS_PROFILE_MAX      4
-#define SETTINGS_VERSION          0x0004
+#define SETTINGS_SAVE_FILE_SIZE 0x1380
+#define SETTINGS_PROFILE_MAX    4
+#define SETTINGS_VERSION        5
 
-#define SETTINGS_WATCHES_MAX      18
-#define SETTINGS_TELEPORT_MAX     9
-#define SETTINGS_MEMFILE_MAX      10
-#define SETTINGS_BIND_MAX         COMMAND_MAX
-#define SETTINGS_LOG_MAX          4
-
-#define SETTINGS_BREAK_NORMAL     0
-#define SETTINGS_BREAK_AGGRESSIVE 1
+#define SETTINGS_WATCHES_MAX    18
+#define SETTINGS_BIND_MAX       COMMAND_MAX
+#define SETTINGS_LOG_MAX        4
 
 enum Cheats {
     CHEAT_HP,
@@ -47,11 +42,19 @@ struct SettingsBits {
     u32 watchesVisible : 1;
 };
 
+struct TrainerBits {
+    u32 bowserEnabled : 1;
+    u32 lzsEnabled    : 1;
+    u32 acEnabled     : 1;
+    u32 clippyEnabled : 1;
+};
+
 struct SettingsData {
     /* order elements by size for space-efficient packing */
     u32 watchAddress[SETTINGS_WATCHES_MAX];
     u32 cheats;
     struct SettingsBits bits;
+    struct TrainerBits trainerBits;
     s16 menuX;
     s16 menuY;
     s16 inputDisplayX;
