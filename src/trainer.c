@@ -15,6 +15,7 @@ enum BlockResult {
     BLOCK_EARLY = -1,
     BLOCK_LATE = 0,
     BLOCK_SUCCESS = 1,
+    BLOCK_NONE = 127,
 };
 
 enum ClippyStatus {
@@ -63,7 +64,7 @@ static u16 lzsCurrentJumps = 0;
 static u16 lzsRecordJumps = 0;
 
 // action command trainer vars
-static bool acWaitingForBlock = FALSE;
+static bool acWaitingForMissedBlock = FALSE;
 static s32 acPushInputBuffer[64];
 static s8 acInputBufferPos = 0;
 static s8 acBlockFramesLate = 0;
@@ -500,7 +501,7 @@ static void blockCheckSuccessOrEarly(void) {
                 s32 framesEarly = window - i;
                 fpLog("blocked %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
             } else {
-                fpLog("blocked frame %d out of %d", i + 1, blockWindow);
+                fpLog("blocked frame %d out of %d", i + 1, window);
             }
             break;
         }
@@ -511,27 +512,28 @@ static void blockCheckSuccessOrEarly(void) {
 static void updateBlockTrainer(void) {
     if (settings->trainerBits.acEnabled && pm_gGameStatus.isBattle) {
         // blocks
-        if (acWaitingForBlock) {
-            switch (pm_gBattleStatus.blockResult) {
-                case BLOCK_EARLY:
-                    acWaitingForBlock = FALSE;
-                    blockCheckSuccessOrEarly();
-                    break;
-                case BLOCK_SUCCESS:
-                    acWaitingForBlock = FALSE;
-                    blockCheckSuccessOrEarly();
-                    break;
-                case BLOCK_LATE:
-                    acBlockFramesLate++;
-                    if (pm_gGameStatus.currentButtons[0].buttons & 0x8000) { // A button
-                        fpLog("blocked %d frame%s late", acBlockFramesLate, acBlockFramesLate > 1 ? "s" : "");
-                        acWaitingForBlock = FALSE;
-                    }
-                    break;
+        switch (pm_gBattleStatus.blockResult) {
+            case BLOCK_EARLY:
+            case BLOCK_SUCCESS:
+                acWaitingForMissedBlock = FALSE;
+                blockCheckSuccessOrEarly();
+                // this value doesn't appear to be checked beyond the first frame, so we can change it with no issue
+                pm_gBattleStatus.blockResult = BLOCK_NONE;
+                break;
+            case BLOCK_LATE:
+                acWaitingForMissedBlock = TRUE;
+                acBlockFramesLate = 0;
+                pm_gBattleStatus.blockResult = BLOCK_NONE;
+                break;
+        }
+        if (acWaitingForMissedBlock) {
+            acBlockFramesLate++;
+            if (pm_gGameStatus.currentButtons[0].buttons & 0x8000) { // A button
+                fpLog("blocked %d frame%s late", acBlockFramesLate, acBlockFramesLate > 1 ? "s" : "");
+                acWaitingForMissedBlock = FALSE;
+            } else if (acBlockFramesLate == 10) { // stop checking for late block after 10 frames
+                acWaitingForMissedBlock = FALSE;
             }
-        } else if (pm_gBattleStatus.blockResult == 127) {
-            acWaitingForBlock = TRUE;
-            acBlockFramesLate = 0;
         }
 
         acPushInputBuffer[acInputBufferPos++] =
