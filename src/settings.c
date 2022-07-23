@@ -67,6 +67,8 @@ void settingsLoadDefault(void) {
     d->binds[COMMAND_RESET_TIMER] = bindMake(0);
     d->binds[COMMAND_SHOW_HIDE_TIMER] = bindMake(0);
     d->binds[COMMAND_BREAK_FREE] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
+    d->binds[COMMAND_PAUSE] = bindMake(0);
+    d->binds[COMMAND_ADVANCE] = bindMake(0);
 }
 
 void applyMenuSettings(void) {

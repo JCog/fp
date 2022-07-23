@@ -25,6 +25,8 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"reset timer",      COMMAND_PRESS_ONCE, 0, commandResetTimerProc    },
     {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
+    {"pause",            COMMAND_PRESS_ONCE, 0, commandPauseProc         },
+    {"advance",          COMMAND_PRESS_ONCE, 0, commandAdvanceProc       },
 };
 
 void showMenu(void) {
@@ -264,4 +266,22 @@ void commandBreakFreeProc(void) {
         pm_gPlayerStatus.flags &= thirdByteMask;
     }
     fpLog("broke free");
+}
+
+void commandPauseProc() {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames = -1;
+        fpLog("unpaused");
+    } else {
+        fp.pendingFrames = 0;
+        fpLog("paused");
+    }
+}
+
+void commandAdvanceProc(void) {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames++;
+    } else {
+        commandPauseProc();
+    }
 }

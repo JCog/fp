@@ -80,6 +80,7 @@ void fpInit(void) {
     fp.camPos.y = 0;
     fp.camPos.z = 0;
     fp.camEnabledBefore = FALSE;
+    fp.pendingFrames = -1;
 
     ioInit();
 
@@ -538,6 +539,19 @@ void fpDraw(void) {
     gfxFlush();
 }
 
+static void gameUpdate(void) {
+    if (fp.pendingFrames != 0) {
+        pm_step_game_loop();
+        if (fp.pendingFrames > 0) {
+            fp.pendingFrames--;
+        }
+    } else {
+        pm_update_input();
+        pm_gPlayerStatus.flags |= 0x40000000; // draw player sprite
+        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
+    }
+}
+
 /* ========================== HOOK ENTRY POINTS ========================== */
 
 ENTRY void fpUpdateEntry(void) {
@@ -546,9 +560,10 @@ ENTRY void fpUpdateEntry(void) {
     if (!fp.ready) {
         initStack(fpInit);
         PRINTF("\n**** fp initialized ****\n\n");
+        pm_step_game_loop();
+    } else {
+        gameUpdate();
     }
-
-    pm_step_game_loop();
     initStack(fpUpdate);
 }
 
@@ -569,6 +584,9 @@ HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
 }
 
 HOOK void fpUpdateInput(void) {
+    if (fp.pendingFrames > 0) {
+        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
+    }
     pm_update_player_input();
     pm_Controller *mask = &fp.inputMask;
 

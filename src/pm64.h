@@ -1068,6 +1068,7 @@ void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_ti
 pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
+void pm_update_input(void);
 
 void pm_state_render_frontUI(void);
 void pm_step_game_loop(void);

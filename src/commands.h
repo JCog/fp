@@ -20,6 +20,8 @@ enum Commands {
     COMMAND_RESET_TIMER,
     COMMAND_SHOW_HIDE_TIMER,
     COMMAND_BREAK_FREE,
+    COMMAND_PAUSE,
+    COMMAND_ADVANCE,
     COMMAND_MAX
 };
 
@@ -53,6 +55,8 @@ void commandStartTimerProc(void);
 void commandResetTimerProc(void);
 void commandShowHideTimerProc(void);
 void commandBreakFreeProc(void);
+void commandPauseProc(void);
+void commandAdvanceProc(void);
 
 extern struct Command fpCommands[COMMAND_MAX];
 

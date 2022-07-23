@@ -32,6 +32,7 @@ pm_gCurrentScriptListPtr = 0x802DA890;
 pm_gScriptIndexList = 0x802DA898;
 
 osSyncPrintf = 0x80025CFC;
+pm_update_input = 0x80028844;
 pm_fioValidateFileChecksum = 0x8002B0B8;
 pm_fioFetchSavedFileInfo = 0x8002B114;
 pm_fioDeserializeState = 0x8002B450;
