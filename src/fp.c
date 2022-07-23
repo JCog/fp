@@ -384,7 +384,7 @@ void fpUpdateWarps(void) {
 
 void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
     for (s32 i = SETTINGS_LOG_MAX - 1; i >= 0; --i) {
-        const s32 fadeBegin = 20;
+        const s32 fadeBegin = 30;
         const s32 fadeDuration = 20;
         struct LogEntry *ent = &fp.log[i];
         u8 msgAlpha;
