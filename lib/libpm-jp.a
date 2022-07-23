@@ -88,6 +88,3 @@ pm_update_camera_mode_6 = 0x8002F620;
 
 update_player_input_rom_hook = 0x8009D914;
 pm_update_player_input = 0x800E1F70;
-
-check_block_input_hook1 = 0x801D3134;
-check_block_input_hook2 = 0x801D3180;

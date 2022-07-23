@@ -80,7 +80,6 @@ void fpInit(void) {
     fp.camPos.y = 0;
     fp.camPos.z = 0;
     fp.camEnabledBefore = FALSE;
-    fp.actionCommandTrainerEnabled = FALSE;
 
     ioInit();
 
@@ -330,33 +329,6 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
 }
 
-void fpActionCommandTrainer(void) {
-    // Either goombario or mario attacking
-    if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
-        pm_battleState2 == 4) {
-        if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
-            fp.lastAPress = pm_gGameStatus.frameCounter;
-        } else if (pm_gActionCommandStatus.state == 11) {
-            if (fp.lastAPress) {
-                u16 framesEarly = pm_gGameStatus.frameCounter - fp.lastAPress;
-                fpLog("pressed A %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
-                fp.lastAPress = 0;
-            }
-            if (pm_gGameStatus.pressedButtons[0].a) {
-                fpLog("pressed A frame %d out of %d",
-                      pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
-                      pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
-            }
-            fp.lastValidFrame = pm_gGameStatus.frameCounter;
-            // check for a press up to 10 frames late
-        } else if (pm_gActionCommandStatus.state == 12 && pm_gGameStatus.pressedButtons[0].a &&
-                   pm_gGameStatus.frameCounter - fp.lastValidFrame <= 10) {
-            u16 framesLate = pm_gGameStatus.frameCounter - fp.lastValidFrame;
-            fpLog("pressed A %d frame%s late", framesLate, framesLate > 1 ? "s" : "");
-        }
-    }
-}
-
 void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
@@ -492,10 +464,6 @@ void fpUpdate(void) {
     timerUpdate();
     trainerUpdate();
 
-    if (fp.actionCommandTrainerEnabled) {
-        fpActionCommandTrainer();
-    }
-
     fpUpdateCheats();
 
     if (fp.turbo) {
@@ -610,113 +578,6 @@ HOOK void fpUpdateInput(void) {
 
     pm_gPlayerStatus.stickAxisX &= ~mask->xCardinal;
     pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
-}
-
-HOOK s32 fpCheckBlockInput(s32 buttonMask) {
-    s32 mashWindow;
-    s32 blockWindow;
-    s32 block;
-    s32 mash = 0;
-    s32 bufferPos;
-    s32 i;
-
-    pm_gBattleStatus.blockResult = 0; // Fail
-
-    if (pm_gBattleStatus.unk_83 == -1 && (pm_gBattleStatus.flags1 & 0x2000000)) {
-        pm_gBattleStatus.blockResult = 1;
-        return 1;
-    }
-
-    if (!pm_gBattleStatus.unk_83 || (pm_gGameStatus.demoState & 1)) {
-        return 0;
-    }
-
-    if (pm_gPlayerStatus.playerData.hitsTaken < 9999) {
-        pm_gPlayerStatus.playerData.hitsTaken += 1;
-        pm_gActionCommandStatus.hitsTakenIsMax = 0;
-    } else {
-        pm_gActionCommandStatus.hitsTakenIsMax = 1;
-    }
-
-    block = 0;
-    blockWindow = 3;
-    mashWindow = 10;
-
-    if (!(pm_gBattleStatus.flags1 & 0x80000) && pm_is_ability_active(0)) {
-        blockWindow = 5;
-    }
-
-    // Pre-window mashing check
-    bufferPos = pm_gBattleStatus.inputBufferPos;
-    bufferPos -= mashWindow + blockWindow;
-
-    if (bufferPos < 0) {
-        bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-    }
-    for (i = 0; i < mashWindow; i++) {
-        if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
-            bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-        }
-
-        if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
-            if (fp.actionCommandTrainerEnabled) {
-                s32 frames_early = mashWindow - i;
-                fpLog("blocked %d frame%s early", frames_early, frames_early > 1 ? "s" : "");
-            }
-            mash = 1;
-            break;
-        }
-        bufferPos++;
-    }
-
-    // Block check
-    bufferPos = pm_gBattleStatus.inputBufferPos;
-    bufferPos -= blockWindow;
-    if (bufferPos < 0) {
-        bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-    }
-    for (i = 0; i < blockWindow; i++) {
-        if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
-            bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-        }
-
-        if (pm_gBattleStatus.pushInputBuffer[bufferPos] & buttonMask) {
-            if (!mash && fp.actionCommandTrainerEnabled) {
-                fpLog("blocked frame %d out of %d", i + 1, blockWindow);
-            }
-            pm_gBattleStatus.blockResult = 1; // Block
-            block = 1;
-            break;
-        }
-        bufferPos++;
-    }
-
-    if (mash) {
-        pm_gBattleStatus.blockResult = -1; // Mash
-        block = 0;
-    }
-
-    // Ignore inputs until another mash window has passed, so check_block_input() can be called in quick succession
-    if (block) {
-        bufferPos = pm_gBattleStatus.inputBufferPos;
-        bufferPos -= mashWindow + blockWindow + 20;
-        if (bufferPos < 0) {
-            bufferPos += ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-        }
-
-        for (i = 0; i < mashWindow + blockWindow + 20; i++) {
-            if (bufferPos >= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer)) {
-                bufferPos -= ARRAY_LENGTH(pm_gBattleStatus.pushInputBuffer);
-            }
-            pm_gBattleStatus.pushInputBuffer[bufferPos] = 0;
-            bufferPos++;
-        }
-    }
-    if (block && !pm_gActionCommandStatus.hitsTakenIsMax) {
-        pm_gPlayerStatus.playerData.hitsBlocked += 1;
-    }
-
-    return block;
 }
 
 #include <grc.c>

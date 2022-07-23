@@ -11,6 +11,12 @@ enum BowserVariant {
     BOWSER_VARIANT_FINAL_2 = 0xC5,
 };
 
+enum BlockResult {
+    BLOCK_EARLY = -1,
+    BLOCK_LATE = 0,
+    BLOCK_SUCCESS = 1,
+};
+
 const char messageForASM[] = "Success";
 
 const static u32 bowserAttacksHallway[] = {
@@ -50,6 +56,15 @@ static bool lzsPlayerLanded = NULL;
 static u16 lzsFramesSinceLand = 0;
 static u16 lzsCurrentJumps = 0;
 static u16 lzsRecordJumps = 0;
+
+// action command trainer vars
+static bool acTrainerEnabled = FALSE;
+static bool acWaitingForBlock = FALSE;
+static s32 acPushInputBuffer[64];
+static s8 acInputBufferPos = 0;
+static s8 acBlockFramesLate = 0;
+static u16 acLastAPress = 0;
+static u16 acLastValidFrame = 0;
 
 // clippy trainer vars
 static u16 clippyFramesSinceBattle = 0;
@@ -420,7 +435,101 @@ static void updateLzsTrainer(void) {
     }
 }
 
-void updateClippyTrainer(void) {
+static void blockCheckSuccessOrEarly(void) {
+    const u32 mashWindow = 10;
+    u32 blockWindow = 3;
+    if (!(pm_gBattleStatus.flags1 & 0x80000) && pm_is_ability_active(0)) { // Dodge Master
+        blockWindow = 5;
+    }
+    s32 window;
+    s32 bufferPos = acInputBufferPos - blockWindow;
+    if (pm_gBattleStatus.blockResult == BLOCK_EARLY) {
+        bufferPos -= mashWindow;
+        window = mashWindow;
+    } else { // success
+        window = blockWindow;
+    }
+
+    if (bufferPos < 0) {
+        bufferPos += ARRAY_LENGTH(acPushInputBuffer);
+    }
+    for (s32 i = 0; i < window; i++) {
+        if (bufferPos >= ARRAY_LENGTH(acPushInputBuffer)) {
+            bufferPos -= ARRAY_LENGTH(acPushInputBuffer);
+        }
+        if (acPushInputBuffer[bufferPos] & 0x8000) { // A button
+            if (pm_gBattleStatus.blockResult == -1) {
+                s32 framesEarly = window - i;
+                fpLog("blocked %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
+            } else {
+                fpLog("blocked frame %d out of %d", i + 1, blockWindow);
+            }
+            break;
+        }
+        bufferPos++;
+    }
+}
+
+static void updateBlockTrainer(void) {
+    if (acTrainerEnabled && pm_gGameStatus.isBattle) {
+        // blocks
+        if (acWaitingForBlock) {
+            switch (pm_gBattleStatus.blockResult) {
+                case BLOCK_EARLY:
+                    acWaitingForBlock = FALSE;
+                    blockCheckSuccessOrEarly();
+                    break;
+                case BLOCK_SUCCESS:
+                    acWaitingForBlock = FALSE;
+                    blockCheckSuccessOrEarly();
+                    break;
+                case BLOCK_LATE:
+                    acBlockFramesLate++;
+                    if (pm_gGameStatus.currentButtons[0].buttons & 0x8000) { // A button
+                        fpLog("blocked %d frame%s late", acBlockFramesLate, acBlockFramesLate > 1 ? "s" : "");
+                        acWaitingForBlock = FALSE;
+                    }
+                    break;
+            }
+        } else if (pm_gBattleStatus.blockResult == 127) {
+            acWaitingForBlock = TRUE;
+            acBlockFramesLate = 0;
+        }
+
+        acPushInputBuffer[acInputBufferPos++] =
+            pm_gGameStatus.currentButtons[0].buttons & pm_gBattleStatus.inputBitmask;
+        if (acInputBufferPos >= ARRAY_LENGTH(acPushInputBuffer)) {
+            acInputBufferPos = 0;
+        }
+
+        // Either goombario or mario attacking
+        if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+            pm_battleState2 == 4) {
+            if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
+                acLastAPress = pm_gGameStatus.frameCounter;
+            } else if (pm_gActionCommandStatus.state == 11) {
+                if (acLastAPress) {
+                    u16 framesEarly = pm_gGameStatus.frameCounter - acLastAPress;
+                    fpLog("pressed A %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
+                    acLastAPress = 0;
+                }
+                if (pm_gGameStatus.pressedButtons[0].a) {
+                    fpLog("pressed A frame %d out of %d",
+                          pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
+                          pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
+                }
+                acLastValidFrame = pm_gGameStatus.frameCounter;
+                // check for a press up to 10 frames late
+            } else if (pm_gActionCommandStatus.state == 12 && pm_gGameStatus.pressedButtons[0].a &&
+                       pm_gGameStatus.frameCounter - acLastValidFrame <= 10) {
+                u16 framesLate = pm_gGameStatus.frameCounter - acLastValidFrame;
+                fpLog("pressed A %d frame%s late", framesLate, framesLate > 1 ? "s" : "");
+            }
+        }
+    }
+}
+
+static void updateClippyTrainer(void) {
     if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
         if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
             clippyStatus = 1;
@@ -447,6 +556,7 @@ void updateClippyTrainer(void) {
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
+    updateBlockTrainer();
     updateClippyTrainer();
 }
 
@@ -486,7 +596,7 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddSubmenuIcon(menu, xOffset + 2, y++, &lzsMenu, wrench, 0, 0, 1.0f);
 
     menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &fp.actionCommandTrainerEnabled);
+    menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &acTrainerEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
     menuAddCheckbox(menu, xOffset, y++, checkboxModProc, &clippyTrainerEnabled);

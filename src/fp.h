@@ -54,9 +54,6 @@ typedef struct {
     Vec3f camPos;
     pm_Controller inputMask;
     bool camEnabledBefore;
-    bool actionCommandTrainerEnabled;
-    u16 lastAPress;
-    u16 lastValidFrame;
 } FpCtxt;
 
 extern FpCtxt fp;
