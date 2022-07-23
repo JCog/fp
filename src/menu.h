@@ -200,6 +200,8 @@ struct MenuItem *menuUserwatchAddress(struct MenuItem *item);
 struct MenuItem *menuUserwatchType(struct MenuItem *item);
 struct MenuItem *menuUserwatchWatch(struct MenuItem *item);
 struct MenuItem *menuAddSubmenu(struct Menu *menu, s32 x, s32 y, struct Menu *submenu, const char *name);
+struct MenuItem *menuAddSubmenuIcon(struct Menu *menu, s32 x, s32 y, struct Menu *submenu, struct GfxTexture *texture,
+                                    s32 textureTile, s8 texturePalette, f32 scale);
 struct MenuItem *menuAddSwitch(struct Menu *menu, s32 x, s32 y, struct GfxTexture *textureOn, s32 textureTileOn,
                                s8 texturePaletteOn, u32 colorOn, struct GfxTexture *textureOff, s32 textureTileOff,
                                s8 texturePaletteOff, u32 colorOff, f32 scale, bool disableShadow,

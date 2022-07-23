@@ -41,21 +41,8 @@ typedef struct {
     bool aceLastFlagStatus;
     bool aceLastJumpStatus;
     bool turbo;
-    bool bowserBlocksEnabled;
-    s8 bowserBlock;
-    bool lzsTrainerEnabled;
-    s8 prevPressedY;
-    u8 prevPrevActionState;
-    bool lzStored;
-    bool playerLanded;
-    u16 framesSinceLand;
     bool warp;
     u8 warpDelay;
-    u16 currentLzsJumps;
-    u16 recordLzsJumps;
-    u16 framesSinceBattle;
-    u8 clippyStatus;
-    bool clippyTrainerEnabled;
     char *lastImportedSavePath;
     bool freeCam;
     bool lockCam;
@@ -67,9 +54,6 @@ typedef struct {
     Vec3f camPos;
     pm_Controller inputMask;
     bool camEnabledBefore;
-    bool actionCommandTrainerEnabled;
-    u16 lastAPress;
-    u16 lastValidFrame;
 } FpCtxt;
 
 extern FpCtxt fp;

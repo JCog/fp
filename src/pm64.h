@@ -12,6 +12,7 @@
 #define SCREEN_HEIGHT     240
 
 #define ICON_PALETTE_SIZE 32
+
 #if PM64_VERSION == US
 #define SCRIPTS_GLOBAL_START         0x801049B0
 #define ICONS_ITEMS_ROM_START        0x1CC310
@@ -25,6 +26,24 @@
 #define ICONS_STAR_SPIRITS_ROM_START 0x96540
 #define ICONS_BP_ROM_START           0x13C820
 #endif
+
+#define SCRIPT_BOWSER_HALLWAY_TAKE_TURN 0x80222B48
+#define SCRIPT_BOWSER_HALLWAY_FIRE      0x802267C8
+#define SCRIPT_BOWSER_HALLWAY_STOMP     0x802248A4
+#define SCRIPT_BOWSER_HALLWAY_CLAW      0x80225898
+#define SCRIPT_BOWSER_HALLWAY_WAVE      0x80225DD0
+#define SCRIPT_BOWSER_FINAL_1_TAKE_TURN 0x80228490
+#define SCRIPT_BOWSER_FINAL_1_FIRE      0x8022BFF8
+#define SCRIPT_BOWSER_FINAL_1_STOMP     0x8022A0F4
+#define SCRIPT_BOWSER_FINAL_1_CLAW      0x8022B0E8
+#define SCRIPT_BOWSER_FINAL_1_WAVE      0x8022B600
+#define SCRIPT_BOWSER_FINAL_1_LIGHTNING 0x8022CD88
+#define SCRIPT_BOWSER_FINAL_2_TAKE_TURN 0x8022F2BC
+#define SCRIPT_BOWSER_FINAL_2_FIRE      0x80232C64
+#define SCRIPT_BOWSER_FINAL_2_STOMP     0x80230D60
+#define SCRIPT_BOWSER_FINAL_2_CLAW      0x80231D54
+#define SCRIPT_BOWSER_FINAL_2_WAVE      0x8023226C
+#define SCRIPT_BOWSER_FINAL_2_LIGHTNING 0x802339F4
 
 // NOLINTBEGIN
 typedef struct {
@@ -984,7 +1003,6 @@ typedef pm_Evt *pm_ScriptList[128];
 #define extern_data extern __attribute__((section(".data")))
 extern_data u32 osMemSize;
 extern_data pm_GameStatus pm_gGameStatus;
-extern_data s32 pm_randSeed;
 extern_data s32 pm_gCurrentCameraID;
 extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
@@ -1047,6 +1065,7 @@ s32 pm_setMapTransitionEffect(s32 transition);
 void pm_playSfx(s32 sound_id);
 void pm_sfxStopSound(s32 sound_id);
 void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);
+pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
 
