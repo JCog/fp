@@ -71,13 +71,6 @@ void fpSetInputMask(u16 pad, u8 x, u8 y) {
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {
-    if (pm_gameMode == 0xA || pm_gameMode == 0xB) { // paused/unpausing
-        fpLog("can't warp while paused");
-        return FALSE;
-    } else if (pm_gGameStatus.isBattle) {
-        pm_clearWindows();
-    }
-
     pm_func_800554A4(0); // stop koopa village radio from playing
     pm_func_800554A4(1);
     pm_func_800554A4(2);
@@ -93,12 +86,17 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_gGameStatus.entryID = entrance;
 
     pm_mapChangeState = 1;
-
     PRINTF("***** WARP TRIGGERED *****\n");
     if (pm_popupMenuVar == 1) {
         PRINTF("overworld popup is open, setting delay and hiding menu\n");
         fp.warpDelay = 15;
         pm_hidePopupMenu();
+    } else if (pm_gameMode == 0xA) { // paused
+        PRINTF("pause menu is open, setting delay and unpausing\n");
+        fp.warpDelay = 5;
+        pm_setGameMode(0xB);
+    } else if (pm_gGameStatus.isBattle) {
+        pm_clearWindows();
     } else {
         fp.warpDelay = 0;
     }
