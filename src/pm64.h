@@ -1044,7 +1044,6 @@ void pm_setCurtainScaleGoal(f32 goal);
 void pm_setCurtainDrawCallback(void *callback);
 void pm_setCurtainFadeGoal(f32 goal);
 void pm_setGameMode(s32 mode);
-void pm_state_step_end_battle(void);
 s32 pm_func_800554A4(s32);
 void pm_removeEffect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
