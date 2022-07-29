@@ -67,6 +67,7 @@ pm_hidePopupMenu = 0x800F1340;
 pm_destroyPopupMenu = 0x800F14C8;
 pm_set_screen_overlay_alpha = 0x8013D184;
 pm_setMapTransitionEffect = 0x8013D350;
+pm_clearWindows = 0x8014C4A0;
 pm_playSfx = 0x8014ED64;
 pm_sfxStopSound = 0x8014ED1C;
 pm_bgmSetSong = 0x8014F9C8;

@@ -1062,6 +1062,7 @@ void pm_hidePopupMenu(void);
 void pm_destroyPopupMenu(void);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
 s32 pm_setMapTransitionEffect(s32 transition);
+void pm_clearWindows(void);
 void pm_playSfx(s32 sound_id);
 void pm_sfxStopSound(s32 sound_id);
 void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);

@@ -74,19 +74,8 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     if (pm_gameMode == 0xA || pm_gameMode == 0xB) { // paused/unpausing
         fpLog("can't warp while paused");
         return FALSE;
-    } else if ((pm_battleState == 0xD &&
-                (pm_battleState2 == 0xC9 || pm_battleState2 == 0x1F || pm_battleState2 == 0x29 ||
-                 pm_battleState2 == 0x2 || pm_battleState2 == 0x3D)) ||
-               (pm_battleState == 0xE &&
-                (pm_battleState2 == 0xB || pm_battleState2 == 0xC9 || pm_battleState2 == 0x1F)) ||
-               pm_battleState == 0x11) {
-        // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
-        // but the rest aren't. at some point we should figure out how to back out of these states automatically.
-        fpLog("can't warp in battle menu");
-        return FALSE;
     } else if (pm_gGameStatus.isBattle) {
-        pm_D_800A0900 = 1;
-        pm_state_step_end_battle();
+        pm_clearWindows();
     }
 
     pm_func_800554A4(0); // stop koopa village radio from playing
