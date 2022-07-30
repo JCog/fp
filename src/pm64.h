@@ -1061,6 +1061,7 @@ void pm_hidePopupMenu(void);
 void pm_destroyPopupMenu(void);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
 s32 pm_setMapTransitionEffect(s32 transition);
+s32 pm_updateExitMapScreenOverlay(s16 *progress);
 void pm_clearWindows(void);
 void pm_playSfx(s32 sound_id);
 void pm_sfxStopSound(s32 sound_id);
@@ -1068,7 +1069,6 @@ void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_ti
 pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
-s32 pm_updateExitMapScreenOverlay(s16 *progress);
 
 void pm_state_render_frontUI(void);
 void pm_step_game_loop(void);
