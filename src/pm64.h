@@ -1014,6 +1014,7 @@ extern_data u16 *nuGfxCfb_ptr;
 extern_data Gfx *pm_masterGfxPos;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
+extern_data s16 pm_gMapTransitionAlpha;
 extern_data s16 pm_mapChangeState;
 extern_data pm_EncounterStatus pm_gCurrentEncounter;
 extern_data pm_Camera pm_gCameras[4];
@@ -1067,6 +1068,7 @@ void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_ti
 pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
+s32 pm_updateExitMapScreenOverlay(s16 *progress);
 
 void pm_state_render_frontUI(void);
 void pm_step_game_loop(void);

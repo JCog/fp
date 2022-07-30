@@ -372,7 +372,9 @@ void fpUpdateWarps(void) {
         PRINTF("changing game mode\n");
         pm_setMapTransitionEffect(0); // normal black fade
         pm_setGameMode(5); // start the "change map" game mode
-        pm_mapChangeState = 1; // skip the transition
+        pm_mapChangeState = 1; // skip the fade out
+        pm_gMapTransitionAlpha = 0xFF;
+        pm_updateExitMapScreenOverlay(&pm_gMapTransitionAlpha);
         fp.warp = FALSE;
     }
 }
