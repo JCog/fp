@@ -369,15 +369,12 @@ void fpUpdateWarps(void) {
     }
 
     if (fp.warp && fp.warpDelay == 0) {
-        // if a popup menu is currently hidden, destroy it
-        if (pm_popupMenuVar == 10) {
-            PRINTF("destroying popup menu\n");
-            pm_destroyPopupMenu();
-        }
-
-        pm_setMapTransitionEffect(0); // normal black fade
         PRINTF("changing game mode\n");
-        pm_setGameMode(5); // start the "change map" game mode
+        pm_setMapTransitionEffect(0); // normal black fade
+        pm_setGameMode(5);            // start the "change map" game mode
+        pm_mapChangeState = 1;        // skip the fade out
+        pm_gMapTransitionAlpha = 0xFF;
+        pm_updateExitMapScreenOverlay(&pm_gMapTransitionAlpha);
         fp.warp = FALSE;
     }
 }

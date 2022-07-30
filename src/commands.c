@@ -71,29 +71,12 @@ void fpSetInputMask(u16 pad, u8 x, u8 y) {
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {
-    if (pm_gameMode == 0xA || pm_gameMode == 0xB) { // paused/unpausing
-        fpLog("can't warp while paused");
-        return FALSE;
-    } else if ((pm_battleState == 0xD &&
-                (pm_battleState2 == 0xC9 || pm_battleState2 == 0x1F || pm_battleState2 == 0x29 ||
-                 pm_battleState2 == 0x2 || pm_battleState2 == 0x3D)) ||
-               (pm_battleState == 0xE &&
-                (pm_battleState2 == 0xB || pm_battleState2 == 0xC9 || pm_battleState2 == 0x1F)) ||
-               pm_battleState == 0x11) {
-        // these are all the states I can find that crash when you try to warp from battle. 0x11 is slight overkill,
-        // but the rest aren't. at some point we should figure out how to back out of these states automatically.
-        fpLog("can't warp in battle menu");
-        return FALSE;
-    } else if (pm_gGameStatus.isBattle) {
-        pm_D_800A0900 = 1;
-        pm_state_step_end_battle();
-    }
-
     pm_func_800554A4(0); // stop koopa village radio from playing
     pm_func_800554A4(1);
     pm_func_800554A4(2);
     pm_func_800554A4(3);
     pm_bgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
+    pm_sfxStopSound(0xA5);         // clear Goomba King's Castle rumble
     pm_sfxStopSound(0x19C);        // clear upward vine sound
     pm_sfxStopSound(0x19D);        // clear downward vine sound
     pm_disable_player_input();
@@ -102,13 +85,15 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_gGameStatus.mapID = map;
     pm_gGameStatus.entryID = entrance;
 
-    pm_mapChangeState = 1;
-
     PRINTF("***** WARP TRIGGERED *****\n");
-    if (pm_popupMenuVar == 1) {
-        PRINTF("overworld popup is open, setting delay and hiding menu\n");
-        fp.warpDelay = 15;
-        pm_hidePopupMenu();
+    if (pm_gGameStatus.isBattle || pm_popupMenuVar == 1) {
+        // prevent crashes from warping when in battle menus or with partner/item menu open
+        pm_clearWindows();
+    }
+
+    if (pm_gameMode == 0xA) { // paused
+        fp.warpDelay = 5;
+        pm_setGameMode(0xB);
     } else {
         fp.warpDelay = 0;
     }
