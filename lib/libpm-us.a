@@ -11,7 +11,6 @@ nuGfxCfb_ptr = 0x8009A64C;
 pm_masterGfxPos = 0x8009A66C;
 pm_logicalSaveInfo = 0x8009BA30;
 pm_gameMode = 0x800A08F0;
-pm_D_800A0900 = 0x800A0900;
 pm_mapChangeState = 0x800A0944;
 pm_gCurrentEncounter = 0x800B0F10;
 pm_gCameras = 0x800B1D80;

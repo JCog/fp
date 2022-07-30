@@ -85,7 +85,6 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_gGameStatus.mapID = map;
     pm_gGameStatus.entryID = entrance;
 
-    pm_mapChangeState = 1;
     PRINTF("***** WARP TRIGGERED *****\n");
     if (pm_gGameStatus.isBattle || pm_popupMenuVar == 1) {
         // prevent crashes from warping when in battle menus or with partner/item menu open
@@ -95,8 +94,6 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     if (pm_gameMode == 0xA) { // paused
         fp.warpDelay = 5;
         pm_setGameMode(0xB);
-    } else if (pm_battleState == 1 && pm_battleState2 == 1) { // first frame of battle
-        fp.warpDelay = 2;
     } else {
         fp.warpDelay = 0;
     }

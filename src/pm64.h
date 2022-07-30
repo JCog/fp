@@ -1014,7 +1014,6 @@ extern_data u16 *nuGfxCfb_ptr;
 extern_data Gfx *pm_masterGfxPos;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
-extern_data s8 pm_D_800A0900;
 extern_data s16 pm_mapChangeState;
 extern_data pm_EncounterStatus pm_gCurrentEncounter;
 extern_data pm_Camera pm_gCameras[4];
