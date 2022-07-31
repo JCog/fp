@@ -35,6 +35,8 @@ genhook()
     rm -f "$tmp"
 }
 
+genhook "$sym_draw_background_hook" "jal $sym_fpDrawBackgroundHook;"
+genhook "$sym_draw_frame_hook" "jal $sym_fpDrawFrameHook;"
 genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"

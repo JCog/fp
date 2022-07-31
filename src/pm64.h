@@ -996,6 +996,15 @@ typedef struct Area {
     /* 0x0C */ char *name; ///< JP debug name.
 } pm_Area;                 // size = 0x10
 
+typedef struct {
+    /* 0x00000 */ char lookAt[0x20];
+    /* 0x00020 */ char unk_20[0x10];
+    /* 0x00030 */ char camPerspMatrix[64][8]; // could only be length 4, unsure
+    /* 0x00230 */ Gfx mainGfx[0x2080];
+    /* 0x10630 */ Gfx backgroundGfx[0x200]; // used by gfx_task_background
+    /* 0x11630 */ char matrixStack[64][0x200];
+} pm_DisplayContext; // size = 0x19630
+
 typedef void *(*PrintCallback)(void *, const char *, u32);
 typedef pm_Evt *pm_ScriptList[128];
 
@@ -1032,6 +1041,12 @@ extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];
+extern_data s32 pm_gCurrentDisplayContextIndex;
+extern_data pm_DisplayContext pm_D_80164000[];
+extern_data u16 pm_matrixListPos;
+extern_data pm_DisplayContext *pm_displayContext;
+extern_data s32 pm_D_800741A8[18];
+extern_data s8 pm_mainGameState[0x40];
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
@@ -1069,7 +1084,13 @@ pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
 void pm_update_input(void);
+void pm_nuGfxTaskStart(Gfx *gfxList_ptr, u32 gfxListSize, u32 ucode, u32 flag);
+void pm_spr_render_init(void);
+void pm_render_frame(s32 flag);
+void pm_render_screen_overlay_frontUI(void);
+void pm_gfx_task_background(void);
 
+void pm_gfx_draw_frame(void);
 void pm_state_render_frontUI(void);
 void pm_step_game_loop(void);
 void pm_update_camera_mode_6(pm_Camera *camera);

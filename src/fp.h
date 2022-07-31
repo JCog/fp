@@ -55,6 +55,8 @@ typedef struct {
     pm_Controller inputMask;
     bool camEnabledBefore;
     s32 pendingFrames;
+    Gfx *bgMasterGfxPos;
+    Gfx *frameMasterGfxPos;
 } FpCtxt;
 
 extern FpCtxt fp;
