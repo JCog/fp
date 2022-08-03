@@ -19,7 +19,7 @@ __attribute__((section(".data"))) FpCtxt fp = {
 };
 
 // Initializes and uses new stack instead of using games main thread stack.
-static void initStack(void (*func)(void)) {
+static void __attribute__ ((noinline)) initStack(void (*func)(void)) {
     static _Alignas(8) __attribute__((section(".stack"))) char stack[0x2000];
     __asm__ volatile("la     $t0, %1;"
                      "sw     $sp, -0x04($t0);"
@@ -578,28 +578,23 @@ HOOK void fpDrawBackgroundHook(void) {
         pm_gfx_task_background();
         fp.bgMasterGfxPos = pm_masterGfxPos;
     } else {
-        init_gp();
-        pm_masterGfxPos = fp.bgMasterGfxPos;
         memcpy(&pm_D_80164000[pm_gCurrentDisplayContextIndex], &pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1],
                sizeof(pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1]));
         pm_nuGfxTaskStart(&pm_displayContext->backgroundGfx[0],
-                          (u32)(pm_masterGfxPos - pm_displayContext->backgroundGfx) * 8, 0, 0);
+                          (u32)(fp.bgMasterGfxPos - pm_displayContext->backgroundGfx) * 8, 0, 0);
     }
 }
 
 HOOK void fpDrawFrameHook(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_draw_frame();
-        fp.frameMasterGfxPos = pm_masterGfxPos;
+        fp.frameMasterGfxPos = pm_masterGfxPos - 3;
     } else {
+        pm_masterGfxPos = fp.frameMasterGfxPos;
         init_gp();
-        memcpy(&pm_D_80164000[pm_gCurrentDisplayContextIndex], &pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1],
-               sizeof(pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1]));
-        pm_masterGfxPos = fp.frameMasterGfxPos - 0x10;
         initStack(fpDraw);
         gDPFullSync(pm_masterGfxPos++);
         gSPEndDisplayList(pm_masterGfxPos++);
-
         pm_nuGfxTaskStart(pm_displayContext->mainGfx, (u32)(pm_masterGfxPos - pm_displayContext->mainGfx) * 8, 0,
                           0x40000);
         crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
