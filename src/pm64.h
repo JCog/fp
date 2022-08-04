@@ -1047,6 +1047,7 @@ extern_data u16 pm_matrixListPos;
 extern_data pm_DisplayContext *pm_displayContext;
 extern_data s32 pm_D_800741A8[18];
 extern_data s8 pm_mainGameState[0x40];
+extern_data s32 gOverrideFlags;
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);

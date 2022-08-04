@@ -570,6 +570,7 @@ ENTRY void fpUpdateEntry(void) {
 ENTRY void fpDrawEntry(void) {
     init_gp();
     pm_state_render_frontUI();
+    fp.frameMasterGfxPos = pm_masterGfxPos;
     initStack(fpDraw);
 }
 
@@ -578,6 +579,10 @@ HOOK void fpDrawBackgroundHook(void) {
         pm_gfx_task_background();
         fp.bgMasterGfxPos = pm_masterGfxPos;
     } else {
+        if (gOverrideFlags & 8) {
+            pm_gfx_task_background();
+            return;
+        }
         memcpy(&pm_D_80164000[pm_gCurrentDisplayContextIndex], &pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1],
                sizeof(pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1]));
         pm_nuGfxTaskStart(&pm_displayContext->backgroundGfx[0],
@@ -588,15 +593,18 @@ HOOK void fpDrawBackgroundHook(void) {
 HOOK void fpDrawFrameHook(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_draw_frame();
-        fp.frameMasterGfxPos = pm_masterGfxPos - 3;
     } else {
+        if (gOverrideFlags & 8) {
+            return;
+        }
         pm_masterGfxPos = fp.frameMasterGfxPos;
         init_gp();
+        memcpy(&pm_D_80164000[pm_gCurrentDisplayContextIndex].mainGfx, &pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1].mainGfx,
+               sizeof(pm_D_80164000[pm_gCurrentDisplayContextIndex ^ 1].mainGfx));
         initStack(fpDraw);
         gDPFullSync(pm_masterGfxPos++);
         gSPEndDisplayList(pm_masterGfxPos++);
-        pm_nuGfxTaskStart(pm_displayContext->mainGfx, (u32)(pm_masterGfxPos - pm_displayContext->mainGfx) * 8, 0,
-                          0x40000);
+        pm_nuGfxTaskStart(pm_displayContext->mainGfx, (u32)(pm_masterGfxPos - pm_displayContext->mainGfx) * 8, 0, 0x40000);
         crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 }

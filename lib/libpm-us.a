@@ -82,6 +82,7 @@ pm_spr_render_init = 0x802DDA60;
 pm_render_frame = 0x8002D73C;
 pm_render_screen_overlay_frontUI = 0x801381A0;
 pm_mainGameState = 0x80151700;
+gOverrideFlags = 0x8009A650;
 
 pm_gCurrentDisplayContextIndex = 0x800741F4;
 pm_D_80164000 = 0x80164000;
