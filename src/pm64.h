@@ -1041,13 +1041,9 @@ extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];
-extern_data s32 pm_gCurrentDisplayContextIndex;
-extern_data pm_DisplayContext pm_D_80164000[];
-extern_data u16 pm_matrixListPos;
 extern_data pm_DisplayContext *pm_displayContext;
-extern_data s32 pm_D_800741A8[18];
-extern_data s8 pm_mainGameState[0x40];
 extern_data s32 gOverrideFlags;
+extern_data f32 screen_overlay_frontZoom;
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
@@ -1096,6 +1092,9 @@ void pm_state_render_frontUI(void);
 void pm_step_game_loop(void);
 void pm_update_camera_mode_6(pm_Camera *camera);
 void pm_update_player_input(void);
+
+void render_entities(void);
+void render_models(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]
