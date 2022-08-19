@@ -581,7 +581,7 @@ HOOK void fpUpdateInput(void) {
     }
 }
 
-HOOK void fpDrawBackgroundHook(void) {
+HOOK void fpDrawBackground(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_task_background();
         fp.bgMasterGfxPos = pm_masterGfxPos;
@@ -598,7 +598,7 @@ HOOK void fpDrawBackgroundHook(void) {
     }
 }
 
-HOOK void fpDrawFrameHook(void) {
+HOOK void fpDrawFrame(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_draw_frame();
     } else {

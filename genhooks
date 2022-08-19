@@ -37,8 +37,8 @@ genhook()
 
 genhook "$sym_update_input_hook" "jal $sym_fpUpdateInput;"
 genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
-genhook "$sym_draw_background_hook" "jal $sym_fpDrawBackgroundHook;"
-genhook "$sym_draw_frame_hook" "jal $sym_fpDrawFrameHook;"
+genhook "$sym_draw_background_hook" "jal $sym_fpDrawBackground;"
+genhook "$sym_draw_frame_hook" "jal $sym_fpDrawFrame;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
 genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"
