@@ -228,11 +228,11 @@ The **commands** menu lets you bind commands to custom button combinations and/o
 The following commands are available:
 
 - **show/hide menu:** Opens the utility menu if it's closed, closes it if
-    it's opened. *Default: `R + L`*
+    it's opened. *Default: `R + D-Up`*
 - **return from menu:** Returns to the previous menu, as if the *return*
     button was pressed. *Default: `R + D-Left`*
-- **levitate**: Makes Mario fly into the air. *Default: `D-Up`*
-- **turbo**: Increases Mario's running speed. *Default: `D-Down`*
+- **levitate**: Makes Mario fly into the air. *Default: `R + A`*
+- **turbo**: Increases Mario's running speed. *Default: `L + D-Down`*
 - **save position**: Saves Mario's current position and orientation. *Default: `D-Left`*
 - **load position**: Loads Mario's saved position and orientation. *Default: `D-Right`*
 - **lzs**: Allows Mario to walk into loading zones and store them without taking them. If a menu is then opened and closed after moving somewhere else, Mario will then take the loading zone as though Loading Zone Storage jumps had been performed. *Default: `R + D-Left`*
@@ -245,7 +245,9 @@ The following commands are available:
 - **start/stop timer**: Sets the timer to start after the next cutscene or starts/stops the timer, depending on the timer mode. *Default: `unbound`*
 - **reset timer**: Sets the timer back to 0 and reverts it to an inactive state. *Default: `unbound`*
 - **show/hide timer**: Toggles whether the timer is showing when it's active. *Default: `unbound`*
-- **break free**: Attempts to break any effect that removes control of Mario.
+- **break free**: Attempts to break any effect that removes control of Mario. *Default: `L + D-Up`*
+- **pause**: Toggles whether the game is paused or unpaused. *Default: `D-Down`*
+- **advance**: Advances the game one frame. If the game is not paused, it pauses the game instead. *Default: `D-Up`*
 
 
 **_Warning:_** Unbinding the *show/hide menu* or *return from menu* commands,
