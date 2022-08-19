@@ -8,7 +8,9 @@ pm_viFrames = 0x80093B94;
 pm_timeFreezeMode = 0x8009A5D8;
 pm_gameState = 0x8009A600;
 nuGfxCfb_ptr = 0x8009A64C;
+pm_gOverrideFlags = 0x8009A650;
 pm_masterGfxPos = 0x8009A66C;
+pm_displayContext = 0x8009A674;
 pm_logicalSaveInfo = 0x8009BA30;
 pm_gameMode = 0x800A08F0;
 pm_D_800A0900 = 0x800A0900;
@@ -26,13 +28,13 @@ pm_gPartnerActionStatus = 0x8010EBB0;
 pm_gUiStatus = 0x8010EF58;
 pm_gPlayerStatus = 0x8010EFC8;
 pm_gHudElementSizes = 0x8014EFCC;
+pm_screen_overlay_frontZoom = 0x80156904;
 pm_gActionCommandStatus = 0x8029FBE0;
 pm_gNumScripts = 0x802DA488;
 pm_gCurrentScriptListPtr = 0x802DA890;
 pm_gScriptIndexList = 0x802DA898;
 
 osSyncPrintf = 0x80025CFC;
-pm_update_input = 0x80028874;
 pm_fioValidateFileChecksum = 0x8002B0F8;
 pm_fioFetchSavedFileInfo = 0x8002B154;
 pm_fioDeserializeState = 0x8002B490;
@@ -41,6 +43,7 @@ pm_fioWriteFlash = 0x8002B948;
 pm_setCurtainScaleGoal = 0x8002BEDC;
 pm_setCurtainDrawCallback = 0x8002BF04;
 pm_setCurtainFadeGoal = 0x8002BF14;
+pm_nuGfxTaskStart = 0x8002CCC4;
 pm_setGameMode = 0x800334F0;
 pm_state_step_end_battle = 0x80033BC0;
 pm_func_800554A4 = 0x800554A4;
@@ -74,22 +77,18 @@ pm_bgmSetSong = 0x8014A918;
 pm_useIdleAnimation = 0x8026F0EC;
 pm_gotoMap = 0x802CA400;
 pm_saveGame = 0x802E11A0;
-pm_nuGfxTaskStart = 0x8002CCC4;
-pm_displayContext = 0x8009A674;
-pm_spr_render_init = 0x802DDA60;
-pm_render_frame = 0x8002D73C;
-pm_render_screen_overlay_frontUI = 0x801381A0;
-gOverrideFlags = 0x8009A650;
 
+update_input_hook = 0x8002674C;
+pm_update_input = 0x80028874;
 
-draw_frame_hook = 0x80026148;
-pm_gfx_draw_frame = 0x80026B08;
+update_hook = 0x8002611C;
+pm_step_game_loop = 0x80026740;
 
 draw_background_hook = 0x80026140;
 pm_gfx_task_background = 0x800269EC;
 
-update_hook = 0x8002611C;
-pm_step_game_loop = 0x80026740;
+draw_frame_hook = 0x80026148;
+pm_gfx_draw_frame = 0x80026B08;
 
 draw_hook = 0x80026CBC;
 pm_state_render_frontUI = 0x80112FC4;
@@ -99,13 +98,11 @@ after_draw_hook = 0x80026DC0;
 update_camera_mode_6_hook = 0x8002D4F8;
 pm_update_camera_mode_6 = 0x8002F990;
 
-update_player_input_rom_hook = 0x8009D934;
-pm_update_player_input = 0x800E1F90;
-
+render_models_hook = 0x8002DD24;
+pm_render_models = 0x80116B90;
 
 render_entities_hook = 0x8002DD0C;
-render_models_hook = 0x8002DD24;
+pm_render_entities = 0x8010FEB4;
 
-render_entities = 0x8010FEB4;
-render_models = 0x80116B90;
-screen_overlay_frontZoom = 0x80156904;
+update_player_input_rom_hook = 0x8009D934;
+pm_update_player_input = 0x800E1F90;

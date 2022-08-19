@@ -8,7 +8,9 @@ pm_viFrames = 0x80093B64;
 pm_timeFreezeMode = 0x8009A5B8;
 pm_gameState = 0x8009A5E0;
 nuGfxCfb_ptr = 0x8009A62C;
+pm_gOverrideFlags = 0x8009A630;
 pm_masterGfxPos = 0x8009A64C;
+pm_displayContext = 0x8009A654;
 pm_logicalSaveInfo = 0x8009BA10;
 pm_gameMode = 0x8009E700;
 pm_D_800A0900 = 0x8009E710;
@@ -26,13 +28,13 @@ pm_gPartnerActionStatus = 0x8010ED70;
 pm_gUiStatus = 0x8010F118;
 pm_gPlayerStatus = 0x8010F188;
 pm_gHudElementSizes = 0x8015406C;
+pm_screen_overlay_frontZoom = 0x8015B884;
 pm_gActionCommandStatus = 0x8029FED0;
 pm_gNumScripts = 0x802DA488;
 pm_gCurrentScriptListPtr = 0x802DA890;
 pm_gScriptIndexList = 0x802DA898;
 
 osSyncPrintf = 0x80025CFC;
-pm_update_input = 0x80028844;
 pm_fioValidateFileChecksum = 0x8002B0B8;
 pm_fioFetchSavedFileInfo = 0x8002B114;
 pm_fioDeserializeState = 0x8002B450;
@@ -41,6 +43,7 @@ pm_fioWriteFlash = 0x8002B908;
 pm_setCurtainScaleGoal = 0x8002BE9C;
 pm_setCurtainDrawCallback = 0x8002BEC4;
 pm_setCurtainFadeGoal = 0x8002BED4;
+pm_nuGfxTaskStart = 0x8002CF24;
 pm_setGameMode = 0x80033180;
 pm_state_step_end_battle = 0x80033850;
 pm_func_800554A4 = 0x80055154;
@@ -75,9 +78,17 @@ pm_useIdleAnimation = 0x8026F26C;
 pm_gotoMap = 0x802CA400;
 pm_saveGame = 0x802DC150;
 
+update_input_hook = 0x8002675C;
+pm_update_input = 0x80028844;
 
 update_hook = 0x80026100;
 pm_step_game_loop = 0x80026710;
+
+draw_background_hook = 0x80026124;
+pm_gfx_task_background = 0x800269C0;
+
+draw_frame_hook = 0x8002612C;
+pm_gfx_draw_frame = 0x80026AD4;
 
 draw_hook = 0x80026C88;
 pm_state_render_frontUI = 0x801181D4;
@@ -86,6 +97,12 @@ after_draw_hook = 0x80026D8C;
 
 update_camera_mode_6_hook = 0x8002D188;
 pm_update_camera_mode_6 = 0x8002F620;
+
+render_models_hook = 0x8002D9B4;
+pm_render_models = 0x8011BDA0;
+
+render_entities_hook = 0x8002D99C;
+pm_render_entities = 0x801150C4;
 
 update_player_input_rom_hook = 0x8009D914;
 pm_update_player_input = 0x800E1F70;

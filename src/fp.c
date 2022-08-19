@@ -19,7 +19,7 @@ __attribute__((section(".data"))) FpCtxt fp = {
 };
 
 // Initializes and uses new stack instead of using games main thread stack.
-static void __attribute__ ((noinline)) initStack(void (*func)(void)) {
+static void __attribute__((noinline)) initStack(void (*func)(void)) {
     static _Alignas(8) __attribute__((section(".stack"))) char stack[0x2000];
     __asm__ volatile("la     $t0, %1;"
                      "sw     $sp, -0x04($t0);"
@@ -574,6 +574,13 @@ ENTRY void fpDrawEntry(void) {
     initStack(fpDraw);
 }
 
+HOOK void fpUpdateInput(void) {
+    pm_update_input();
+    if (fp.pendingFrames > 0) {
+        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
+    }
+}
+
 HOOK void fpDrawBackgroundHook(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_task_background();
@@ -588,7 +595,7 @@ HOOK void fpDrawFrameHook(void) {
     if (fp.pendingFrames != 0) {
         pm_gfx_draw_frame();
     } else {
-        if (gOverrideFlags & 8) {
+        if (pm_gOverrideFlags & 8) {
             return;
         }
         pm_masterGfxPos = fp.frameMasterGfxPos;
@@ -603,17 +610,17 @@ HOOK void fpDrawFrameHook(void) {
 }
 
 HOOK void fpRenderEntities(void) {
-    if (screen_overlay_frontZoom == 255.f) {
+    if (pm_screen_overlay_frontZoom == 255.f) {
         return;
     }
-    render_entities();
+    pm_render_entities();
 }
 
 HOOK void fpRenderModels(void) {
-    if (screen_overlay_frontZoom == 255.f) {
+    if (pm_screen_overlay_frontZoom == 255.f) {
         return;
     }
-    render_models();
+    pm_render_models();
 }
 
 ENTRY void fpAfterDrawEntry(void) {
@@ -626,10 +633,7 @@ HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
     }
 }
 
-HOOK void fpUpdateInput(void) {
-    if (fp.pendingFrames > 0) {
-        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
-    }
+HOOK void fpUpdatePlayerInput(void) {
     pm_update_player_input();
     pm_Controller *mask = &fp.inputMask;
 

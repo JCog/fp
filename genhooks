@@ -35,13 +35,13 @@ genhook()
     rm -f "$tmp"
 }
 
+genhook "$sym_update_input_hook" "jal $sym_fpUpdateInput;"
+genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
 genhook "$sym_draw_background_hook" "jal $sym_fpDrawBackgroundHook;"
 genhook "$sym_draw_frame_hook" "jal $sym_fpDrawFrameHook;"
-genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
 genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"
-genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
-
 genhook "$sym_render_entities_hook" "jal $sym_fpRenderEntities;"
 genhook "$sym_render_models_hook" "jal $sym_fpRenderModels;"
+genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdatePlayerInput;"

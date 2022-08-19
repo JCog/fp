@@ -997,12 +997,16 @@ typedef struct Area {
 } pm_Area;                 // size = 0x10
 
 typedef struct {
-    /* 0x00000 */ char lookAt[0x20];
-    /* 0x00020 */ char unk_20[0x10];
-    /* 0x00030 */ char camPerspMatrix[64][8]; // could only be length 4, unsure
+    /* 0x00000 */ LookAt lookAt;
+    /* 0x00020 */ Hilite hilite;
+    /* 0x00030 */ Mtx camPerspMatrix[8]; // could only be length 4, unsure
+#if PM64_VERSION == US
     /* 0x00230 */ Gfx mainGfx[0x2080];
+#else
+    /* 0x00230 */ Gfx mainGfx[0x2000];
+#endif
     /* 0x10630 */ Gfx backgroundGfx[0x200]; // used by gfx_task_background
-    /* 0x11630 */ char matrixStack[64][0x200];
+    /* 0x11630 */ Mtx matrixStack[0x200];
 } pm_DisplayContext; // size = 0x19630
 
 typedef void *(*PrintCallback)(void *, const char *, u32);
@@ -1020,7 +1024,9 @@ extern_data u32 pm_viFrames;
 extern_data s32 pm_timeFreezeMode;
 extern_data s32 pm_gameState;
 extern_data u16 *nuGfxCfb_ptr;
+extern_data s32 pm_gOverrideFlags;
 extern_data Gfx *pm_masterGfxPos;
+extern_data pm_DisplayContext *pm_displayContext;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
 extern_data s8 pm_D_800A0900;
@@ -1037,13 +1043,11 @@ extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
+extern_data f32 pm_screen_overlay_frontZoom;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];
-extern_data pm_DisplayContext *pm_displayContext;
-extern_data s32 gOverrideFlags;
-extern_data f32 screen_overlay_frontZoom;
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
@@ -1055,6 +1059,7 @@ void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
 void pm_setCurtainScaleGoal(f32 goal);
 void pm_setCurtainDrawCallback(void *callback);
 void pm_setCurtainFadeGoal(f32 goal);
+void pm_nuGfxTaskStart(Gfx *gfxList_ptr, u32 gfxListSize, u32 ucode, u32 flag);
 void pm_setGameMode(s32 mode);
 void pm_state_step_end_battle(void);
 s32 pm_func_800554A4(s32);
@@ -1080,21 +1085,16 @@ void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_ti
 pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
-void pm_update_input(void);
-void pm_nuGfxTaskStart(Gfx *gfxList_ptr, u32 gfxListSize, u32 ucode, u32 flag);
-void pm_spr_render_init(void);
-void pm_render_frame(s32 flag);
-void pm_render_screen_overlay_frontUI(void);
-void pm_gfx_task_background(void);
 
+void pm_update_input(void);
+void pm_step_game_loop(void);
+void pm_gfx_task_background(void);
 void pm_gfx_draw_frame(void);
 void pm_state_render_frontUI(void);
-void pm_step_game_loop(void);
 void pm_update_camera_mode_6(pm_Camera *camera);
+void pm_render_models(void);
+void pm_render_entities(void);
 void pm_update_player_input(void);
-
-void render_entities(void);
-void render_models(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]
