@@ -1016,6 +1016,7 @@ typedef pm_Evt *pm_ScriptList[128];
 #define extern_data extern __attribute__((section(".data")))
 extern_data u32 osMemSize;
 extern_data pm_GameStatus pm_gGameStatus;
+extern_data s32 pm_gCurrentDisplayContextIndex;
 extern_data s32 pm_gCurrentCameraID;
 extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
@@ -1044,6 +1045,7 @@ extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
 extern_data f32 pm_screen_overlay_frontZoom;
+extern_data pm_DisplayContext pm_displayContexts[];
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;

@@ -586,6 +586,13 @@ HOOK void fpDrawBackgroundHook(void) {
         pm_gfx_task_background();
         fp.bgMasterGfxPos = pm_masterGfxPos;
     } else {
+        if (pm_gOverrideFlags & 8) {
+            pm_gfx_task_background();
+            return;
+        }
+        memcpy(&pm_displayContexts[pm_gCurrentDisplayContextIndex],
+               &pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1],
+               sizeof(pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1]));
         pm_nuGfxTaskStart(&pm_displayContext->backgroundGfx[0],
                           (u32)(fp.bgMasterGfxPos - pm_displayContext->backgroundGfx) * 8, 0, 0);
     }

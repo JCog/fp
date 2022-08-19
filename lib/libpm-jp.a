@@ -1,5 +1,6 @@
 osMemSize = 0x80000318;
 pm_gGameStatus = 0x80074004;
+pm_gCurrentDisplayContextIndex = 0x800741D4;
 pm_gCurrentCameraID = 0x800773E0;
 pm_gItemTable = 0x800878B0;
 pm_gItemHudScripts = 0x8008A650;
@@ -29,6 +30,7 @@ pm_gUiStatus = 0x8010F118;
 pm_gPlayerStatus = 0x8010F188;
 pm_gHudElementSizes = 0x8015406C;
 pm_screen_overlay_frontZoom = 0x8015B884;
+pm_displayContexts = 0x80164000;
 pm_gActionCommandStatus = 0x8029FED0;
 pm_gNumScripts = 0x802DA488;
 pm_gCurrentScriptListPtr = 0x802DA890;
