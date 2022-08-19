@@ -547,7 +547,6 @@ static void gameUpdate(void) {
         }
     } else {
         pm_update_input();
-        pm_gPlayerStatus.flags |= 0x40000000; // draw player sprite
     }
 }
 
