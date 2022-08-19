@@ -581,14 +581,10 @@ HOOK void fpUpdateInput(void) {
 }
 
 HOOK void fpDrawBackground(void) {
-    if (fp.pendingFrames != 0) {
+    if (fp.pendingFrames != 0 || pm_gOverrideFlags & 8) {
         pm_gfx_task_background();
         fp.bgMasterGfxPos = pm_masterGfxPos;
     } else {
-        if (pm_gOverrideFlags & 8) {
-            pm_gfx_task_background();
-            return;
-        }
         memcpy(&pm_displayContexts[pm_gCurrentDisplayContextIndex],
                &pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1],
                sizeof(pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1]));
@@ -616,17 +612,15 @@ HOOK void fpDrawFrame(void) {
 }
 
 HOOK void fpRenderEntities(void) {
-    if (pm_screen_overlay_frontZoom == 255.f) {
-        return;
+    if (pm_screen_overlay_frontZoom != 255.f) {
+        pm_render_entities();
     }
-    pm_render_entities();
 }
 
 HOOK void fpRenderModels(void) {
-    if (pm_screen_overlay_frontZoom == 255.f) {
-        return;
+    if (pm_screen_overlay_frontZoom != 255.f) {
+        pm_render_models();
     }
-    pm_render_models();
 }
 
 ENTRY void fpAfterDrawEntry(void) {
