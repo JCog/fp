@@ -588,8 +588,9 @@ HOOK void fpDrawBackground(void) {
         memcpy(&pm_displayContexts[pm_gCurrentDisplayContextIndex],
                &pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1],
                sizeof(pm_displayContexts[pm_gCurrentDisplayContextIndex ^ 1]));
-        pm_nuGfxTaskStart(pm_displayContexts[pm_gCurrentDisplayContextIndex].backgroundGfx,
-                          (u32)(fp.bgMasterGfxPos - pm_displayContexts[pm_gCurrentDisplayContextIndex].backgroundGfx) * 8, 0, 0);
+        pm_nuGfxTaskStart(
+            pm_displayContexts[pm_gCurrentDisplayContextIndex].backgroundGfx,
+            (u32)(fp.bgMasterGfxPos - pm_displayContexts[pm_gCurrentDisplayContextIndex].backgroundGfx) * 8, 0, 0);
     }
 }
 
@@ -605,7 +606,8 @@ HOOK void fpDrawFrame(void) {
         initStack(fpDraw);
         gDPFullSync(pm_masterGfxPos++);
         gSPEndDisplayList(pm_masterGfxPos++);
-        pm_nuGfxTaskStart(pm_displayContexts[pm_gCurrentDisplayContextIndex].mainGfx, (u32)(pm_masterGfxPos - pm_displayContexts[pm_gCurrentDisplayContextIndex].mainGfx) * 8, 0,
+        pm_nuGfxTaskStart(pm_displayContexts[pm_gCurrentDisplayContextIndex].mainGfx,
+                          (u32)(pm_masterGfxPos - pm_displayContexts[pm_gCurrentDisplayContextIndex].mainGfx) * 8, 0,
                           0x40000);
         crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
