@@ -548,7 +548,6 @@ static void gameUpdate(void) {
     } else {
         pm_update_input();
         pm_gPlayerStatus.flags |= 0x40000000; // draw player sprite
-        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
     }
 }
 
