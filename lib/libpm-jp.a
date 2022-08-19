@@ -11,7 +11,6 @@ pm_gameState = 0x8009A5E0;
 nuGfxCfb_ptr = 0x8009A62C;
 pm_gOverrideFlags = 0x8009A630;
 pm_masterGfxPos = 0x8009A64C;
-pm_displayContext = 0x8009A654;
 pm_logicalSaveInfo = 0x8009BA10;
 pm_gameMode = 0x8009E700;
 pm_D_800A0900 = 0x8009E710;

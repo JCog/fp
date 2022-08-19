@@ -1027,7 +1027,6 @@ extern_data s32 pm_gameState;
 extern_data u16 *nuGfxCfb_ptr;
 extern_data s32 pm_gOverrideFlags;
 extern_data Gfx *pm_masterGfxPos;
-extern_data pm_DisplayContext *pm_displayContext;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
 extern_data s8 pm_D_800A0900;
