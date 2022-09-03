@@ -6,7 +6,7 @@
 .ent      _start
 .type     _start, @function
 _start:
-li  $a0, 0x2800000
+li  $a0, (PAYLOAD)
 li  $a1, (END)
 lui $a2, 0x8040
 jal (DMA_COPY)
