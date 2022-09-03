@@ -28,3 +28,13 @@ To create a patched ROM, run
 replacing `<rom-file>` with the path to a unmodified (and 100% legally obtained) Mario Story (J) or Paper Mario (U) ROM.
 
 If you do not specifiy an output rom with `-o <output-rom>`, the newly built fp rom will be located in the root directory as either `fp-jp.z64` or `fp-us.z64`.
+
+To create a patched WAD for use with Wii VC, you must have gzinject installed. If you followed the above instructions to install the prebuilt toolchain, this will already be installed. If not, follow the instructions [here](https://github.com/krimtonz/gzinject). You will also need to generate the wii common key by running `gzinject -a genkey` in the root directory of the repository and following the instructions
+
+To patch a WAD, run
+
+    ./makewad <wad>
+
+A Paper Mario or Mario Story ROM can be provided with the `-m` flag. Otherwise, the patcher will use the ROM included in the provided WAD. An output WAD name can be specified with the `-o` flag. If one is not provided, the patched WAD will either be called `fp-JP.wad` or `fp-US.wad`.
+
+It is also possible to pass arguments to gzinject by including them in the `makewad` arguments, however the defaults should work fine for most people.
