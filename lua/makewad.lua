@@ -136,4 +136,3 @@ function usage()
   if gzinject_result ~= 0 then return gzinject_result end
   
   return 0
-  
