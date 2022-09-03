@@ -38,3 +38,10 @@ To patch a WAD, run
 A Paper Mario or Mario Story ROM can be provided with the `-m` flag. Otherwise, the patcher will use the ROM included in the provided WAD. An output WAD name can be specified with the `-o` flag. If one is not provided, the patched WAD will either be called `fp-JP.wad` or `fp-US.wad`.
 
 It is also possible to pass arguments to gzinject by including them in the `makewad` arguments, however the defaults should work fine for most people.
+
+To inject into the Wii U VC emulator, first download and install Phacox's Injector from [here](https://github.com/phacoxcll/PhacoxsInjector/releases). You will also need a dumped copy of the Virtual Console game. To inject a fp ROM:
+- Select a fp ROM by clicking the "Choose" button in the injector window and selecting the ROM file
+- Choose the Virtual Console base game to inject into by clicking the "Load base" button and selecting the folder that contains the game that you dumped
+- Type a short name for the injected game
+- Go to the "Injecting" menu on the left side of the window and either click the "Do not pack" button if you will be using loadiine or "Do pack" if you will be using WUP Installer
+- Select the folder you want the injected game to be placed in and wait until it has finished

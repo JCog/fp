@@ -1,5 +1,5 @@
 # About
-This is practice tool for Paper Mario 64 intended for use on N64 with an Everdrive. It's also known informally as "the practice rom".
+This is practice tool for Paper Mario 64 intended for use on N64 with an Everdrive or on Wii or Wii U through the Virtual Console. It's also known informally as "the practice rom".
 
 # Download
 The latest release and installation instructions can be found on the [releases page](https://github.com/jcog/fp/releases).
