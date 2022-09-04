@@ -37,7 +37,7 @@ To patch a WAD, run
 
     ./makewad <wad>
 
-A Paper Mario or Mario Story ROM can be provided with the `-m` flag. Otherwise, the patcher will use the ROM included in the provided WAD. An output WAD name can be specified with the `-o` flag. If one is not provided, the patched WAD will either be called `fp-JP.wad` or `fp-US.wad`.
+You can provide Paper Mario or Mario Story ROM with the -m flag. Otherwise, the patcher will use the ROM included in the provided WAD. You can specify an output WAD name with the -o flag. If you do not provide one, the patched WAD will either be called `fp-JP.wad` or `fp-US.wad`.
 
 It is also possible to pass arguments to gzinject by including them in the `makewad` arguments, though the defaults should work fine for most people.
 
