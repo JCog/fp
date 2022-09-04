@@ -1,5 +1,5 @@
 function usage()
-    io.stderr:write("usage: make-wad [<gzinject-arg>...]"
+    io.stderr:write("usage: makewad [<gzinject-arg>...]"
                     .. " [-m <input-rom>] [-o <output-wad>] <input-wad>\n")
     os.exit(1)
   end
@@ -65,7 +65,6 @@ function usage()
   local _,_,romc_result = os.execute("make romc")
   if romc_result ~= 0 then return romc_result end
   
-  wiivc = true
   require("lua/rom_info")
   local make = loadfile("lua/make.lua")
   
