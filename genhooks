@@ -40,3 +40,6 @@ genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
 genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"
 genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
+
+# Fix wii vc fire flower crash
+genhook "$sym_fire_flower_hook" "nop;"
