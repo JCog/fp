@@ -89,3 +89,5 @@ pm_update_camera_mode_6 = 0x8002F990;
 
 update_player_input_rom_hook = 0x8009D934;
 pm_update_player_input = 0x800E1F90;
+
+fire_flower_hook = 0x803A4DA0;

@@ -51,7 +51,9 @@ FP-US       = $(OBJ-fp-US) $(ELF-fp-US) $(HOOKS-fp-US)
 all         : $(FP_ALL)
 clean       :
 	rm -rf $(BUILDDIR)
-	rm -f fp-jp.z64 fp-us.z64
+	rm -f fp-jp.z64 fp-us.z64 fp-US.wad fp-JP.wad romc
+romc: romc.c
+	gcc -O2 $< -o $@
 
 .PHONY: clean all
 
