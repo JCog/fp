@@ -545,8 +545,6 @@ static void gameUpdate(void) {
         if (fp.pendingFrames > 0) {
             fp.pendingFrames--;
         }
-    } else {
-        pm_update_input();
     }
 }
 
@@ -570,13 +568,6 @@ ENTRY void fpDrawEntry(void) {
     pm_state_render_frontUI();
     fp.frameMasterGfxPos = pm_masterGfxPos;
     initStack(fpDraw);
-}
-
-HOOK void fpUpdateInput(void) {
-    pm_update_input();
-    if (fp.pendingFrames > 0) {
-        pm_gGameStatus.pressedButtons[0].buttons = pm_gGameStatus.currentButtons[0].buttons;
-    }
 }
 
 HOOK void fpDrawBackground(void) {

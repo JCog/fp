@@ -67,9 +67,37 @@ const u32 inputButtonColor[] = {
 };
 
 void inputUpdate(void) {
-    joyX = pm_gGameStatus.stickX[0];
-    joyY = pm_gGameStatus.stickY[0];
-    u16 pmPad = pm_gGameStatus.currentButtons[0].buttons;
+    OSContPad *cont = &pm_D_8009A5B8;
+    nuContDataGet(cont, 0);
+
+    joyX = cont->stick_x;
+    joyY = cont->stick_y;
+    if (joyX > 0) {
+        joyX -= 4;
+        if (joyX < 0) {
+            joyX = 0;
+        }
+    }
+    if (joyX < 0) {
+        joyX += 4;
+        if (joyX > 0) {
+            joyX = 0;
+        }
+    }
+    if (joyY > 0) {
+        joyY -= 4;
+        if (joyY < 0) {
+            joyY = 0;
+        }
+    }
+    if (joyY < 0) {
+        joyY += 4;
+        if (joyY > 0) {
+            joyY = 0;
+        }
+    }
+
+    u16 pmPad = cont->button;
     padPressedRaw = (pad ^ pmPad) & pmPad;
     padReleased = (pad ^ pmPad) & ~pmPad;
     pad = pmPad;

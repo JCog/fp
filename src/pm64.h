@@ -47,6 +47,13 @@
 
 // NOLINTBEGIN
 typedef struct {
+    /* 0x00 */ u16 button;
+    /* 0x02 */ s8 stick_x;
+    /* 0x03 */ s8 stick_y;
+    /* 0z04 */ u8 errno;
+} OSContPad; // size = 0x06
+
+typedef struct {
     /* 0x00 */ s8 xCardinal;
     /* 0x01 */ s8 yCardinal;
     union {
@@ -1022,6 +1029,7 @@ extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
 extern_data pm_Area pm_gAreas[29];
 extern_data u32 pm_viFrames;
+extern_data OSContPad pm_D_8009A5B8;
 extern_data s32 pm_timeFreezeMode;
 extern_data s32 pm_gameState;
 extern_data u16 *nuGfxCfb_ptr;
@@ -1066,6 +1074,7 @@ void pm_state_step_end_battle(void);
 s32 pm_func_800554A4(s32);
 void pm_removeEffect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
+void nuContDataGet(OSContPad *contdata, u32 padno);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 u64 osGetTime(void);
@@ -1087,7 +1096,6 @@ pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
 pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
 void pm_saveGame(void);
 
-void pm_update_input(void);
 void pm_step_game_loop(void);
 void pm_gfx_task_background(void);
 void pm_gfx_draw_frame(void);
