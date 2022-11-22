@@ -2,9 +2,9 @@ URL           ?= github.com/jcog/fp
 ifeq ($(origin FP_VERSION), undefined)
   TAG_COMMIT    := $(shell git rev-list --abbrev-commit --tags --max-count=1)
   TAG           := $(shell git describe --abbrev=0 --tags ${TAG_COMMIT} 2>/dev/null || true)
-  COMMIT 	    := $(shell git rev-parse --short HEAD)
+  COMMIT        := $(shell git rev-parse --short HEAD)
   DATE          := $(shell git log -1 --format=%cd --date=format:"%m-%d-%y")
-  FP_VERSION := $(COMMIT)-$(DATE)
+  FP_VERSION    := $(COMMIT)-$(DATE)
   ifeq ('$(TAG_COMMIT)', '$(COMMIT)')
     ifneq ('$(TAG)', '')
       FP_VERSION := $(TAG)
@@ -17,23 +17,24 @@ AS             = mips64-gcc -x assembler-with-cpp
 OBJCOPY        = mips64-objcopy
 GRC            = grc
 GENHOOKS       = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
-RESDESC        = $(RESDIR)/resources.json
 SRCDIR         = src
 BUILDDIR       = build
-OBJDIR         = $(BUILDDIR)/obj
-BINDIR         = $(BUILDDIR)/bin
 LIBDIR         = lib
 RESDIR         = res
-CFILES         = *.c
-SFILES         = *.s
-FP_VERSIONS    = JP US
-NAME           = fp
+RESDESC        = $(RESDIR)/resources.json
+OBJDIR         = $(BUILDDIR)/obj/$(VERSION)
+BINDIR         = $(BUILDDIR)/bin/$(VERSION)
+HOOKSDIR       = $(BUILDDIR)/patch/$(VERSION)
+OUTDIR         = $(OBJDIR) $(OBJDIR)/$(RESDIR) $(BINDIR) $(HOOKSDIR)
+ELF            = $(BINDIR)/fp.elf
+BIN            = $(BINDIR)/fp.bin
 NDEBUG        ?= 0
+VERSION       ?= us
 
 FP_BIN_ADDRESS = 0x80400060
 CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks
 ALL_CPPFLAGS   = -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
-ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
+ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(FP_BIN_ADDRESS) $(LDFLAGS)
 ALL_LIBS       = $(LIBS)
 
 ifeq ($(NDEBUG),1)
@@ -41,66 +42,54 @@ ifeq ($(NDEBUG),1)
   ALL_CPPFLAGS += -DNDEBUG
 endif
 
-FP_ALL      = $(foreach v,$(FP_VERSIONS),fp-$(v))
-LDR         = $(foreach v,$(FP_VERSIONS),ldr-fp-$(v))
+ifeq ($(VERSION), us)
+  ALL_CPPFLAGS += -DPM64_VERSION=US
+  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-us.map
+  LIBS         := -lpm-us
+else ifeq ($(VERSION), jp)
+  ALL_CPPFLAGS += -DPM64_VERSION=JP
+  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-jp.map
+  LIBS         := -lpm-jp
+else
+  $(error VERSION must be either us or jp)
+endif
 
-FP-ALL      = $(FP-JP) $(FP-US)
-FP-JP       = $(OBJ-fp-JP) $(ELF-fp-JP) $(HOOKS-fp-JP)
-FP-US       = $(OBJ-fp-US) $(ELF-fp-US) $(HOOKS-fp-US)
+C_FILES   := $(wildcard $(SRCDIR)/*.c)
+S_FILES   := $(wildcard $(SRCDIR)/*.s)
+RES_FILES := $(wildcard $(RESDIR)/fp/*.png)
+O_FILES   := $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(C_FILES))))) \
+             $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(S_FILES))))) \
+             $(addprefix $(OBJDIR)/$(RESDIR)/, $(addsuffix .o, $(notdir $(basename $(RES_FILES)))))
 
-all         : $(FP_ALL)
-clean       :
+.PHONY: fp ldr clean
+fp: $(BIN) $(HOOKSDIR)/hooks.gsc
+ldr: $(BINDIR)/ldr.bin
+clean:
 	rm -rf $(BUILDDIR)
 	rm -f fp-jp.z64 fp-us.z64 fp-US.wad fp-JP.wad romc
 romc: romc.c
 	gcc -O2 $< -o $@
 
-.PHONY: clean all
+$(HOOKSDIR)/hooks.gsc: $(ELF) | $(HOOKSDIR)
+	$(GENHOOKS) $< > $@
 
-define bin_template
-SRCDIR-$(1)      = $(4)
-RESDIR-$(1)      = $(5)
-OBJDIR-$(1)      = $(BUILDDIR)/obj/$(1)
-BINDIR-$(1)      = $(BUILDDIR)/bin/$(1)
-HOOKSDIR-$(1)    = $(BUILDDIR)/patch/$(1)
-NAME-$(1)        = $(1)
-CPPFLAGS-$(1)    = -DPM64_VERSION=$(2) $(ALL_CPPFLAGS)
-CSRC-$(1)       := $$(foreach s,$$(CFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
-COBJ-$(1)        = $$(patsubst $$(SRCDIR-$(1))/%,$$(OBJDIR-$(1))/%.o,$$(CSRC-$(1)))
-SSRC-$(1)       := $$(foreach s,$$(SFILES),$$(wildcard $$(SRCDIR-$(1))/$$(s)))
-SOBJ-$(1)        = $$(patsubst $$(SRCDIR-$(1))/%,$$(OBJDIR-$(1))/%.o,$$(SSRC-$(1)))
-RESSRC-$(1)     := $$(wildcard $$(RESDIR-$(1))/*)
-RESOBJ-$(1)      = $$(patsubst $$(RESDIR-$(1))/%,$$(OBJDIR-$(1))/$$(RESDIR)/%.o,$$(RESSRC-$(1)))
-OBJ-$(1)         = $$(COBJ-$(1)) $$(SOBJ-$(1)) $$(RESOBJ-$(1))
-ELF-$(1)         = $$(BINDIR-$(1))/$(3).elf
-BIN-$(1)         = $$(BINDIR-$(1))/$(3).bin
-OUTDIR-$(1)      = $$(OBJDIR-$(1)) $$(OBJDIR-$(1))/$$(RESDIR) $$(BINDIR-$(1)) $$(HOOKSDIR-$(1))
-HOOKS-$(1)       = $(BUILDDIR)/patch/$(1)/hooks.gsc
-BUILD-$(1)       = $(1)
-CLEAN-$(1)       = clean-$(1)
-$$(BUILD-$(1))   : $$(BIN-$(1))
-$$(CLEAN-$(1))   : rm -rf $$(OUTDIR-$(1))
+$(BIN): $(ELF) | $(BINDIR)
+	$(OBJCOPY) -S -O binary $< $@
 
-$$(COBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
-	$(CC) $$(CPPFLAGS-$(1)) $$(CFLAGS) $$< -o $$@
-$$(SOBJ-$(1))     : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/% | $$(OBJDIR-$(1))
-	$(AS) -c -MMD -MP $$(ALL_CPPFLAGS) $$< -o $$@
-$$(ELF-$(1))      : $$(OBJ-$(1)) | $$(BINDIR-$(1))
-	$(LD) $$(ALL_LDFLAGS) $$^ $$(ALL_LIBS) -o $$@
-$$(BIN-$(1))      : $$(ELF-$(1)) | $$(BINDIR-$(1))
-	$(OBJCOPY) -S -O binary $$< $$@
-$$(RESOBJ-$(1))   : $$(OBJDIR-$(1))/$$(RESDIR)/%.o: $$(RESDIR-$(1))/% $$(RESDESC) | $$(OBJDIR-$(1))/$$(RESDIR)
-	$$(GRC) $$< -d $$(RESDESC) -o $$@
-$$(OUTDIR-$(1))   :
-	mkdir -p $$@
-$$(HOOKS-$(1))      :   $$(ELF-$(1)) $$(HOOKSDIR-$(1))
-	$$(GENHOOKS) $$< $(7) > $$@
-endef
-$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,fp-$(v),$(v),fp,src,res/fp)))
-$(foreach v,$(FP_VERSIONS),$(eval $(call bin_template,ldr-fp-$(v),$(v),ldr,src/asm,res/ldr)))
+$(ELF): $(O_FILES) | $(BINDIR)
+	$(LD) $(ALL_LDFLAGS) -o $@ $^ $(ALL_LIBS)
 
-$(FP-US)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-us.map -Wl,--defsym,start=$(FP_BIN_ADDRESS)
-$(FP-JP)	:	ALL_LDFLAGS	+=	-Wl,-Map=$(BUILDDIR)/fp-jp.map -Wl,--defsym,start=$(FP_BIN_ADDRESS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
+	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(FP-US)	:	LIBS	:=	-lpm-us
-$(FP-JP)	:	LIBS	:=	-lpm-jp
+$(OBJDIR)/$(RESDIR)/%.o: $(RESDIR)/fp/%.png $(RESDESC) | $(OBJDIR)/$(RESDIR)
+	$(GRC) $< -d $(RESDESC) -o $@
+
+$(BINDIR)/ldr.bin: $(BINDIR)/ldr.elf | $(BINDIR)
+	$(OBJCOPY) -S -O binary $< $@
+
+$(BINDIR)/ldr.elf: $(SRCDIR)/asm/ldr.s | $(BINDIR)
+	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(ALL_LDFLAGS) $< -o $@ $(ALL_LIBS)
+
+$(OUTDIR):
+	@mkdir -p $@
