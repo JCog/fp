@@ -16,8 +16,9 @@ LD             = mips64-g++
 AS             = mips64-gcc -x assembler-with-cpp
 OBJCOPY        = mips64-objcopy
 GRC            = grc
-GENHOOKS       = CPPFLAGS='$(subst ','\'',$(CPPFLAGS))' ./genhooks
+GENHOOKS       = CPPFLAGS='$(subst ','\'', $(CPPFLAGS))' ./genhooks
 SRCDIR         = src
+ASMDIR         = $(SRCDIR)/asm
 BUILDDIR       = build
 LIBDIR         = lib
 RESDIR         = res
@@ -28,28 +29,29 @@ HOOKSDIR       = $(BUILDDIR)/patch/$(VERSION)
 OUTDIR         = $(OBJDIR) $(OBJDIR)/$(RESDIR) $(BINDIR) $(HOOKSDIR)
 ELF            = $(BINDIR)/fp.elf
 BIN            = $(BINDIR)/fp.bin
+LDR_ELF        = $(BINDIR)/ldr.elf
+LDR_BIN        = $(BINDIR)/ldr.bin
 NDEBUG        ?= 0
 VERSION       ?= us
 
 FP_BIN_ADDRESS = 0x80400060
 CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks
-ALL_CPPFLAGS   = -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
-ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(FP_BIN_ADDRESS) $(LDFLAGS)
-ALL_LIBS       = $(LIBS)
+CPPFLAGS       = -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
+LDFLAGS        = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(FP_BIN_ADDRESS) $(LDFLAGS)
 
-ifeq ($(NDEBUG),1)
-  CFLAGS += -DNDEBUG
-  ALL_CPPFLAGS += -DNDEBUG
+ifeq ($(NDEBUG), 1)
+  CFLAGS   += -DNDEBUG
+  CPPFLAGS += -DNDEBUG
 endif
 
 ifeq ($(VERSION), us)
-  ALL_CPPFLAGS += -DPM64_VERSION=US
-  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-us.map
-  LIBS         := -lpm-us
+  CPPFLAGS += -DPM64_VERSION=US
+  LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-us.map
+  LIBS     := -lpm-us
 else ifeq ($(VERSION), jp)
-  ALL_CPPFLAGS += -DPM64_VERSION=JP
-  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-jp.map
-  LIBS         := -lpm-jp
+  CPPFLAGS += -DPM64_VERSION=JP
+  LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-jp.map
+  LIBS     := -lpm-jp
 else
   $(error VERSION must be either us or jp)
 endif
@@ -77,19 +79,19 @@ $(BIN): $(ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(ELF): $(O_FILES) | $(BINDIR)
-	$(LD) $(ALL_LDFLAGS) -o $@ $^ $(ALL_LIBS)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 $(OBJDIR)/$(RESDIR)/%.o: $(RESDIR)/fp/%.png $(RESDESC) | $(OBJDIR)/$(RESDIR)
 	$(GRC) $< -d $(RESDESC) -o $@
 
-$(BINDIR)/ldr.bin: $(BINDIR)/ldr.elf | $(BINDIR)
+$(BINDIR)/$(LDR_BIN): $(BINDIR)/$(LDR_ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
-$(BINDIR)/ldr.elf: $(SRCDIR)/asm/ldr.s | $(BINDIR)
-	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(ALL_LDFLAGS) $< -o $@ $(ALL_LIBS)
+$(BINDIR)/$(LDR_ELF): $(ASMDIR)/%.s | $(BINDIR)
+	$(AS) -MMD -MP $(CPPFLAGS) $(LDFLAGS) $< -o $@ $(LIBS)
 
 $(OUTDIR):
 	@mkdir -p $@
