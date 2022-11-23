@@ -37,7 +37,7 @@ VERSION       ?= jp
 FP_BIN_ADDRESS = 0x80400060
 CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks
 ALL_CPPFLAGS   = -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
-ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections -Wl,--defsym,start=$(FP_BIN_ADDRESS) $(LDFLAGS)
+ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
 
 ifeq ($(NDEBUG), 1)
   CFLAGS       += -DNDEBUG
@@ -77,7 +77,7 @@ $(BIN): $(ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(ELF): $(OBJ) | $(BINDIR)
-	$(LD) $(ALL_LDFLAGS) -o $@ $^ $(LIBS)
+	$(LD) $(ALL_LDFLAGS) -Wl,--defsym,start=$(FP_BIN_ADDRESS) -o $@ $^ $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) -c $(ALL_CPPFLAGS) $(CFLAGS) -o $@ $<
