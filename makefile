@@ -30,7 +30,7 @@ ELF            = $(BINDIR)/fp.elf
 BIN            = $(BINDIR)/fp.bin
 LDR_ELF        = $(BINDIR)/ldr.elf
 LDR_BIN        = $(BINDIR)/ldr.bin
-HOOKS          = $(HOOKS)
+HOOKS          = $(HOOKSDIR)/hooks.gsc
 NDEBUG        ?= 0
 VERSION       ?= jp
 
