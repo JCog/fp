@@ -73,7 +73,7 @@ void fpInit(void) {
     fp.lockCam = FALSE;
     fp.camBhv = CAMBHV_MANUAL;
     fp.camDistMin = 100;
-    fp.camDistMax = 400;
+    fp.camDistMax = 1000;
     fp.camYaw = 0;
     fp.camPitch = 0;
     fp.camPos.x = 0;

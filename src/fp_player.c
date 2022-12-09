@@ -441,11 +441,8 @@ static void createPartyMenu(struct Menu *menu) {
     menuItemAddChainLink(activeItem, partners[0], MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(partners[0], activeItem, MENU_NAVIGATE_UP);
     menuItemCreateChain(partners, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(partners, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
     menuItemCreateChain(superRanks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(superRanks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
     menuItemCreateChain(ultraRanks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(ultraRanks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
 }
 
 static void createStarSpiritMenu(struct Menu *menu) {

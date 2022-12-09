@@ -96,42 +96,12 @@ static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *d
     return 1;
 }
 
-static void openPipesProc(struct MenuItem *item, void *data) {
-    fpSetGlobalFlag(0x1ad, TRUE); // 3 pipe blooper gone
-    fpSetGlobalFlag(0x78d, TRUE); // 3 pipes opened
-    fpSetGlobalFlag(0x791, TRUE); // goomba village pipe
-    fpSetGlobalFlag(0x792, TRUE); // koopa village pipe
-    fpSetGlobalFlag(0x793, TRUE); // dry dry outpost pipe
-
-    fpSetGlobalFlag(0x1af, TRUE); // ch5 blooper gone
-    fpSetGlobalFlag(0x78e, TRUE); // ch5 sewer pipe
-    fpSetGlobalFlag(0x795, TRUE); // lavalava island pipe
-
-    fpSetGlobalFlag(0x1b0, TRUE); // dark koopas gone
-    fpSetGlobalFlag(0x78f, TRUE); // dark koopa pipe
-    fpSetGlobalFlag(0x794, TRUE); // boo's mansion pipe
-}
-
 static void restoreEnemiesProc(struct MenuItem *item, void *data) {
     for (s32 i = 0; i < 60; i++) {
         for (s32 j = 0; j < 12; j++) {
             pm_gCurrentEncounter.defeatFlags[i][j] = 0;
         }
     }
-}
-
-static void restoreLettersProc(struct MenuItem *item, void *data) {
-    fpSetGlobalFlag(0x2c1, FALSE);
-    fpSetGlobalFlag(0x2c2, FALSE);
-    fpSetGlobalFlag(0x2c3, FALSE);
-    fpSetGlobalFlag(0x2f5, FALSE);
-    fpSetGlobalFlag(0x340, FALSE);
-    fpSetGlobalFlag(0x341, FALSE);
-    fpSetGlobalFlag(0x4c6, FALSE);
-    fpSetGlobalFlag(0x4cb, FALSE);
-    fpSetGlobalFlag(0x56d, FALSE);
-    fpSetGlobalFlag(0x5a6, FALSE);
-    fpSetGlobalFlag(0x5a9, FALSE);
 }
 
 static s32 doExportFile(const char *path, void *data) {
@@ -243,61 +213,65 @@ static void importFileProc(struct MenuItem *item, void *data) {
 
 struct Menu *createFileMenu(void) {
     static struct Menu menu;
-    struct MenuItem *item;
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     s32 y = 0;
-    const s32 menuX = 17;
+    const s32 menuX = 10;
     struct GfxTexture *tSave = resourceGet(RES_ICON_SAVE);
 
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
-    menuAddStatic(&menu, 0, y, "save slot", 0xC0C0C0);
-    menuAddButton(&menu, 11, y, "-", saveSlotDecProc, NULL);
-    menuAddWatch(&menu, 13, y, (u32)&pm_gGameStatus.saveSlot, WATCH_TYPE_U8);
-    menuAddButton(&menu, 15, y++, "+", saveSlotIncProc, NULL);
     y++;
-    item = menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, saveProc, NULL);
-    item->tooltip = "save";
-    item = menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, loadProc, NULL);
-    item->tooltip = "load";
-    item = menuAddButtonIcon(&menu, 6, y, tSave, 1, 0, 0xFFFFFF, 1.0f, exportFileProc, NULL);
-    item->tooltip = "export";
-    item = menuAddButtonIcon(&menu, 9, y, tSave, 0, 0, 0xFFFFFF, 1.0f, importFileProc, NULL);
-    item->tooltip = "import";
+    struct MenuItem *saveButton = menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, saveProc, NULL);
+    saveButton->tooltip = "save";
+    struct MenuItem *loadButton = menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, loadProc, NULL);
+    loadButton->tooltip = "load";
+    struct MenuItem *exportButton = menuAddButtonIcon(&menu, 6, y, tSave, 1, 0, 0xFFFFFF, 1.0f, exportFileProc, NULL);
+    exportButton->tooltip = "export";
+    struct MenuItem *importButton = menuAddButtonIcon(&menu, 9, y, tSave, 0, 0, 0xFFFFFF, 1.0f, importFileProc, NULL);
+    importButton->tooltip = "import";
     menuAddTooltip(&menu, 12, y++, fp.mainMenu, 0xC0C0C0);
     y++;
-    menuAddStatic(&menu, 0, y, "story progress", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, 16, 2, byteModProc, &STORY_PROGRESS);
-    menuAddStaticCustom(&menu, 1, y++, storyProgressDrawProc, NULL, 0xC0C0C0);
+    menuAddStatic(&menu, 0, y, "slot", 0xC0C0C0);
+    struct MenuItem *minusButton = menuAddButton(&menu, 6, y, "-", saveSlotDecProc, NULL);
+    menuAddWatch(&menu, 8, y, (u32)&pm_gGameStatus.saveSlot, WATCH_TYPE_U8);
+    menuAddButton(&menu, 10, y++, "+", saveSlotIncProc, NULL);
+
+    menuItemAddChainLink(saveButton, minusButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(loadButton, minusButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(exportButton, minusButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(importButton, minusButton, MENU_NAVIGATE_DOWN);
+    y++;
+    menuAddStatic(&menu, 0, y++, "story progress", 0xC0C0C0);
+    menuAddIntinput(&menu, 0, y, 16, 2, byteModProc, &STORY_PROGRESS);
+    menuAddStaticCustom(&menu, 3, y++, storyProgressDrawProc, NULL, 0xC0C0C0);
     y++;
     menuAddStatic(&menu, 0, y, "music", 0xC0C0C0);
     menuAddCheckbox(&menu, menuX, y++, checkboxModProc, &pm_gGameStatus.musicEnabled);
-    menuAddStatic(&menu, 0, y, "quizzes answered", 0xC0C0C0);
+    menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
-    menuAddStatic(&menu, 0, y, "peach item 1", 0xC0C0C0);
+    menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "goomba\0"
                   "clubba\0"
                   "mushroom\0",
                   byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD8]);
-    menuAddStatic(&menu, 0, y, "peach item 2", 0xC0C0C0);
+    menuAddStatic(&menu, 0, y, "toy box 2", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "fuzzy\0"
                   "hammer bros.\0"
                   "thunder rage\0",
                   byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
-    menuAddStatic(&menu, 0, y, "peach item 3", 0xC0C0C0);
+    menuAddStatic(&menu, 0, y, "toy box 3", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "pokey\0"
                   "koopatrol\0"
                   "super soda\0",
                   byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
-    menuAddButton(&menu, 0, y++, "open shortcut pipes", openPipesProc, NULL);
+    y++;
     menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);
-    menuAddButton(&menu, 0, y++, "restore letters", restoreLettersProc, NULL);
 
     return &menu;
 }

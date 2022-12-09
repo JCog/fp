@@ -648,6 +648,8 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddStatic(menu, 0, y, "oot ace", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
 #endif
+    y++;
+    menuAddButton(menu, 0, y++, "save settings", saveSettingsProc, NULL);
 
     /*build lzs jump menu*/
     lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
