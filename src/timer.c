@@ -233,6 +233,6 @@ void createTimerMenu(struct Menu *menu) {
     menuAddCheckbox(menu, menuX, y++, showTimerProc, NULL);
     menuAddStatic(menu, 0, y, "timer logging", 0xC0C0C0);
     menuAddCheckbox(menu, menuX, y++, timerLoggingProc, NULL);
-	y++;
-	menuAddButton(menu, 0, y++, "save settings", saveSettingsProc, NULL);
+    y++;
+    menuAddButton(menu, 0, y++, "save settings", saveSettingsProc, NULL);
 }
