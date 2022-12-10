@@ -171,7 +171,7 @@ static void restoreSettingsProc(struct MenuItem *item, void *data) {
     fpLog("loaded defaults");
 }
 
-void saveSettingsProc(struct MenuItem *item, void *data) {
+void fpSaveSettingsProc(struct MenuItem *item, void *data) {
     watchlistStore(fp.menuWatchlist);
     settingsSave(fp.profile);
     fpLog("saved profile %i", fp.profile);
@@ -238,7 +238,7 @@ struct Menu *createSettingsMenu(void) {
     menuAddSubmenu(&menu, 0, y++, &commands, "commands");
     y++;
     /* settings commands */
-    menuAddButton(&menu, 0, y++, "save settings", saveSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
     menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
     menuAddButton(&menu, 0, y++, "restore defaults", restoreSettingsProc, NULL);
 

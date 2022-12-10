@@ -292,7 +292,7 @@ struct MenuItem *watchlistCreate(struct Menu *menu, struct Menu *menuRelease, s3
     struct MenuItem *item = menuAddImenu(menu, x, y + 3, &imenu);
     struct ItemData *data = malloc(sizeof(*data));
 
-    menuAddButton(menu, x, y, "save settings", saveSettingsProc, NULL);
+    menuAddButton(menu, x, y, "save settings", fpSaveSettingsProc, NULL);
     menuAddStatic(menu, x, y + 2, "visible", 0xC0C0C0);
     data->visibilityCheckbox = menuAddCheckbox(menu, x + 8, y + 2, toggleVisibilityProc, item);
 
