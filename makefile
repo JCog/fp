@@ -37,7 +37,7 @@ VERSION       ?= jp
 FP_BIN_ADDRESS = 0x80400060
 CFLAGS         = -c -MMD -MP -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks
 ALL_CPPFLAGS   = -DURL=$(URL) -DFP_VERSION=$(FP_VERSION) -DF3DEX_GBI_2 $(CPPFLAGS)
-LDFLAGS       := -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
+ALL_LDFLAGS    = -T gl-n64.ld -L$(LIBDIR) -nostartfiles -specs=nosys.specs -Wl,--gc-sections $(LDFLAGS)
 
 ifeq ($(NDEBUG), 1)
   CFLAGS       += -DNDEBUG
@@ -46,11 +46,11 @@ endif
 
 ifeq ($(VERSION), us)
   ALL_CPPFLAGS += -DPM64_VERSION=US
-  ALL_LDFLAGS  :=  $(LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-us.map
+  FP_LDFLAGS   := $(ALL_LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-us.map
   LIBS          = -lpm-us
 else ifeq ($(VERSION), jp)
   ALL_CPPFLAGS += -DPM64_VERSION=JP
-  ALL_LDFLAGS  := $(LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-jp.map
+  FP_LDFLAGS   := $(ALL_LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-jp.map
   LIBS          = -lpm-jp
 else
   $(error VERSION must be either us or jp)
@@ -77,7 +77,7 @@ $(BIN): $(ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(ELF): $(OBJ) | $(BINDIR)
-	$(LD) $(ALL_LDFLAGS) -Wl,--defsym,start=$(FP_BIN_ADDRESS) -o $@ $^ $(LIBS)
+	$(LD) $(FP_LDFLAGS) -Wl,--defsym,start=$(FP_BIN_ADDRESS) -o $@ $^ $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) -c $(ALL_CPPFLAGS) $(CFLAGS) -o $@ $<
@@ -89,7 +89,7 @@ $(LDR_BIN): $(LDR_ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(LDR_ELF): $(SRCDIR)/asm/ldr.s | $(BINDIR)
-	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(LDFLAGS) $< -o $@
+	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(ALL_LDFLAGS) $< -o $@
 
 $(OUTDIR):
 	@mkdir -p $@
