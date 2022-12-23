@@ -623,7 +623,7 @@ void createTrainerMenu(struct Menu *menu) {
     menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
 
     menuAddStatic(menu, 0, y, "bowser blocks", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y, enableBowserTrainerProc, NULL);
+    struct MenuItem *firstOption = menuAddCheckbox(menu, xOffset, y, enableBowserTrainerProc, NULL);
     menuAddOption(menu, xOffset + 2, y++,
                   "fire\0"
                   "butt stomp\0"
@@ -640,16 +640,19 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddCheckbox(menu, xOffset, y++, enableAcTrainerProc, NULL);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y++, enableClippyTrainerProc, NULL);
+    struct MenuItem *lastOption = menuAddCheckbox(menu, xOffset, y++, enableClippyTrainerProc, NULL);
 #if PM64_VERSION == JP
     menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
 
     menuAddStatic(menu, 0, y, "oot ace", 0xC0C0C0);
-    menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
+    lastOption = menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
 #endif
     y++;
-    menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    struct MenuItem *saveButton = menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+
+    menuItemAddChainLink(menu->selector, firstOption, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(saveButton, lastOption, MENU_NAVIGATE_UP);
 
     /*build lzs jump menu*/
     lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");

@@ -51,17 +51,21 @@ struct Menu *createCheatsMenu(void) {
 
     /*build menu*/
     menuAddStatic(&menu, 0, 1, "encounters", 0xC0C0C0);
-    menuAddOption(&menu, 11, 1,
-                  "normal\0"
-                  "no encounters\0"
-                  "defeat on contact\0"
-                  "auto-win\0"
-                  "auto-runaway\0",
-                  battleProc, NULL);
+    struct MenuItem *encountersOption = menuAddOption(&menu, 11, 1,
+                                                      "normal\0"
+                                                      "no encounters\0"
+                                                      "defeat on contact\0"
+                                                      "auto-win\0"
+                                                      "auto-runaway\0",
+                                                      battleProc, NULL);
     s32 i;
+    menuItemAddChainLink(menu.selector, encountersOption, MENU_NAVIGATE_DOWN);
     for (i = 0; i < CHEAT_MAX; ++i) {
-        menuAddCheckbox(&menu, 0, 3 + i, cheatProc, (void *)i);
+        struct MenuItem *option = menuAddCheckbox(&menu, 0, 3 + i, cheatProc, (void *)i);
         menuAddStatic(&menu, 2, 3 + i, labels[i], 0xC0C0C0);
+        if (i == 0) {
+            menuItemAddChainLink(option, encountersOption, MENU_NAVIGATE_UP);
+        }
     }
     menuAddCheckbox(&menu, 0, 3 + i, quizmoProc, NULL);
     menuAddStatic(&menu, 2, 3 + i, "quizmo spawns", 0xC0C0C0);
