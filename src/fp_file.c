@@ -86,11 +86,11 @@ static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *d
 
     char buffer[24];
     if (chapter == 0) {
-        sprintf(buffer, "- prologue (%d/%d)", chapterProgress, chapterMax);
+        sprintf(buffer, "pro. (%d/%d) -", chapterProgress, chapterMax);
     } else if (chapter > 8) {
-        sprintf(buffer, "- invalid");
+        sprintf(buffer, "invalid     -");
     } else {
-        sprintf(buffer, "- chapter %d (%d/%d)", chapter, chapterProgress, chapterMax);
+        sprintf(buffer, "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
     }
     gfxPrintf(font, x, y, buffer);
     return 1;
@@ -233,23 +233,34 @@ struct Menu *createFileMenu(void) {
     struct MenuItem *importButton = menuAddButtonIcon(&menu, 9, y, tSave, 0, 0, 0xFFFFFF, 1.0f, importFileProc, NULL);
     importButton->tooltip = "import";
     menuAddTooltip(&menu, 12, y++, fp.mainMenu, 0xC0C0C0);
+    struct MenuItem *fileButtons[4] = {saveButton, loadButton, exportButton, importButton};
+    menuItemCreateChain(fileButtons, 4, MENU_NAVIGATE_RIGHT, TRUE, FALSE);
+    menuItemCreateChain(fileButtons, 4, MENU_NAVIGATE_LEFT, TRUE, TRUE);
     y++;
+
     menuAddStatic(&menu, 0, y, "slot", 0xC0C0C0);
     struct MenuItem *minusButton = menuAddButton(&menu, 6, y, "-", saveSlotDecProc, NULL);
     menuAddWatch(&menu, 8, y, (u32)&pm_gGameStatus.saveSlot, WATCH_TYPE_U8);
-    menuAddButton(&menu, 10, y++, "+", saveSlotIncProc, NULL);
-
+    struct MenuItem *plusButton = menuAddButton(&menu, 10, y++, "+", saveSlotIncProc, NULL);
+    struct MenuItem *slotButtons[2] = {minusButton, plusButton};
+    menuItemCreateChain(slotButtons, 2, MENU_NAVIGATE_RIGHT, TRUE, FALSE);
+    menuItemCreateChain(slotButtons, 2, MENU_NAVIGATE_LEFT, TRUE, TRUE);
     menuItemAddChainLink(saveButton, minusButton, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(loadButton, minusButton, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(exportButton, minusButton, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(importButton, minusButton, MENU_NAVIGATE_DOWN);
     y++;
+
     menuAddStatic(&menu, 0, y++, "story progress", 0xC0C0C0);
-    menuAddIntinput(&menu, 0, y, 16, 2, byteModProc, &STORY_PROGRESS);
-    menuAddStaticCustom(&menu, 3, y++, storyProgressDrawProc, NULL, 0xC0C0C0);
+    menuAddStaticCustom(&menu, 0, y, storyProgressDrawProc, NULL, 0xC0C0C0);
+    struct MenuItem *progressInput = menuAddIntinput(&menu, 14, y++, 16, 2, byteModProc, &STORY_PROGRESS);
+    menuItemAddChainLink(minusButton, progressInput, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(plusButton, progressInput, MENU_NAVIGATE_DOWN);
     y++;
+
     menuAddStatic(&menu, 0, y, "music", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y++, checkboxModProc, &pm_gGameStatus.musicEnabled);
+    struct MenuItem *musicCheckbox = menuAddCheckbox(&menu, menuX, y++, checkboxModProc, &pm_gGameStatus.musicEnabled);
+    menuItemAddChainLink(musicCheckbox, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
     menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
@@ -265,13 +276,15 @@ struct Menu *createFileMenu(void) {
                   "thunder rage\0",
                   byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
     menuAddStatic(&menu, 0, y, "toy box 3", 0xC0C0C0);
-    menuAddOption(&menu, menuX, y++,
-                  "pokey\0"
-                  "koopatrol\0"
-                  "super soda\0",
-                  byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    struct MenuItem *toyboxItem3Option = menuAddOption(&menu, menuX, y++,
+                                                       "pokey\0"
+                                                       "koopatrol\0"
+                                                       "super soda\0",
+                                                       byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
     y++;
-    menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);
+
+    struct MenuItem *enemiesButton = menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);
+    menuItemAddChainLink(enemiesButton, toyboxItem3Option, MENU_NAVIGATE_UP);
 
     return &menu;
 }
