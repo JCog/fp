@@ -289,11 +289,12 @@ static s32 toggleVisibilityProc(struct MenuItem *item, enum MenuCallbackReason r
 
 struct MenuItem *watchlistCreate(struct Menu *menu, struct Menu *menuRelease, s32 x, s32 y) {
     struct Menu *imenu;
-    struct MenuItem *item = menuAddImenu(menu, x, y + 1, &imenu);
+    struct MenuItem *item = menuAddImenu(menu, x, y + 3, &imenu);
     struct ItemData *data = malloc(sizeof(*data));
 
-    menuAddStatic(menu, x, y, "visible", 0xC0C0C0);
-    data->visibilityCheckbox = menuAddCheckbox(menu, x + 8, y, toggleVisibilityProc, item);
+    menuAddButton(menu, x, y, "save settings", fpSaveSettingsProc, NULL);
+    menuAddStatic(menu, x, y + 2, "visible", 0xC0C0C0);
+    data->visibilityCheckbox = menuAddCheckbox(menu, x + 8, y + 2, toggleVisibilityProc, item);
 
     data->menuRelease = menuRelease;
     data->imenu = imenu;

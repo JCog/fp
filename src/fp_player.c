@@ -262,7 +262,7 @@ static s32 peachParasolProc(struct MenuItem *item, enum MenuCallbackReason reaso
     return 0;
 }
 
-static void createBootsAndHammerMenu(struct Menu *menu) {
+static void createGearMenu(struct Menu *menu) {
     menu->selector = menuAddSubmenu(menu, 0, 0, NULL, "return");
     menuAddTooltip(menu, 8, 0, fp.mainMenu, 0xC0C0C0);
 
@@ -441,11 +441,8 @@ static void createPartyMenu(struct Menu *menu) {
     menuItemAddChainLink(activeItem, partners[0], MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(partners[0], activeItem, MENU_NAVIGATE_UP);
     menuItemCreateChain(partners, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(partners, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
     menuItemCreateChain(superRanks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(superRanks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
     menuItemCreateChain(ultraRanks, 8, MENU_NAVIGATE_DOWN, FALSE, FALSE);
-    menuItemCreateChain(ultraRanks, 8, MENU_NAVIGATE_UP, FALSE, TRUE);
 }
 
 static void createStarSpiritMenu(struct Menu *menu) {
@@ -530,11 +527,9 @@ struct Menu *createPlayerMenu(void) {
 
     static struct Menu stats;
 
-    static struct Menu equipment;
-    static struct Menu bootsAndHammer;
+    static struct Menu gear;
     static struct Menu badges;
 
-    static struct Menu party;
     static struct Menu partners;
     static struct Menu starSpirits;
 
@@ -552,11 +547,9 @@ struct Menu *createPlayerMenu(void) {
 
     menuInit(&stats, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
-    menuInit(&equipment, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&bootsAndHammer, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&gear, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&badges, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
-    menuInit(&party, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&partners, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&starSpirits, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
@@ -577,24 +570,16 @@ struct Menu *createPlayerMenu(void) {
     s32 y = 0;
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
     menuAddSubmenu(&menu, 0, y++, &stats, "stats");
-    menuAddSubmenu(&menu, 0, y++, &equipment, "equipment");
-    menuAddSubmenu(&menu, 0, y++, &party, "party");
+    menuAddSubmenu(&menu, 0, y++, &gear, "gear");
+    menuAddSubmenu(&menu, 0, y++, &partners, "partners");
+    menuAddSubmenu(&menu, 0, y++, &badges, "badges");
     menuAddSubmenu(&menu, 0, y++, &items, "items");
+    menuAddSubmenu(&menu, 0, y++, &starSpirits, "star spirits");
     menuAddSubmenu(&menu, 0, y++, &misc, "misc");
     createStatsMenu(&stats);
-
-    y = 0;
-    equipment.selector = menuAddSubmenu(&equipment, 0, y++, NULL, "return");
-    menuAddSubmenu(&equipment, 0, y++, &bootsAndHammer, "boots and hammer");
-    menuAddSubmenu(&equipment, 0, y++, &badges, "badges");
-    createBootsAndHammerMenu(&bootsAndHammer);
-    createBadgesMenu(&badges, itemTextureList);
-
-    y = 0;
-    party.selector = menuAddSubmenu(&party, 0, y++, NULL, "return");
-    menuAddSubmenu(&party, 0, y++, &partners, "partners");
-    menuAddSubmenu(&party, 0, y++, &starSpirits, "star spirits");
+    createGearMenu(&gear);
     createPartyMenu(&partners);
+    createBadgesMenu(&badges, itemTextureList);
     createStarSpiritMenu(&starSpirits);
 
     y = 0;

@@ -66,6 +66,7 @@ void fpSetGlobalByte(s32 byteIndex, s8 value);
 s32 fpImportFile(const char *path, void *data);
 void fpSetInputMask(u16 pad, u8 x, u8 y);
 void fpUpdateCam(void);
+void fpSaveSettingsProc(struct MenuItem *item, void *data);
 
 struct Menu *createWarpsMenu(void);
 struct Menu *createCheatsMenu(void);

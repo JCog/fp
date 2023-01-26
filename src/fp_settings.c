@@ -171,7 +171,7 @@ static void restoreSettingsProc(struct MenuItem *item, void *data) {
     fpLog("loaded defaults");
 }
 
-static void saveSettingsProc(struct MenuItem *item, void *data) {
+void fpSaveSettingsProc(struct MenuItem *item, void *data) {
     watchlistStore(fp.menuWatchlist);
     settingsSave(fp.profile);
     fpLog("saved profile %i", fp.profile);
@@ -200,7 +200,7 @@ struct Menu *createSettingsMenu(void) {
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
     menuAddStatic(&menu, 0, y, "profile", 0xC0C0C0);
-    menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
+    struct MenuItem *firstAppearanceOption = menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
     menuAddWatch(&menu, menuX + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
     menuAddButton(&menu, menuX + 4, y++, "+", profileIncProc, NULL);
     menuAddStatic(&menu, 0, y, "font", 0xC0C0C0);
@@ -233,11 +233,15 @@ struct Menu *createSettingsMenu(void) {
     menuAddStatic(&menu, 1, y, "graphical range", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
     menuAddStatic(&menu, 0, y, "log", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y, logProc, NULL);
+    struct MenuItem *lastAppearanceOption = menuAddCheckbox(&menu, menuX, y, logProc, NULL);
     menuAddPositioning(&menu, menuX + 2, y++, logPositionProc, NULL);
-    menuAddSubmenu(&menu, 0, y++, &commands, "commands");
+    struct MenuItem *commandsButton = menuAddSubmenu(&menu, 0, y++, &commands, "commands");
+    menuItemAddChainLink(menu.selector, firstAppearanceOption, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(commandsButton, lastAppearanceOption, MENU_NAVIGATE_UP);
+    y++;
+
     /* settings commands */
-    menuAddButton(&menu, 0, y++, "save settings", saveSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
     menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
     menuAddButton(&menu, 0, y++, "restore defaults", restoreSettingsProc, NULL);
 
