@@ -46,11 +46,11 @@ endif
 
 ifeq ($(VERSION), us)
   ALL_CPPFLAGS += -DPM64_VERSION=US
-  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-us.map
+  FP_LDFLAGS   := $(ALL_LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-us.map
   LIBS          = -lpm-us
 else ifeq ($(VERSION), jp)
   ALL_CPPFLAGS += -DPM64_VERSION=JP
-  ALL_LDFLAGS  += -Wl,-Map=$(BUILDDIR)/fp-jp.map
+  FP_LDFLAGS   := $(ALL_LDFLAGS) -Wl,-Map=$(BUILDDIR)/fp-jp.map
   LIBS          = -lpm-jp
 else
   $(error VERSION must be either us or jp)
@@ -77,7 +77,7 @@ $(BIN): $(ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(ELF): $(OBJ) | $(BINDIR)
-	$(LD) $(ALL_LDFLAGS) -Wl,--defsym,start=$(FP_BIN_ADDRESS) -o $@ $^ $(LIBS)
+	$(LD) $(FP_LDFLAGS) -Wl,--defsym,start=$(FP_BIN_ADDRESS) -o $@ $^ $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) -c $(ALL_CPPFLAGS) $(CFLAGS) -o $@ $<
@@ -89,7 +89,7 @@ $(LDR_BIN): $(LDR_ELF) | $(BINDIR)
 	$(OBJCOPY) -S -O binary $< $@
 
 $(LDR_ELF): $(SRCDIR)/asm/ldr.s | $(BINDIR)
-	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(ALL_LDFLAGS) $< -o $@ $(LIBS)
+	$(AS) -MMD -MP $(ALL_CPPFLAGS) $(ALL_LDFLAGS) $< -o $@
 
 $(OUTDIR):
 	@mkdir -p $@
