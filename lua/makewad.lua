@@ -129,7 +129,7 @@ function usage()
   if opt_id ~= nil then
     gzinject_cmd = gzinject_cmd .. " -i \"" .. opt_id .. "\""
   else
-    gzinject_cmd = gzinject_cmd .. " -i FP" .. rom_id
+    gzinject_cmd = gzinject_cmd .. " -i FP" .. rom_id:upper()
   end
   if opt_title ~= nil then
     gzinject_cmd = gzinject_cmd .. " -t \"" .. opt_title .. "\""
