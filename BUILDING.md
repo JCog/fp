@@ -15,7 +15,7 @@ For those on other operating systems or who want to build from source, follow th
 # Building
 Clone the fp source code by running:
 
-`git clone https://github.com/jcog/fp.git`  
+`git clone --recursive https://github.com/jcog/fp.git`  
 
 To build fp binaries, run `make VERSION=ver` with `ver` being either `us` or `jp`. This will only build the fp binaries and will not patch a rom.
 If you want to patch a rom, you can skip this step and move on to the patching section.
@@ -39,7 +39,7 @@ To patch a WAD, run
 
     ./makewad <wad>
 
-You can provide a Paper Mario or Mario Story ROM with the -m flag. Otherwise, the patcher will use the ROM included in the provided WAD. The output WAD will either be called `fp-US.wad` or `fp-JP.wad` depending on which ROM you injected. If you want it to be created with a different name, use the -o flag to specify it.
+You can provide a Paper Mario or Mario Story ROM with the -m flag. Otherwise, the patcher will use the ROM included in the provided WAD. The output WAD will either be called `fp-us.wad` or `fp-jp.wad` depending on which ROM you injected. If you want it to be created with a different name, use the -o flag to specify it.
 
 It is also possible to pass arguments to gzinject by including them in the `makewad` arguments, though the defaults should work fine for most people.
 
