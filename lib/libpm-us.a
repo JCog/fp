@@ -91,3 +91,5 @@ update_player_input_rom_hook = 0x8009D934;
 pm_update_player_input = 0x800E1F90;
 
 fire_flower_hook = 0x803A4DA0;
+
+peekaboo_hook = 0x801A7110;

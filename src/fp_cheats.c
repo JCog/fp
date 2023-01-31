@@ -2,7 +2,11 @@
 #include "settings.h"
 
 static const char *labels[] = {
-    "hp", "fp", "coins", "star power", "star pieces", "peril", "auto mash", "auto action command", "brighten room",
+    "hp",          "fp",
+    "coins",       "star power",
+    "star pieces", "peril",
+    "auto mash",   "auto action command",
+    "peekaboo",    "brighten room",
 };
 
 static s32 battleProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {

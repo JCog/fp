@@ -577,6 +577,13 @@ HOOK void fpUpdateInput(void) {
     pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
 }
 
+HOOK s32 fpIsAbilityActive(s32 ability) {
+    if (ability == 54 && CHEAT_ACTIVE(CHEAT_PEEKABOO)) {
+        return TRUE;
+    }
+    return pm_is_ability_active(ability);
+}
+
 #include <grc.c>
 #include <list/list.c>
 #include <set/set.c>

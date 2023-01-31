@@ -43,3 +43,5 @@ genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
 
 # Fix wii vc fire flower crash
 genhook "$sym_fire_flower_hook" "nop;"
+
+genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
