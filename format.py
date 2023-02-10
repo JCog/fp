@@ -72,6 +72,7 @@ def main(jobs: int) -> None:
         tidy_file(file_list)
     else:
         with ProcessPoolExecutor(max_workers=num_jobs) as executor:
+            # Split file list into num_jobs chunks where each chunk is the same size
             chunks = [
                 file_list[i : i + len(file_list) // num_jobs]
                 for i in range(0, len(file_list), len(file_list) // num_jobs)
@@ -85,13 +86,13 @@ if __name__ == "__main__":
     try:
         clang_format = get_clang("format")
     except FileNotFoundError:
-        sys.stderr.write("error: clang-format 16 not found")
+        sys.stderr.write(f"error: clang-format {CLANG_VER} not found")
         sys.exit(1)
 
     try:
         clang_tidy = get_clang("tidy")
     except FileNotFoundError:
-        sys.stderr.write("error: clang-tidy 16 not found")
+        sys.stderr.write(f"error: clang-tidy {CLANG_VER} not found")
         sys.exit(1)
 
     args = parser.parse_args()
