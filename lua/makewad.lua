@@ -99,6 +99,21 @@ function usage()
   if romc_result ~= 0 then return romc_result end
   
   os.remove(opt_directory .. "/content5/rom")
+
+  local vc = gru.blob_load(opt_directory .. "/content1.app")
+  local vc_version = vc_table[vc:crc32()]
+  if vc_version == nil then
+    io.stderr:write("makewad: unrecognized wad: " .. opt_wad .. "\n")
+    return 2
+  end
+
+  -- make homeboy
+  print("building homeboy")
+  local make = os.getenv("MAKE")
+  if make == nil or make == "" then make = "make" end
+  local _,_,make_result = os.execute("(cd homeboy && " .. make ..
+                                     " hb-" .. vc_version .. ")")
+  if make_result ~= 0 then error("failed to build homeboy", 0) end
   
   -- build gzinject pack command string
   local gzinject_cmd = gzinject ..
@@ -106,12 +121,15 @@ function usage()
                        " -k \"" .. opt_keyfile .. "\"" ..
                        " -d \"" .. opt_directory .. "\"" ..
                        " -p \"gzi/mem_patch.gzi\"" ..
+                       " -p \"gzi/hb_" .. vc_version ..
+                       ".gzi\" --dol-inject \"homeboy/bin/hb-" ..
+                       vc_version .. "/homeboy.bin\" --dol-loading 90000800" ..
                        " --verbose" ..
                        " --cleanup"
   if opt_id ~= nil then
     gzinject_cmd = gzinject_cmd .. " -i \"" .. opt_id .. "\""
   else
-    gzinject_cmd = gzinject_cmd .. " -i FP" .. rom_id
+    gzinject_cmd = gzinject_cmd .. " -i FP" .. rom_id:upper()
   end
   if opt_title ~= nil then
     gzinject_cmd = gzinject_cmd .. " -t \"" .. opt_title .. "\""

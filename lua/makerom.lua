@@ -20,6 +20,6 @@ if(opt_out_rom ~= nil) then
     print("Saving " .. opt_out_rom)
     patched_rom:save(opt_out_rom)
 else
-    print("Saving fp-" .. rom_id:lower() .. ".z64")
-    patched_rom:save("fp-" .. rom_id:lower() .. ".z64")
+    print("Saving fp-" .. rom_id .. ".z64")
+    patched_rom:save("fp-" .. rom_id .. ".z64")
 end

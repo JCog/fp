@@ -16,3 +16,8 @@ roms = {
         payload_addr = 0x1C84D30,
     }
 }
+
+vc_table = {
+  [0x7ad76676] = "NAEE",
+  [0x5c8ff5e3] = "NAEJ",
+}
