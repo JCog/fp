@@ -16,9 +16,7 @@ TIDY_OPTS = "-p . --fix --fix-errors"
 COMPILER_OPTS = "-std=gnu11"
 
 
-parser = argparse.ArgumentParser(
-    description="Format files using clang-format and clang-tidy"
-)
+parser = argparse.ArgumentParser(description="Format files using clang-format and clang-tidy")
 parser.add_argument("-j", "--jobs", type=int, help="Number of concurrent jobs to run")
 
 
@@ -32,9 +30,7 @@ def get_clang(program: str) -> str:
         )
         return f"clang-{program}-{CLANG_VER}"
     except FileNotFoundError:
-        out = subprocess.run(
-            f"clang-{program} --version".split(), check=True, capture_output=True
-        )
+        out = subprocess.run(f"clang-{program} --version".split(), check=True, capture_output=True)
         ver_re = re.compile(r"version (\d+)(\.\d+\.\d+)")
         match = re.search(ver_re, out.stdout.decode())
         if match:
