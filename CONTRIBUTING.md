@@ -4,11 +4,11 @@ Contributions are welcome! If you want to fix a bug or implement a feature yours
 
 ## Dependencies
 
-Apart from glank's n64 toolchain, you will need to install clang-format and clang-tidy of at least version 14.
+Apart from glank's n64 toolchain, you will need to install clang-format and clang-tidy of at least version 16.
 
 Instuctions for adding the llvm apt repository for Ubuntu and Debian can be found [here](https://apt.llvm.org/).
 
-If the only clang-format or clang-tidy versions available for you are older than 14, you will have to build clang from source. You can find everything you need for this at the [LLVM GitHub repository](https://github.com/llvm/llvm-project)
+If the only clang-format or clang-tidy versions available for you are older than 16, you will have to build clang from source. You can find everything you need for this at the [LLVM GitHub repository](https://github.com/llvm/llvm-project)
 
 ## Pull Requests
 

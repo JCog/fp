@@ -11,3 +11,5 @@ AlignConsecutiveBitFields: AcrossComments
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortBlocksOnASingleLine: Empty
+InsertNewlineAtEOF: true
+LineEnding: LF
