@@ -74,8 +74,8 @@ def main(jobs: int) -> None:
         with ProcessPoolExecutor(max_workers=num_jobs) as executor:
             # Split file list into num_jobs chunks where each chunk is the same size
             chunks = [
-                file_list[i : i + len(file_list) // num_jobs]
-                for i in range(0, len(file_list), len(file_list) // num_jobs)
+                file_list[i : i + len(file_list) // num_jobs + 1]
+                for i in range(0, len(file_list), len(file_list) // num_jobs + 1)
             ]
             executor.map(format_file, chunks)
             executor.map(tidy_file, chunks)
