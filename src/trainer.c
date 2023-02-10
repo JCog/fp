@@ -389,12 +389,14 @@ static void updateBowserBlockTrainer(void) {
 static void updateLzsTrainer(void) {
     if (settings->trainerBits.lzsEnabled) {
         // detect if loading zone is stored
-        for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
-            pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
-            if (script && script->ptrNextLine) {
-                u32 callbackFunction = script->ptrNextLine[5];
-                if (callbackFunction == (uintptr_t)pm_gotoMap) {
-                    lzsLzStored = TRUE;
+        if (pm_gMapTransitionState != 3) { // occurs when new area is initially loaded, causes occasional crashes
+            for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
+                pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
+                if (script && script->ptrNextLine) {
+                    u32 callbackFunction = script->ptrNextLine[5];
+                    if (callbackFunction == (uintptr_t)pm_gotoMap) {
+                        lzsLzStored = TRUE;
+                    }
                 }
             }
         }
@@ -416,7 +418,7 @@ static void updateLzsTrainer(void) {
         // log lzs status
         if (lzsLzStored && pm_gGameStatus.pressedButtons[0].a) {
             if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
-                pm_mapChangeState == 0) {
+                pm_gMapTransitionState == 0) {
                 fpLog("control early");
             } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
                        pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
@@ -431,7 +433,7 @@ static void updateLzsTrainer(void) {
                     pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
                     fpLog("control early");
                 }
-            } else if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
+            } else if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_gMapTransitionState == 0) {
                 fpLog("jump 1 frame late");
                 fpLog("control early");
             } else if (lzsFramesSinceLand == 3) {
@@ -448,7 +450,7 @@ static void updateLzsTrainer(void) {
                        (lzsPrevPrevActionState == ACTION_STATE_RUN || lzsPrevPrevActionState == ACTION_STATE_WALK)) {
                 fpLog("jump >= 2 frames late");
                 fpLog("control early");
-            } else if (lzsFramesSinceLand >= 5 && pm_mapChangeState == 0) {
+            } else if (lzsFramesSinceLand >= 5 && pm_gMapTransitionState == 0) {
                 fpLog("jump > 2 frames late");
                 if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
                     fpLog("control late");
@@ -465,7 +467,7 @@ static void updateLzsTrainer(void) {
         lzsPrevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
         lzsPrevPrevActionState = pm_gPlayerStatus.prevActionState;
 
-        if (pm_mapChangeState == 1) {
+        if (pm_gMapTransitionState == 1) {
             lzsLzStored = FALSE;
             lzsPlayerLanded = FALSE;
             lzsFramesSinceLand = 0;
@@ -595,6 +597,23 @@ static void updateClippyTrainer(void) {
 }
 
 void trainerUpdate(void) {
+    /*
+     * Updating trainers while still on file select can cause crashes.
+     * 0x0  - boot
+     * 0x1  - logos
+     * 0x2  - start screen
+     * 0x7  - enter world
+     * 0xE  - file select
+     * 0xF  - exit file select
+     * 0x11 - demo
+     */
+    s8 invalidModes[] = {0x0, 0x1, 0x2, 0x7, 0xE, 0xF, 0x11};
+    for (s32 i = 0; i < ARRAY_LENGTH(invalidModes); i++) {
+        if (pm_gameMode == invalidModes[i]) {
+            return;
+        }
+    }
+
     updateBowserBlockTrainer();
     updateLzsTrainer();
     updateBlockTrainer();

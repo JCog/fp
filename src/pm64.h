@@ -1015,7 +1015,7 @@ extern_data Gfx *pm_masterGfxPos;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
 extern_data s16 pm_gMapTransitionAlpha;
-extern_data s16 pm_mapChangeState;
+extern_data s16 pm_gMapTransitionState;
 extern_data pm_EncounterStatus pm_gCurrentEncounter;
 extern_data pm_Camera pm_gCameras[4];
 extern_data pm_EffectInstance *pm_gEffectInstances[96];
