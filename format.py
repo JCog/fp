@@ -2,13 +2,13 @@
 import argparse
 import glob
 import multiprocessing
+import re
 import subprocess
 import sys
 
 from concurrent.futures import ProcessPoolExecutor
 
-CLANG_FORMAT = "clang-format-16"
-CLANG_TIDY = "clang-tidy-16"
+CLANG_VER = 16
 
 FORMAT_OPTS = "-i -style=file"
 TIDY_OPTS = "-p . --fix --fix-errors"
@@ -16,42 +16,40 @@ TIDY_OPTS = "-p . --fix --fix-errors"
 COMPILER_OPTS = "-std=gnu11"
 
 
-def is_clang_installed() -> bool:
+def get_clang(program: str) -> str:
     try:
         subprocess.run(
-            f"{CLANG_FORMAT} --version".split(),
+            f"clang-{program}-{CLANG_VER} --version".split(),
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
+        return f"clang-{program}-{CLANG_VER}"
     except FileNotFoundError:
-        sys.stderr.write(f"error: {CLANG_FORMAT} not found\n")
-        return False
-
-    try:
-        subprocess.run(
-            f"{CLANG_TIDY} --version".split(),
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+        out = subprocess.run(
+            f"clang-{program} --version".split(), check=True, capture_output=True
         )
-    except FileNotFoundError:
-        sys.stderr.write(f"error: {CLANG_TIDY} not found\n")
-        return False
+        ver_re = re.compile(r"version (\d+)(\.\d+\.\d+)")
+        match = re.search(ver_re, out.stdout.decode())
+        if match:
+            ver = int(match.group(1))
+            if ver >= CLANG_VER:
+                return f"clang-{program}"
+    return ""
 
-    return True
 
-
-def format_file(files: list[str]):
+def format_file(f: list[str]):
     subprocess.run(
-        f"{CLANG_FORMAT} {FORMAT_OPTS} {' '.join(files)}".split(),
+        f"{clang_format} {FORMAT_OPTS} {' '.join(f)}".split(),
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
 
+
+def tidy_file(f: list[str]):
     subprocess.run(
-        f"{CLANG_TIDY} {TIDY_OPTS} {' '.join(files)} -- {COMPILER_OPTS}".split(),
+        f"{clang_tidy} {TIDY_OPTS} {' '.join(f)} -- {COMPILER_OPTS}".split(),
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -67,12 +65,22 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if not is_clang_installed():
+    try:
+        clang_format = get_clang("format")
+    except FileNotFoundError:
+        sys.stderr.write("error: clang-format 16 not found")
+        sys.exit(1)
+
+    try:
+        clang_tidy = get_clang("tidy")
+    except FileNotFoundError:
+        sys.stderr.write("error: clang-tidy 16 not found")
         sys.exit(1)
 
     files = glob.glob("src/**/*.[c,h]", recursive=True)
     num_jobs = args.jobs if args.jobs and args.jobs > 0 else multiprocessing.cpu_count()
 
+    print(f"Formatting {len(files)} files with {num_jobs} jobs...")
     if num_jobs == 1:
         format_file(files)
     else:
