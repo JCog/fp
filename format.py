@@ -90,4 +90,5 @@ if __name__ == "__main__":
                 for i in range(0, len(files), len(files) // num_jobs)
             ]
             executor.map(format_file, chunks)
+            executor.map(tidy_file, chunks)
     print("Done formatting all files.")
