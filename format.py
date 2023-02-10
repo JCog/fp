@@ -38,18 +38,18 @@ def get_clang(program: str) -> str:
     return ""
 
 
-def format_file(f: list[str]):
+def format_file(files: list[str]) -> None:
     subprocess.run(
-        f"{clang_format} {FORMAT_OPTS} {' '.join(f)}".split(),
+        f"{clang_format} {FORMAT_OPTS} {' '.join(files)}".split(),
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
 
 
-def tidy_file(f: list[str]):
+def tidy_file(files: list[str]) -> None:
     subprocess.run(
-        f"{clang_tidy} {TIDY_OPTS} {' '.join(f)} -- {COMPILER_OPTS}".split(),
+        f"{clang_tidy} {TIDY_OPTS} {' '.join(files)} -- {COMPILER_OPTS}".split(),
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -77,17 +77,18 @@ if __name__ == "__main__":
         sys.stderr.write("error: clang-tidy 16 not found")
         sys.exit(1)
 
-    files = glob.glob("src/**/*.[c,h]", recursive=True)
+    file_list = glob.glob("src/**/*.[c,h]", recursive=True)
     num_jobs = args.jobs if args.jobs and args.jobs > 0 else multiprocessing.cpu_count()
 
-    print(f"Formatting {len(files)} files with {num_jobs} jobs...")
+    print(f"Formatting {len(file_list)} files with {num_jobs} jobs...")
     if num_jobs == 1:
-        format_file(files)
+        format_file(file_list)
+        tidy_file(file_list)
     else:
         with ProcessPoolExecutor(max_workers=num_jobs) as executor:
             chunks = [
-                files[i : i + len(files) // num_jobs]
-                for i in range(0, len(files), len(files) // num_jobs)
+                file_list[i : i + len(file_list) // num_jobs]
+                for i in range(0, len(file_list), len(file_list) // num_jobs)
             ]
             executor.map(format_file, chunks)
             executor.map(tidy_file, chunks)
