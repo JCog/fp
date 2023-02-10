@@ -86,13 +86,13 @@ if __name__ == "__main__":
     try:
         clang_format = get_clang("format")
     except FileNotFoundError:
-        sys.stderr.write(f"error: clang-format {CLANG_VER} not found")
+        sys.stderr.write(f"error: clang-format {CLANG_VER} not found\n")
         sys.exit(1)
 
     try:
         clang_tidy = get_clang("tidy")
     except FileNotFoundError:
-        sys.stderr.write(f"error: clang-tidy {CLANG_VER} not found")
+        sys.stderr.write(f"error: clang-tidy {CLANG_VER} not found\n")
         sys.exit(1)
 
     args = parser.parse_args()
