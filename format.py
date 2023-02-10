@@ -16,6 +16,12 @@ TIDY_OPTS = "-p . --fix --fix-errors"
 COMPILER_OPTS = "-std=gnu11"
 
 
+parser = argparse.ArgumentParser(
+    description="Format files using clang-format and clang-tidy"
+)
+parser.add_argument("-j", "--jobs", type=int, help="Number of concurrent jobs to run")
+
+
 def get_clang(program: str) -> str:
     try:
         subprocess.run(
@@ -56,29 +62,9 @@ def tidy_file(files: list[str]) -> None:
     )
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Format files using clang-format and clang-tidy"
-    )
-    parser.add_argument(
-        "-j", "--jobs", type=int, help="Number of concurrent jobs to run"
-    )
-    args = parser.parse_args()
-
-    try:
-        clang_format = get_clang("format")
-    except FileNotFoundError:
-        sys.stderr.write("error: clang-format 16 not found")
-        sys.exit(1)
-
-    try:
-        clang_tidy = get_clang("tidy")
-    except FileNotFoundError:
-        sys.stderr.write("error: clang-tidy 16 not found")
-        sys.exit(1)
-
+def main(jobs: int) -> None:
     file_list = glob.glob("src/**/*.[c,h]", recursive=True)
-    num_jobs = args.jobs if args.jobs and args.jobs > 0 else multiprocessing.cpu_count()
+    num_jobs = jobs if jobs and jobs > 0 else multiprocessing.cpu_count()
 
     print(f"Formatting {len(file_list)} files with {num_jobs} jobs...")
     if num_jobs == 1:
@@ -93,3 +79,20 @@ if __name__ == "__main__":
             executor.map(format_file, chunks)
             executor.map(tidy_file, chunks)
     print("Done formatting all files.")
+
+
+if __name__ == "__main__":
+    try:
+        clang_format = get_clang("format")
+    except FileNotFoundError:
+        sys.stderr.write("error: clang-format 16 not found")
+        sys.exit(1)
+
+    try:
+        clang_tidy = get_clang("tidy")
+    except FileNotFoundError:
+        sys.stderr.write("error: clang-tidy 16 not found")
+        sys.exit(1)
+
+    args = parser.parse_args()
+    main(args.jobs)
