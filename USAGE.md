@@ -112,7 +112,7 @@ Your `story progress` is the main byte that determines how far you've progressed
 Disabling `music` disables all in-game music. `quizmo` determines how many of Chuck Quizmo's questions have been answered successfully. This byte also determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. The three `toy box` options determine what Kammy Koopa will spawn in Shy Guy's Toybox. Pressing `restore enemies` sets all overworld enemies to an undefeated state.
 
 ### 2.5 Practice
-Both the **trainers** and **timer** menu have a `save settings` button. This button has the same function as the one in settings (see [2.9 Settings](#29-settings)) and saves all fp settings to the current profile.
+Both the **trainers** and **timer** menu have a `save settings` button. This button has the same function as the one in settings (see [2.9 Settings](#29-settings)) which is saving all fp settings to the current profile.
 
 #### 2.5.1 Trainers
 The **trainers** menu contains various different helpful menus and information screens to help with practicing and learning the game. The following trainers are available:
