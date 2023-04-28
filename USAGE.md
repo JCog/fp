@@ -5,7 +5,7 @@
 - [2 Menus](#2-menus)
   - [2.1 Warps](#21-warps)
     - [2.1.1 Locations](#211-locations)
-    - [2.1.2 Bosses](#212-Bosses)
+    - [2.1.2 Bosses](#212-bosses)
   - [2.2 Cheats](#22-cheats)
   - [2.3 Player](#23-player)
     - [2.3.1 Stats](#231-stats)
