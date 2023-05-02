@@ -37,10 +37,6 @@ OBJDIR = f"{BUILDDIR}/obj"
 BINDIR = f"{BUILDDIR}/bin"
 HOOKSDIR = f"{BUILDDIR}/patch"
 HOOKS = "hooks.gsc"
-ELF = "fp.elf"
-BIN = "fp.bin"
-LDR_ELF = "ldr.elf"
-LDR_BIN = "ldr.bin"
 
 if args.version:
     FP_VERSION = args.version
@@ -103,6 +99,8 @@ n.rule("genhooks", command="$genhooks $in > $out", description="GENHOOKS $in")
 
 n.rule("sys_cc", command="gcc -O2 $in -o $out", description="GCC $in")
 
+n.rule("clean", command=f"rm -rf {BUILDDIR} fp-jp.z64 fp-us.z64 fp-US.wad fp-JP.wad romc")
+
 n.newline()
 
 
@@ -126,10 +124,10 @@ class ResFile:
 
 
 for ver in VERSIONS:
-    BIN = f"{BINDIR}/{ver}/{BIN}"
-    ELF = f"{BINDIR}/{ver}/{ELF}"
-    LDR_BIN = f"{BINDIR}/{ver}/{LDR_BIN}"
-    LDR_ELF = f"{BINDIR}/{ver}/{LDR_ELF}"
+    BIN = f"{BINDIR}/{ver}/fp.bin"
+    ELF = f"{BINDIR}/{ver}/fp.elf"
+    LDR_BIN = f"{BINDIR}/{ver}/ldr.bin"
+    LDR_ELF = f"{BINDIR}/{ver}/ldr.elf"
 
     files = []
     for c_file in Path(SRCDIR).rglob("*.c"):
@@ -161,6 +159,7 @@ for ver in VERSIONS:
 
     n.build(f"{ver}_ldr", "phony", LDR_BIN)
 
+n.build("clean", rule="clean")
 n.build("romc", rule="sys_cc", inputs="romc.c")
 
 with open("build.ninja", "w") as f:
