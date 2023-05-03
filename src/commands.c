@@ -26,6 +26,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
+    {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
 };
 
 void showMenu(void) {
@@ -265,4 +266,16 @@ void commandBreakFreeProc(void) {
 
 void commandToggleInpDispProc(void) {
     settings->bits.inputDisplay ^= 1;
+}
+
+void commandClippyProc(void) {
+    if (pm_gPlayerStatus.enableCollisionOverlapsCheck) {
+        pm_gPlayerStatus.enableCollisionOverlapsCheck = 0;
+        pm_gPartnerActionStatus.shouldResumeAbility = 0;
+        fpLog("clippy disabled");
+    } else {
+        pm_gPlayerStatus.enableCollisionOverlapsCheck = 1;
+        pm_gPartnerActionStatus.shouldResumeAbility = 1;
+        fpLog("clippy enabled");
+    }
 }

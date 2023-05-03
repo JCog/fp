@@ -162,7 +162,7 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ s8 partnerActionState;
-    /* 0x001 */ s8 partnerAction_unk_1;
+    /* 0x001 */ s8 shouldResumeAbility;
     /* 0x002 */ s8 partnerAction_unk_2;
     /* 0x003 */ u8 actingPartner;
     /* 0x04 */ s16 stickX;
