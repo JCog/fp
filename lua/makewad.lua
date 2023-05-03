@@ -62,7 +62,7 @@ function usage()
   local gzinject = os.getenv("GZINJECT")
   if gzinject == nil or gzinject == "" then gzinject = "gzinject" end
 
-  local _,_,romc_result = os.execute("make romc")
+  local _,_,romc_result = os.execute("python3 configure.py && ninja romc")
   if romc_result ~= 0 then return romc_result end
   
   require("lua/rom_info")
