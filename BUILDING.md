@@ -30,7 +30,7 @@ replacing `<rom-file>` with the path to a unmodified (and 100% legally obtained)
 
 If you do not specifiy an output rom with `-o <output-rom>`, the newly built fp rom will be located in the root directory as either `fp-jp.z64` or `fp-us.z64`.
 
-You can also specify additional arguments that will be passed to make using the `MAKEOPTS` environment variable
+You can also specify additional arguments that will be passed to the configure script (see `./configure.py --help`) using the `CONFIGOPTS` environment variable and to ninja using the `MAKEOPTS` environment variable
 
 ## Wii
 To create a patched WAD for use with Wii VC, you must have gzinject installed. If you followed the above instructions to install the prebuilt toolchain, this will already be installed. If not, follow the instructions [here](https://github.com/krimtonz/gzinject). You will also need to generate the Wii common key by running `gzinject -a genkey` in the root directory of the repository and following the instructions.

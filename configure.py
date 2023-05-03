@@ -11,12 +11,12 @@ def run(cmd: str) -> str:
     return subprocess.run(cmd, capture_output=True, shell=True, check=False).stdout.decode()
 
 
-parser = argparse.ArgumentParser(description="Create an fp build script")
-parser.add_argument("--cflags", type=str, default="")
-parser.add_argument("--cppflags", type=str, default="")
-parser.add_argument("--ldflags", type=str, default="")
-parser.add_argument("--version", type=str)
-parser.add_argument("--ndebug", action="store_true")
+parser = argparse.ArgumentParser(description="Creates an fp build script")
+parser.add_argument("--cflags", type=str, default="", help="CFLAGS to be used for the build")
+parser.add_argument("--cppflags", type=str, default="", help="CPPFLAGS to be used for the build")
+parser.add_argument("--ldflags", type=str, default="", help="LDFLAGS to be used for the build")
+parser.add_argument("--version", type=str, help="Sets the version of fp to be displayed on the title screen")
+parser.add_argument("--ndebug", action="store_true", help="Disables debug logging")
 
 args = parser.parse_args()
 
