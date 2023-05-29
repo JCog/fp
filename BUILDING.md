@@ -17,7 +17,7 @@ Clone the fp source code by running:
 
 `git clone --recursive https://github.com/jcog/fp.git`  
 
-To build fp binaries, run `make VERSION=ver` with `ver` being either `us` or `jp`. This will only build the fp binaries and will not patch a rom.
+To build fp binaries, run `./configure.py` and then `ninja ver` with `ver` being either `us` or `jp`. This will only build the fp binaries and will not patch a rom.
 If you want to patch a rom, you can skip this step and move on to the patching section.
 
 # Patching
