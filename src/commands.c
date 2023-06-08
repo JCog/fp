@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "fp.h"
 #include "input.h"
+#include "pm64.h"
 #include "timer.h"
 #include "watchlist.h"
 #include <stdarg.h>
@@ -163,6 +164,7 @@ void commandSavePosProc(void) {
     fp.savedPos.z = pm_gPlayerStatus.position.z;
     fp.savedFacingAngle = pm_gPlayerStatus.currentYaw;
     fp.savedMovementAngle = pm_gPlayerStatus.targetYaw;
+    fp.savedCam = pm_gCameras[pm_gCurrentCameraID];
     fpLog("position saved");
 }
 
@@ -183,6 +185,9 @@ void commandLoadPosProc(void) {
         }
     }
 
+    if (fp.savedCam.flags) {
+        pm_gCameras[pm_gCurrentCameraID] = fp.savedCam;
+    }
     fpLog("position loaded");
 }
 
