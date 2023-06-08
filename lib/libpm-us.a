@@ -41,6 +41,7 @@ pm_setCurtainScaleGoal = 0x8002BEDC;
 pm_setCurtainDrawCallback = 0x8002BF04;
 pm_setCurtainFadeGoal = 0x8002BF14;
 pm_setGameMode = 0x800334F0;
+pm_get_npc_safe = 0x8003AB48;
 pm_func_800554A4 = 0x800554A4;
 pm_removeEffect = 0x8005A450;
 nuPiReadRom = 0x8005F490;

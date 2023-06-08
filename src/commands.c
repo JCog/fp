@@ -171,6 +171,17 @@ void commandLoadPosProc(void) {
     pm_gPlayerStatus.position.z = fp.savedPos.z;
     pm_gPlayerStatus.currentYaw = fp.savedFacingAngle;
     pm_gPlayerStatus.targetYaw = fp.savedMovementAngle;
+
+    if (pm_gPlayerStatus.actionState & ACTION_STATE_RIDE) {
+        pm_Npc *partner = pm_get_npc_safe(-4);
+        if (partner) {
+            partner->pos.x = fp.savedPos.x;
+            partner->pos.y = fp.savedPos.y;
+            partner->pos.z = fp.savedPos.z;
+            partner->yaw = fp.savedMovementAngle;
+        }
+    }
+
     fpLog("position loaded");
 }
 
