@@ -969,20 +969,20 @@ typedef struct pm_Camera {
     /* 0x0C4 */ f32 unk_C4;
     /* 0x0C8 */ char unk_C8[0xC];
     /* 0x0D4 */ Matrix4f perspectiveMatrix;
-    /* 0x114 */ Matrix4f viewMtxPlayer; /* centers on player */
+    /* 0x114 */ Matrix4f viewMtxPlayer;  /* centers on player */
     /* 0x154 */ Matrix4f viewMtxLeading; /* leads player slightly */
     /* 0x194 */ Matrix4f viewMtxShaking; /* used while ShakeCam is active */
     /* 0x1D4 */ char unk_1D4[0x28];
-    /* 0x1FC */ void (*fpDoPreRender)(struct pm_Camera*);
-    /* 0x200 */ void (*fpDoPostRender)(struct pm_Camera*);
-    /* 0x204 */ Mtx* unkMatrix;
+    /* 0x1FC */ void (*fpDoPreRender)(struct pm_Camera *);
+    /* 0x200 */ void (*fpDoPostRender)(struct pm_Camera *);
+    /* 0x204 */ Mtx *unkMatrix;
     /* 0x208 */ s32 unk_208;
-    /* 0x20C */ Matrix4s* unkEffectMatrix;
+    /* 0x20C */ Matrix4s *unkEffectMatrix;
     /* 0x210 */ char unk_210[0x2];
     /* 0x212 */ s16 unk_212;
     /* 0x214 */ pm_CameraUnk unk_214[4];
-    /* 0x444 */ pm_CameraControlSettings* prevController;
-    /* 0x448 */ pm_CameraControlSettings* currentController;
+    /* 0x444 */ pm_CameraControlSettings *prevController;
+    /* 0x448 */ pm_CameraControlSettings *currentController;
     /* 0x44C */ pm_CamConfiguration prevConfiguration;
     /* 0x468 */ pm_CamConfiguration goalConfiguration;
     /* 0x484 */ f32 interpAlpha;
@@ -1013,7 +1013,7 @@ typedef struct pm_Camera {
     /* 0x528 */ f32 unk_528;
     /* 0x52C */ s32 unk_52C;
     /* 0x530 */ s32 unk_530;
-    /* 0x534 */ pm_CameraControlSettings* aabbForZoneBelow;
+    /* 0x534 */ pm_CameraControlSettings *aabbForZoneBelow;
     /* 0x538 */ char unk_538[0x18];
     /* 0x550 */ f32 unk_550;
     /* 0x554 */ s16 unk_554;
