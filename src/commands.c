@@ -25,6 +25,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"reset timer",      COMMAND_PRESS_ONCE, 0, commandResetTimerProc    },
     {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
+    {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
 };
 
 void showMenu(void) {
@@ -249,4 +250,8 @@ void commandBreakFreeProc(void) {
         pm_gPlayerStatus.flags &= thirdByteMask;
     }
     fpLog("broke free");
+}
+
+void commandToggleInpDispProc(void) {
+    settings->bits.inputDisplay ^= 1;
 }

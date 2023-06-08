@@ -246,6 +246,7 @@ The following commands are available:
 - **reset timer**: Sets the timer back to 0 and reverts it to an inactive state. *Default: `unbound`*
 - **show/hide timer**: Toggles whether the timer is showing when it's active. *Default: `unbound`*
 - **break free**: Attempts to break any effect that removes control of Mario.
+- **toggle in. disp.**: Toggles the visibility of the input display.
 
 
 **_Warning:_** Unbinding the *show/hide menu* or *return from menu* commands,

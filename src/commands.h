@@ -20,6 +20,7 @@ enum Commands {
     COMMAND_RESET_TIMER,
     COMMAND_SHOW_HIDE_TIMER,
     COMMAND_BREAK_FREE,
+    COMMAND_TOGGLE_INPUT_DISPLAY,
     COMMAND_MAX
 };
 
@@ -53,6 +54,7 @@ void commandStartTimerProc(void);
 void commandResetTimerProc(void);
 void commandShowHideTimerProc(void);
 void commandBreakFreeProc(void);
+void commandToggleInpDispProc(void);
 
 extern struct Command fpCommands[COMMAND_MAX];
 
