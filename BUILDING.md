@@ -13,6 +13,10 @@ For those on other operating systems or who want to build from source, follow th
 
 
 # Building
+Install required modules by running:
+
+`pip install -r requirements.txt`
+
 Clone the fp source code by running:
 
 `git clone --recursive https://github.com/jcog/fp.git`  

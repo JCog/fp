@@ -35,7 +35,7 @@ local fp_rom = payload_rom + 0x60
 
 print("Building Loader")
 
-local make_ldr = string.format("ninja -t clean " .. rom_info.rom_id .. "_ldr && python3 configure.py --cppflags='-DPAYLOAD=0x%06x -DDMA_COPY=0x%08x -DEND=0x%08x' --ldflags='-Wl,--defsym,start=0x%08x' && ninja " ..
+local make_ldr = string.format("ninja -t clean " .. rom_info.rom_id .. "_ldr && python3 configure.py " .. configopts .. " --cppflags='-DPAYLOAD=0x%06x -DDMA_COPY=0x%08x -DEND=0x%08x' --ldflags='-Wl,--defsym,start=0x%08x' && ninja " ..
                                 makeopts .. " " .. rom_info.rom_id .. "_ldr", rom_info.payload_addr, rom_info.dma_func, fp:size() + fp_rom, rom_info.ldr_addr)
 
 print(make_ldr)

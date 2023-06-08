@@ -12,10 +12,10 @@ def run(cmd: str) -> str:
 
 
 parser = argparse.ArgumentParser(description="Creates an fp build script")
-parser.add_argument("--cflags", type=str, default="", help="CFLAGS to be used for the build")
-parser.add_argument("--cppflags", type=str, default="", help="CPPFLAGS to be used for the build")
-parser.add_argument("--ldflags", type=str, default="", help="LDFLAGS to be used for the build")
-parser.add_argument("--version", type=str, help="Sets the version of fp to be displayed on the title screen")
+parser.add_argument("--cflags", default=[], help="CFLAGS to be used for the build", action="append", nargs="+")
+parser.add_argument("--cppflags", default=[], help="CPPFLAGS to be used for the build", action="append", nargs="+")
+parser.add_argument("--ldflags", default=[], help="LDFLAGS to be used for the build", action="append", nargs="+")
+parser.add_argument("--version", type=str, help="fp version to be displayed on the title screen")
 parser.add_argument("--ndebug", action="store_true", help="Disables debug logging")
 
 args = parser.parse_args()
@@ -50,9 +50,9 @@ else:
         FP_VERSION = tag
 
 FP_BIN_ADDRESS = "0x80400060"
-CFLAGS = f"-c -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks -Isrc {args.cflags}"
-CPPFLAGS = f"-DURL=github.com/jcog/fp -DFP_VERSION={FP_VERSION} -DF3DEX_GBI_2 {args.cppflags}"
-LDFLAGS = f"-T gl-n64.ld -L{LIBDIR} -nostartfiles -specs=nosys.specs -Wl,--gc-sections {args.ldflags}"
+CFLAGS = f"-c -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks {' '.join([i for l in args.cflags for i in l])}"
+CPPFLAGS = f"-DURL=github.com/jcog/fp -DFP_VERSION={FP_VERSION} -DF3DEX_GBI_2 {' '.join([i for l in args.cppflags for i in l])}"
+LDFLAGS = f"-T gl-n64.ld -L{LIBDIR} -nostartfiles -specs=nosys.specs -Wl,--gc-sections {' '.join([i for l in args.ldflags for i in l])}"
 
 if args.ndebug:
     CFLAGS += " -DNDEBUG"
