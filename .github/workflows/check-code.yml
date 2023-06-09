@@ -15,11 +15,14 @@ jobs:
     - name: Install dependencies
       run: |
         sudo sh -c '(curl https://practicerom.com/public/packages/debian/pgp.pub || wget -O - https://practicerom.com/public/packages/debian/pgp.pub) | apt-key add - && echo deb https://practicerom.com/public/packages/debian ./staging main >/etc/apt/sources.list.d/practicerom.list && apt update'
-        sudo apt install practicerom-dev
+        sudo apt install practicerom-dev ninja-build
+        pip install -r requirements.txt
     - name: Test build
       run: |
-        make -j16 VERSION=us
-        make -j16 VERSION=jp
+        python3 configure.py
+        ninja -j16 us jp
+        python3 configure.py --cppflags='-DPAYLOAD=0x1c84d30 -DDMA_COPY=0x8002973c -DEND=0x01ccd110' --ldflags='-Wl,--defsym,start=0x8004ad7c'
+        ninja -j16 us_ldr jp_ldr
   formatting-check:
     name: Formatting Check
     runs-on: ubuntu-latest
