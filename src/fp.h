@@ -54,6 +54,7 @@ typedef struct {
     Vec3f camPos;
     pm_Controller inputMask;
     bool camEnabledBefore;
+    pm_Camera savedCam;
 } FpCtxt;
 
 extern FpCtxt fp;

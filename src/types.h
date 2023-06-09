@@ -43,4 +43,11 @@ typedef struct {
     /* 0x04 */ s16 z;
 } Vec3s; // size = 0x06
 
+typedef f32 Matrix4f[4][4]; // size = 0x40
+
+typedef struct Matrix4s {
+    /* 0x00 */ s16 whole[4][4];
+    /* 0x20 */ s16 frac[4][4];
+} Matrix4s; // size = 0x40
+
 #endif // TYPES_H

@@ -866,11 +866,68 @@ typedef struct {
 } pm_EncounterStatus; // size = 0xFB8
 
 typedef struct {
+    /* 0x00 */ s16 flags;
+    /* 0x02 */ s8 updateMode;
+    /* 0x03 */ char unk_03;
+    /* 0x04 */ s16 viewWidth;
+    /* 0x06 */ s16 viewHeight;
+    /* 0x08 */ s16 viewStartX;
+    /* 0x0A */ s16 viewStartY;
+    /* 0x0C */ s16 nearClip;
+    /* 0x0E */ s16 farClip;
+    /* 0x10 */ s16 vfov;
+} pm_CameraInitData; // size = 0x12;
+
+typedef struct {
+    /* 0x00 */ s16 unk_00;
+    /* 0x02 */ s16 unk_02;
+    /* 0x04 */ char unk_04[0x8];
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ char unk_10[0x54];
+    /* 0x64 */ s32 unk_64;
+    /* 0x68 */ char unk_68[0x24];
+} pm_CameraUnk; // size = 0x8C
+
+typedef struct {
+    /* 0x00 */ s32 type;
+    /* 0x04 */ f32 boomLength;
+    /* 0x08 */ f32 boomPitch;
+    union {
+        struct {
+            f32 Ax;
+            f32 Ay;
+            f32 Az;
+            f32 Bx;
+            f32 By;
+            f32 Bz;
+        } two;
+        struct {
+            f32 Ax;
+            f32 Cx;
+            f32 Az;
+            f32 Bx;
+            f32 Cz;
+            f32 Bz;
+        } three;
+    } points;
+    /* 0x24 */ f32 viewPitch;
+    /* 0x28 */ s32 flag;
+} pm_CameraControlSettings; // size = 0x2C
+
+typedef struct {
+    /* 0x00 */ f32 boomYaw;
+    /* 0x04 */ f32 boomLength;
+    /* 0x08 */ f32 boomPitch;
+    /* 0x0C */ f32 viewPitch;
+    /* 0x10 */ Vec3f targetPos;
+} pm_CamConfiguration; // size = 0x1C
+
+typedef struct pm_Camera {
     /* 0x000 */ u16 flags;
     /* 0x002 */ s16 moveFlags;
     /* 0x004 */ s16 updateMode;
     /* 0x006 */ s16 unk_06;
-    /* 0x008 */ s16 changingMap;
+    /* 0x008 */ s16 isChangingMap;
     /* 0x00A */ s16 viewportW;
     /* 0x00C */ s16 viewportH;
     /* 0x00E */ s16 viewportStartX;
@@ -879,12 +936,12 @@ typedef struct {
     /* 0x014 */ s16 farClip;
     /* 0x016 */ char unk_16[2];
     /* 0x018 */ f32 vfov;
-    /* 0x01C */ s16 unk_1C;
-    /* 0x01E */ s16 unk_1E;
-    /* 0x020 */ s16 unk_20;
-    /* 0x022 */ s16 unk_22;
-    /* 0x024 */ s16 unk_24;
-    /* 0x026 */ s16 unk_26;
+    /* 0x01C */ s16 auxPitch;
+    /* 0x01E */ s16 auxBoomLength;
+    /* 0x020 */ s16 lookAt_dist;
+    /* 0x022 */ s16 auxBoomPitch;
+    /* 0x024 */ s16 auxBoomYaw;
+    /* 0x026 */ s16 auxBoomZOffset;
     /* 0x028 */ s16 unk_28;
     /* 0x02A */ s16 zoomPercent;
     /* 0x02C */ s16 bgColor[3];
@@ -893,9 +950,7 @@ typedef struct {
     /* 0x03A */ char unk_3A[2];
     /* 0x03C */ Vec3f lookAt_eye;
     /* 0x048 */ Vec3f lookAt_obj;
-    /* 0x054 */ f32 unk_54;
-    /* 0x058 */ f32 unk_58;
-    /* 0x05C */ f32 unk_5C;
+    /* 0x054 */ Vec3f lookAt_obj_target;
     /* 0x060 */ Vec3f targetPos;
     /* 0x06C */ f32 currentYaw;
     /* 0x070 */ f32 unk_70;
@@ -906,6 +961,63 @@ typedef struct {
     /* 0x084 */ Vec3f trueRotation;
     /* 0x090 */ f32 currentBlendedYawNegated;
     /* 0x094 */ f32 currentPitch;
+    /* 0x098 */ f32 unk_98;
+    /* 0x09C */ f32 unk_9C;
+    /* 0x0A0 */ Vp vp;
+    /* 0x0B0 */ Vp vpAlt;
+    /* 0x0C0 */ s32 unk_C0;
+    /* 0x0C4 */ f32 unk_C4;
+    /* 0x0C8 */ char unk_C8[0xC];
+    /* 0x0D4 */ Matrix4f perspectiveMatrix;
+    /* 0x114 */ Matrix4f viewMtxPlayer;  /* centers on player */
+    /* 0x154 */ Matrix4f viewMtxLeading; /* leads player slightly */
+    /* 0x194 */ Matrix4f viewMtxShaking; /* used while ShakeCam is active */
+    /* 0x1D4 */ char unk_1D4[0x28];
+    /* 0x1FC */ void (*fpDoPreRender)(struct pm_Camera *);
+    /* 0x200 */ void (*fpDoPostRender)(struct pm_Camera *);
+    /* 0x204 */ Mtx *unkMatrix;
+    /* 0x208 */ s32 unk_208;
+    /* 0x20C */ Matrix4s *unkEffectMatrix;
+    /* 0x210 */ char unk_210[0x2];
+    /* 0x212 */ s16 unk_212;
+    /* 0x214 */ pm_CameraUnk unk_214[4];
+    /* 0x444 */ pm_CameraControlSettings *prevController;
+    /* 0x448 */ pm_CameraControlSettings *currentController;
+    /* 0x44C */ pm_CamConfiguration prevConfiguration;
+    /* 0x468 */ pm_CamConfiguration goalConfiguration;
+    /* 0x484 */ f32 interpAlpha;
+    /* 0x488 */ f32 linearInterp;
+    /* 0x48C */ f32 linearInterpScale; /* 3.0? */
+    /* 0x490 */ f32 moveSpeed;
+    /* 0x494 */ f32 unk_494;
+    /* 0x498 */ f32 unk_498;
+    /* 0x49C */ f32 unk_49C;
+    /* 0x4A0 */ f32 savedTargetY;
+    /* 0x4A4 */ Vec3f prevTargetPos;
+    /* 0x4B0 */ Vec3f movePos;
+    /* 0x4BC */ Vec3f prevPrevMovePos;
+    /* 0x4C8 */ Vec3f prevMovePos;
+    /* 0x4D4 */ u16 prevPrevFollowFlags;
+    /* 0x4D6 */ u16 prevFollowFlags;
+    /* 0x4D8 */ pm_CameraControlSettings controlSettings;
+    /* 0x504 */ u16 followPlayer;
+    /* 0x506 */ u16 panActive;
+    /* 0x508 */ f32 panPhase;
+    /* 0x50C */ f32 leadAmount;
+    /* 0x510 */ f32 unk_510;
+    /* 0x514 */ f32 unk_514;
+    /* 0x518 */ f32 unk_518;
+    /* 0x51C */ s32 unk_51C;
+    /* 0x520 */ f32 unk_520;
+    /* 0x524 */ f32 unk_524;
+    /* 0x528 */ f32 unk_528;
+    /* 0x52C */ s32 unk_52C;
+    /* 0x530 */ s32 unk_530;
+    /* 0x534 */ pm_CameraControlSettings *aabbForZoneBelow;
+    /* 0x538 */ char unk_538[0x18];
+    /* 0x550 */ f32 unk_550;
+    /* 0x554 */ s16 unk_554;
+    /* 0x556 */ s16 unk_556;
 } pm_Camera; // size = 0x558
 
 typedef struct {
