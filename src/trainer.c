@@ -391,7 +391,7 @@ static void updateLzsTrainer(void) {
         // detect if loading zone is stored
         for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
             if (pm_gScriptIndexList[evtIdx] >= 128) {
-                return;
+                continue;
             }
             pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
             if (script && script->ptrNextLine) {
