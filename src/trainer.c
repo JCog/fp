@@ -390,6 +390,9 @@ static void updateLzsTrainer(void) {
     if (settings->trainerBits.lzsEnabled) {
         // detect if loading zone is stored
         for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
+            if (pm_gScriptIndexList[evtIdx] >= 128) {
+                continue;
+            }
             pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
             if (script && script->ptrNextLine) {
                 u32 callbackFunction = script->ptrNextLine[5];
