@@ -1,28 +1,25 @@
 #ifndef PI_H
 #define PI_H
-#include <stddef.h>
-#include <stdint.h>
-#include <n64.h>
-#include "pm64.h"
+#include "common.h"
+#include <n64/pi.h>
 
-void pi_write_locked(u32 dev_addr, const void *src, size_t size);
-void pi_read_locked(u32 dev_addr, void *dst, size_t size);
-void pi_write(u32 dev_addr, const void *src, size_t size);
-void pi_read(u32 dev_addr, void *dst, size_t size);
+void piWriteLocked(u32 devAddr, const void *src, size_t size);
+void piReadLocked(u32 devAddr, void *dst, size_t size);
+void piWrite(u32 devAddr, const void *src, size_t size);
+void piRead(u32 devAddr, void *dst, size_t size);
 
-static inline void __pi_wait(void) {
-    while (pi_regs.status & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY))
-        ;
+static inline void __piWait(void) { // NOLINT
+    while (pi_regs.status & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) {}
 }
 
-static inline u32 __pi_read_raw(u32 dev_addr) {
-    __pi_wait();
-    return *(volatile u32 *)dev_addr;
+static inline u32 __piReadRaw(u32 devAddr) { // NOLINT
+    __piWait();
+    return *(volatile u32 *)devAddr;
 }
 
-static inline void __pi_write_raw(u32 dev_addr, u32 value) {
-    __pi_wait();
-    *(volatile u32 *)dev_addr = value;
+static inline void __piWriteRaw(u32 devAddr, u32 value) { // NOLINT
+    __piWait();
+    *(volatile u32 *)devAddr = value;
 }
 
 #endif

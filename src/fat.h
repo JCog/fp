@@ -1,9 +1,8 @@
 #ifndef FAT_H
 #define FAT_H
-#include <stdint.h>
-#include <time.h>
+#include "common.h"
 #include <list/list.h>
-#include "pm64.h"
+#include <sys/_timeval.h>
 
 #define FAT_MAX_CACHE_SECT   4
 
@@ -20,89 +19,89 @@
 #define FAT_ATTRIB_ARCHIVE   0x20
 #define FAT_ATTRIB_DEVICE    0x40
 
-enum fat_type {
+enum FatType {
     FAT12,
     FAT16,
     FAT32,
 };
 
-enum fat_rw {
+enum FatRw {
     FAT_READ,
     FAT_WRITE,
 };
 
 /* block cache */
-struct fat_cache {
-    _Bool valid;
-    _Bool dirty;
-    u32 max_lba;
-    u32 load_lba;
-    u32 prep_lba;
-    s32 n_sect;
+struct FatCache {
+    bool valid;
+    bool dirty;
+    u32 maxLba;
+    u32 loadLba;
+    u32 prepLba;
+    s32 nSect;
     _Alignas(0x10) char data[0x200 * FAT_MAX_CACHE_SECT];
 };
 
-typedef s32 (*fat_rd_proc)(size_t lba, size_t n_block, void *buf);
-typedef s32 (*fat_wr_proc)(size_t lba, size_t n_block, const void *buf);
+typedef s32 (*FatRdProc)(size_t lba, size_t nBlock, void *buf);
+typedef s32 (*FatWrProc)(size_t lba, size_t nBlock, const void *buf);
 
 /* fat context */
-struct fat {
+struct Fat {
     /* block io interface */
-    fat_rd_proc read;
-    fat_wr_proc write;
+    FatRdProc read;
+    FatWrProc write;
     /* file system info */
-    enum fat_type type;
-    u32 part_lba;
-    u32 n_part_sect;
-    u16 n_sect_byte;
-    u8 n_clust_sect;
-    u16 n_resv_sect;
-    u8 n_fat;
-    u16 n_entry;
-    u32 n_fs_sect;
-    u32 n_fat_sect;
-    u32 root_clust;
-    u16 fsis_lba;
-    u32 fat_lba;
-    u32 root_lba;
-    u32 data_lba;
-    u32 n_clust_byte;
-    u32 max_clust;
-    u32 free_lb;
+    enum FatType type;
+    u32 partLba;
+    u32 nPartSect;
+    u16 nSectByte;
+    u8 nClustSect;
+    u16 nResvSect;
+    u8 nFat;
+    u16 nEntry;
+    u32 nFsSect;
+    u32 nFatSect;
+    u32 rootClust;
+    u16 fsisLba;
+    u32 fatLba;
+    u32 rootLba;
+    u32 dataLba;
+    u32 nClustByte;
+    u32 maxClust;
+    u32 freeLb;
     /* cache */
-    struct fat_cache cache[FAT_CACHE_MAX];
+    struct FatCache cache[FAT_CACHE_MAX];
 };
 
 /* file pointer */
-struct fat_file {
-    struct fat *fat;
+struct FatFile {
+    struct Fat *fat;
     /* file info */
     u32 clust;
     u32 size;
-    _Bool is_dir;
+    bool isDir;
     /* file offset */
-    u32 p_off;
+    u32 pOff;
     /* file system geometry pointers */
-    u32 p_clust;
-    u32 p_clust_seq;
-    u32 p_clust_sect;
-    u32 p_sect_off;
+    u32 pClust;
+    u32 pClustSeq;
+    u32 pClustSect;
+    u32 pSectOff;
 };
 
 /* canonical path */
-struct fat_path {
-    struct list ent_list;
+struct FatPath {
+    struct list entList;
 };
 
 /* directory entry */
-struct fat_entry {
-    struct fat *fat;
+struct FatEntry {
+    struct Fat *fat;
     /* pointer to first physical entry (sfn entry or start of lfn chain) */
-    struct fat_file first;
+    struct FatFile first;
     /* pointer to last physical entry (sfn entry) */
-    struct fat_file last;
+    struct FatFile last;
     /* sfn */
-    char short_name[13];
+    char shortName[13];
     /* lfn or case-adjusted sfn */
     char name[256];
     /* metadata */
@@ -115,28 +114,28 @@ struct fat_entry {
     u32 size;
 };
 
-void fat_root(struct fat *fat, struct fat_file *file);
-void fat_begin(struct fat_entry *entry, struct fat_file *file);
-void fat_rewind(struct fat_file *file);
-u32 fat_advance(struct fat_file *file, u32 n_byte, _Bool *eof);
-u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct fat_file *new_file, _Bool *eof);
-s32 fat_dir(struct fat_file *dir, struct fat_entry *entry);
-s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fat_entry *entry);
-struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *path, const char **tail);
-struct fat_entry *fat_path_target(struct fat_path *fp);
-struct fat_entry *fat_path_dir(struct fat_path *fp);
-void fat_free(struct fat_path *ptr);
-s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attrib, struct fat_entry *entry);
-struct fat_path *fat_create_path(struct fat *fat, struct fat_path *dir_fp, const char *path, u8 attrib);
-s32 fat_resize(struct fat_entry *entry, u32 size, struct fat_file *file);
-s32 fat_empty(struct fat *fat, struct fat_entry *dir);
-s32 fat_rename(struct fat *fat, struct fat_path *entry_fp, struct fat_path *dir_fp, const char *path,
-               struct fat_entry *new_entry);
-s32 fat_remove(struct fat_entry *entry);
-s32 fat_attrib(struct fat_entry *entry, u8 attrib);
-s32 fat_atime(struct fat_entry *entry, time_t timeval);
-s32 fat_mtime(struct fat_entry *entry, time_t timeval);
-s32 fat_init(struct fat *fat, fat_rd_proc read, fat_wr_proc write, u32 rec_lba, s32 part);
-s32 fat_flush(struct fat *fat);
+void fatRoot(struct Fat *fat, struct FatFile *file);
+void fatBegin(struct FatEntry *entry, struct FatFile *file);
+void fatRewind(struct FatFile *file);
+u32 fatAdvance(struct FatFile *file, u32 nByte, bool *eof);
+u32 fatRw(struct FatFile *file, enum FatRw rw, void *buf, u32 nByte, struct FatFile *newFile, bool *eof);
+s32 fatDir(struct FatFile *dir, struct FatEntry *entry);
+s32 fatFind(struct Fat *fat, struct FatEntry *dir, const char *path, struct FatEntry *entry);
+struct FatPath *fatPath(struct Fat *fat, struct FatPath *dirFp, const char *path, const char **tail);
+struct FatEntry *fatPathTarget(struct FatPath *fp);
+struct FatEntry *fatPathDir(struct FatPath *fp);
+void fatFree(struct FatPath *ptr);
+s32 fatCreate(struct Fat *fat, struct FatEntry *dir, const char *path, u8 attrib, struct FatEntry *entry);
+struct FatPath *fatCreatePath(struct Fat *fat, struct FatPath *dirFp, const char *path, u8 attrib);
+s32 fatResize(struct FatEntry *entry, u32 size, struct FatFile *file);
+s32 fatEmpty(struct Fat *fat, struct FatEntry *dir);
+s32 fatRename(struct Fat *fat, struct FatPath *entryFp, struct FatPath *dirFp, const char *path,
+              struct FatEntry *newEntry);
+s32 fatRemove(struct FatEntry *entry);
+s32 fatAttrib(struct FatEntry *entry, u8 attrib);
+s32 fatAtime(struct FatEntry *entry, time_t timeval);
+s32 fatMtime(struct FatEntry *entry, time_t timeval);
+s32 fatInit(struct Fat *fat, FatRdProc read, FatWrProc write, u32 recLba, s32 part);
+s32 fatFlush(struct Fat *fat);
 
 #endif

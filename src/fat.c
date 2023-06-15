@@ -1,16 +1,16 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <errno.h>
 #include "fat.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 /*
    string operations
 */
 
 /* transform string to lower case */
-static void cvt_lower(char *s, s32 length) {
+static void cvtLower(char *s, s32 length) {
     while (length-- > 0) {
         if (*s >= 'A' && *s <= 'Z') {
             *s += 'a' - 'A';
@@ -20,7 +20,7 @@ static void cvt_lower(char *s, s32 length) {
 }
 
 /* transform string to upper case */
-static void cvt_upper(char *s, s32 length) {
+static void cvtUpper(char *s, s32 length) {
     while (length-- > 0) {
         if (*s >= 'a' && *s <= 'z') {
             *s += 'A' - 'a';
@@ -30,7 +30,7 @@ static void cvt_upper(char *s, s32 length) {
 }
 
 /* case-insensitive compare */
-static _Bool name_comp(const char *a, const char *b) {
+static bool nameComp(const char *a, const char *b) {
     while (*a && *b) {
         char ca = *a++;
         char cb = *b++;
@@ -48,7 +48,7 @@ static _Bool name_comp(const char *a, const char *b) {
 }
 
 /* compute the length of a string without trailing spaces and dots */
-static size_t name_trim(const char *s, size_t length) {
+static size_t nameTrim(const char *s, size_t length) {
     while (length > 0 && (s[length - 1] == ' ' || s[length - 1] == '.')) {
         --length;
     }
@@ -56,8 +56,8 @@ static size_t name_trim(const char *s, size_t length) {
 }
 
 /* split a string into its name and extension components */
-static void name_split(const char *s, const char **name, const char **ext, s32 *name_length, s32 *ext_length) {
-    const char *end = s + name_trim(s, strlen(s));
+static void nameSplit(const char *s, const char **name, const char **ext, s32 *nameLength, s32 *extLength) {
+    const char *end = s + nameTrim(s, strlen(s));
     const char *dot = NULL;
     for (const char *c = end - 1; c >= s; --c) {
         if (*c == '.') {
@@ -67,24 +67,24 @@ static void name_split(const char *s, const char **name, const char **ext, s32 *
     }
     *name = s;
     if (dot) {
-        *name_length = dot - *name;
+        *nameLength = dot - *name;
         *ext = dot + 1;
-        *ext_length = end - *ext;
+        *extLength = end - *ext;
     } else {
-        *name_length = end - *name;
+        *nameLength = end - *name;
         *ext = NULL;
-        *ext_length = 0;
+        *extLength = 0;
     }
 }
 
-enum sfn_case {
+enum SfnCase {
     SFN_CASE_ANY,
     SFN_CASE_LOWER,
     SFN_CASE_UPPER,
 };
 
 /* check if a character is a valid sfn character in the given case */
-static _Bool char_is_sfn(char c, enum sfn_case *cse) {
+static bool charIsSfn(char c, enum SfnCase *cse) {
     if (c >= 'A' && c <= 'Z') {
         if (cse) {
             if (*cse == SFN_CASE_LOWER) {
@@ -109,21 +109,21 @@ static _Bool char_is_sfn(char c, enum sfn_case *cse) {
 }
 
 /* convert an lfn name component to sfn characters */
-static s32 cvt_sfn(const char *s, s32 s_length, char *buf, s32 buf_size) {
+static s32 cvtSfn(const char *s, s32 sLength, char *buf, s32 bufSize) {
     s32 p = 0;
-    for (s32 i = 0; i < s_length && p < buf_size; ++i) {
+    for (s32 i = 0; i < sLength && p < bufSize; ++i) {
         char c = s[i];
         if (c >= 'a' && c <= 'z') {
             c += 'A' - 'a';
         } else if (c == '.' || c == ' ') {
             continue;
-        } else if (!char_is_sfn(c, NULL)) {
+        } else if (!charIsSfn(c, NULL)) {
             c = '_';
         }
         buf[p++] = c;
     }
     s32 length = p;
-    while (p < buf_size) {
+    while (p < bufSize) {
         buf[p++] = ' ';
     }
     return length;
@@ -131,47 +131,47 @@ static s32 cvt_sfn(const char *s, s32 s_length, char *buf, s32 buf_size) {
 
 /* check if a name is a valid sfn,
    possibly with one or two lower case components */
-static _Bool name_is_sfn(const char *s, _Bool *lower_name, _Bool *lower_ext) {
+static bool nameIsSfn(const char *s, bool *lowerName, bool *lowerExt) {
     if (strcmp(s, ".") == 0 || strcmp(s, "..") == 0) {
-        if (lower_name) {
-            *lower_name = 0;
+        if (lowerName) {
+            *lowerName = FALSE;
         }
-        if (lower_ext) {
-            *lower_ext = 0;
+        if (lowerExt) {
+            *lowerExt = FALSE;
         }
-        return 1;
+        return TRUE;
     }
     const char *name;
     const char *ext;
-    s32 name_l;
-    s32 ext_l;
-    name_split(s, &name, &ext, &name_l, &ext_l);
-    if (name_l == 0 || name_l > 8 || (ext && ext_l > 3)) {
-        return 0;
+    s32 nameL;
+    s32 extL;
+    nameSplit(s, &name, &ext, &nameL, &extL);
+    if (nameL == 0 || nameL > 8 || (ext && extL > 3)) {
+        return FALSE;
     }
-    enum sfn_case name_cse = SFN_CASE_ANY;
-    enum sfn_case ext_cse = SFN_CASE_ANY;
-    for (s32 i = 0; i < name_l; ++i) {
-        if (!char_is_sfn(name[i], &name_cse)) {
-            return 0;
+    enum SfnCase nameCse = SFN_CASE_ANY;
+    enum SfnCase extCse = SFN_CASE_ANY;
+    for (s32 i = 0; i < nameL; ++i) {
+        if (!charIsSfn(name[i], &nameCse)) {
+            return FALSE;
         }
     }
-    for (s32 i = 0; i < ext_l; ++i) {
-        if (!char_is_sfn(ext[i], &ext_cse)) {
-            return 0;
+    for (s32 i = 0; i < extL; ++i) {
+        if (!charIsSfn(ext[i], &extCse)) {
+            return FALSE;
         }
     }
-    if (lower_name) {
-        *lower_name = (name_cse == SFN_CASE_LOWER);
+    if (lowerName) {
+        *lowerName = (nameCse == SFN_CASE_LOWER);
     }
-    if (lower_ext) {
-        *lower_ext = (ext_cse == SFN_CASE_LOWER);
+    if (lowerExt) {
+        *lowerExt = (extCse == SFN_CASE_LOWER);
     }
-    return 1;
+    return TRUE;
 }
 
 /* translate an sfn from a directory entry to its normal form */
-static s32 get_sfn(const char *sfn, char *buf, s32 *name_l, s32 *ext_l) {
+static s32 getSfn(const char *sfn, char *buf, s32 *nameL, s32 *extL) {
     s32 nl = 8;
     s32 el = 3;
     while (nl > 0 && sfn[nl - 1] == ' ') {
@@ -188,44 +188,44 @@ static s32 get_sfn(const char *sfn, char *buf, s32 *name_l, s32 *ext_l) {
         l += 1 + el;
     }
     buf[l] = 0;
-    if (name_l) {
-        *name_l = nl;
+    if (nameL) {
+        *nameL = nl;
     }
-    if (ext_l) {
-        *ext_l = el;
+    if (extL) {
+        *extL = el;
     }
     return l;
 }
 
 /* validate the name in a directory entry */
-static _Bool validate_sfn(const char *sfn) {
+static bool validateSfn(const char *sfn) {
     /* check for dot entry */
     if (sfn[0] == '.') {
         for (s32 i = 2; i < 11; ++i) {
             if (sfn[i] != ' ') {
-                return 0;
+                return FALSE;
             }
         }
         return sfn[1] == '.' || sfn[1] == ' ';
     }
     /* validate characters */
-    enum sfn_case cse = SFN_CASE_UPPER;
-    _Bool spc = 0;
+    enum SfnCase cse = SFN_CASE_UPPER;
+    bool spc = FALSE;
     for (s32 i = 0; i < 11; ++i) {
         if (i == 8) {
             spc = 0;
         }
         if (sfn[i] == ' ') {
-            spc = 1;
-        } else if (spc || !char_is_sfn(sfn[i], &cse)) {
-            return 0;
+            spc = TRUE;
+        } else if (spc || !charIsSfn(sfn[i], &cse)) {
+            return FALSE;
         }
     }
-    return 1;
+    return TRUE;
 }
 
 /* convert a name to 8.3 */
-static void cvt_83(const char *s, char *sfn) {
+static void cvt83(const char *s, char *sfn) {
     memset(sfn, ' ', 11);
     if (strcmp(s, ".") == 0) {
         sfn[0] = '.';
@@ -235,12 +235,12 @@ static void cvt_83(const char *s, char *sfn) {
     } else {
         const char *name;
         const char *ext;
-        s32 name_length;
-        s32 ext_length;
-        name_split(s, &name, &ext, &name_length, &ext_length);
-        memcpy(&sfn[0], name, name_length);
-        memcpy(&sfn[8], ext, ext_length);
-        cvt_upper(sfn, 11);
+        s32 nameLength;
+        s32 extLength;
+        nameSplit(s, &name, &ext, &nameLength, &extLength);
+        memcpy(&sfn[0], name, nameLength);
+        memcpy(&sfn[8], ext, extLength);
+        cvtUpper(sfn, 11);
         if (sfn[0] == '\xE5') {
             sfn[0] = '\x05';
         }
@@ -248,7 +248,7 @@ static void cvt_83(const char *s, char *sfn) {
 }
 
 /* compute the vfat checksum of an 8.3 name */
-static u8 compute_lfn_checksum(const char *sfn) {
+static u8 computeLfnChecksum(const char *sfn) {
     u8 *p = (void *)sfn;
     u8 checksum = 0;
     for (s32 i = 0; i < 11; ++i) {
@@ -262,7 +262,7 @@ static u8 compute_lfn_checksum(const char *sfn) {
 */
 
 /* convert unix time to dos date and time */
-static void unix2dos(time_t time, u16 *dos_date, u16 *dos_time) {
+static void unix2dos(time_t time, u16 *dosDate, u16 *dosTime) {
     s32 sec = time % 60;
     time /= 60;
     s32 min = time % 60;
@@ -280,30 +280,30 @@ static void unix2dos(time_t time, u16 *dos_date, u16 *dos_time) {
     s32 m = mp + (mp < 10 ? 3 : -9);
     y += (m <= 2);
     if (y < 1980 || y > 2107) {
-        if (dos_date) {
-            *dos_date = 0;
+        if (dosDate) {
+            *dosDate = 0;
         }
-        if (dos_time) {
-            *dos_time = 0;
+        if (dosTime) {
+            *dosTime = 0;
         }
     } else {
-        if (dos_date) {
-            *dos_date = ((u16)(y - 1980) << 9) | ((u16)m << 5) | ((u16)d << 0);
+        if (dosDate) {
+            *dosDate = ((u16)(y - 1980) << 9) | ((u16)m << 5) | ((u16)d << 0);
         }
-        if (dos_time) {
-            *dos_time = ((u16)hr << 11) | ((u16)min << 5) | ((u16)(sec / 2) << 0);
+        if (dosTime) {
+            *dosTime = ((u16)hr << 11) | ((u16)min << 5) | ((u16)(sec / 2) << 0);
         }
     }
 }
 
 /* convert dos date and time to unix time */
-static time_t dos2unix(u16 dos_date, u16 dos_time) {
-    s32 y = 1980 + ((dos_date >> 9) & 0x7F);
-    s32 m = (s32)((dos_date >> 5) & 0xF);
-    s32 d = (s32)((dos_date >> 0) & 0x1F);
-    s32 hr = (dos_time >> 11) & 0x1F;
-    s32 min = (dos_time >> 5) & 0x3F;
-    s32 sec = ((dos_time >> 0) & 0x1F) * 2;
+static time_t dos2unix(u16 dosDate, u16 dosTime) {
+    s32 y = 1980 + ((dosDate >> 9) & 0x7F);
+    s32 m = (s32)((dosDate >> 5) & 0xF);
+    s32 d = (s32)((dosDate >> 0) & 0x1F);
+    s32 hr = (dosTime >> 11) & 0x1F;
+    s32 min = (dosTime >> 5) & 0x3F;
+    s32 sec = ((dosTime >> 0) & 0x1F) * 2;
     if (m < 1 || m > 12 || d < 1 || d > 31 || hr > 23 || min > 59 || sec > 59) {
         return 0;
     }
@@ -319,77 +319,77 @@ static time_t dos2unix(u16 dos_date, u16 dos_time) {
    cache operations
 */
 
-static s32 cache_flush(struct fat *fat, s32 index) {
-    struct fat_cache *cache = &fat->cache[index];
+static s32 cacheFlush(struct Fat *fat, s32 index) {
+    struct FatCache *cache = &fat->cache[index];
     if (!cache->valid || !cache->dirty) {
         return 0;
     }
-    if (fat->write(cache->load_lba, cache->n_sect, cache->data)) {
+    if (fat->write(cache->loadLba, cache->nSect, cache->data)) {
         errno = EIO;
         return -1;
     }
-    cache->dirty = 0;
+    cache->dirty = FALSE;
     return 0;
 }
 
-static void *cache_prep(struct fat *fat, s32 index, u32 lba, _Bool load) {
-    struct fat_cache *cache = &fat->cache[index];
-    if (cache->valid && cache->load_lba <= lba && cache->load_lba + cache->n_sect > lba) {
-        cache->prep_lba = lba;
-        u32 offset = fat->n_sect_byte * (cache->prep_lba - cache->load_lba);
+static void *cachePrep(struct Fat *fat, s32 index, u32 lba, bool load) {
+    struct FatCache *cache = &fat->cache[index];
+    if (cache->valid && cache->loadLba <= lba && cache->loadLba + cache->nSect > lba) {
+        cache->prepLba = lba;
+        u32 offset = fat->nSectByte * (cache->prepLba - cache->loadLba);
         return &cache->data[offset];
     }
-    if (cache_flush(fat, index)) {
+    if (cacheFlush(fat, index)) {
         return NULL;
     }
     if (load) {
-        cache->n_sect = FAT_MAX_CACHE_SECT;
-        if (lba + cache->n_sect > cache->max_lba) {
-            cache->n_sect = cache->max_lba - lba;
+        cache->nSect = FAT_MAX_CACHE_SECT;
+        if (lba + cache->nSect > cache->maxLba) {
+            cache->nSect = cache->maxLba - lba;
         }
-        if (fat->read(lba, cache->n_sect, cache->data)) {
-            cache->valid = 0;
+        if (fat->read(lba, cache->nSect, cache->data)) {
+            cache->valid = FALSE;
             errno = EIO;
             return NULL;
         }
     } else {
-        cache->n_sect = 1;
+        cache->nSect = 1;
     }
-    cache->valid = 1;
-    cache->dirty = 0;
-    cache->load_lba = lba;
-    cache->prep_lba = lba;
+    cache->valid = TRUE;
+    cache->dirty = FALSE;
+    cache->loadLba = lba;
+    cache->prepLba = lba;
     return cache->data;
 }
 
-static void cache_dirty(struct fat *fat, s32 index) {
-    fat->cache[index].dirty = 1;
+static void cacheDirty(struct Fat *fat, s32 index) {
+    fat->cache[index].dirty = TRUE;
 }
 
-static void cache_inval(struct fat *fat, s32 index) {
-    fat->cache[index].valid = 0;
+static void cacheInval(struct Fat *fat, s32 index) {
+    fat->cache[index].valid = FALSE;
 }
 
-static void cache_read(struct fat *fat, s32 index, u32 offset, void *dst, u32 length) {
-    struct fat_cache *cache = &fat->cache[index];
-    offset += fat->n_sect_byte * (cache->prep_lba - cache->load_lba);
+static void cacheRead(struct Fat *fat, s32 index, u32 offset, void *dst, u32 length) {
+    struct FatCache *cache = &fat->cache[index];
+    offset += fat->nSectByte * (cache->prepLba - cache->loadLba);
     if (dst) {
         memcpy(dst, &cache->data[offset], length);
     }
 }
 
-static void cache_write(struct fat *fat, s32 index, u32 offset, const void *src, u32 length) {
-    struct fat_cache *cache = &fat->cache[index];
-    offset += fat->n_sect_byte * (cache->prep_lba - cache->load_lba);
+static void cacheWrite(struct Fat *fat, s32 index, u32 offset, const void *src, u32 length) {
+    struct FatCache *cache = &fat->cache[index];
+    offset += fat->nSectByte * (cache->prepLba - cache->loadLba);
     if (src) {
         memcpy(&cache->data[offset], src, length);
     } else {
         memset(&cache->data[offset], 0, length);
     }
-    cache->dirty = 1;
+    cache->dirty = TRUE;
 }
 
-static u32 get_word(const void *buf, u32 offset, s32 width) {
+static u32 getWord(const void *buf, u32 offset, s32 width) {
     const u8 *p = buf;
     u32 word = 0;
     for (s32 i = 0; i < width; ++i) {
@@ -398,7 +398,7 @@ static u32 get_word(const void *buf, u32 offset, s32 width) {
     return word;
 }
 
-static void set_word(void *buf, u32 offset, s32 width, u32 value) {
+static void setWord(void *buf, u32 offset, s32 width, u32 value) {
     u8 *p = buf;
     for (s32 i = 0; i < width; ++i) {
         p[offset + i] = value >> (i * 8);
@@ -409,25 +409,25 @@ static void set_word(void *buf, u32 offset, s32 width, u32 value) {
    cluster operations
 */
 
-static s32 get_clust_fat12(struct fat *fat, u32 clust, u32 *value) {
+static s32 getClustFat12(struct Fat *fat, u32 clust, u32 *value) {
     u32 offset = clust / 2 * 3;
-    u32 lba = offset / fat->n_sect_byte;
-    offset %= fat->n_sect_byte;
+    u32 lba = offset / fat->nSectByte;
+    offset %= fat->nSectByte;
     s32 n = 3;
-    if (offset + n > fat->n_sect_byte) {
-        n = fat->n_sect_byte - offset;
+    if (offset + n > fat->nSectByte) {
+        n = fat->nSectByte - offset;
     }
-    void *block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba, 1);
+    void *block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba, TRUE);
     if (!block) {
         return -1;
     }
-    u32 group = get_word(block, offset, n);
+    u32 group = getWord(block, offset, n);
     if (n < 3) {
-        block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba + 1, 1);
+        block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba + 1, TRUE);
         if (!block) {
             return -1;
         }
-        group |= (get_word(block, 0, 3 - n) << (8 * n));
+        group |= (getWord(block, 0, 3 - n) << (8 * n));
     }
     if (clust % 2 == 1) {
         group >>= 12;
@@ -436,16 +436,16 @@ static s32 get_clust_fat12(struct fat *fat, u32 clust, u32 *value) {
     if (*value >= 0xFF7) {
         *value |= 0x0FFFF000;
     }
-    if (clust == fat->free_lb && *value != 0) {
-        ++fat->free_lb;
+    if (clust == fat->freeLb && *value != 0) {
+        ++fat->freeLb;
     }
     return 0;
 }
 
-static s32 set_clust_fat12(struct fat *fat, u32 clust, u32 value) {
+static s32 setClustFat12(struct Fat *fat, u32 clust, u32 value) {
     u32 offset = clust / 2 * 3;
-    u32 lba = offset / fat->n_sect_byte;
-    offset %= fat->n_sect_byte;
+    u32 lba = offset / fat->nSectByte;
+    offset %= fat->nSectByte;
     u32 mask = 0xFFF;
     value &= mask;
     if (clust % 2 == 1) {
@@ -453,111 +453,111 @@ static s32 set_clust_fat12(struct fat *fat, u32 clust, u32 value) {
         mask <<= 12;
     }
     s32 n = 3;
-    if (offset + n > fat->n_sect_byte) {
-        n = fat->n_sect_byte - offset;
+    if (offset + n > fat->nSectByte) {
+        n = fat->nSectByte - offset;
     }
-    void *block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba, 1);
+    void *block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba, TRUE);
     if (!block) {
         return -1;
     }
-    value |= (get_word(block, offset, n) & ~mask);
-    set_word(block, offset, n, value);
+    value |= (getWord(block, offset, n) & ~mask);
+    setWord(block, offset, n, value);
     if (n < 3) {
-        cache_dirty(fat, FAT_CACHE_FAT);
-        block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba + 1, 1);
+        cacheDirty(fat, FAT_CACHE_FAT);
+        block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba + 1, TRUE);
         if (!block) {
             return -1;
         }
-        value |= ((get_word(block, 0, 3 - n) << (8 * n)) & ~mask);
-        set_word(block, offset, 3 - n, value >> (8 * n));
+        value |= ((getWord(block, 0, 3 - n) << (8 * n)) & ~mask);
+        setWord(block, offset, 3 - n, value >> (8 * n));
     }
-    cache_dirty(fat, FAT_CACHE_FAT);
-    if (clust < fat->free_lb && value == 0) {
-        fat->free_lb = clust;
-    } else if (clust == fat->free_lb && value != 0) {
-        ++fat->free_lb;
+    cacheDirty(fat, FAT_CACHE_FAT);
+    if (clust < fat->freeLb && value == 0) {
+        fat->freeLb = clust;
+    } else if (clust == fat->freeLb && value != 0) {
+        ++fat->freeLb;
     }
     return 0;
 }
 
 /* get the value of a cluster entry in the FAT */
-static s32 get_clust(struct fat *fat, u32 clust, u32 *value) {
-    if (clust >= fat->max_clust) {
+static s32 getClust(struct Fat *fat, u32 clust, u32 *value) {
+    if (clust >= fat->maxClust) {
         errno = EOVERFLOW;
         return -1;
     }
     if (fat->type == FAT12) {
-        return get_clust_fat12(fat, clust, value);
+        return getClustFat12(fat, clust, value);
     }
-    u32 ent_size = fat->type == FAT16 ? 2 : 4;
-    u32 lba = clust / (fat->n_sect_byte / ent_size);
-    u32 offset = clust % (fat->n_sect_byte / ent_size) * ent_size;
-    void *block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba, 1);
+    u32 entSize = fat->type == FAT16 ? 2 : 4;
+    u32 lba = clust / (fat->nSectByte / entSize);
+    u32 offset = clust % (fat->nSectByte / entSize) * entSize;
+    void *block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba, TRUE);
     if (!block) {
         return -1;
     }
     if (fat->type == FAT16) {
-        *value = get_word(block, offset, 2);
+        *value = getWord(block, offset, 2);
         if (*value >= 0xFFF7) {
             *value |= 0x0FFF0000;
         }
     } else {
-        *value = get_word(block, offset, 4);
+        *value = getWord(block, offset, 4);
         *value &= 0x0FFFFFFF;
     }
-    if (clust == fat->free_lb && *value != 0) {
-        ++fat->free_lb;
+    if (clust == fat->freeLb && *value != 0) {
+        ++fat->freeLb;
     }
     return 0;
 }
 
 /* set the value of a cluster entry in the FAT */
-static s32 set_clust(struct fat *fat, u32 clust, u32 value) {
-    if (clust >= fat->max_clust) {
+static s32 setClust(struct Fat *fat, u32 clust, u32 value) {
+    if (clust >= fat->maxClust) {
         errno = EOVERFLOW;
         return -1;
     }
     if (fat->type == FAT12) {
-        return set_clust_fat12(fat, clust, value);
+        return setClustFat12(fat, clust, value);
     }
-    u32 ent_size = fat->type == FAT16 ? 2 : 4;
-    u32 lba = clust / (fat->n_sect_byte / ent_size);
-    u32 offset = clust % (fat->n_sect_byte / ent_size) * ent_size;
-    void *block = cache_prep(fat, FAT_CACHE_FAT, fat->fat_lba + lba, 1);
+    u32 entSize = fat->type == FAT16 ? 2 : 4;
+    u32 lba = clust / (fat->nSectByte / entSize);
+    u32 offset = clust % (fat->nSectByte / entSize) * entSize;
+    void *block = cachePrep(fat, FAT_CACHE_FAT, fat->fatLba + lba, TRUE);
     if (!block) {
         return -1;
     }
     if (fat->type == FAT16) {
         value &= 0x0000FFFF;
-        set_word(block, offset, 2, value);
+        setWord(block, offset, 2, value);
     } else {
         value &= 0x0FFFFFFF;
-        set_word(block, offset, 4, value);
+        setWord(block, offset, 4, value);
     }
-    cache_dirty(fat, FAT_CACHE_FAT);
-    if (clust < fat->free_lb && value == 0) {
-        fat->free_lb = clust;
-    } else if (clust == fat->free_lb && value != 0) {
-        ++fat->free_lb;
+    cacheDirty(fat, FAT_CACHE_FAT);
+    if (clust < fat->freeLb && value == 0) {
+        fat->freeLb = clust;
+    } else if (clust == fat->freeLb && value != 0) {
+        ++fat->freeLb;
     }
     return 0;
 }
 
 /* get the next cluster in a cluster chain, returns 1 on success, 0 on eof,
    -1 on error */
-static s32 advance_clust(struct fat *fat, u32 *clust) {
+static s32 advanceClust(struct Fat *fat, u32 *clust) {
     /* treat reserved clusters as the root directory */
     u32 current = *clust;
     if (current < 2) {
         if (fat->type == FAT32) {
-            current = fat->root_clust;
+            current = fat->rootClust;
         } else {
             return 0;
         }
     }
     /* get next cluster index */
     u32 next;
-    if (get_clust(fat, current, &next)) {
+    if (getClust(fat, current, &next)) {
         return -1;
     }
     /* check for end of chain */
@@ -569,19 +569,19 @@ static s32 advance_clust(struct fat *fat, u32 *clust) {
 }
 
 /* check the number of free clusters in a sequence from `clust`, up to `max` */
-static u32 check_free_chunk_length(struct fat *fat, u32 clust, u32 max) {
+static u32 checkFreeChunkLength(struct Fat *fat, u32 clust, u32 max) {
     /* treat reserved clusters as the root directory */
     if (clust < 2) {
         if (fat->type == FAT32) {
-            clust = fat->root_clust;
+            clust = fat->rootClust;
         } else {
             return 0;
         }
     }
     u32 length = 0;
-    while (length < max && clust < fat->max_clust) {
+    while (length < max && clust < fat->maxClust) {
         u32 value;
-        if (get_clust(fat, clust, &value)) {
+        if (getClust(fat, clust, &value)) {
             return 0;
         }
         if (value != 0) {
@@ -595,51 +595,51 @@ static u32 check_free_chunk_length(struct fat *fat, u32 clust, u32 max) {
 /* find the first free cluster after `clust` (inclusive),
    preferably with at most `pref_length` free clusters chunked in a sequence.
    returns the actual chunk length in `*length` if given. */
-static u32 find_free_clust(struct fat *fat, u32 clust, u32 pref_length, u32 *length) {
-    if (clust < fat->free_lb) {
-        clust = fat->free_lb;
+static u32 findFreeClust(struct Fat *fat, u32 clust, u32 prefLength, u32 *length) {
+    if (clust < fat->freeLb) {
+        clust = fat->freeLb;
     }
-    u32 max_clust = 0;
-    u32 max_length = 0;
-    while (max_length < pref_length && clust < fat->max_clust) {
-        u32 chunk_length = check_free_chunk_length(fat, clust, pref_length);
-        if (chunk_length > max_length) {
-            max_clust = clust;
-            max_length = chunk_length;
+    u32 maxClust = 0;
+    u32 maxLength = 0;
+    while (maxLength < prefLength && clust < fat->maxClust) {
+        u32 chunkLength = checkFreeChunkLength(fat, clust, prefLength);
+        if (chunkLength > maxLength) {
+            maxClust = clust;
+            maxLength = chunkLength;
         }
-        if (chunk_length > 0) {
-            clust += chunk_length;
+        if (chunkLength > 0) {
+            clust += chunkLength;
         } else {
             ++clust;
         }
     }
-    if (max_length == 0) {
+    if (maxLength == 0) {
         errno = ENOSPC;
     }
     if (length) {
-        *length = max_length;
+        *length = maxLength;
     }
-    return max_clust;
+    return maxClust;
 }
 
 /* link `clust` to `next_clust`, mark as end-of-chain if `eoc`. */
-static s32 link_clust(struct fat *fat, u32 clust, u32 next_clust, _Bool eoc) {
+static s32 linkClust(struct Fat *fat, u32 clust, u32 nextClust, bool eoc) {
     /* treat reserved clusters as the root directory */
     if (clust < 2) {
         if (fat->type == FAT32) {
-            clust = fat->root_clust;
+            clust = fat->rootClust;
         } else {
             errno = EINVAL;
             return -1;
         }
     }
     /* link cluster */
-    if (set_clust(fat, clust, next_clust)) {
+    if (setClust(fat, clust, nextClust)) {
         return -1;
     }
     /* add end-of-chain marker */
     if (eoc) {
-        if (set_clust(fat, next_clust, 0x0FFFFFFF)) {
+        if (setClust(fat, nextClust, 0x0FFFFFFF)) {
             return -1;
         }
     }
@@ -647,18 +647,18 @@ static s32 link_clust(struct fat *fat, u32 clust, u32 next_clust, _Bool eoc) {
 }
 
 /* check if there are at least `needed` free clusters available */
-static s32 check_free_space(struct fat *fat, u32 needed) {
-    u32 n_free = 0;
-    for (u32 i = fat->free_lb; i < fat->max_clust && n_free < needed; ++i) {
+static s32 checkFreeSpace(struct Fat *fat, u32 needed) {
+    u32 nFree = 0;
+    for (u32 i = fat->freeLb; i < fat->maxClust && nFree < needed; ++i) {
         u32 value;
-        if (get_clust(fat, i, &value)) {
+        if (getClust(fat, i, &value)) {
             return -1;
         }
         if (value == 0x00000000) {
-            ++n_free;
+            ++nFree;
         }
     }
-    if (n_free < needed) {
+    if (nFree < needed) {
         errno = ENOSPC;
         return -1;
     }
@@ -668,67 +668,67 @@ static s32 check_free_space(struct fat *fat, u32 needed) {
 /* resize the cluster chain that begins at `cluster` to length `n`,
    link and unlink clusters as needed. `chunk_length` is the precomputed
    number of free clusters in sequence at the end of the chain, or zero. */
-static s32 resize_clust_chain(struct fat *fat, u32 clust, u32 n, u32 chunk_length) {
+static s32 resizeClustChain(struct Fat *fat, u32 clust, u32 n, u32 chunkLength) {
     /* treat reserved clusters as the root directory */
     if (clust < 2) {
         if (fat->type == FAT32) {
-            clust = fat->root_clust;
+            clust = fat->rootClust;
         } else {
             errno = ENOSPC;
             return -1;
         }
     }
     /* walk cluster chain */
-    _Bool eoc = 0;
-    u32 n_alloc = 0;
-    u32 new_clust = 0;
+    bool eoc = FALSE;
+    u32 nAlloc = 0;
+    u32 newClust = 0;
     for (u32 i = 0; i < n || !eoc; ++i) {
         u32 value;
-        if (get_clust(fat, clust, &value)) {
+        if (getClust(fat, clust, &value)) {
             return -1;
         }
         if (!eoc && (value >= 0x0FFFFFF8 || value < 2)) {
-            if (set_clust(fat, clust, 0x0FFFFFFF)) {
+            if (setClust(fat, clust, 0x0FFFFFFF)) {
                 return -1;
             }
             if (n > i + 1) {
                 /* check if there's enough space left for the
                    additional requested clusters */
-                n_alloc = n - (i + 1);
-                if (check_free_space(fat, n_alloc)) {
+                nAlloc = n - (i + 1);
+                if (checkFreeSpace(fat, nAlloc)) {
                     return -1;
                 }
             }
-            eoc = 1;
+            eoc = TRUE;
         }
         if (i >= n) {
-            if (set_clust(fat, clust, 0x00000000)) {
+            if (setClust(fat, clust, 0x00000000)) {
                 return -1;
             }
             clust = value;
         } else if (i == n - 1) {
-            if (set_clust(fat, clust, 0x0FFFFFFF)) {
+            if (setClust(fat, clust, 0x0FFFFFFF)) {
                 return -1;
             }
             clust = value;
         } else if (eoc) {
-            if (chunk_length == 0) {
-                new_clust = find_free_clust(fat, new_clust, n_alloc, &chunk_length);
-                if (new_clust == clust) {
-                    new_clust = find_free_clust(fat, clust + 1, n_alloc, &chunk_length);
+            if (chunkLength == 0) {
+                newClust = findFreeClust(fat, newClust, nAlloc, &chunkLength);
+                if (newClust == clust) {
+                    newClust = findFreeClust(fat, clust + 1, nAlloc, &chunkLength);
                 }
-                if (new_clust == 0) {
+                if (newClust == 0) {
                     return -1;
                 }
-                n_alloc -= chunk_length;
+                nAlloc -= chunkLength;
             } else {
-                new_clust = clust + 1;
+                newClust = clust + 1;
             }
-            if (link_clust(fat, clust, new_clust, 0)) {
+            if (linkClust(fat, clust, newClust, 0)) {
                 return -1;
             }
-            --chunk_length;
-            clust = new_clust;
+            --chunkLength;
+            clust = newClust;
         } else {
             clust = value;
         }
@@ -741,281 +741,281 @@ static s32 resize_clust_chain(struct fat *fat, u32 clust, u32 n, u32 chunk_lengt
 */
 
 /* prep or load the block pointed to by `file` */
-static s32 file_sect(const struct fat_file *file, _Bool load) {
-    struct fat *fat = file->fat;
-    u32 clust_lba;
+static s32 fileSect(const struct FatFile *file, bool load) {
+    struct Fat *fat = file->fat;
+    u32 clustLba;
     /* treat reserved clusters as the root directory */
-    if (file->p_clust < 2) {
+    if (file->pClust < 2) {
         if (fat->type == FAT32) {
-            clust_lba = fat->data_lba + (fat->root_clust - 2) * fat->n_clust_sect;
+            clustLba = fat->dataLba + (fat->rootClust - 2) * fat->nClustSect;
         } else {
-            clust_lba = fat->root_lba;
+            clustLba = fat->rootLba;
         }
     } else {
-        clust_lba = fat->data_lba + (file->p_clust - 2) * fat->n_clust_sect;
+        clustLba = fat->dataLba + (file->pClust - 2) * fat->nClustSect;
     }
-    if (!cache_prep(fat, FAT_CACHE_DATA, clust_lba + file->p_clust_sect, load)) {
+    if (!cachePrep(fat, FAT_CACHE_DATA, clustLba + file->pClustSect, load)) {
         return -1;
     }
     return 0;
 }
 
 /* return a pointer to the data cache at the file offset in `file` */
-static void *file_data(const struct fat_file *file) {
-    struct fat *fat = file->fat;
-    struct fat_cache *cache = &fat->cache[FAT_CACHE_DATA];
-    u32 offset = file->p_sect_off;
-    offset += fat->n_sect_byte * (cache->prep_lba - cache->load_lba);
+static void *fileData(const struct FatFile *file) {
+    struct Fat *fat = file->fat;
+    struct FatCache *cache = &fat->cache[FAT_CACHE_DATA];
+    u32 offset = file->pSectOff;
+    offset += fat->nSectByte * (cache->prepLba - cache->loadLba);
     return &cache->data[offset];
 }
 
 /* point `file` to the beginning of the root directory */
-void fat_root(struct fat *fat, struct fat_file *file) {
+void fatRoot(struct Fat *fat, struct FatFile *file) {
     file->fat = fat;
     file->clust = 0;
     if (fat->type == FAT32) {
         file->size = 0;
     } else {
-        file->size = fat->n_entry * 0x20;
+        file->size = fat->nEntry * 0x20;
     }
-    file->is_dir = 1;
-    fat_rewind(file);
+    file->isDir = TRUE;
+    fatRewind(file);
 }
 
 /* point `file` to the beginning of the file represented by `entry` */
-void fat_begin(struct fat_entry *entry, struct fat_file *file) {
+void fatBegin(struct FatEntry *entry, struct FatFile *file) {
     if ((entry->attrib & FAT_ATTRIB_DIRECTORY) && entry->clust < 2) {
-        fat_root(entry->fat, file);
+        fatRoot(entry->fat, file);
     } else {
         file->fat = entry->fat;
         file->clust = entry->clust;
         file->size = entry->size;
-        file->is_dir = entry->attrib & FAT_ATTRIB_DIRECTORY;
-        fat_rewind(file);
+        file->isDir = entry->attrib & FAT_ATTRIB_DIRECTORY;
+        fatRewind(file);
     }
 }
 
 /* rewind `file` to file offset 0 */
-void fat_rewind(struct fat_file *file) {
-    file->p_off = 0;
-    file->p_clust = file->clust;
-    file->p_clust_seq = 0;
-    file->p_clust_sect = 0;
-    file->p_sect_off = 0;
+void fatRewind(struct FatFile *file) {
+    file->pOff = 0;
+    file->pClust = file->clust;
+    file->pClustSeq = 0;
+    file->pClustSect = 0;
+    file->pSectOff = 0;
 }
 
 /* advance a file pointer by `n_byte`, returns the number of bytes advanced.
    if eof is reached and `eof` is given, `*eof` is set to true. */
-u32 fat_advance(struct fat_file *file, u32 n_byte, _Bool *eof) {
-    struct fat *fat = file->fat;
-    _Bool ate = 0;
-    u32 p_off = file->p_off;
-    u32 old_off = p_off;
-    u32 new_off = p_off + n_byte;
+u32 fatAdvance(struct FatFile *file, u32 nByte, bool *eof) {
+    struct Fat *fat = file->fat;
+    bool ate = FALSE;
+    u32 pOff = file->pOff;
+    u32 oldOff = pOff;
+    u32 newOff = pOff + nByte;
     /* do boundary check if size is known (i.e. non-zero size directory) */
-    if (!(file->is_dir && file->size == 0)) {
-        if (new_off > file->size || new_off < p_off) {
-            new_off = file->size;
-            n_byte = new_off - p_off;
-            ate = 1;
+    if (!(file->isDir && file->size == 0)) {
+        if (newOff > file->size || newOff < pOff) {
+            newOff = file->size;
+            nByte = newOff - pOff;
+            ate = TRUE;
         }
     }
     /* revert offset to start of current cluster */
-    u32 p_clust_off = file->p_clust_sect * fat->n_sect_byte;
-    p_clust_off += file->p_sect_off;
-    p_off -= p_clust_off;
-    n_byte += p_clust_off;
+    u32 pClustOff = file->pClustSect * fat->nSectByte;
+    pClustOff += file->pSectOff;
+    pOff -= pClustOff;
+    nByte += pClustOff;
     /* advance through cluster chain
        (unless `file` is the FAT12/16 root directory,
        which is not in a cluster) */
-    _Bool no_clust = fat->type != FAT32 && file->clust < 2;
-    if (!no_clust) {
+    bool noClust = fat->type != FAT32 && file->clust < 2;
+    if (!noClust) {
         /* compute current and target cluster sequence index */
-        u32 clust = file->p_clust;
-        u32 clust_seq = file->p_clust_seq;
-        u32 new_clust_seq = new_off / fat->n_clust_byte;
+        u32 clust = file->pClust;
+        u32 clustSeq = file->pClustSeq;
+        u32 newClustSeq = newOff / fat->nClustByte;
         /* walk cluster chain */
-        while (clust_seq < new_clust_seq) {
-            s32 e = advance_clust(fat, &clust);
+        while (clustSeq < newClustSeq) {
+            s32 e = advanceClust(fat, &clust);
             if (e == -1) {
                 if (eof) {
-                    *eof = 0;
+                    *eof = FALSE;
                 }
                 return 0;
             }
             /* if the end of the cluster chain is reached,
                advance to the end of the last cluster */
             if (e == 0) {
-                n_byte = fat->n_clust_byte;
+                nByte = fat->nClustByte;
                 ate = 1;
                 break;
             }
-            p_off += fat->n_clust_byte;
-            n_byte -= fat->n_clust_byte;
-            ++clust_seq;
+            pOff += fat->nClustByte;
+            nByte -= fat->nClustByte;
+            ++clustSeq;
         }
-        file->p_clust = clust;
-        file->p_clust_seq = clust_seq;
+        file->pClust = clust;
+        file->pClustSeq = clustSeq;
     }
     /* advance sector and offset */
-    p_off += n_byte;
-    file->p_off = p_off;
-    file->p_clust_sect = n_byte / fat->n_sect_byte;
-    file->p_sect_off = n_byte % fat->n_sect_byte;
+    pOff += nByte;
+    file->pOff = pOff;
+    file->pClustSect = nByte / fat->nSectByte;
+    file->pSectOff = nByte % fat->nSectByte;
     /* ensure that the sector is within the cluster range */
-    if (!no_clust) {
-        if (file->p_clust_sect == fat->n_clust_sect) {
-            --file->p_clust_sect;
-            file->p_sect_off += fat->n_sect_byte;
+    if (!noClust) {
+        if (file->pClustSect == fat->nClustSect) {
+            --file->pClustSect;
+            file->pSectOff += fat->nSectByte;
         }
     }
     if (eof) {
         *eof = ate;
     }
-    return p_off - old_off;
+    return pOff - oldOff;
 }
 
 /* copy multiple clusters to or from a file and advance.
    assumes the file is pointed at the start of a cluster. */
-static u32 clust_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_clust, _Bool *eof) {
-    struct fat *fat = file->fat;
+static u32 clustRw(struct FatFile *file, enum FatRw rw, void *buf, u32 nClust, bool *eof) {
+    struct Fat *fat = file->fat;
     char *p = buf;
     /* flush and invalidate data cache to prevent conflicts */
-    if (cache_flush(fat, FAT_CACHE_DATA)) {
+    if (cacheFlush(fat, FAT_CACHE_DATA)) {
         return 0;
     }
-    cache_inval(fat, FAT_CACHE_DATA);
+    cacheInval(fat, FAT_CACHE_DATA);
     /* treat reserved clusters as the root directory */
-    u32 clust = file->p_clust;
+    u32 clust = file->pClust;
     if (clust < 2) {
-        clust = fat->root_clust;
+        clust = fat->rootClust;
     }
     /* cluster loop */
-    u32 n_copy = 0;
-    while (n_clust > 0) {
-        u32 chunk_start = clust;
-        u32 chunk_length = 1;
+    u32 nCopy = 0;
+    while (nClust > 0) {
+        u32 chunkStart = clust;
+        u32 chunkLength = 1;
         /* compute consecutive cluster chunk length */
-        u32 p_clust = clust;
+        u32 pClust = clust;
         while (1) {
-            if (get_clust(fat, clust, &clust)) {
-                return n_copy;
+            if (getClust(fat, clust, &clust)) {
+                return nCopy;
             }
-            if (clust >= 0x0FFFFFF7 || clust != p_clust + 1 || chunk_length >= n_clust) {
+            if (clust >= 0x0FFFFFF7 || clust != pClust + 1 || chunkLength >= nClust) {
                 break;
             }
-            p_clust = clust;
-            ++chunk_length;
+            pClust = clust;
+            ++chunkLength;
         }
         /* copy chunk */
-        u32 lba = fat->data_lba + fat->n_clust_sect * (chunk_start - 2);
-        u32 n_block = fat->n_clust_sect * chunk_length;
-        u32 n_byte = n_block * fat->n_sect_byte;
+        u32 lba = fat->dataLba + fat->nClustSect * (chunkStart - 2);
+        u32 nBlock = fat->nClustSect * chunkLength;
+        u32 nByte = nBlock * fat->nSectByte;
         s32 e;
         if (rw == FAT_READ) {
-            e = fat->read(lba, n_block, p);
+            e = fat->read(lba, nBlock, p);
         } else {
-            e = fat->write(lba, n_block, p);
+            e = fat->write(lba, nBlock, p);
         }
         if (e) {
             break;
         }
-        n_clust -= chunk_length;
-        n_copy += chunk_length;
-        file->p_off += n_byte;
-        file->p_clust_seq += chunk_length;
+        nClust -= chunkLength;
+        nCopy += chunkLength;
+        file->pOff += nByte;
+        file->pClustSeq += chunkLength;
         if (clust < 2 || clust >= 0x0FFFFFF7) {
-            file->p_clust_seq--;
-            file->p_clust = p_clust;
-            file->p_clust_sect = fat->n_clust_sect - 1;
-            file->p_sect_off = fat->n_sect_byte;
+            file->pClustSeq--;
+            file->pClust = pClust;
+            file->pClustSect = fat->nClustSect - 1;
+            file->pSectOff = fat->nSectByte;
             if (eof) {
-                *eof = 1;
+                *eof = TRUE;
             }
             break;
         } else {
-            file->p_clust = clust;
-            p += n_byte;
+            file->pClust = clust;
+            p += nByte;
         }
     }
-    return n_copy;
+    return nCopy;
 }
 
 /* copy bytes to or from a file, returns the number of bytes copied.
    the updated file pointer is stored to `new_file` if given. */
-u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct fat_file *new_file, _Bool *eof) {
-    if (n_byte == 0) {
+u32 fatRw(struct FatFile *file, enum FatRw rw, void *buf, u32 nByte, struct FatFile *newFile, bool *eof) {
+    if (nByte == 0) {
         if (eof) {
-            *eof = 0;
+            *eof = FALSE;
         }
         return 0;
     }
-    struct fat *fat = file->fat;
-    _Bool ate = 0;
+    struct Fat *fat = file->fat;
+    bool ate = TRUE;
     /* do boundary check if size is known (i.e. non-zero size directory) */
-    if (!(file->is_dir && file->size == 0)) {
-        if (file->p_off >= file->size) {
+    if (!(file->isDir && file->size == 0)) {
+        if (file->pOff >= file->size) {
             if (eof) {
-                *eof = 1;
+                *eof = TRUE;
             }
             return 0;
         }
-        u32 new_off = file->p_off + n_byte;
-        if (new_off > file->size || new_off < file->p_off) {
-            n_byte = file->size - file->p_off;
+        u32 newOff = file->pOff + nByte;
+        if (newOff > file->size || newOff < file->pOff) {
+            nByte = file->size - file->pOff;
         }
     }
-    _Bool no_clust = fat->type != FAT32 && file->clust < 2;
+    bool noClust = fat->type != FAT32 && file->clust < 2;
     /* traverse file with a local copy of the file pointer */
-    struct fat_file pos = *file;
+    struct FatFile pos = *file;
     /* sector loop */
     char *p = buf;
-    u32 n_copy = 0;
-    while (n_byte > 0) {
+    u32 nCopy = 0;
+    while (nByte > 0) {
         /* write cluster chunks if possible */
-        if (!no_clust && n_byte >= fat->n_clust_byte && pos.p_clust_sect == 0 && pos.p_sect_off == 0) {
-            u32 n_clust = n_byte / fat->n_clust_byte;
-            u32 n_copy_clust = clust_rw(&pos, rw, p, n_clust, &ate);
-            u32 n_byte_clust = n_copy_clust * fat->n_clust_byte;
+        if (!noClust && nByte >= fat->nClustByte && pos.pClustSect == 0 && pos.pSectOff == 0) {
+            u32 nClust = nByte / fat->nClustByte;
+            u32 nCopyClust = clustRw(&pos, rw, p, nClust, &ate);
+            u32 nByteClust = nCopyClust * fat->nClustByte;
             if (p) {
-                p += n_byte_clust;
+                p += nByteClust;
             }
-            n_byte -= n_byte_clust;
-            n_copy += n_byte_clust;
-            if (n_copy_clust != n_clust || ate) {
+            nByte -= nByteClust;
+            nCopy += nByteClust;
+            if (nCopyClust != nClust || ate) {
                 break;
             } else {
                 continue;
             }
         }
         /* compute chunk size */
-        u32 chunk_size = fat->n_sect_byte - pos.p_sect_off;
-        if (chunk_size > n_byte) {
-            chunk_size = n_byte;
+        u32 chunkSize = fat->nSectByte - pos.pSectOff;
+        if (chunkSize > nByte) {
+            chunkSize = nByte;
         }
         /* prep or load sector */
-        u32 p_sect_off = pos.p_sect_off;
-        if (chunk_size > 0) {
-            if (file_sect(&pos, rw == FAT_READ || chunk_size != fat->n_sect_byte)) {
+        u32 pSectOff = pos.pSectOff;
+        if (chunkSize > 0) {
+            if (fileSect(&pos, rw == FAT_READ || chunkSize != fat->nSectByte)) {
                 break;
             }
         }
         /* advance position pointer, clear errno to check for errors */
         s32 e = errno;
         errno = 0;
-        u32 adv = fat_advance(&pos, chunk_size, &ate);
+        u32 adv = fatAdvance(&pos, chunkSize, &ate);
         /* copy chunk */
         if (adv > 0) {
             if (rw == FAT_READ) {
-                cache_read(fat, FAT_CACHE_DATA, p_sect_off, p, adv);
+                cacheRead(fat, FAT_CACHE_DATA, pSectOff, p, adv);
             } else {
-                cache_write(fat, FAT_CACHE_DATA, p_sect_off, p, adv);
+                cacheWrite(fat, FAT_CACHE_DATA, pSectOff, p, adv);
             }
             if (p) {
                 p += adv;
             }
-            n_byte -= adv;
-            n_copy += adv;
+            nByte -= adv;
+            nCopy += adv;
         }
         /* restore errno */
         if (errno == 0) {
@@ -1023,17 +1023,17 @@ u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct 
         } else {
             break;
         }
-        if (adv != chunk_size || ate) {
+        if (adv != chunkSize || ate) {
             break;
         }
     }
-    if (new_file) {
-        *new_file = pos;
+    if (newFile) {
+        *newFile = pos;
     }
     if (eof) {
         *eof = ate;
     }
-    return n_copy;
+    return nCopy;
 }
 
 /*
@@ -1041,60 +1041,60 @@ u32 fat_rw(struct fat_file *file, enum fat_rw rw, void *buf, u32 n_byte, struct 
 */
 
 /* read the next entry in a directory file */
-s32 fat_dir(struct fat_file *dir, struct fat_entry *entry) {
+s32 fatDir(struct FatFile *dir, struct FatEntry *entry) {
     /* sanity check */
-    if (!dir->is_dir) {
+    if (!dir->isDir) {
         errno = ENOTDIR;
         return -1;
     }
-    struct fat *fat = dir->fat;
+    struct Fat *fat = dir->fat;
     /* lfn state */
-    s32 lfn_seq = -1;
-    struct fat_file lfn_p;
-    u8 lfn_checksum = 0;
-    char lfn_buf[256];
+    s32 lfnSeq = -1;
+    struct FatFile lfnP;
+    u8 lfnChecksum = 0;
+    char lfnBuf[256];
     /* physical entry buffer */
-    char ent_buf[0x20];
+    char entBuf[0x20];
     /* next entry pointer */
-    struct fat_file dir_next;
+    struct FatFile dirNext;
     /* entry loop */
-    while (fat_rw(dir, FAT_READ, ent_buf, 0x20, &dir_next, NULL) == 0x20) {
+    while (fatRw(dir, FAT_READ, entBuf, 0x20, &dirNext, NULL) == 0x20) {
         /* get potential special entry marker */
-        u8 mark = get_word(ent_buf, 0x00, 1);
+        u8 mark = getWord(entBuf, 0x00, 1);
         /* store entry pointer advance directory file pointer */
-        struct fat_file ent_p = *dir;
-        *dir = dir_next;
+        struct FatFile entP = *dir;
+        *dir = dirNext;
         /* check for free entry */
         if (mark == 0x00 || mark == 0xE5) {
-            lfn_seq = -1;
+            lfnSeq = -1;
             continue;
         }
         /* check for lfn entry */
-        u8 attrib = get_word(ent_buf, 0x0B, 1);
+        u8 attrib = getWord(entBuf, 0x0B, 1);
         if (attrib == 0x0F) {
             u8 seq = mark & 0x1F;
             /* validate sequence number */
             if (seq < 0x01 || seq > 0x14) {
-                lfn_seq = -1;
+                lfnSeq = -1;
                 continue;
             }
-            u8 checksum = get_word(ent_buf, 0x0D, 1);
+            u8 checksum = getWord(entBuf, 0x0D, 1);
             /* check for last lfn flag, indicating start of lfn entry chain */
             if (mark & 0x40) {
-                lfn_seq = seq;
-                lfn_p = ent_p;
-                lfn_checksum = checksum;
-                memset(lfn_buf, 0, sizeof(lfn_buf));
+                lfnSeq = seq;
+                lfnP = entP;
+                lfnChecksum = checksum;
+                memset(lfnBuf, 0, sizeof(lfnBuf));
             } else {
                 /* validate sequence coherency */
-                if (seq != lfn_seq - 1 || checksum != lfn_checksum) {
-                    lfn_seq = -1;
+                if (seq != lfnSeq - 1 || checksum != lfnChecksum) {
+                    lfnSeq = -1;
                     continue;
                 }
-                lfn_seq = seq;
+                lfnSeq = seq;
             }
             /* read lfn part (truncate wide characters) */
-            s32 n = (lfn_seq - 1) * 13;
+            s32 n = (lfnSeq - 1) * 13;
             for (s32 j = 0; j < 13 && n < 255; ++j) {
                 u32 p = 1 + j * 2;
                 if (j >= 5) {
@@ -1103,75 +1103,75 @@ s32 fat_dir(struct fat_file *dir, struct fat_entry *entry) {
                 if (j >= 11) {
                     p += 2;
                 }
-                u16 c = get_word(ent_buf, p, 2);
+                u16 c = getWord(entBuf, p, 2);
                 if (c > 0xFF) {
                     c = 0x7F;
                 }
-                lfn_buf[n++] = c;
+                lfnBuf[n++] = c;
             }
         }
         /* handle regular entry */
         else {
             /* check for lfn */
-            _Bool have_lfn = 0;
-            if (lfn_seq == 1 && lfn_checksum == compute_lfn_checksum(ent_buf)) {
-                have_lfn = 1;
+            bool haveLfn = FALSE;
+            if (lfnSeq == 1 && lfnChecksum == computeLfnChecksum(entBuf)) {
+                haveLfn = TRUE;
             }
-            lfn_seq = -1;
+            lfnSeq = -1;
             /* sanity check */
             if ((attrib & FAT_ATTRIB_DIRECTORY) && (attrib & FAT_ATTRIB_LABEL)) {
                 continue;
             }
             /* validate name field */
-            if (!validate_sfn(&ent_buf[0])) {
+            if (!validateSfn(&entBuf[0])) {
                 continue;
             }
             /* get sfn, check for empty name */
-            s32 name_l;
-            s32 ext_l;
-            if (get_sfn(&ent_buf[0], entry->short_name, &name_l, &ext_l) == 0) {
+            s32 nameL;
+            s32 extL;
+            if (getSfn(&entBuf[0], entry->shortName, &nameL, &extL) == 0) {
                 continue;
             }
             /* check for 0xE5 escape character */
-            if (entry->short_name[0] == '\x05') {
-                entry->short_name[0] = '\xE5';
+            if (entry->shortName[0] == '\x05') {
+                entry->shortName[0] = '\xE5';
             }
             /* copy lfn to entry name */
-            if (have_lfn) {
-                strcpy(entry->name, lfn_buf);
-                entry->first = lfn_p;
+            if (haveLfn) {
+                strcpy(entry->name, lfnBuf);
+                entry->first = lfnP;
             }
             /* use sfn as entry name if there's no lfn */
             else {
-                strcpy(entry->name, entry->short_name);
-                entry->first = ent_p;
+                strcpy(entry->name, entry->shortName);
+                entry->first = entP;
                 /* do case conversions */
-                u8 cse = get_word(ent_buf, 0x0C, 1);
+                u8 cse = getWord(entBuf, 0x0C, 1);
                 if (cse & 0x08) {
-                    cvt_lower(&entry->name[0], name_l);
+                    cvtLower(&entry->name[0], nameL);
                 }
                 if (cse & 0x10) {
-                    cvt_lower(&entry->name[name_l + 1], ext_l);
+                    cvtLower(&entry->name[nameL + 1], extL);
                 }
             }
-            entry->last = ent_p;
+            entry->last = entP;
             /* insert metadata */
-            entry->ctime = dos2unix(get_word(ent_buf, 0x10, 2), get_word(ent_buf, 0x0E, 2));
-            entry->cms = get_word(ent_buf, 0x0D, 1) * 10;
+            entry->ctime = dos2unix(getWord(entBuf, 0x10, 2), getWord(entBuf, 0x0E, 2));
+            entry->cms = getWord(entBuf, 0x0D, 1) * 10;
             entry->ctime += entry->cms / 1000;
             entry->cms %= 1000;
-            entry->atime = dos2unix(get_word(ent_buf, 0x12, 2), 0);
-            entry->mtime = dos2unix(get_word(ent_buf, 0x18, 2), get_word(ent_buf, 0x16, 2));
+            entry->atime = dos2unix(getWord(entBuf, 0x12, 2), 0);
+            entry->mtime = dos2unix(getWord(entBuf, 0x18, 2), getWord(entBuf, 0x16, 2));
             entry->attrib = attrib;
             if (entry->attrib & FAT_ATTRIB_LABEL) {
                 entry->clust = 0;
             } else {
-                entry->clust = get_word(ent_buf, 0x1A, 2);
+                entry->clust = getWord(entBuf, 0x1A, 2);
                 if (fat->type == FAT32) {
-                    entry->clust |= get_word(ent_buf, 0x14, 2) << 16;
+                    entry->clust |= getWord(entBuf, 0x14, 2) << 16;
                     /* ensure that the root cluster is always presented as 0 to ensure
                        serial number consistency */
-                    if (entry->clust == fat->root_clust) {
+                    if (entry->clust == fat->rootClust) {
                         entry->clust = 0;
                     }
                 }
@@ -1180,11 +1180,11 @@ s32 fat_dir(struct fat_file *dir, struct fat_entry *entry) {
                 }
             }
             if (fat->type != FAT32 && (entry->attrib & FAT_ATTRIB_DIRECTORY) && entry->clust < 2) {
-                entry->size = fat->n_entry * 0x20;
+                entry->size = fat->nEntry * 0x20;
             } else if (entry->attrib & (FAT_ATTRIB_DIRECTORY | FAT_ATTRIB_LABEL)) {
                 entry->size = 0;
             } else {
-                entry->size = get_word(ent_buf, 0x1C, 4);
+                entry->size = getWord(entBuf, 0x1C, 4);
             }
             /* success */
             entry->fat = dir->fat;
@@ -1195,35 +1195,35 @@ s32 fat_dir(struct fat_file *dir, struct fat_entry *entry) {
 }
 
 /* point `file` to the start of the directory at `cluster` */
-static void begin_dir(struct fat *fat, struct fat_file *file, u32 clust) {
+static void beginDir(struct Fat *fat, struct FatFile *file, u32 clust) {
     if (clust < 2) {
-        fat_root(fat, file);
+        fatRoot(fat, file);
     } else {
         file->fat = fat;
         file->clust = clust;
         file->size = 0;
-        file->is_dir = 1;
-        fat_rewind(file);
+        file->isDir = TRUE;
+        fatRewind(file);
     }
 }
 
 /* find a directory entry by name */
-static s32 dir_find(struct fat *fat, u32 clust, const char *name, struct fat_entry *entry) {
-    struct fat_file pos;
-    begin_dir(fat, &pos, clust);
-    _Bool is_sfn = name_is_sfn(name, NULL, NULL);
-    struct fat_entry ent;
+static s32 dirFind(struct Fat *fat, u32 clust, const char *name, struct FatEntry *entry) {
+    struct FatFile pos;
+    beginDir(fat, &pos, clust);
+    bool isSfn = nameIsSfn(name, NULL, NULL);
+    struct FatEntry ent;
     s32 e = errno;
     errno = 0;
-    while (fat_dir(&pos, &ent) == 0) {
+    while (fatDir(&pos, &ent) == 0) {
         if (ent.attrib & FAT_ATTRIB_LABEL) {
             continue;
         }
-        _Bool match;
-        if (is_sfn) {
-            match = name_comp(name, ent.short_name);
+        bool match;
+        if (isSfn) {
+            match = nameComp(name, ent.shortName);
         } else {
-            match = name_comp(name, ent.name);
+            match = nameComp(name, ent.name);
         }
         if (match) {
             if (entry) {
@@ -1240,23 +1240,23 @@ static s32 dir_find(struct fat *fat, u32 clust, const char *name, struct fat_ent
 }
 
 /* point an entry structure to the root directory */
-static void make_root(struct fat *fat, struct fat_entry *entry) {
+static void makeRoot(struct Fat *fat, struct FatEntry *entry) {
     memset(entry, 0, sizeof(*entry));
     entry->fat = fat;
     entry->attrib = FAT_ATTRIB_DIRECTORY;
     if (fat->type != FAT32) {
-        entry->size = fat->n_entry * 0x20;
+        entry->size = fat->nEntry * 0x20;
     }
 }
 
 /* find the entry named by `path`, relative to `dir`.
    if `dir` is not given, `path` is relative to the root directory. */
-s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fat_entry *entry) {
-    struct fat_entry ent;
+s32 fatFind(struct Fat *fat, struct FatEntry *dir, const char *path, struct FatEntry *entry) {
+    struct FatEntry ent;
     if (dir) {
         ent = *dir;
     } else {
-        make_root(fat, &ent);
+        makeRoot(fat, &ent);
     }
     if (!path) {
         if (entry) {
@@ -1282,27 +1282,27 @@ s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fa
             ++e;
         }
         /* validate */
-        size_t name_length = name_trim(s, e - s);
-        if (name_length == 0) {
-            while (s[name_length] == '.') {
-                ++name_length;
+        size_t nameLength = nameTrim(s, e - s);
+        if (nameLength == 0) {
+            while (s[nameLength] == '.') {
+                ++nameLength;
             }
         }
-        if (name_length > 255) {
+        if (nameLength > 255) {
             errno = ENAMETOOLONG;
             return -1;
         }
-        if (name_length == 0) {
+        if (nameLength == 0) {
             continue;
         }
         /* find entry */
         char name[256];
-        memcpy(name, s, name_length);
-        name[name_length] = 0;
+        memcpy(name, s, nameLength);
+        name[nameLength] = 0;
         if (strcmp(name, ".") == 0) {
             continue;
         }
-        if (dir_find(fat, ent.clust, name, &ent)) {
+        if (dirFind(fat, ent.clust, name, &ent)) {
             return -1;
         }
     }
@@ -1318,31 +1318,31 @@ s32 fat_find(struct fat *fat, struct fat_entry *dir, const char *path, struct fa
    furthest sub-entry of `path` that can be found.
    if a sub-entry is not found and `tail` is given,
    `*tail` will point to the name of that entry in `path`. */
-struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *path, const char **tail) {
-    struct fat_path *fp = malloc(sizeof(*fp));
+struct FatPath *fatPath(struct Fat *fat, struct FatPath *dirFp, const char *path, const char **tail) {
+    struct FatPath *fp = malloc(sizeof(*fp));
     if (!fp) {
         errno = ENOMEM;
         return NULL;
     }
-    list_init(&fp->ent_list, sizeof(struct fat_entry));
-    if (dir_fp) {
-        for (struct fat_entry *l_ent = dir_fp->ent_list.first; l_ent; l_ent = list_next(l_ent)) {
-            if (!list_push_back(&fp->ent_list, l_ent)) {
+    list_init(&fp->entList, sizeof(struct FatEntry));
+    if (dirFp) {
+        for (struct FatEntry *lEnt = dirFp->entList.first; lEnt; lEnt = list_next(lEnt)) {
+            if (!list_push_back(&fp->entList, lEnt)) {
                 errno = ENOMEM;
-                fat_free(fp);
+                fatFree(fp);
                 return NULL;
             }
         }
     } else {
-        struct fat_entry *ent = list_push_back(&fp->ent_list, NULL);
+        struct FatEntry *ent = list_push_back(&fp->entList, NULL);
         if (!ent) {
             errno = ENOMEM;
-            fat_free(fp);
+            fatFree(fp);
             return NULL;
         }
-        make_root(fat, ent);
+        makeRoot(fat, ent);
     }
-    struct fat_entry *ent = fp->ent_list.last;
+    struct FatEntry *ent = fp->entList.last;
     /* substring loop */
     const char *p = path;
     while (*p) {
@@ -1361,44 +1361,44 @@ struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *
             ++e;
         }
         /* validate */
-        size_t name_length = name_trim(s, e - s);
-        if (name_length == 0) {
-            while (s[name_length] == '.') {
-                ++name_length;
+        size_t nameLength = nameTrim(s, e - s);
+        if (nameLength == 0) {
+            while (s[nameLength] == '.') {
+                ++nameLength;
             }
         }
-        if (name_length > 255) {
+        if (nameLength > 255) {
             errno = ENAMETOOLONG;
             break;
         }
-        if (name_length == 0) {
+        if (nameLength == 0) {
             continue;
         }
         /* find entry */
         char name[256];
-        memcpy(name, s, name_length);
-        name[name_length] = 0;
+        memcpy(name, s, nameLength);
+        name[nameLength] = 0;
         if (strcmp(name, ".") == 0) {
             continue;
         }
-        struct fat_entry d_ent;
-        if (dir_find(fat, ent->clust, name, &d_ent)) {
+        struct FatEntry dEnt;
+        if (dirFind(fat, ent->clust, name, &dEnt)) {
             if (errno == ENOENT && tail) {
                 *tail = s;
             }
             break;
         }
         /* backtrack if entry exists in path */
-        if (d_ent.attrib & FAT_ATTRIB_DIRECTORY) {
-            _Bool exist = 0;
-            for (struct fat_entry *l_ent = fp->ent_list.first; l_ent; l_ent = list_next(l_ent)) {
+        if (dEnt.attrib & FAT_ATTRIB_DIRECTORY) {
+            bool exist = FALSE;
+            for (struct FatEntry *lEnt = fp->entList.first; lEnt; lEnt = list_next(lEnt)) {
                 if (exist) {
-                    struct fat_entry *t = l_ent;
-                    l_ent = list_prev(l_ent);
-                    list_erase(&fp->ent_list, t);
-                } else if ((l_ent->attrib & FAT_ATTRIB_DIRECTORY) && l_ent->clust == d_ent.clust) {
-                    ent = l_ent;
-                    exist = 1;
+                    struct FatEntry *t = lEnt;
+                    lEnt = list_prev(lEnt);
+                    list_erase(&fp->entList, t);
+                } else if ((lEnt->attrib & FAT_ATTRIB_DIRECTORY) && lEnt->clust == dEnt.clust) {
+                    ent = lEnt;
+                    exist = TRUE;
                 }
             }
             if (exist) {
@@ -1406,7 +1406,7 @@ struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *
             }
         }
         /* append to entry list in path */
-        ent = list_push_back(&fp->ent_list, &d_ent);
+        ent = list_push_back(&fp->entList, &dEnt);
         if (!ent) {
             errno = ENOMEM;
             break;
@@ -1416,59 +1416,59 @@ struct fat_path *fat_path(struct fat *fat, struct fat_path *dir_fp, const char *
 }
 
 /* return the entry that a path points to */
-struct fat_entry *fat_path_target(struct fat_path *fp) {
+struct FatEntry *fatPathTarget(struct FatPath *fp) {
     if (fp) {
-        return fp->ent_list.last;
+        return fp->entList.last;
     } else {
         return NULL;
     }
 }
 
 /* return the directory entry which contains the target entry of a path */
-struct fat_entry *fat_path_dir(struct fat_path *fp) {
-    return list_prev(fp->ent_list.last);
+struct FatEntry *fatPathDir(struct FatPath *fp) {
+    return list_prev(fp->entList.last);
 }
 
 /* destroy and delete a path created by `fat_path` */
-void fat_free(struct fat_path *ptr) {
-    list_destroy(&ptr->ent_list);
+void fatFree(struct FatPath *ptr) {
+    list_destroy(&ptr->entList);
     free(ptr);
 }
 
 /* generate a free sfn from an lfn */
-static s32 generate_sfn(struct fat *fat, u32 clust, const char *lfn, char *sfn) {
+static s32 generateSfn(struct Fat *fat, u32 clust, const char *lfn, char *sfn) {
     const char *name;
     const char *ext;
-    s32 name_length;
-    s32 ext_length;
-    name_split(lfn, &name, &ext, &name_length, &ext_length);
+    s32 nameLength;
+    s32 extLength;
+    nameSplit(lfn, &name, &ext, &nameLength, &extLength);
     /* shorten name components */
-    s32 sfn_name_length = cvt_sfn(name, name_length, &sfn[0], 8);
-    s16 sfn_ext_length = cvt_sfn(ext, ext_length, &sfn[8], 3);
+    s32 sfnNameLength = cvtSfn(name, nameLength, &sfn[0], 8);
+    s16 sfnExtLength = cvtSfn(ext, extLength, &sfn[8], 3);
     /* find a free short name */
     for (s32 i = 1; i < 1000000; ++i) {
         /* make discriminator */
-        char sfn_disc[8];
-        sprintf(sfn_disc, "%li", i);
-        s32 sfn_disc_length = strlen(sfn_disc);
+        char sfnDisc[8];
+        sprintf(sfnDisc, "%li", i);
+        s32 sfnDiscLength = strlen(sfnDisc);
         /* make name */
-        s16 sfn_nd_length = 7 - sfn_disc_length;
-        if (sfn_nd_length > sfn_name_length) {
-            sfn_nd_length = sfn_name_length;
+        s16 sfnNdLength = 7 - sfnDiscLength;
+        if (sfnNdLength > sfnNameLength) {
+            sfnNdLength = sfnNameLength;
         }
-        char name_buf[13];
-        sprintf(name_buf, "%.*s~%s.%.*s", sfn_nd_length, &sfn[0], sfn_disc, sfn_ext_length, &sfn[8]);
+        char nameBuf[13];
+        sprintf(nameBuf, "%.*s~%s.%.*s", sfnNdLength, &sfn[0], sfnDisc, sfnExtLength, &sfn[8]);
         /* check if exists */
         s32 e = errno;
-        if (dir_find(fat, clust, name_buf, NULL) == 0) {
+        if (dirFind(fat, clust, nameBuf, NULL) == 0) {
             continue;
         } else if (errno != ENOENT) {
             return -1;
         }
         errno = e;
         /* return name with discriminator */
-        sfn[sfn_nd_length] = '~';
-        memcpy(&sfn[sfn_nd_length + 1], sfn_disc, sfn_disc_length);
+        sfn[sfnNdLength] = '~';
+        memcpy(&sfn[sfnNdLength + 1], sfnDisc, sfnDiscLength);
         return 0;
     }
     errno = EEXIST;
@@ -1476,78 +1476,78 @@ static s32 generate_sfn(struct fat *fat, u32 clust, const char *lfn, char *sfn) 
 }
 
 /* basic vfat directory entry insertion */
-static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t ctime, s32 cms, time_t atime,
-                      time_t mtime, u8 attrib, u32 clust, u32 size, struct fat_entry *entry) {
-    char lfn_ent_buf[0x20];
-    char sfn_ent_buf[0x20];
+static s32 dirInsert(struct Fat *fat, u32 dirClust, const char *name, time_t ctime, s32 cms, time_t atime, time_t mtime,
+                     u8 attrib, u32 clust, u32 size, struct FatEntry *entry) {
+    char lfnEntBuf[0x20];
+    char sfnEntBuf[0x20];
     /* check name type and determine the required number of physical entries */
-    s32 name_length = strlen(name);
-    s32 n_pent = 1;
+    s32 nameLength = strlen(name);
+    s32 nPent = 1;
     {
-        _Bool lower_name;
-        _Bool lower_ext;
-        if (name_is_sfn(name, &lower_name, &lower_ext)) {
+        bool lowerName;
+        bool lowerExt;
+        if (nameIsSfn(name, &lowerName, &lowerExt)) {
             /* sfn characters */
-            cvt_83(name, &sfn_ent_buf[0x00]);
+            cvt83(name, &sfnEntBuf[0x00]);
             /* case info */
             u8 cse = 0x00;
-            if (lower_name) {
+            if (lowerName) {
                 cse |= 0x08;
             }
-            if (lower_ext) {
+            if (lowerExt) {
                 cse |= 0x10;
             }
-            set_word(sfn_ent_buf, 0x0C, 1, cse);
+            setWord(sfnEntBuf, 0x0C, 1, cse);
         } else {
-            n_pent += (name_length + 12) / 13;
+            nPent += (nameLength + 12) / 13;
             /* sfn characters */
-            if (generate_sfn(fat, dir_clust, name, &sfn_ent_buf[0x00])) {
+            if (generateSfn(fat, dirClust, name, &sfnEntBuf[0x00])) {
                 return -1;
             }
             /* case info */
-            set_word(sfn_ent_buf, 0x0C, 1, 0x00);
+            setWord(sfnEntBuf, 0x0C, 1, 0x00);
             /* attrib */
-            set_word(lfn_ent_buf, 0x0B, 1, 0x0F);
+            setWord(lfnEntBuf, 0x0B, 1, 0x0F);
             /* type */
-            set_word(lfn_ent_buf, 0x0C, 1, 0x00);
+            setWord(lfnEntBuf, 0x0C, 1, 0x00);
             /* checksum */
-            set_word(lfn_ent_buf, 0x0D, 1, compute_lfn_checksum(&sfn_ent_buf[0x00]));
+            setWord(lfnEntBuf, 0x0D, 1, computeLfnChecksum(&sfnEntBuf[0x00]));
             /* cluster */
-            set_word(lfn_ent_buf, 0x1A, 2, 0x0000);
+            setWord(lfnEntBuf, 0x1A, 2, 0x0000);
         }
     }
     /* initialize search position */
-    struct fat_file start;
-    struct fat_file pos;
-    begin_dir(fat, &pos, dir_clust);
+    struct FatFile start;
+    struct FatFile pos;
+    beginDir(fat, &pos, dirClust);
     /* find a free entry sequence of the required length */
-    for (s32 n_free = 0; n_free < n_pent;) {
+    for (s32 nFree = 0; nFree < nPent;) {
         /* check for eof */
-        struct fat_file ent_p = pos;
-        _Bool ate;
-        if (fat_advance(&pos, 0x20, &ate) != 0x20) {
+        struct FatFile entP = pos;
+        bool ate;
+        if (fatAdvance(&pos, 0x20, &ate) != 0x20) {
             if (!ate) {
                 return -1;
             }
-            pos = ent_p;
+            pos = entP;
             /* expand directory file */
-            u32 new_clust = find_free_clust(fat, 0, 1, NULL);
-            if (new_clust == 0) {
+            u32 newClust = findFreeClust(fat, 0, 1, NULL);
+            if (newClust == 0) {
                 return -1;
             }
-            if (link_clust(fat, pos.p_clust, new_clust, 1)) {
+            if (linkClust(fat, pos.pClust, newClust, 1)) {
                 return -1;
             }
-            struct fat_file clust_pos;
-            begin_dir(fat, &clust_pos, new_clust);
-            if (fat_rw(&clust_pos, FAT_WRITE, NULL, fat->n_clust_byte, NULL, NULL) != fat->n_clust_byte) {
+            struct FatFile clustPos;
+            beginDir(fat, &clustPos, newClust);
+            if (fatRw(&clustPos, FAT_WRITE, NULL, fat->nClustByte, NULL, NULL) != fat->nClustByte) {
                 return -1;
             }
             continue;
         }
         /* check entry */
         u8 mark;
-        if (fat_rw(&ent_p, FAT_READ, &mark, 1, NULL, &ate) != 1) {
+        if (fatRw(&entP, FAT_READ, &mark, 1, NULL, &ate) != 1) {
             if (ate) {
                 errno = EINVAL;
             }
@@ -1555,25 +1555,25 @@ static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t c
         }
         /* increase sequence length, or start a new sequence */
         if (mark == 0x00 || mark == 0xE5) {
-            if (n_free == 0) {
-                start = ent_p;
+            if (nFree == 0) {
+                start = entP;
             }
-            ++n_free;
+            ++nFree;
         }
         /* break the current sequence if the entry is taken */
         else {
-            n_free = 0;
+            nFree = 0;
         }
     }
     pos = start;
     /* insert lfn entries */
-    for (s32 i = 0; i < n_pent - 1; ++i) {
+    for (s32 i = 0; i < nPent - 1; ++i) {
         /* sequence */
-        u8 seq = n_pent - 1 - i;
+        u8 seq = nPent - 1 - i;
         if (i == 0) {
             seq |= 0x40;
         }
-        set_word(lfn_ent_buf, 0x00, 1, seq);
+        setWord(lfnEntBuf, 0x00, 1, seq);
         /* name characters */
         for (s32 j = 0; j < 13; ++j) {
             u32 p = 1 + j * 2;
@@ -1583,19 +1583,19 @@ static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t c
             if (j >= 11) {
                 p += 2;
             }
-            s32 n = 13 * (n_pent - 2 - i) + j;
+            s32 n = 13 * (nPent - 2 - i) + j;
             u16 c;
-            if (n > name_length) {
+            if (n > nameLength) {
                 c = 0xFFFF;
-            } else if (n == name_length) {
+            } else if (n == nameLength) {
                 c = 0x0000;
             } else {
                 c = (u8)name[n];
             }
-            set_word(lfn_ent_buf, p, 2, c);
+            setWord(lfnEntBuf, p, 2, c);
         }
-        _Bool ate;
-        if (fat_rw(&pos, FAT_WRITE, lfn_ent_buf, 0x20, &pos, &ate) != 0x20) {
+        bool ate;
+        if (fatRw(&pos, FAT_WRITE, lfnEntBuf, 0x20, &pos, &ate) != 0x20) {
             if (ate) {
                 errno = EINVAL;
             }
@@ -1603,38 +1603,38 @@ static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t c
         }
     }
     /* attribute */
-    set_word(sfn_ent_buf, 0x0B, 1, attrib);
+    setWord(sfnEntBuf, 0x0B, 1, attrib);
     /* ctime */
     cms += (ctime % 2) * 1000;
     ctime -= ctime % 2;
     ctime += cms / 2000;
     cms %= 2000;
-    u16 dos_cdate;
-    u16 dos_ctime;
-    unix2dos(ctime, &dos_cdate, &dos_ctime);
-    set_word(sfn_ent_buf, 0x0D, 1, cms / 10);
-    set_word(sfn_ent_buf, 0x0E, 2, dos_ctime);
-    set_word(sfn_ent_buf, 0x10, 2, dos_cdate);
+    u16 dosCdate;
+    u16 dosCtime;
+    unix2dos(ctime, &dosCdate, &dosCtime);
+    setWord(sfnEntBuf, 0x0D, 1, cms / 10);
+    setWord(sfnEntBuf, 0x0E, 2, dosCtime);
+    setWord(sfnEntBuf, 0x10, 2, dosCdate);
     /* atime */
-    u16 dos_adate;
-    unix2dos(atime, &dos_adate, NULL);
-    set_word(sfn_ent_buf, 0x12, 2, dos_adate);
+    u16 dosAdate;
+    unix2dos(atime, &dosAdate, NULL);
+    setWord(sfnEntBuf, 0x12, 2, dosAdate);
     /* cluster */
-    set_word(sfn_ent_buf, 0x14, 2, clust >> 16);
-    set_word(sfn_ent_buf, 0x1A, 2, clust);
+    setWord(sfnEntBuf, 0x14, 2, clust >> 16);
+    setWord(sfnEntBuf, 0x1A, 2, clust);
     /* mtime */
-    u16 dos_mdate;
-    u16 dos_mtime;
-    unix2dos(ctime, &dos_mdate, &dos_mtime);
-    set_word(sfn_ent_buf, 0x16, 2, dos_mtime);
-    set_word(sfn_ent_buf, 0x18, 2, dos_mdate);
+    u16 dosMdate;
+    u16 dosMtime;
+    unix2dos(ctime, &dosMdate, &dosMtime);
+    setWord(sfnEntBuf, 0x16, 2, dosMtime);
+    setWord(sfnEntBuf, 0x18, 2, dosMdate);
     /* size */
-    set_word(sfn_ent_buf, 0x1C, 4, size);
+    setWord(sfnEntBuf, 0x1C, 4, size);
     /* insert sfn entry */
-    struct fat_file eot_pos;
+    struct FatFile eotPos;
     {
-        _Bool ate;
-        if (fat_rw(&pos, FAT_WRITE, sfn_ent_buf, 0x20, &eot_pos, &ate) != 0x20) {
+        bool ate;
+        if (fatRw(&pos, FAT_WRITE, sfnEntBuf, 0x20, &eotPos, &ate) != 0x20) {
             if (ate) {
                 errno = EINVAL;
             }
@@ -1643,16 +1643,16 @@ static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t c
     }
     /* return entry details */
     if (entry) {
-        get_sfn(&sfn_ent_buf[0], entry->short_name, NULL, NULL);
-        memcpy(entry->name, name, name_length);
-        entry->name[name_length] = 0;
+        getSfn(&sfnEntBuf[0], entry->shortName, NULL, NULL);
+        memcpy(entry->name, name, nameLength);
+        entry->name[nameLength] = 0;
         entry->fat = fat;
         entry->first = start;
         entry->last = pos;
-        entry->ctime = dos2unix(dos_cdate, dos_ctime);
+        entry->ctime = dos2unix(dosCdate, dosCtime);
         entry->cms = cms;
-        entry->atime = dos2unix(dos_adate, 0);
-        entry->mtime = dos2unix(dos_mdate, dos_mtime);
+        entry->atime = dos2unix(dosAdate, 0);
+        entry->mtime = dos2unix(dosMdate, dosMtime);
         entry->attrib = attrib;
         entry->clust = clust;
         entry->size = size;
@@ -1661,22 +1661,22 @@ static s32 dir_insert(struct fat *fat, u32 dir_clust, const char *name, time_t c
 }
 
 /* basic vfat directory entry removal */
-static s32 dir_remove(struct fat_entry *entry) {
-    struct fat *fat = entry->fat;
-    struct fat_file pos = entry->first;
-    while (pos.p_off <= entry->last.p_off) {
-        if (file_sect(&pos, 1)) {
+static s32 dirRemove(struct FatEntry *entry) {
+    struct Fat *fat = entry->fat;
+    struct FatFile pos = entry->first;
+    while (pos.pOff <= entry->last.pOff) {
+        if (fileSect(&pos, TRUE)) {
             return -1;
         }
-        void *data = file_data(&pos);
-        set_word(data, 0x0D, 1, get_word(data, 0x00, 1));
-        set_word(data, 0x00, 1, 0xE5);
-        cache_dirty(fat, FAT_CACHE_DATA);
-        if (pos.p_off == entry->last.p_off) {
+        void *data = fileData(&pos);
+        setWord(data, 0x0D, 1, getWord(data, 0x00, 1));
+        setWord(data, 0x00, 1, 0xE5);
+        cacheDirty(fat, FAT_CACHE_DATA);
+        if (pos.pOff == entry->last.pOff) {
             break;
         }
-        _Bool ate;
-        if (fat_advance(&pos, 0x20, &ate) != 0x20) {
+        bool ate;
+        if (fatAdvance(&pos, 0x20, &ate) != 0x20) {
             if (ate) {
                 errno = EINVAL;
             }
@@ -1691,21 +1691,21 @@ static s32 dir_remove(struct fat_entry *entry) {
    if `attrib` has FAT_ATTRIB_DIRECTORY, a cluster is allocated for the
    directory and dot entries are inserted.
    the entry must not exist. */
-s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attrib, struct fat_entry *entry) {
-    _Bool is_dir = attrib & FAT_ATTRIB_DIRECTORY;
-    _Bool is_label = attrib & FAT_ATTRIB_LABEL;
+s32 fatCreate(struct Fat *fat, struct FatEntry *dir, const char *path, u8 attrib, struct FatEntry *entry) {
+    bool isDir = attrib & FAT_ATTRIB_DIRECTORY;
+    bool isLabel = attrib & FAT_ATTRIB_LABEL;
     /* sanity check */
-    if (is_dir && is_label) {
+    if (isDir && isLabel) {
         errno = EINVAL;
         return -1;
     }
     /* split the path into directory path and file name */
-    const char *dir_s;
-    size_t dir_l;
-    const char *file_s;
-    size_t file_l;
+    const char *dirS;
+    size_t dirL;
+    const char *fileS;
+    size_t fileL;
     {
-        const char *end = path + name_trim(path, strlen(path));
+        const char *end = path + nameTrim(path, strlen(path));
         const char *slash = NULL;
         for (const char *p = end; p >= path; --p) {
             if (*p == '\\' || *p == '/') {
@@ -1714,49 +1714,49 @@ s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attr
             }
         }
         if (slash) {
-            dir_s = path;
-            dir_l = slash - dir_s;
-            file_s = slash + 1;
+            dirS = path;
+            dirL = slash - dirS;
+            fileS = slash + 1;
         } else {
-            dir_s = NULL;
-            dir_l = 0;
-            file_s = path;
+            dirS = NULL;
+            dirL = 0;
+            fileS = path;
         }
-        file_l = end - file_s;
+        fileL = end - fileS;
         /* validate name */
-        if (file_l > 255) {
+        if (fileL > 255) {
             errno = ENAMETOOLONG;
             return -1;
         }
-        if (file_l == 0) {
+        if (fileL == 0) {
             errno = EINVAL;
             return -1;
         }
     }
     /* navigate to directory */
-    struct fat_entry dir_ent;
-    if (dir_l > 0) {
-        char *dir_path = malloc(dir_l + 1);
-        if (!dir_path) {
+    struct FatEntry dirEnt;
+    if (dirL > 0) {
+        char *dirPath = malloc(dirL + 1);
+        if (!dirPath) {
             errno = ENOMEM;
             return -1;
         }
-        memcpy(dir_path, dir_s, dir_l);
-        dir_path[dir_l] = 0;
-        s32 e = fat_find(fat, dir, dir_path, &dir_ent);
-        free(dir_path);
+        memcpy(dirPath, dirS, dirL);
+        dirPath[dirL] = 0;
+        s32 e = fatFind(fat, dir, dirPath, &dirEnt);
+        free(dirPath);
         if (e) {
             return -1;
         }
     } else {
-        if (fat_find(fat, dir, NULL, &dir_ent)) {
+        if (fatFind(fat, dir, NULL, &dirEnt)) {
             return -1;
         }
     }
     /* check if the file exists */
     {
         s32 e = errno;
-        if (fat_find(fat, &dir_ent, file_s, NULL) == 0) {
+        if (fatFind(fat, &dirEnt, fileS, NULL) == 0) {
             errno = EEXIST;
             return -1;
         }
@@ -1767,37 +1767,37 @@ s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attr
     }
     /* allocate directory cluster */
     u32 clust = 0;
-    if (is_dir) {
-        clust = find_free_clust(fat, 0, 1, NULL);
+    if (isDir) {
+        clust = findFreeClust(fat, 0, 1, NULL);
         if (clust < 2) {
             return -1;
         }
         /* end cluster chain */
-        if (set_clust(fat, clust, 0x0FFFFFFF)) {
+        if (setClust(fat, clust, 0x0FFFFFFF)) {
             return -1;
         }
     }
     /* insert entry */
-    u32 dir_clust = dir_ent.clust;
+    u32 dirClust = dirEnt.clust;
     time_t t = time(NULL);
     {
         char name[256];
-        memcpy(name, file_s, file_l);
-        name[file_l] = 0;
-        if (dir_insert(fat, dir_clust, name, t, 0, t, t, attrib, clust, 0, entry)) {
+        memcpy(name, fileS, fileL);
+        name[fileL] = 0;
+        if (dirInsert(fat, dirClust, name, t, 0, t, t, attrib, clust, 0, entry)) {
             return -1;
         }
     }
-    if (is_dir) {
+    if (isDir) {
         /* clear directory cluster */
-        struct fat_file clust_pos;
-        begin_dir(fat, &clust_pos, clust);
-        if (fat_rw(&clust_pos, FAT_WRITE, NULL, fat->n_clust_byte, NULL, NULL) != fat->n_clust_byte) {
+        struct FatFile clustPos;
+        beginDir(fat, &clustPos, clust);
+        if (fatRw(&clustPos, FAT_WRITE, NULL, fat->nClustByte, NULL, NULL) != fat->nClustByte) {
             return -1;
         }
         /* insert dot entries */
-        s32 d = dir_insert(fat, clust, ".", t, 0, t, t, FAT_ATTRIB_DIRECTORY, clust, 0, NULL);
-        s32 dd = dir_insert(fat, clust, "..", t, 0, t, t, FAT_ATTRIB_DIRECTORY, dir_clust, 0, NULL);
+        s32 d = dirInsert(fat, clust, ".", t, 0, t, t, FAT_ATTRIB_DIRECTORY, clust, 0, NULL);
+        s32 dd = dirInsert(fat, clust, "..", t, 0, t, t, FAT_ATTRIB_DIRECTORY, dirClust, 0, NULL);
         if (d || dd) {
             return -1;
         }
@@ -1806,12 +1806,12 @@ s32 fat_create(struct fat *fat, struct fat_entry *dir, const char *path, u8 attr
 }
 
 /* same as `fat_create`, except return a path to the new entry */
-struct fat_path *fat_create_path(struct fat *fat, struct fat_path *dir_fp, const char *path, u8 attrib) {
+struct FatPath *fatCreatePath(struct Fat *fat, struct FatPath *dirFp, const char *path, u8 attrib) {
     /* seek destination */
     s32 e = errno;
     errno = 0;
     const char *tail;
-    struct fat_path *dest_fp = fat_path(fat, dir_fp, path, &tail);
+    struct FatPath *destFp = fatPath(fat, dirFp, path, &tail);
     if (errno == 0) {
         errno = EEXIST;
         goto error;
@@ -1823,18 +1823,18 @@ struct fat_path *fat_create_path(struct fat *fat, struct fat_path *dir_fp, const
         }
     }
     /* create entry and insert into path */
-    struct fat_entry entry;
-    if (fat_create(fat, fat_path_target(dest_fp), tail, attrib, &entry)) {
+    struct FatEntry entry;
+    if (fatCreate(fat, fatPathTarget(destFp), tail, attrib, &entry)) {
         goto error;
     }
-    if (!list_push_back(&dest_fp->ent_list, &entry)) {
+    if (!list_push_back(&destFp->entList, &entry)) {
         errno = ENOMEM;
         goto error;
     }
-    return dest_fp;
+    return destFp;
 error:
-    if (dest_fp) {
-        fat_free(dest_fp);
+    if (destFp) {
+        fatFree(destFp);
     }
     return NULL;
 }
@@ -1842,8 +1842,8 @@ error:
 /* resize `entry` to `size` (must be a file). `file`, if given, should
    be a valid pointer within `entry`. it will be put into a valid but
    unspecified state after the operation is completed. */
-s32 fat_resize(struct fat_entry *entry, u32 size, struct fat_file *file) {
-    struct fat *fat = entry->fat;
+s32 fatResize(struct FatEntry *entry, u32 size, struct FatFile *file) {
+    struct Fat *fat = entry->fat;
     /* sanity check */
     if (entry->attrib & FAT_ATTRIB_DIRECTORY) {
         errno = EISDIR;
@@ -1857,68 +1857,68 @@ s32 fat_resize(struct fat_entry *entry, u32 size, struct fat_file *file) {
         return 0;
     }
     /* allocate a cluster if the file is empty */
-    u32 n_clust = (size + fat->n_clust_byte - 1) / fat->n_clust_byte;
+    u32 nClust = (size + fat->nClustByte - 1) / fat->nClustByte;
     u32 clust = entry->clust;
-    u32 chunk_length = 0;
+    u32 chunkLength = 0;
     if (size > 0 && clust < 2) {
-        clust = find_free_clust(fat, 0, n_clust, &chunk_length);
+        clust = findFreeClust(fat, 0, nClust, &chunkLength);
         if (clust == 0) {
             return -1;
         }
-        --chunk_length;
+        --chunkLength;
     }
     /* resize cluster chain */
     if (clust >= 2) {
-        if (resize_clust_chain(fat, clust, n_clust, chunk_length)) {
+        if (resizeClustChain(fat, clust, nClust, chunkLength)) {
             return -1;
         }
     }
-    if (n_clust == 0) {
+    if (nClust == 0) {
         clust = 0;
     }
     /* update entry */
     entry->clust = clust;
     entry->size = size;
     /* write entry to directory file */
-    if (file_sect(&entry->last, 1)) {
+    if (fileSect(&entry->last, TRUE)) {
         return -1;
     }
-    void *data = file_data(&entry->last);
+    void *data = fileData(&entry->last);
     if (fat->type == FAT32) {
-        set_word(data, 0x14, 2, entry->clust >> 16);
+        setWord(data, 0x14, 2, entry->clust >> 16);
     }
-    set_word(data, 0x1A, 2, entry->clust);
-    set_word(data, 0x1C, 4, entry->size);
-    cache_dirty(fat, FAT_CACHE_DATA);
+    setWord(data, 0x1A, 2, entry->clust);
+    setWord(data, 0x1C, 4, entry->size);
+    cacheDirty(fat, FAT_CACHE_DATA);
     /* update file pointer */
     if (file) {
         file->size = entry->size;
         if (file->size == 0 || file->clust < 2) {
             file->clust = entry->clust;
-            fat_rewind(file);
-        } else if (file->p_off > size || file->p_clust_seq >= n_clust) {
-            fat_rewind(file);
+            fatRewind(file);
+        } else if (file->pOff > size || file->pClustSeq >= nClust) {
+            fatRewind(file);
         }
     }
     return 0;
 }
 
 /* check if a directory is empty */
-s32 fat_empty(struct fat *fat, struct fat_entry *dir) {
+s32 fatEmpty(struct Fat *fat, struct FatEntry *dir) {
     if (!(dir->attrib & FAT_ATTRIB_DIRECTORY)) {
         errno = ENOTDIR;
         return -1;
     }
-    struct fat_file pos;
+    struct FatFile pos;
     if (dir) {
-        fat_begin(dir, &pos);
+        fatBegin(dir, &pos);
     } else {
-        fat_root(fat, &pos);
+        fatRoot(fat, &pos);
     }
-    struct fat_entry ent;
+    struct FatEntry ent;
     s32 e = errno;
     errno = 0;
-    while (fat_dir(&pos, &ent) == 0) {
+    while (fatDir(&pos, &ent) == 0) {
         if (ent.attrib & FAT_ATTRIB_LABEL) {
             continue;
         }
@@ -1936,8 +1936,8 @@ s32 fat_empty(struct fat *fat, struct fat_entry *dir) {
 }
 
 /* check if an entry is allowed to be modified */
-static s32 entry_mod(struct fat_entry *entry) {
-    struct fat *fat = entry->fat;
+static s32 entryMod(struct FatEntry *entry) {
+    struct Fat *fat = entry->fat;
     /* check for dot entry */
     if (strcmp(entry->name, ".") == 0 || strcmp(entry->name, "..") == 0) {
         errno = EINVAL;
@@ -1945,7 +1945,7 @@ static s32 entry_mod(struct fat_entry *entry) {
     }
     /* check for root directory */
     if ((entry->attrib & FAT_ATTRIB_DIRECTORY) &&
-        (entry->clust < 2 || (fat->type == FAT32 && entry->clust == fat->root_clust))) {
+        (entry->clust < 2 || (fat->type == FAT32 && entry->clust == fat->rootClust))) {
         errno = EINVAL;
         return -1;
     }
@@ -1957,22 +1957,22 @@ static s32 entry_mod(struct fat_entry *entry) {
    `dir_fp` can be null for root.
    `entry_fp` will be invalidated on success and should not be used.
    the new entry is stored in `*new_entry`, if given. */
-s32 fat_rename(struct fat *fat, struct fat_path *entry_fp, struct fat_path *dir_fp, const char *path,
-               struct fat_entry *new_entry) {
-    struct fat_entry *entry = fat_path_target(entry_fp);
+s32 fatRename(struct Fat *fat, struct FatPath *entryFp, struct FatPath *dirFp, const char *path,
+              struct FatEntry *newEntry) {
+    struct FatEntry *entry = fatPathTarget(entryFp);
     /* sanity check */
-    if (entry_mod(entry)) {
+    if (entryMod(entry)) {
         return -1;
     }
     /* seek destination */
     s32 e = errno;
     errno = 0;
     const char *tail;
-    struct fat_path *dest_fp = fat_path(fat, dir_fp, path, &tail);
+    struct FatPath *destFp = fatPath(fat, dirFp, path, &tail);
     if (errno == 0) {
         /* check for no-op */
-        struct fat_entry *dest_entry = fat_path_target(dest_fp);
-        if (dest_entry->last.clust == entry->last.clust && dest_entry->last.p_off == entry->last.p_off) {
+        struct FatEntry *destEntry = fatPathTarget(destFp);
+        if (destEntry->last.clust == entry->last.clust && destEntry->last.pOff == entry->last.pOff) {
             errno = e;
             goto exit;
         } else {
@@ -1988,136 +1988,136 @@ s32 fat_rename(struct fat *fat, struct fat_path *entry_fp, struct fat_path *dir_
     }
     /* check for directory recursion */
     if (entry->attrib & FAT_ATTRIB_DIRECTORY) {
-        for (struct fat_entry *l_ent = dest_fp->ent_list.first; l_ent; l_ent = list_next(l_ent)) {
-            if ((l_ent->attrib & FAT_ATTRIB_DIRECTORY) && l_ent->clust == entry->clust) {
+        for (struct FatEntry *lEnt = destFp->entList.first; lEnt; lEnt = list_next(lEnt)) {
+            if ((lEnt->attrib & FAT_ATTRIB_DIRECTORY) && lEnt->clust == entry->clust) {
                 errno = EINVAL;
                 goto error;
             }
         }
     }
     /* validate name */
-    size_t name_l = name_trim(tail, strlen(tail));
-    if (name_l == 0) {
+    size_t nameL = nameTrim(tail, strlen(tail));
+    if (nameL == 0) {
         errno = EINVAL;
         goto error;
     }
-    if (name_l > 255) {
+    if (nameL > 255) {
         errno = ENAMETOOLONG;
         goto error;
     }
     char name[256];
-    memcpy(name, tail, name_l);
-    name[name_l] = 0;
+    memcpy(name, tail, nameL);
+    name[nameL] = 0;
     /* insert new entry, remove old entry */
-    if (dir_insert(fat, fat_path_target(dest_fp)->clust, name, entry->ctime, entry->cms, entry->atime, entry->mtime,
-                   entry->attrib, entry->clust, entry->size, new_entry) ||
-        dir_remove(entry)) {
+    if (dirInsert(fat, fatPathTarget(destFp)->clust, name, entry->ctime, entry->cms, entry->atime, entry->mtime,
+                  entry->attrib, entry->clust, entry->size, newEntry) ||
+        dirRemove(entry)) {
         goto error;
     }
 exit:
-    fat_free(dest_fp);
+    fatFree(destFp);
     return 0;
 error:
-    if (dest_fp) {
-        fat_free(dest_fp);
+    if (destFp) {
+        fatFree(destFp);
     }
     return -1;
 }
 
 /* remove a directory entry */
-s32 fat_remove(struct fat_entry *entry) {
-    struct fat *fat = entry->fat;
+s32 fatRemove(struct FatEntry *entry) {
+    struct Fat *fat = entry->fat;
     /* sanity check */
-    if (entry_mod(entry)) {
+    if (entryMod(entry)) {
         return -1;
     }
     /* do not remove non-empty directories */
-    if ((entry->attrib & FAT_ATTRIB_DIRECTORY) && fat_empty(fat, entry)) {
+    if ((entry->attrib & FAT_ATTRIB_DIRECTORY) && fatEmpty(fat, entry)) {
         return -1;
     }
     /* free cluster chain */
     if (entry->clust >= 2) {
-        if (resize_clust_chain(fat, entry->clust, 0, 0)) {
+        if (resizeClustChain(fat, entry->clust, 0, 0)) {
             return -1;
         }
     }
     /* remove physical entries */
-    if (dir_remove(entry)) {
+    if (dirRemove(entry)) {
         return -1;
     }
     return 0;
 }
 
 /* modify the attribute of an entry */
-s32 fat_attrib(struct fat_entry *entry, u8 attrib) {
-    struct fat *fat = entry->fat;
+s32 fatAttrib(struct FatEntry *entry, u8 attrib) {
+    struct Fat *fat = entry->fat;
     /* sanity check */
-    if (entry_mod(entry)) {
+    if (entryMod(entry)) {
         return -1;
     }
-    u8 e_type = entry->attrib & (FAT_ATTRIB_DIRECTORY | FAT_ATTRIB_LABEL);
-    u8 a_type = attrib & (FAT_ATTRIB_DIRECTORY | FAT_ATTRIB_LABEL);
-    if (a_type != e_type) {
+    u8 eType = entry->attrib & (FAT_ATTRIB_DIRECTORY | FAT_ATTRIB_LABEL);
+    u8 aType = attrib & (FAT_ATTRIB_DIRECTORY | FAT_ATTRIB_LABEL);
+    if (aType != eType) {
         errno = EINVAL;
         return -1;
     }
     /* edit attribute */
-    if (file_sect(&entry->last, 1)) {
+    if (fileSect(&entry->last, TRUE)) {
         return -1;
     }
-    void *data = file_data(&entry->last);
+    void *data = fileData(&entry->last);
     if (!data) {
         return -1;
     }
     entry->attrib = attrib;
-    set_word(data, 0x0B, 1, attrib);
-    cache_dirty(fat, FAT_CACHE_DATA);
+    setWord(data, 0x0B, 1, attrib);
+    cacheDirty(fat, FAT_CACHE_DATA);
     return 0;
 }
 
 /* update the access time of an entry */
-s32 fat_atime(struct fat_entry *entry, time_t timeval) {
-    struct fat *fat = entry->fat;
+s32 fatAtime(struct FatEntry *entry, time_t timeval) {
+    struct Fat *fat = entry->fat;
     /* sanity check */
-    if (entry_mod(entry)) {
+    if (entryMod(entry)) {
         return -1;
     }
-    if (file_sect(&entry->last, 1)) {
+    if (fileSect(&entry->last, TRUE)) {
         return -1;
     }
-    void *data = file_data(&entry->last);
+    void *data = fileData(&entry->last);
     if (!data) {
         return -1;
     }
-    u16 dos_adate;
+    u16 dosAdate;
     entry->atime = timeval;
-    unix2dos(entry->atime, &dos_adate, NULL);
-    set_word(data, 0x12, 2, dos_adate);
-    cache_dirty(fat, FAT_CACHE_DATA);
+    unix2dos(entry->atime, &dosAdate, NULL);
+    setWord(data, 0x12, 2, dosAdate);
+    cacheDirty(fat, FAT_CACHE_DATA);
     return 0;
 }
 
 /* update the modified time of an entry */
-s32 fat_mtime(struct fat_entry *entry, time_t timeval) {
-    struct fat *fat = entry->fat;
+s32 fatMtime(struct FatEntry *entry, time_t timeval) {
+    struct Fat *fat = entry->fat;
     /* sanity check */
-    if (entry_mod(entry)) {
+    if (entryMod(entry)) {
         return -1;
     }
-    if (file_sect(&entry->last, 1)) {
+    if (fileSect(&entry->last, TRUE)) {
         return -1;
     }
-    void *data = file_data(&entry->last);
+    void *data = fileData(&entry->last);
     if (!data) {
         return -1;
     }
-    u16 dos_mdate;
-    u16 dos_mtime;
+    u16 dosMdate;
+    u16 dosMtime;
     entry->mtime = timeval;
-    unix2dos(entry->mtime, &dos_mdate, &dos_mtime);
-    set_word(data, 0x16, 2, dos_mtime);
-    set_word(data, 0x18, 2, dos_mdate);
-    cache_dirty(fat, FAT_CACHE_DATA);
+    unix2dos(entry->mtime, &dosMdate, &dosMtime);
+    setWord(data, 0x16, 2, dosMtime);
+    setWord(data, 0x18, 2, dosMdate);
+    cacheDirty(fat, FAT_CACHE_DATA);
     return 0;
 }
 
@@ -2125,138 +2125,137 @@ s32 fat_mtime(struct fat_entry *entry, time_t timeval) {
    file system operations
 */
 
-static s32 check_rec(struct fat *fat, u32 rec_lba, s32 part) {
+static s32 checkRec(struct Fat *fat, u32 recLba, s32 part) {
     if (part >= 4) {
         errno = ENOENT;
         return -1;
     }
     /* load partition record */
-    void *pr = cache_prep(fat, FAT_CACHE_DATA, rec_lba, 1);
+    void *pr = cachePrep(fat, FAT_CACHE_DATA, recLba, TRUE);
     if (!pr) {
         return -1;
     }
     /* check signature */
-    if (get_word(pr, 0x1FE, 2) != 0xAA55) {
+    if (getWord(pr, 0x1FE, 2) != 0xAA55) {
         errno = ENOENT;
         return -1;
     }
     /* check partition type */
-    s32 part_entry = 0x1BE + 0x10 * part;
-    u8 part_type = get_word(pr, part_entry + 0x4, 1);
-    if (part_type != 0x01 && part_type != 0x04 && part_type != 0x06 && part_type != 0x0E && part_type != 0x0B &&
-        part_type != 0x0C) {
+    s32 partEntry = 0x1BE + 0x10 * part;
+    u8 partType = getWord(pr, partEntry + 0x4, 1);
+    if (partType != 0x01 && partType != 0x04 && partType != 0x06 && partType != 0x0E && partType != 0x0B &&
+        partType != 0x0C) {
         errno = ENOENT;
         return -1;
     }
     /* get partition address */
-    fat->part_lba = get_word(pr, part_entry + 0x8, 4);
-    fat->n_part_sect = get_word(pr, part_entry + 0xC, 4);
-    if (fat->part_lba == 0 || fat->part_lba == rec_lba || fat->n_part_sect == 0) {
+    fat->partLba = getWord(pr, partEntry + 0x8, 4);
+    fat->nPartSect = getWord(pr, partEntry + 0xC, 4);
+    if (fat->partLba == 0 || fat->partLba == recLba || fat->nPartSect == 0) {
         errno = ENOENT;
         return -1;
     }
     return 0;
 }
 
-s32 fat_init(struct fat *fat, fat_rd_proc read, fat_wr_proc write, u32 rec_lba, s32 part) {
+s32 fatInit(struct Fat *fat, FatRdProc read, FatWrProc write, u32 recLba, s32 part) {
     /* initialize cache */
     fat->read = read;
     fat->write = write;
     for (s32 i = 0; i < FAT_CACHE_MAX; ++i) {
-        fat->cache[i].valid = 0;
-        fat->cache[i].max_lba = 0xFFFFFFFF;
+        fat->cache[i].valid = FALSE;
+        fat->cache[i].maxLba = 0xFFFFFFFF;
     }
     /* check partition record for compatible partition */
-    if (check_rec(fat, rec_lba, part)) {
+    if (checkRec(fat, recLba, part)) {
         /* no partition found, treat as logical volume */
-        fat->part_lba = 0;
-        fat->n_part_sect = 0;
+        fat->partLba = 0;
+        fat->nPartSect = 0;
     }
     /* load partition boot record */
-    void *pbr = cache_prep(fat, FAT_CACHE_DATA, fat->part_lba, 1);
+    void *pbr = cachePrep(fat, FAT_CACHE_DATA, fat->partLba, TRUE);
     if (!pbr) {
         return -1;
     }
     /* get file system geometry info */
-    fat->n_sect_byte = get_word(pbr, 0x00B, 2);
-    fat->n_clust_sect = get_word(pbr, 0x00D, 1);
-    fat->n_resv_sect = get_word(pbr, 0x00E, 2);
-    fat->n_fat = get_word(pbr, 0x010, 1);
-    fat->n_entry = get_word(pbr, 0x011, 2);
-    fat->n_fs_sect = get_word(pbr, 0x013, 2);
-    if (fat->n_fs_sect == 0) {
-        fat->n_fs_sect = get_word(pbr, 0x020, 4);
+    fat->nSectByte = getWord(pbr, 0x00B, 2);
+    fat->nClustSect = getWord(pbr, 0x00D, 1);
+    fat->nResvSect = getWord(pbr, 0x00E, 2);
+    fat->nFat = getWord(pbr, 0x010, 1);
+    fat->nEntry = getWord(pbr, 0x011, 2);
+    fat->nFsSect = getWord(pbr, 0x013, 2);
+    if (fat->nFsSect == 0) {
+        fat->nFsSect = getWord(pbr, 0x020, 4);
     }
-    if (fat->n_fs_sect == 0) {
-        fat->n_fs_sect = fat->n_part_sect;
+    if (fat->nFsSect == 0) {
+        fat->nFsSect = fat->nPartSect;
     }
-    fat->n_fat_sect = get_word(pbr, 0x016, 2);
-    if (fat->n_fat_sect == 0) {
-        fat->n_fat_sect = get_word(pbr, 0x024, 4);
+    fat->nFatSect = getWord(pbr, 0x016, 2);
+    if (fat->nFatSect == 0) {
+        fat->nFatSect = getWord(pbr, 0x024, 4);
     }
     /* do sanity checks */
-    if (fat->n_sect_byte != 0x200 || fat->n_clust_sect == 0 || fat->n_resv_sect == 0 || fat->n_fat == 0 ||
-        fat->n_fs_sect == 0 || (fat->n_part_sect != 0 && fat->n_fs_sect > fat->n_part_sect) || fat->n_fat_sect == 0) {
+    if (fat->nSectByte != 0x200 || fat->nClustSect == 0 || fat->nResvSect == 0 || fat->nFat == 0 || fat->nFsSect == 0 ||
+        (fat->nPartSect != 0 && fat->nFsSect > fat->nPartSect) || fat->nFatSect == 0) {
         errno = ENOENT;
         return -1;
     }
     /* compute addresses and limits */
-    fat->fat_lba = fat->part_lba + fat->n_resv_sect;
-    fat->root_lba = fat->fat_lba + fat->n_fat * fat->n_fat_sect;
-    fat->data_lba = fat->root_lba + (fat->n_entry * 0x20 + fat->n_sect_byte - 1) / fat->n_sect_byte;
-    fat->cache[FAT_CACHE_FAT].max_lba = fat->fat_lba + fat->n_fat_sect;
-    fat->cache[FAT_CACHE_DATA].max_lba = fat->part_lba + fat->n_fs_sect;
+    fat->fatLba = fat->partLba + fat->nResvSect;
+    fat->rootLba = fat->fatLba + fat->nFat * fat->nFatSect;
+    fat->dataLba = fat->rootLba + (fat->nEntry * 0x20 + fat->nSectByte - 1) / fat->nSectByte;
+    fat->cache[FAT_CACHE_FAT].maxLba = fat->fatLba + fat->nFatSect;
+    fat->cache[FAT_CACHE_DATA].maxLba = fat->partLba + fat->nFsSect;
     /* more sanity checks */
-    u32 max_lba = fat->part_lba + fat->n_fs_sect;
-    if (max_lba < fat->part_lba || fat->fat_lba < fat->part_lba || fat->fat_lba >= max_lba ||
-        fat->root_lba < fat->part_lba || fat->root_lba >= max_lba || fat->data_lba < fat->part_lba ||
-        fat->data_lba >= max_lba) {
+    u32 maxLba = fat->partLba + fat->nFsSect;
+    if (maxLba < fat->partLba || fat->fatLba < fat->partLba || fat->fatLba >= maxLba || fat->rootLba < fat->partLba ||
+        fat->rootLba >= maxLba || fat->dataLba < fat->partLba || fat->dataLba >= maxLba) {
         errno = ENOENT;
         return -1;
     }
-    fat->n_clust_byte = fat->n_clust_sect * fat->n_sect_byte;
-    fat->max_clust = 2 + (fat->n_fs_sect - fat->data_lba) / fat->n_clust_sect;
-    fat->free_lb = 2;
-    if (fat->max_clust < 0xFF7) {
+    fat->nClustByte = fat->nClustSect * fat->nSectByte;
+    fat->maxClust = 2 + (fat->nFsSect - fat->dataLba) / fat->nClustSect;
+    fat->freeLb = 2;
+    if (fat->maxClust < 0xFF7) {
         fat->type = FAT12;
-    } else if (fat->max_clust < 0xFFF7) {
+    } else if (fat->maxClust < 0xFFF7) {
         fat->type = FAT16;
     } else {
         fat->type = FAT32;
-        if (fat->max_clust > 0x0FFFFFF7) {
-            fat->max_clust = 0x0FFFFFF7;
+        if (fat->maxClust > 0x0FFFFFF7) {
+            fat->maxClust = 0x0FFFFFF7;
         }
     }
-    u32 n_fat_clust = fat->n_fat_sect * fat->n_sect_byte;
+    u32 nFatClust = fat->nFatSect * fat->nSectByte;
     if (fat->type == FAT12) {
-        n_fat_clust = n_fat_clust / 3 * 2;
+        nFatClust = nFatClust / 3 * 2;
     } else if (fat->type == FAT16) {
-        n_fat_clust /= 2;
+        nFatClust /= 2;
     } else {
-        n_fat_clust /= 4;
+        nFatClust /= 4;
     }
-    if (fat->max_clust > n_fat_clust) {
-        fat->max_clust = n_fat_clust;
+    if (fat->maxClust > nFatClust) {
+        fat->maxClust = nFatClust;
     }
     /* get fat32 info */
     if (fat->type == FAT32) {
-        fat->root_clust = get_word(pbr, 0x02C, 4);
-        fat->fsis_lba = get_word(pbr, 0x030, 2);
+        fat->rootClust = getWord(pbr, 0x02C, 4);
+        fat->fsisLba = getWord(pbr, 0x030, 2);
     } else {
-        fat->root_clust = 0;
-        fat->fsis_lba = 0;
+        fat->rootClust = 0;
+        fat->fsisLba = 0;
     }
     /* even more sanity checks */
-    if ((fat->type != FAT32 && fat->n_entry == 0) || (fat->type == FAT32 && fat->root_clust < 2)) {
+    if ((fat->type != FAT32 && fat->nEntry == 0) || (fat->type == FAT32 && fat->rootClust < 2)) {
         errno = ENOENT;
         return -1;
     }
     return 0;
 }
 
-s32 fat_flush(struct fat *fat) {
+s32 fatFlush(struct Fat *fat) {
     for (s32 i = 0; i < FAT_CACHE_MAX; ++i) {
-        if (cache_flush(fat, i)) {
+        if (cacheFlush(fat, i)) {
             return -1;
         }
     }

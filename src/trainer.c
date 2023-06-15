@@ -1,10 +1,79 @@
-#include <math.h>
-#include "menu.h"
 #include "trainer.h"
-#include "settings.h"
 #include "fp.h"
+#include "menu.h"
+#include "resource.h"
+#include "settings.h"
+#include <math.h>
 
-char messageForASM[] = "Success";
+enum BowserVariant {
+    BOWSER_VARIANT_HALLWAY = 0xC1,
+    BOWSER_VARIANT_FINAL_1 = 0xC3,
+    BOWSER_VARIANT_FINAL_2 = 0xC5,
+};
+
+enum BlockResult {
+    BLOCK_EARLY = -1,
+    BLOCK_LATE = 0,
+    BLOCK_SUCCESS = 1,
+    BLOCK_NONE = 127,
+};
+
+enum ClippyStatus {
+    CLIPPY_NONE,
+    CLIPPY_EARLY,
+    CLIPPY_SUCCESS,
+    CLIPPY_LATE,
+};
+
+const char messageForASM[] = "Success";
+
+const static u32 bowserAttacksHallway[] = {
+    SCRIPT_BOWSER_HALLWAY_FIRE, SCRIPT_BOWSER_HALLWAY_STOMP, SCRIPT_BOWSER_HALLWAY_CLAW,
+    SCRIPT_BOWSER_HALLWAY_WAVE, SCRIPT_BOWSER_HALLWAY_WAVE,
+};
+
+const static u32 bowserAttacksFinal1[] = {
+    SCRIPT_BOWSER_FINAL_1_FIRE, SCRIPT_BOWSER_FINAL_1_STOMP,     SCRIPT_BOWSER_FINAL_1_CLAW,
+    SCRIPT_BOWSER_FINAL_1_WAVE, SCRIPT_BOWSER_FINAL_1_LIGHTNING,
+};
+
+const static u32 bowserAttacksFinal2[] = {
+    SCRIPT_BOWSER_FINAL_2_FIRE, SCRIPT_BOWSER_FINAL_2_STOMP,     SCRIPT_BOWSER_FINAL_2_CLAW,
+    SCRIPT_BOWSER_FINAL_2_WAVE, SCRIPT_BOWSER_FINAL_2_LIGHTNING,
+};
+
+// bowser block trainer vars
+static u8 bowserAttack = 0;
+// clang-format off
+static u32 bowserCustomScript[] = {
+    EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, FALSE,
+    EVT_OP_EXEC_WAIT, 1, 0, // replaced with attack script
+    EVT_OP_CALL, 3, (uintptr_t)&pm_useIdleAnimation, 0xFFFFFF81, TRUE,
+    EVT_OP_RETURN, 0,
+    EVT_OP_END, 0,
+};
+// clang-format on
+
+// LZS trainer vars
+static s8 lzsPrevPressedY = 0;
+static u8 lzsPrevPrevActionState = 0;
+static bool lzsLzStored = NULL;
+static bool lzsPlayerLanded = NULL;
+static u16 lzsFramesSinceLand = 0;
+static u16 lzsCurrentJumps = 0;
+static u16 lzsRecordJumps = 0;
+
+// action command trainer vars
+static bool acWaitingForMissedBlock = FALSE;
+static s32 acPushInputBuffer[64];
+static s8 acInputBufferPos = 0;
+static s8 acBlockFramesLate = 0;
+static u16 acLastAPress = 0;
+static u16 acLastValidFrame = 0;
+
+// clippy trainer vars
+static u16 clippyFramesSinceBattle = 0;
+static u8 clippyStatus = 0;
 
 extern void setACEHook(void);
 
@@ -12,8 +81,8 @@ s32 getMatrixTotal(void) {
     s32 matrixCount = 0;
 
     for (s32 i = 0; i < 0x60; i++) {
-        if (pm_effects[i] != NULL) {
-            matrixCount += pm_effects[i]->matrixTotal;
+        if (pm_gEffectInstances[i] != NULL) {
+            matrixCount += pm_gEffectInstances[i]->numParts;
         }
     }
     return matrixCount;
@@ -24,20 +93,20 @@ void clearAllEffectsManual(s32 matrixCount) {
 
     if (matrixCount == 0x215) {
         var = 1;
-        fp.ace_last_flag_status = pm_player.anim_flags == 0x01000000;
-        fp.ace_last_timer = pm_player.idle_timer;
-        fp.ace_last_jump_status = (pm_player.flags & 0xff) == 3;
-        fp_log("Successful ACE, jump prevented");
+        fp.aceLastFlagStatus = pm_gPlayerStatus.animFlags == 0x01000000;
+        fp.aceLastTimer = pm_gPlayerStatus.currentStateTime;
+        fp.aceLastJumpStatus = (pm_gPlayerStatus.flags & 0xff) == 3;
+        fpLog("Successful ACE, jump prevented");
     }
     if (matrixCount > 0x215) { // matrix limit reached, destroy all effects
         var = 1;
-        fp_log("Matrix overflow, crash prevented");
+        fpLog("Matrix overflow, crash prevented");
     }
 
     if (var == 1) {
         for (s32 i = 0; i < 0x60; i++) {
-            if (pm_effects[i] != NULL) {
-                pm_RemoveEffect(pm_effects[i]);
+            if (pm_gEffectInstances[i] != NULL) {
+                pm_removeEffect(pm_gEffectInstances[i]);
             }
         }
     }
@@ -66,269 +135,542 @@ asm(".set noreorder;"
     "JR $ra;"
     "SW $t1, 0x0000 ($t0);");
 
-static s32 checkbox_mod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    u8 *p = data;
+static s32 enableBowserTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        *p = 1;
+        settings->trainerBits.bowserEnabled = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        *p = 0;
+        settings->trainerBits.bowserEnabled = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, *p);
+        menuCheckboxSet(item, settings->trainerBits.bowserEnabled);
     }
     return 0;
 }
 
-static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 enableLzsTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->trainerBits.lzsEnabled = 1;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->trainerBits.lzsEnabled = 0;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, settings->trainerBits.lzsEnabled);
+    }
+    return 0;
+}
+
+static s32 enableAcTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->trainerBits.acEnabled = 1;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->trainerBits.acEnabled = 0;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, settings->trainerBits.acEnabled);
+    }
+    return 0;
+}
+
+static s32 enableClippyTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->trainerBits.clippyEnabled = 1;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->trainerBits.clippyEnabled = 0;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, settings->trainerBits.clippyEnabled);
+    }
+    return 0;
+}
+
+static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p) {
-            menu_option_set(item, *p);
+        if (menuOptionGet(item) != *p) {
+            menuOptionSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menu_option_get(item);
+        *p = menuOptionGet(item);
     }
     return 0;
 }
 
-static s32 iss_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
+    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    s32 xPos = ceil(pm_player.position.x);
-    s32 zPos = ceil(pm_player.position.z);
-    _Bool goodPos = 0;
-    _Bool willClip = 0;
+    s32 xPos = ceil(pm_gPlayerStatus.position.x);
+    s32 zPos = ceil(pm_gPlayerStatus.position.z);
+    bool goodPos = FALSE;
+    bool willClip = FALSE;
 
-    if (pm_player.position.z >= -26.3686f) {
+    if (pm_gPlayerStatus.position.z >= -26.3686f) {
         // check if in a known position that will clip and respawn OoB
-        if (zPos == -24 && xPos == -184) {
-            goodPos = 1;
-        } else if (zPos == -25 && (xPos >= -186 && xPos <= -183)) {
-            goodPos = 1;
-        } else if (zPos == -26 && (xPos >= -186 && xPos <= -182)) {
-            goodPos = 1;
+        if ((zPos == -24 && xPos == -184) || (zPos == -25 && (xPos >= -186 && xPos <= -183)) ||
+            (zPos == -26 && (xPos >= -186 && xPos <= -182))) {
+            goodPos = TRUE;
         }
 
         // check if in a known position that will clip
-        if (xPos == -186 && (zPos >= -26 && zPos <= -21)) {
-            willClip = 1;
-        } else if (xPos == -185 && (zPos >= -26 && zPos <= -22)) {
-            willClip = 1;
-        } else if (xPos == -184 && (zPos >= -26 && zPos <= -23)) {
-            willClip = 1;
-        } else if (xPos == -183 && (zPos >= -26 && zPos <= -24)) {
-            willClip = 1;
-        } else if (xPos == -182 && (zPos >= -26 && zPos <= -25)) {
-            willClip = 1;
-        } else if (xPos == -181 && zPos == -26) {
-            willClip = 1;
+        if ((xPos == -186 && (zPos >= -26 && zPos <= -21)) || (xPos == -185 && (zPos >= -26 && zPos <= -22)) ||
+            (xPos == -184 && (zPos >= -26 && zPos <= -23)) || (xPos == -183 && (zPos >= -26 && zPos <= -24)) ||
+            (xPos == -182 && (zPos >= -26 && zPos <= -25)) || (xPos == -181 && zPos == -26)) {
+            willClip = TRUE;
         }
     }
 
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
+    u32 colorYellow = GPACK_RGB24A8(0xFFFF00, 0xFF);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
     s32 menuY = 0;
-    gfx_printf(font, x, y + chHeight * menuY++, "x: %.4f", pm_player.position.x);
-    gfx_printf(font, x, y + chHeight * menuY++, "z: %.4f", pm_player.position.z);
-    gfx_printf(font, x, y + chHeight * menuY, "angle: ");
-    if (pm_player.facing_angle >= 43.9f && pm_player.facing_angle <= 46.15f) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-    }
-    gfx_printf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_player.facing_angle);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF));
-    gfx_printf(font, x, y + chHeight * menuY, "position: ");
-    if (goodPos) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "good");
-    } else if (willClip) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "inconsistent");
+
+    gfxPrintf(font, x, y + chHeight * menuY++, "x:     %.4f", pm_gPlayerStatus.position.x);
+    gfxPrintf(font, x, y + chHeight * menuY++, "z:     %.4f", pm_gPlayerStatus.position.z);
+    gfxPrintf(font, x, y + chHeight * menuY, "angle:");
+    if (pm_gPlayerStatus.currentYaw >= 43.9f && pm_gPlayerStatus.currentYaw <= 46.15f) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF));
-        gfx_printf(font, x + chWidth * 10, y + chHeight * menuY++, "bad");
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
+    }
+    gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_gPlayerStatus.currentYaw);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    gfxPrintf(font, x, y + chHeight * menuY, "pos:");
+    if (goodPos) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "good");
+    } else if (willClip) {
+        gfxModeSet(GFX_MODE_COLOR, colorYellow);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "inconsistent");
+    } else {
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "bad");
     }
     return 1;
 }
 
-static s32 ace_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    struct GfxFont *font = drawParams->font;
+    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
+    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
+    s32 x = drawParams->x;
+    s32 y = drawParams->y;
 
-    s32 effect_count = 0;
+    s32 effectCount = 0;
     s32 i;
     for (i = 0; i < 96; i++) {
-        if (pm_effects[i]) {
-            effect_count++;
+        if (pm_gEffectInstances[i]) {
+            effectCount++;
         }
     }
 
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
 
-    if (effect_count == 81) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
+    gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
+
+    if (effectCount == 81) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
     }
-    gfx_printf(font, x + chWidth * 14, y + chHeight * 0, "%d", effect_count);
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    if (pm_player.anim_flags == 0x01000000) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-        gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "good");
+    gfxPrintf(font, x + chWidth * 14, y + chHeight * 0, "%d", effectCount);
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
+    if (pm_gPlayerStatus.animFlags == 0x01000000) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "good");
     } else {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-        gfx_printf(font, x + chWidth * 14, y + chHeight * 1, "bad");
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
+        gfxPrintf(font, x + chWidth * 14, y + chHeight * 1, "bad");
     }
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, 0xFF)); // white
-    gfx_printf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.ace_frame_window);
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
+    gfxPrintf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.aceFrameWindow);
 
-    if (fp.ace_last_timer != 0) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, 0xFF)); // gray
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
-        gfx_printf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
+    if (fp.aceLastTimer != 0) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
+        gfxPrintf(font, x + chWidth * 0, y + chHeight * 10, "jump:");
 
-        if (fp.ace_last_timer <= 0x81f && fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
+        if (fp.aceLastTimer <= 0x81f && fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
         }
-        gfx_printf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.ace_last_timer);
+        gfxPrintf(font, x + chWidth * 7, y + chHeight * 8, "0x%x", fp.aceLastTimer);
 
-        if (fp.ace_last_flag_status) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "good");
+        if (fp.aceLastFlagStatus) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "good");
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 9, "bad");
-        }
-
-        if (fp.ace_last_jump_status) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "good");
-        } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 7, y + chHeight * 10, "bad");
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 9, "bad");
         }
 
-        if (fp.ace_last_flag_status && fp.ace_last_jump_status && fp.ace_last_timer <= 0x81f &&
-            fp.ace_last_timer > 0x81f - fp.ace_frame_window) {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0x00, 0xFF, 0x00, 0xFF)); // green
-            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "success");
+        if (fp.aceLastJumpStatus) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "good");
         } else {
-            gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0x00, 0x00, 0xFF)); // red
-            gfx_printf(font, x + chWidth * 0, y + chHeight * 11, "failure");
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+            gfxPrintf(font, x + chWidth * 7, y + chHeight * 10, "bad");
+        }
+
+        if (fp.aceLastFlagStatus && fp.aceLastJumpStatus && fp.aceLastTimer <= 0x81f &&
+            fp.aceLastTimer > 0x81f - fp.aceFrameWindow) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "success");
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+            gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "failure");
         }
     }
     return 1;
 }
 
-static void ace_practice_payload_proc(struct menu_item *item, void *data) {
+static void acePracticePayloadProc(struct MenuItem *item, void *data) {
     setACEHook();
-    fp_log("practice payload placed");
+    fpLog("practice payload placed");
 }
 
-static void ace_oot_instr_proc(struct menu_item *item, void *data) {
+static void aceOotInstrProc(struct MenuItem *item, void *data) {
     // write jump to jp file names to addr 0x807C0000
-    fp_log("oot instruction placed");
+    fpLog("oot instruction placed");
     __asm__("LA $t0, 0x807C0000;"
             "LA $t1, 0x0801DE67;"
             "SW $t1, 0x0000 ($t0);");
 }
 
-static s32 lzs_draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    struct gfx_font *font = draw_params->font;
-    s32 chHeight = menu_get_cell_height(item->owner, 1);
-    s32 chWidth = menu_get_cell_width(item->owner, 1);
-    s32 x = draw_params->x;
-    s32 y = draw_params->y;
+static void updateBowserBlockTrainer(void) {
+    if (pm_gGameStatus.isBattle) {
+        pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
+        if (enemy0) {
+            bool isBowser = FALSE;
+            u32 vanillaScript;
+            switch (enemy0->actorType) {
+                case BOWSER_VARIANT_HALLWAY:
+                    isBowser = TRUE;
+                    bowserCustomScript[7] = bowserAttacksHallway[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_HALLWAY_TAKE_TURN;
+                    break;
+                case BOWSER_VARIANT_FINAL_1:
+                    isBowser = TRUE;
+                    bowserCustomScript[7] = bowserAttacksFinal1[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_FINAL_1_TAKE_TURN;
+                    break;
+                case BOWSER_VARIANT_FINAL_2:
+                    isBowser = TRUE;
+                    bowserCustomScript[7] = bowserAttacksFinal2[bowserAttack];
+                    vanillaScript = SCRIPT_BOWSER_FINAL_2_TAKE_TURN;
+                    break;
+            }
 
-    gfx_printf(font, x, y + chHeight * 1, "current lzs jumps: ");
-    gfx_printf(font, x + chWidth * 20, y + chHeight * 1, "%d", fp.current_lzs_jumps);
-    gfx_printf(font, x + chWidth * 0, y + chHeight * 2, "record lzs jumps: ");
-    gfx_printf(font, x + chWidth * 20, y + chHeight * 2, "%d", fp.record_lzs_jumps);
+            if (isBowser) {
+                if (settings->trainerBits.bowserEnabled) {
+                    enemy0->state.varTable[0] = 2; // total turns, to make bowser stop talking
+                    enemy0->takeTurnScriptSource = (void *)&bowserCustomScript;
 
-    return 1;
+                    // never let wave KO last more than one turn so you can keep practicing the block
+                    if (pm_gBattleStatus.partnerActor && pm_gBattleStatus.partnerActor->koDuration > 1) {
+                        pm_gBattleStatus.partnerActor->koDuration = 1;
+                    }
+                } else {
+                    enemy0->takeTurnScriptSource = (void *)vanillaScript;
+                }
+            }
+        }
+    }
 }
 
-void create_trainer_menu(struct menu *menu) {
-    static struct menu bowserMenu;
-    static struct menu issMenu;
-    static struct menu aceMenu;
-    static struct menu lzsMenu;
-    static struct menu clippyMenu;
-    static struct menu actionCommandMenu;
+static void updateLzsTrainer(void) {
+    if (settings->trainerBits.lzsEnabled) {
+        // detect if loading zone is stored
+        for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
+            if (pm_gScriptIndexList[evtIdx] >= 128) {
+                continue;
+            }
+            pm_Evt *script = (*pm_gCurrentScriptListPtr)[pm_gScriptIndexList[evtIdx]];
+            if (script && script->ptrNextLine) {
+                u32 callbackFunction = script->ptrNextLine[5];
+                if (callbackFunction == (uintptr_t)pm_gotoMap) {
+                    lzsLzStored = TRUE;
+                }
+            }
+        }
+
+        // Count frames since mario landed
+        if (pm_gPlayerStatus.actionState == ACTION_STATE_LAND || pm_gPlayerStatus.actionState == ACTION_STATE_WALK ||
+            pm_gPlayerStatus.actionState == ACTION_STATE_RUN) {
+            lzsPlayerLanded = TRUE;
+        }
+        if (lzsPlayerLanded) {
+            lzsFramesSinceLand++;
+        } else {
+            lzsFramesSinceLand = 0;
+        }
+        if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
+            lzsPlayerLanded = FALSE;
+        }
+
+        // log lzs status
+        if (lzsLzStored && pm_gGameStatus.pressedButtons[0].a) {
+            if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_gPlayerStatus.actionState == ACTION_STATE_JUMP &&
+                pm_mapChangeState == 0) {
+                fpLog("control early");
+            } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_JUMP ||
+                       pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
+                       pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
+                fpLog("jump >= 2 frames early");
+                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                    fpLog("control early");
+                }
+            } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
+                fpLog("jump 1 frame early");
+                if (pm_gPlayerStatus.actionState == ACTION_STATE_RUN ||
+                    pm_gPlayerStatus.actionState == ACTION_STATE_WALK) {
+                    fpLog("control early");
+                }
+            } else if (lzsPrevPrevActionState == ACTION_STATE_FALLING && pm_mapChangeState == 0) {
+                fpLog("jump 1 frame late");
+                fpLog("control early");
+            } else if (lzsFramesSinceLand == 3) {
+                fpLog("jump 1 frame late");
+                if (pm_gGameStatus.pressedButtons[0].yCardinal) {
+                    fpLog("control late");
+                }
+            } else if (lzsFramesSinceLand == 4) {
+                fpLog("jump 2 frames late");
+                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                    fpLog("control late");
+                }
+            } else if (lzsFramesSinceLand == 0 &&
+                       (lzsPrevPrevActionState == ACTION_STATE_RUN || lzsPrevPrevActionState == ACTION_STATE_WALK)) {
+                fpLog("jump >= 2 frames late");
+                fpLog("control early");
+            } else if (lzsFramesSinceLand >= 5 && pm_mapChangeState == 0) {
+                fpLog("jump > 2 frames late");
+                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                    fpLog("control late");
+                }
+            } else if (lzsFramesSinceLand == 2) {
+                lzsCurrentJumps++;
+            }
+        }
+
+        if (lzsCurrentJumps > lzsRecordJumps) {
+            lzsRecordJumps = lzsCurrentJumps;
+        }
+
+        lzsPrevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
+        lzsPrevPrevActionState = pm_gPlayerStatus.prevActionState;
+
+        if (pm_mapChangeState == 1) {
+            lzsLzStored = FALSE;
+            lzsPlayerLanded = FALSE;
+            lzsFramesSinceLand = 0;
+            lzsCurrentJumps = 0;
+        }
+    }
+}
+
+static void blockCheckSuccessOrEarly(void) {
+    const u32 mashWindow = 10;
+    u32 blockWindow = 3;
+    if (!(pm_gBattleStatus.flags1 & 0x80000) && pm_is_ability_active(0)) { // Dodge Master
+        blockWindow = 5;
+    }
+    s32 window;
+    s32 bufferPos = acInputBufferPos - blockWindow;
+    if (pm_gBattleStatus.blockResult == BLOCK_EARLY) {
+        bufferPos -= mashWindow;
+        window = mashWindow;
+    } else { // success
+        window = blockWindow;
+    }
+
+    if (bufferPos < 0) {
+        bufferPos += ARRAY_LENGTH(acPushInputBuffer);
+    }
+    for (s32 i = 0; i < window; i++) {
+        if (bufferPos >= ARRAY_LENGTH(acPushInputBuffer)) {
+            bufferPos -= ARRAY_LENGTH(acPushInputBuffer);
+        }
+        if (acPushInputBuffer[bufferPos] & 0x8000) { // A button
+            if (pm_gBattleStatus.blockResult == -1) {
+                s32 framesEarly = window - i;
+                fpLog("blocked %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
+            } else {
+                fpLog("blocked frame %d out of %d", i + 1, window);
+            }
+            break;
+        }
+        bufferPos++;
+    }
+}
+
+static void updateBlockTrainer(void) {
+    if (settings->trainerBits.acEnabled && pm_gGameStatus.isBattle) {
+        // blocks
+        switch (pm_gBattleStatus.blockResult) {
+            case BLOCK_EARLY:
+            case BLOCK_SUCCESS:
+                acWaitingForMissedBlock = FALSE;
+                blockCheckSuccessOrEarly();
+                // this value doesn't appear to be checked beyond the first frame, so we can change it with no issue
+                pm_gBattleStatus.blockResult = BLOCK_NONE;
+                break;
+            case BLOCK_LATE:
+                acWaitingForMissedBlock = TRUE;
+                acBlockFramesLate = 0;
+                pm_gBattleStatus.blockResult = BLOCK_NONE;
+                break;
+        }
+        if (acWaitingForMissedBlock) {
+            acBlockFramesLate++;
+            if (pm_gGameStatus.currentButtons[0].buttons & 0x8000) { // A button
+                fpLog("blocked %d frame%s late", acBlockFramesLate, acBlockFramesLate > 1 ? "s" : "");
+                acWaitingForMissedBlock = FALSE;
+            } else if (acBlockFramesLate == 10) { // stop checking for late block after 10 frames
+                acWaitingForMissedBlock = FALSE;
+            }
+        }
+
+        acPushInputBuffer[acInputBufferPos++] =
+            pm_gGameStatus.currentButtons[0].buttons & pm_gBattleStatus.inputBitmask;
+        if (acInputBufferPos >= ARRAY_LENGTH(acPushInputBuffer)) {
+            acInputBufferPos = 0;
+        }
+
+        // Either goombario or mario attacking
+        if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+            pm_battleState2 == 4) {
+            if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
+                acLastAPress = pm_gGameStatus.frameCounter;
+            } else if (pm_gActionCommandStatus.state == 11) {
+                if (acLastAPress) {
+                    u16 framesEarly = pm_gGameStatus.frameCounter - acLastAPress;
+                    fpLog("pressed A %d frame%s early", framesEarly, framesEarly > 1 ? "s" : "");
+                    acLastAPress = 0;
+                }
+                if (pm_gGameStatus.pressedButtons[0].a) {
+                    fpLog("pressed A frame %d out of %d",
+                          pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50] - pm_gActionCommandStatus.unk_54,
+                          pm_gBattleStatus.unk_434[pm_gActionCommandStatus.unk_50]);
+                }
+                acLastValidFrame = pm_gGameStatus.frameCounter;
+                // check for a press up to 10 frames late
+            } else if (pm_gActionCommandStatus.state == 12 && pm_gGameStatus.pressedButtons[0].a &&
+                       pm_gGameStatus.frameCounter - acLastValidFrame <= 10) {
+                u16 framesLate = pm_gGameStatus.frameCounter - acLastValidFrame;
+                fpLog("pressed A %d frame%s late", framesLate, framesLate > 1 ? "s" : "");
+            }
+        }
+    }
+}
+
+static void updateClippyTrainer(void) {
+    if (settings->trainerBits.clippyEnabled) {
+        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
+            if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+                clippyStatus = CLIPPY_EARLY;
+            } else if (clippyFramesSinceBattle > 0) {
+                clippyStatus = CLIPPY_LATE;
+            } else if (pm_gameState == 3 && clippyFramesSinceBattle == 0) {
+                clippyStatus = CLIPPY_SUCCESS;
+            }
+        }
+
+        if (pm_gameState == 3) {
+            clippyFramesSinceBattle++;
+            switch (clippyStatus) {
+                case CLIPPY_EARLY: fpLog("early"); break;
+                case CLIPPY_LATE: fpLog("late"); break;
+            }
+            clippyStatus = CLIPPY_NONE;
+        } else if (pm_gameState != 3) {
+            clippyFramesSinceBattle = 0;
+        }
+    }
+}
+
+void trainerUpdate(void) {
+    updateBowserBlockTrainer();
+    updateLzsTrainer();
+    updateBlockTrainer();
+    updateClippyTrainer();
+}
+
+void createTrainerMenu(struct Menu *menu) {
+    static struct Menu lzsMenu;
+    static struct Menu issMenu;
+    static struct Menu aceMenu;
 
     /* initialize menu */
-    menu_init(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&bowserMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&clippyMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&actionCommandMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu->selector = menu_add_submenu(menu, 0, 0, NULL, "return");
+    menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
-    s32 y_value = 1;
-    menu_add_submenu(menu, 0, y_value++, &actionCommandMenu, "action commands");
-    menu_add_submenu(menu, 0, y_value++, &bowserMenu, "bowser blocks");
-    menu_add_submenu(menu, 0, y_value++, &clippyMenu, "clippy");
+    struct GfxTexture *wrench = resourceLoadGrcTexture("wrench");
+    s32 y = 0;
 #if PM64_VERSION == JP
-    menu_add_submenu(menu, 0, y_value++, &issMenu, "ice staircase skip");
+    s32 xOffset = 19;
+#else
+    s32 xOffset = 16;
 #endif
-    menu_add_submenu(menu, 0, y_value++, &lzsMenu, "lzs jumps");
+    menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
+
+    menuAddStatic(menu, 0, y, "bowser blocks", 0xC0C0C0);
+    struct MenuItem *firstOption = menuAddCheckbox(menu, xOffset, y, enableBowserTrainerProc, NULL);
+    menuAddOption(menu, xOffset + 2, y++,
+                  "fire\0"
+                  "butt stomp\0"
+                  "claw\0"
+                  "wave\0"
+                  "lightning\0",
+                  byteOptionmodProc, &bowserAttack);
+
+    menuAddStatic(menu, 0, y, "lzs jumps", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y, enableLzsTrainerProc, NULL);
+    menuAddSubmenuIcon(menu, xOffset + 2, y++, &lzsMenu, wrench, 0, 0, 1.0f);
+
+    menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, enableAcTrainerProc, NULL);
+
+    menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
+    struct MenuItem *lastOption = menuAddCheckbox(menu, xOffset, y++, enableClippyTrainerProc, NULL);
 #if PM64_VERSION == JP
-    menu_add_submenu(menu, 0, y_value++, &aceMenu, "oot ace");
+    menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
+    menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
+
+    menuAddStatic(menu, 0, y, "oot ace", 0xC0C0C0);
+    lastOption = menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
 #endif
+    y++;
+    struct MenuItem *saveButton = menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 
-    /*build bowser menu*/
-    y_value = 0;
-    bowserMenu.selector = menu_add_submenu(&bowserMenu, 0, y_value++, NULL, "return");
-    menu_add_static(&bowserMenu, 0, y_value, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&bowserMenu, 8, y_value++, checkbox_mod_proc, &fp.bowser_blocks_enabled);
-    menu_add_static(&bowserMenu, 0, y_value, "attack", 0xC0C0C0);
-    menu_add_option(&bowserMenu, 8, y_value++,
-                    "fire\0"
-                    "butt stomp\0"
-                    "claw\0"
-                    "wave\0"
-                    "lightning\0",
-                    byte_optionmod_proc, &fp.bowser_block);
-
-    /*build iss menu*/
-    issMenu.selector = menu_add_submenu(&issMenu, 0, 0, NULL, "return");
-    menu_add_static_custom(&issMenu, 0, 1, iss_draw_proc, NULL, 0xFFFFFF);
-
-    /*build ace menu*/
-    aceMenu.selector = menu_add_submenu(&aceMenu, 0, 0, NULL, "return");
-    menu_add_static_custom(&aceMenu, 0, 1, ace_draw_proc, NULL, 0xFFFFFF);
-    menu_add_button(&aceMenu, 0, 5, "practice payload", ace_practice_payload_proc, NULL);
-    menu_add_button(&aceMenu, 0, 6, "oot instruction", ace_oot_instr_proc, NULL);
+    menuItemAddChainLink(menu->selector, firstOption, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(saveButton, lastOption, MENU_NAVIGATE_UP);
 
     /*build lzs jump menu*/
-    lzsMenu.selector = menu_add_submenu(&lzsMenu, 0, 0, NULL, "return");
-    menu_add_static(&lzsMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&lzsMenu, 8, 1, checkbox_mod_proc, &fp.lzs_trainer_enabled);
-    menu_add_static_custom(&lzsMenu, 0, 2, lzs_draw_proc, NULL, 0xFFFFFF);
+    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
+    menuAddStatic(&lzsMenu, 0, 1, "current lzs jumps: ", 0xC0C0C0);
+    menuAddWatch(&lzsMenu, 20, 1, (u32)&lzsCurrentJumps, WATCH_TYPE_U16);
+    menuAddStatic(&lzsMenu, 0, 2, "record lzs jumps: ", 0xC0C0C0);
+    menuAddWatch(&lzsMenu, 20, 2, (u32)&lzsRecordJumps, WATCH_TYPE_U16);
 
-    /*build clippy menu*/
-    clippyMenu.selector = menu_add_submenu(&clippyMenu, 0, 0, NULL, "return");
-    menu_add_static(&clippyMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&clippyMenu, 8, 1, checkbox_mod_proc, &fp.clippy_trainer_enabled);
+    /*build iss menu*/
+    issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
+    menuAddStaticCustom(&issMenu, 0, 1, issDrawProc, NULL, 0xC0C0C0);
 
-    /*build action command menu*/
-    actionCommandMenu.selector = menu_add_submenu(&actionCommandMenu, 0, 0, NULL, "return");
-    menu_add_static(&actionCommandMenu, 0, 1, "enabled", 0xC0C0C0);
-    menu_add_checkbox(&actionCommandMenu, 8, 1, checkbox_mod_proc, &fp.action_command_trainer_enabled);
+    /*build ace menu*/
+    aceMenu.selector = menuAddSubmenu(&aceMenu, 0, 0, NULL, "return");
+    menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xC0C0C0);
+    menuAddButton(&aceMenu, 0, 5, "practice payload", acePracticePayloadProc, NULL);
+    menuAddButton(&aceMenu, 0, 6, "oot instruction", aceOotInstrProc, NULL);
 }

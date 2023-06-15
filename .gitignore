@@ -1,4 +1,9 @@
 build/
 *.exe
 *.z64
+*.wad
+*.bin
+romc
 /.vs
+.ninja_*
+build.ninja

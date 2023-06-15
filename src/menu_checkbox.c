@@ -1,92 +1,93 @@
-#include <stdlib.h>
 #include "gfx.h"
 #include "menu.h"
 #include "resource.h"
+#include <stdlib.h>
 
-struct item_data {
-    menu_generic_callback callback_proc;
-    void *callback_data;
-    _Bool state;
-    s32 anim_state;
+struct ItemData {
+    MenuGenericCallback callbackProc;
+    void *callbackData;
+    bool state;
+    s32 animState;
 };
 
-static s32 enter_proc(struct menu_item *item, enum menu_switch_reason reason) {
-    struct item_data *data = item->data;
-    data->anim_state = 0;
+static s32 enterProc(struct MenuItem *item, enum MenuSwitchReason reason) {
+    struct ItemData *data = item->data;
+    data->animState = 0;
     return 0;
 }
 
-static s32 think_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
-    if (data->callback_proc) {
-        return data->callback_proc(item, MENU_CALLBACK_THINK, data->callback_data);
+static s32 thinkProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
+    if (data->callbackProc) {
+        return data->callbackProc(item, MENU_CALLBACK_THINK, data->callbackData);
     }
     return 0;
 }
 
-static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    struct item_data *data = item->data;
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    static struct gfx_texture *texture = NULL;
+static s32 drawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    struct ItemData *data = item->data;
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    static struct GfxTexture *texture = NULL;
     if (!texture) {
-        texture = resource_load_grc_texture("checkbox");
+        texture = resourceLoadGrcTexture("checkbox");
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
-    struct gfx_sprite sprite = {
+    s32 cw = menuGetCellWidth(item->owner, TRUE);
+    struct GfxSprite sprite = {
         texture,
-        data->anim_state == 0 ? 0 : 1,
-        draw_params->x + (cw - texture->tile_width) / 2,
-        draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
+        data->animState == 0 ? 0 : 1,
+        0,
+        drawParams->x + (cw - texture->tileWidth) / 2,
+        drawParams->y - (gfxFontXheight(drawParams->font) + texture->tileHeight + 1) / 2,
         1.f,
         1.f,
     };
-    gfx_sprite_draw(&sprite);
-    if ((data->anim_state > 0) != data->state) {
-        gfx_mode_set(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, draw_params->alpha));
-        sprite.texture_tile = 2;
-        gfx_sprite_draw(&sprite);
+    gfxSpriteDraw(&sprite);
+    if ((data->animState > 0) != data->state) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xFF, 0xFF, 0xFF, drawParams->alpha));
+        sprite.textureTile = 2;
+        gfxSpriteDraw(&sprite);
     }
-    if (data->anim_state > 0) {
-        data->anim_state = (data->anim_state + 1) % 3;
+    if (data->animState > 0) {
+        data->animState = (data->animState + 1) % 3;
     }
     return 1;
 }
 
-static s32 activate_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
-    if (!data->callback_proc ||
-        !data->callback_proc(item, data->state ? MENU_CALLBACK_SWITCH_OFF : MENU_CALLBACK_SWITCH_ON,
-                             data->callback_data)) {
+static s32 activateProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
+    if (!data->callbackProc ||
+        !data->callbackProc(item, data->state ? MENU_CALLBACK_SWITCH_OFF : MENU_CALLBACK_SWITCH_ON,
+                            data->callbackData)) {
         data->state = !data->state;
-        data->anim_state = 1;
-        if (data->callback_proc) {
-            data->callback_proc(item, MENU_CALLBACK_CHANGED, data->callback_data);
+        data->animState = 1;
+        if (data->callbackProc) {
+            data->callbackProc(item, MENU_CALLBACK_CHANGED, data->callbackData);
         }
     }
     return 1;
 }
 
-struct menu_item *menu_add_checkbox(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
-                                    void *callback_data) {
-    struct item_data *data = malloc(sizeof(*data));
-    data->callback_proc = callback_proc;
-    data->callback_data = callback_data;
-    data->anim_state = 0;
-    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
+struct MenuItem *menuAddCheckbox(struct Menu *menu, s32 x, s32 y, MenuGenericCallback callbackProc,
+                                 void *callbackData) {
+    struct ItemData *data = malloc(sizeof(*data));
+    data->callbackProc = callbackProc;
+    data->callbackData = callbackData;
+    data->animState = 0;
+    struct MenuItem *item = menuItemAdd(menu, x, y, NULL, 0xFFFFFF);
     item->data = data;
-    item->enter_proc = enter_proc;
-    item->think_proc = think_proc;
-    item->draw_proc = draw_proc;
-    item->activate_proc = activate_proc;
+    item->enterProc = enterProc;
+    item->thinkProc = thinkProc;
+    item->drawProc = drawProc;
+    item->activateProc = activateProc;
     return item;
 }
 
-_Bool menu_checkbox_get(struct menu_item *item) {
-    struct item_data *data = item->data;
+bool menuCheckboxGet(struct MenuItem *item) {
+    struct ItemData *data = item->data;
     return data->state;
 }
 
-void menu_checkbox_set(struct menu_item *item, _Bool state) {
-    struct item_data *data = item->data;
+void menuCheckboxSet(struct MenuItem *item, bool state) {
+    struct ItemData *data = item->data;
     data->state = state;
 }

@@ -1,8 +1,7 @@
 #ifndef HB_H
-#include <stdint.h>
-#include "pm64.h"
+#include "common.h"
 
-#define hb_regs               (*(volatile hb_regs_t *)0xA8050000)
+#define hb_regs               (*(volatile HbRegs *)0xA8050000) // NOLINT
 
 #define HB_STATUS_RESET       (0b1 << 9)
 #define HB_STATUS_ERROR       (0b1111 << 5)
@@ -22,18 +21,18 @@
 #define HB_TIMEBASE_FREQ      60750000
 
 typedef struct {
-    u32 key;            /* 0x0000 */
-    u32 sd_dram_addr;   /* 0x0004 */
-    u32 sd_write_lba;   /* 0x0008 */
-    u32 sd_read_lba;    /* 0x000C */
-    u32 sd_n_blocks;    /* 0x0010 */
-    u32 status;         /* 0x0014 */
-    u32 dram_save_addr; /* 0x0018 */
-    u32 dram_save_len;  /* 0x001C */
-    u32 dram_save_key;  /* 0x0020 */
-    u32 timebase_hi;    /* 0x0024 */
-    u32 timebase_lo;    /* 0x0028 */
-                        /* 0x002C */
-} hb_regs_t;
+    u32 key;          /* 0x0000 */
+    u32 sdDramAddr;   /* 0x0004 */
+    u32 sdWriteLba;   /* 0x0008 */
+    u32 sdReadLba;    /* 0x000C */
+    u32 sdNBlocks;    /* 0x0010 */
+    u32 status;       /* 0x0014 */
+    u32 dramSaveAddr; /* 0x0018 */
+    u32 dramSaveLen;  /* 0x001C */
+    u32 dramSaveKey;  /* 0x0020 */
+    u32 timebaseHi;   /* 0x0024 */
+    u32 timebaseLo;   /* 0x0028 */
+                      /* 0x002C */
+} HbRegs;
 
 #endif

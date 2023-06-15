@@ -35,10 +35,13 @@ genhook()
     rm -f "$tmp"
 }
 
-genhook "$sym_update_hook" "jal $sym_fp_update_entry;"
-genhook "$sym_draw_hook" "jal $sym_fp_draw_entry;"
-genhook "$sym_after_draw_hook" "jal $sym_fp_after_draw_entry;"
-genhook "$sym_update_camera_mode_6_hook" "jal $sym_fp_update_camera_mode_6;"
-genhook "$sym_update_player_input_rom_hook" "jal $sym_fp_update_input;"
-genhook "$sym_check_block_input_hook1" "jal $sym_fp_check_block_input;"
-genhook "$sym_check_block_input_hook2" "jal $sym_fp_check_block_input;"
+genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
+genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
+genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
+genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"
+genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
+
+# Fix wii vc fire flower crash
+genhook "$sym_fire_flower_hook" "nop;"
+
+genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"

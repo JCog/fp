@@ -1,9 +1,10 @@
 #ifndef OSK_H
 #define OSK_H
+#include "common.h"
 #include "menu.h"
 
-typedef s32 (*osk_callback_t)(const char *str, void *data);
+typedef s32 (*OskCallback)(const char *str, void *data);
 
-void menu_get_osk_string(struct menu *menu, const char *dflt, osk_callback_t callback_proc, void *callback_data);
+void menuGetOskString(struct Menu *menu, const char *dflt, OskCallback callbackProc, void *callbackData);
 
 #endif

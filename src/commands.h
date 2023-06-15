@@ -1,8 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
-#include "pm64.h"
+#include "common.h"
 
-enum commands {
+enum Commands {
     COMMAND_MENU,
     COMMAND_RETURN,
     COMMAND_LEVITATE,
@@ -20,41 +20,44 @@ enum commands {
     COMMAND_RESET_TIMER,
     COMMAND_SHOW_HIDE_TIMER,
     COMMAND_BREAK_FREE,
+    COMMAND_TOGGLE_INPUT_DISPLAY,
+    COMMAND_CLIPPY,
     COMMAND_MAX
 };
 
-enum activation_type {
+enum ActivationType {
     COMMAND_HOLD,
     COMMAND_PRESS,
     COMMAND_PRESS_ONCE
 };
 
-struct command {
+struct Command {
     const char *text;
-    enum activation_type command_type;
+    enum ActivationType commandType;
     u16 bind;
     void (*proc)();
 };
 
-void show_menu();
-void hide_menu();
-void command_levitate_proc();
-void command_turbo_proc();
-void command_levitate_proc();
-void command_save_pos_proc();
-void command_load_pos_proc();
-void command_lzs_proc();
-void command_reload_proc();
-void command_reload_last_warp_proc();
-void command_toggle_watches_proc();
-void command_import_save_proc();
-void command_save_game_proc();
-void command_load_game_proc();
-void command_start_timer_proc();
-void command_reset_timer_proc();
-void command_show_hide_timer_proc();
-void command_break_free_proc();
+void showMenu(void);
+void hideMenu(void);
+void commandLevitateProc(void);
+void commandTurboProc(void);
+void commandSavePosProc(void);
+void commandLoadPosProc(void);
+void commandLzsProc(void);
+void commandReloadProc(void);
+void commandReloadLastWarpProc(void);
+void commandToggleWatchesProc(void);
+void commandImportSaveProc(void);
+void commandSaveGameProc(void);
+void commandLoadGameProc(void);
+void commandStartTimerProc(void);
+void commandResetTimerProc(void);
+void commandShowHideTimerProc(void);
+void commandBreakFreeProc(void);
+void commandToggleInpDispProc(void);
+void commandClippyProc(void);
 
-extern struct command fp_commands[COMMAND_MAX];
+extern struct Command fpCommands[COMMAND_MAX];
 
 #endif

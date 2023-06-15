@@ -1,8 +1,7 @@
-#include <stddef.h>
-#include <stdint.h>
+#include "sd_host.h"
 #include "io.h"
 #include "sd.h"
-#include "sd_host.h"
+#include <stddef.h>
 
 static u8 crc7(void *data, s32 size) {
     u8 *p = data;
@@ -23,48 +22,48 @@ static u8 crc7(void *data, s32 size) {
     return crc | 1;
 }
 
-static void crc16_wide(const void *data, s32 size, u16 (*crc_buf)[4]) {
+static void crc16Wide(const void *data, s32 size, u16 (*crcBuf)[4]) {
 #if defined(__mips) && __mips >= 3
     s32 crc;
     s32 t0;
     s32 t1;
 
-    __asm__("  dli     %[crc], 0;"
-            "  beq     %[size], $zero, 1f;"
+    __asm__(
+        "  dli     %[crc], 0;"
+        "  beq     %[size], $zero, 1f;"
 
-            "  addu    %[size], %[data], %[size];"
-            "0:"
-            "  lbu     %[t1], 0(%[data]);"
-            "  lbu     %[t0], 1(%[data]);"
-            "  sll     %[t1], %[t1], 8;"
-            "  or      %[t0], %[t0], %[t1];"
+        "  addu    %[size], %[data], %[size];"
+        "0:"
+        "  lbu     %[t1], 0(%[data]);"
+        "  lbu     %[t0], 1(%[data]);"
+        "  sll     %[t1], %[t1], 8;"
+        "  or      %[t0], %[t0], %[t1];"
 
-            "  dsrl32  %[t1], %[crc], 16;"
-            "  xor     %[t1], %[t1], %[t0];"
+        "  dsrl32  %[t1], %[crc], 16;"
+        "  xor     %[t1], %[t1], %[t0];"
 
-            "  dsll    %[t0], %[t1], 28;"
-            "  daddu   %[t0], %[t0], %[t1];"
-            "  dsll    %[t0], %[t0], 20;"
-            "  daddu   %[t0], %[t0], %[t1];"
-            "  dsll    %[crc], %[crc], 16;"
+        "  dsll    %[t0], %[t1], 28;"
+        "  daddu   %[t0], %[t0], %[t1];"
+        "  dsll    %[t0], %[t0], 20;"
+        "  daddu   %[t0], %[t0], %[t1];"
+        "  dsll    %[crc], %[crc], 16;"
 
-            "  addiu   %[data], %[data], 2;"
-            "  xor     %[crc], %[crc], %[t0];"
+        "  addiu   %[data], %[data], 2;"
+        "  xor     %[crc], %[crc], %[t0];"
 
-            "  bne     %[data], %[size], 0b;"
-            "1:"
+        "  bne     %[data], %[size], 0b;"
+        "1:"
 
-            /* big endian byte order is assumed */
-            "  sh      %[crc], 6 + %[crc_buf];"
-            "  dsrl    %[crc], %[crc], 16;"
-            "  sh      %[crc], 4 + %[crc_buf];"
-            "  dsrl    %[crc], %[crc], 16;"
-            "  sh      %[crc], 2 + %[crc_buf];"
-            "  dsrl    %[crc], %[crc], 16;"
-            "  sh      %[crc], 0 + %[crc_buf];"
+        /* big endian byte order is assumed */
+        "  sh      %[crc], 6 + %[crc_buf];"
+        "  dsrl    %[crc], %[crc], 16;"
+        "  sh      %[crc], 4 + %[crc_buf];"
+        "  dsrl    %[crc], %[crc], 16;"
+        "  sh      %[crc], 2 + %[crc_buf];"
+        "  dsrl    %[crc], %[crc], 16;"
+        "  sh      %[crc], 0 + %[crc_buf];"
 
-            : [data] "+r"(data), [size] "+r"(size), [crc_buf] "=m"(*crc_buf), [crc] "=r"(crc), [t0] "=r"(t0),
-              [t1] "=r"(t1));
+        : [data] "+r"(data), [size] "+r"(size), [crc_buf] "=m"(*crcBuf), [crc] "=r"(crc), [t0] "=r"(t0), [t1] "=r"(t1));
 #else
     /* CRC-16 CCITT/XMODEM (0x1021) stretched to 64 bits */
     const u64 poly = 0x0001000000100001;
@@ -80,15 +79,15 @@ static void crc16_wide(const void *data, s32 size, u16 (*crc_buf)[4]) {
     }
 
     /* store result in big endian byte order */
-    u8 *crc_p = (void *)*crc_buf;
+    u8 *crcP = (void *)*crcBuf;
     for (s32 i = 0; i < 8; i++) {
-        *crc_p++ = crc >> 56;
+        *crcP++ = crc >> 56;
         crc = crc << 8;
     }
 #endif
 }
 
-static s32 cs_err(u32 cs) {
+static s32 csErr(u32 cs) {
     if ((cs & CS_ERR_BITS) == 0) {
         return 0;
     } else if (cs & CS_CC_ERROR) {
@@ -114,7 +113,7 @@ static s32 cs_err(u32 cs) {
     }
 }
 
-static s32 wr_tok_err(s32 tok) {
+static s32 wrTokErr(s32 tok) {
     if (tok == DAT_RESP_OK) {
         return 0;
     } else if (tok == DAT_RESP_CRC_ERR) {
@@ -126,7 +125,7 @@ static s32 wr_tok_err(s32 tok) {
     }
 }
 
-static s32 spi_r1_err(s32 r1) {
+static s32 spiR1Err(s32 r1) {
     if ((r1 & SPI_R1_ERR_BITS) == 0) {
         return 0;
     } else if (r1 & SPI_R1_ILLEGAL_CMD) {
@@ -144,7 +143,7 @@ static s32 spi_r1_err(s32 r1) {
     }
 }
 
-static s32 spi_rd_tok_err(s32 tok) {
+static s32 spiRdTokErr(s32 tok) {
     if (tok & SPI_BLK_RANGE_ERR) {
         return -SD_ERR_RANGE;
     } else if (tok & SPI_BLK_ECC_ERR) {
@@ -156,155 +155,155 @@ static s32 spi_rd_tok_err(s32 tok) {
     }
 }
 
-static void set_spd(struct sd_host *host, s32 spd) {
+static void setSpd(struct SdHost *host, s32 spd) {
     /* provide an 8 clock period before switching */
     if (host->proto == SD_PROTO_SDBUS) {
-        host->dat_tx_clk(0xF, 8);
+        host->datTxClk(0xF, 8);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        host->spi_io(0xFF);
+        host->spiIo(0xFF);
     }
 
-    host->set_spd(spd);
+    host->setSpd(spd);
 }
 
-static s32 card_cmd_sd(struct sd_host *host, s32 cmd, const u8 *tx_buf, u8 *rx_buf) {
-    s32 resp_type = sd_resp_type(cmd);
-    s32 resp_size = sd_resp_size(resp_type);
+static s32 cardCmdSd(struct SdHost *host, s32 cmd, const u8 *txBuf, u8 *rxBuf) {
+    s32 respType = sdRespType(cmd);
+    s32 respSize = sdRespSize(respType);
 
     /* send command */
-    host->cmd_tx_buf(tx_buf, 7);
+    host->cmdTxBuf(txBuf, 7);
 
-    if (resp_size != 0) {
+    if (respSize != 0) {
         /* wait for response */
-        rx_buf[0] = 0xFF;
+        rxBuf[0] = 0xFF;
         for (s32 i = 0;; i++) {
             if (i > 64) {
                 return -SD_ERR_TIMEOUT;
             }
 
-            rx_buf[0] = (rx_buf[0] << 1) | host->cmd_rx();
+            rxBuf[0] = (rxBuf[0] << 1) | host->cmdRx();
 
             /* start bit, direction bit card -> host */
-            if ((rx_buf[0] & 0xC0) == 0x00) {
+            if ((rxBuf[0] & 0xC0) == 0x00) {
                 break;
             }
         }
 
         /* receive response */
-        host->cmd_rx_buf(&rx_buf[1], resp_size - 1);
+        host->cmdRxBuf(&rxBuf[1], respSize - 1);
     }
 
-    if (resp_type != 0 && resp_type != R3) {
+    if (respType != 0 && respType != R3) {
         /* verify response crc */
         u8 crc;
-        if (resp_type == R2) {
-            crc = crc7(&rx_buf[1], resp_size - 2);
+        if (respType == R2) {
+            crc = crc7(&rxBuf[1], respSize - 2);
         } else {
-            crc = crc7(&rx_buf[0], resp_size - 1);
+            crc = crc7(&rxBuf[0], respSize - 1);
         }
 
-        if (rx_buf[resp_size - 1] != crc) {
+        if (rxBuf[respSize - 1] != crc) {
             return -SD_ERR_CRC;
         }
     }
 
     /* check respone status */
-    if (resp_type == R1) {
-        return cs_err(sd_r1_cs(rx_buf));
+    if (respType == R1) {
+        return csErr(sdR1Cs(rxBuf));
     } else {
         return 0;
     }
 }
 
-static s32 card_cmd_spi(struct sd_host *host, s32 cmd, const u8 *tx_buf, u8 *rx_buf) {
-    s32 resp_type = spi_resp_type(cmd);
-    s32 resp_size = spi_resp_size(resp_type);
+static s32 cardCmdSpi(struct SdHost *host, s32 cmd, const u8 *txBuf, u8 *rxBuf) {
+    s32 respType = spiRespType(cmd);
+    s32 respSize = spiRespSize(respType);
 
     /* send command */
-    host->spi_tx_buf(tx_buf, 7);
+    host->spiTxBuf(txBuf, 7);
 
     if (cmd == STOP_TRANSMISSION) {
         /* send 8 clocks to allow the transmission to end */
-        host->spi_io(0xFF);
+        host->spiIo(0xFF);
     }
 
-    if (resp_size != 0) {
+    if (respSize != 0) {
         /* wait for response */
         for (s32 i = 0;; i++) {
             if (i > 8) {
                 return -SD_ERR_TIMEOUT;
             }
 
-            rx_buf[0] = host->spi_io(0xFF);
-            if ((rx_buf[0] & SPI_R1_ZERO) == 0) {
+            rxBuf[0] = host->spiIo(0xFF);
+            if ((rxBuf[0] & SPI_R1_ZERO) == 0) {
                 break;
             }
         }
 
         /* receive response */
-        host->spi_rx_buf(&rx_buf[1], resp_size - 1);
+        host->spiRxBuf(&rxBuf[1], respSize - 1);
     }
 
     /* check respone status */
-    if (resp_type != 0) {
-        return spi_r1_err(rx_buf[0]);
+    if (respType != 0) {
+        return spiR1Err(rxBuf[0]);
     } else {
         return 0;
     }
 }
 
-static s32 card_cmd(struct sd_host *host, s32 cmd, u32 arg, void *resp) {
-    u8 tx_buf[17];
-    u8 *rx_buf;
+static s32 cardCmd(struct SdHost *host, s32 cmd, u32 arg, void *resp) {
+    u8 txBuf[17];
+    u8 *rxBuf;
 
     if (resp != NULL) {
-        rx_buf = resp;
+        rxBuf = resp;
     } else {
-        rx_buf = tx_buf;
+        rxBuf = txBuf;
     }
 
     /* 8 clocks to allow the previous operation to complete */
-    tx_buf[0] = 0xFF;
+    txBuf[0] = 0xFF;
     /* start bit, direction bit host -> card, cmd */
-    tx_buf[1] = 0x40 | cmd;
+    txBuf[1] = 0x40 | cmd;
     /* argument */
-    tx_buf[2] = arg >> 24;
-    tx_buf[3] = arg >> 16;
-    tx_buf[4] = arg >> 8;
-    tx_buf[5] = arg >> 0;
+    txBuf[2] = arg >> 24;
+    txBuf[3] = arg >> 16;
+    txBuf[4] = arg >> 8;
+    txBuf[5] = arg >> 0;
     /* crc, end bit (tacked on by crc7) */
-    tx_buf[6] = crc7(&tx_buf[1], 5);
+    txBuf[6] = crc7(&txBuf[1], 5);
 
     if (host->proto == SD_PROTO_SDBUS) {
-        return card_cmd_sd(host, cmd, tx_buf, rx_buf);
+        return cardCmdSd(host, cmd, txBuf, rxBuf);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        return card_cmd_spi(host, cmd, tx_buf, rx_buf);
+        return cardCmdSpi(host, cmd, txBuf, rxBuf);
     }
 }
 
-static s32 rx_blk_sd(struct sd_host *host, void *buf, size_t blk_size) {
+static s32 rxBlkSd(struct SdHost *host, void *buf, size_t blkSize) {
     /* wait for start bit on DAT0-DAT3 */
-    unsigned timeout = msec_from_now(100);
-    while (host->dat_rx() != 0x0) {
-        if (clock_after(timeout)) {
+    unsigned timeout = msecFromNow(100);
+    while (host->datRx() != 0x0) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
 
     /* receive data block */
-    host->dat_rx_buf(buf, blk_size);
+    host->datRxBuf(buf, blkSize);
 
     /* receive crc */
-    u16 rx_crc[4];
-    host->dat_rx_buf(rx_crc, sizeof(rx_crc));
+    u16 rxCrc[4];
+    host->datRxBuf(rxCrc, sizeof(rxCrc));
 
     /* compute crc */
     u16 crc[4];
-    crc16_wide(buf, blk_size, &crc);
+    crc16Wide(buf, blkSize, &crc);
 
     /* verify crc */
     for (s32 i = 0; i < 4; i++) {
-        if (rx_crc[i] != crc[i]) {
+        if (rxCrc[i] != crc[i]) {
             return -SD_ERR_CRC;
         }
     }
@@ -312,78 +311,78 @@ static s32 rx_blk_sd(struct sd_host *host, void *buf, size_t blk_size) {
     return 0;
 }
 
-static s32 rx_blk_spi(struct sd_host *host, void *buf, size_t blk_size) {
+static s32 rxBlkSpi(struct SdHost *host, void *buf, size_t blkSize) {
     /* wait for data block token */
-    unsigned timeout = msec_from_now(100);
+    unsigned timeout = msecFromNow(100);
     for (;;) {
-        s32 tok = host->spi_io(0xFF);
+        s32 tok = host->spiIo(0xFF);
 
         if (tok == SPI_BLK_START) {
             break;
         } else if ((tok & 0xF0) == 0x00) {
-            return spi_rd_tok_err(tok);
+            return spiRdTokErr(tok);
         }
 
-        if (clock_after(timeout)) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
 
     /* receive data block */
-    host->spi_rx_buf(buf, blk_size);
+    host->spiRxBuf(buf, blkSize);
 
     /* receive crc */
-    u16 rx_crc;
-    host->spi_rx_buf(&rx_crc, sizeof(rx_crc));
+    u16 rxCrc;
+    host->spiRxBuf(&rxCrc, sizeof(rxCrc));
 
     /* skip crc verification for SPI Bus */
     return 0;
 }
 
-static s32 rx_blk(struct sd_host *host, void *buf, size_t blk_size) {
+static s32 rxBlk(struct SdHost *host, void *buf, size_t blkSize) {
     if (host->proto == SD_PROTO_SDBUS) {
-        return rx_blk_sd(host, buf, blk_size);
+        return rxBlkSd(host, buf, blkSize);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        return rx_blk_spi(host, buf, blk_size);
+        return rxBlkSpi(host, buf, blkSize);
     }
 }
 
-static s32 tx_blk_sd(struct sd_host *host, const void *buf, size_t blk_size) {
+static s32 txBlkSd(struct SdHost *host, const void *buf, size_t blkSize) {
     /* compute crc */
     u16 crc[4];
     if (buf != NULL) {
-        crc16_wide(buf, blk_size, &crc);
+        crc16Wide(buf, blkSize, &crc);
     } else {
         crc[0] = crc[1] = crc[2] = crc[3] = 0;
     }
 
     /* wait for busy signal on DAT0-DAT3 to be released */
-    unsigned timeout = msec_from_now(250);
-    while (host->dat_rx() != 0xF) {
-        if (clock_after(timeout)) {
+    unsigned timeout = msecFromNow(250);
+    while (host->datRx() != 0xF) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
 
     /* transmit start bit on DAT0-DAT3 */
-    host->dat_tx(0xF);
-    host->dat_tx(0x0);
+    host->datTx(0xF);
+    host->datTx(0x0);
     /* at least one card seems to need the start and end tokens to be on
      * byte boundaries, hence the two clocks */
 
     /* transmit data */
     if (buf != NULL) {
-        host->dat_tx_buf(buf, blk_size);
+        host->datTxBuf(buf, blkSize);
     } else {
-        host->dat_tx_clk(0x0, blk_size * 2);
+        host->datTxClk(0x0, blkSize * 2);
     }
 
     /* transmit crc */
-    host->dat_tx_buf(crc, sizeof(crc));
+    host->datTxBuf(crc, sizeof(crc));
 
     /* transmit end bit on DAT0-DAT3 */
-    host->dat_tx(0xF);
-    host->dat_tx(0xF);
+    host->datTx(0xF);
+    host->datTx(0xF);
 
     /* wait for start bit on DAT0 */
     for (s32 i = 0;; i++) {
@@ -391,7 +390,7 @@ static s32 tx_blk_sd(struct sd_host *host, const void *buf, size_t blk_size) {
             return -SD_ERR_TIMEOUT;
         }
 
-        if ((host->dat_rx() & 1) == 0) {
+        if ((host->datRx() & 1) == 0) {
             break;
         }
     }
@@ -399,37 +398,37 @@ static s32 tx_blk_sd(struct sd_host *host, const void *buf, size_t blk_size) {
     /* receive response token on DAT0 */
     s32 tok = 0;
     for (s32 i = 0; i < 4; i++) {
-        tok = (tok << 1) | (host->dat_rx() & 1);
+        tok = (tok << 1) | (host->datRx() & 1);
     }
 
     /* check response token */
-    return wr_tok_err(tok);
+    return wrTokErr(tok);
 }
 
-static s32 tx_blk_spi(struct sd_host *host, const void *buf, size_t blk_size) {
+static s32 txBlkSpi(struct SdHost *host, const void *buf, size_t blkSize) {
     s32 tok;
 
     /* wait for free receive buffer */
-    unsigned timeout = msec_from_now(250);
-    while (host->spi_io(0xFF) != 0xFF) {
-        if (clock_after(timeout)) {
+    unsigned timeout = msecFromNow(250);
+    while (host->spiIo(0xFF) != 0xFF) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
 
     /* transmit start block token */
-    host->spi_io(SPI_MBW_START);
+    host->spiIo(SPI_MBW_START);
 
     /* transmit data */
     if (buf != NULL) {
-        host->spi_tx_buf(buf, blk_size);
+        host->spiTxBuf(buf, blkSize);
     } else {
-        host->spi_tx_clk(0, blk_size * 8);
+        host->spiTxClk(0, blkSize * 8);
     }
 
     /* transmit bogus crc (ignored by card) */
-    host->spi_io(0xFF);
-    host->spi_io(0xFF);
+    host->spiIo(0xFF);
+    host->spiIo(0xFF);
 
     /* receive and check data response token */
     for (s32 i = 0;; i++) {
@@ -437,36 +436,36 @@ static s32 tx_blk_spi(struct sd_host *host, const void *buf, size_t blk_size) {
             return -SD_ERR_TIMEOUT;
         }
 
-        tok = host->spi_io(0xFF);
+        tok = host->spiIo(0xFF);
 
         if ((tok & 0x11) == 0x01) {
-            return wr_tok_err(tok & 0x1F);
+            return wrTokErr(tok & 0x1F);
         }
     }
 }
 
-static s32 tx_blk(struct sd_host *host, const void *buf, size_t blk_size) {
+static s32 txBlk(struct SdHost *host, const void *buf, size_t blkSize) {
     if (host->proto == SD_PROTO_SDBUS) {
-        return tx_blk_sd(host, buf, blk_size);
+        return txBlkSd(host, buf, blkSize);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        return tx_blk_spi(host, buf, blk_size);
+        return txBlkSpi(host, buf, blkSize);
     }
 }
 
-static s32 stop_rd(struct sd_host *host) {
-    return card_cmd(host, STOP_TRANSMISSION, 0, NULL);
+static s32 stopRd(struct SdHost *host) {
+    return cardCmd(host, STOP_TRANSMISSION, 0, NULL);
 }
 
-static s32 stop_wr_sd(struct sd_host *host) {
-    s32 ret = card_cmd(host, STOP_TRANSMISSION, 0, NULL);
+static s32 stopWrSd(struct SdHost *host) {
+    s32 ret = cardCmd(host, STOP_TRANSMISSION, 0, NULL);
     if (ret != 0) {
         return ret;
     }
 
     /* wait for busy signal on DAT0-DAT3 to be released */
-    unsigned timeout = msec_from_now(500);
-    while (host->dat_rx() != 0xF) {
-        if (clock_after(timeout)) {
+    unsigned timeout = msecFromNow(500);
+    while (host->datRx() != 0xF) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
@@ -474,27 +473,27 @@ static s32 stop_wr_sd(struct sd_host *host) {
     return 0;
 }
 
-static s32 stop_wr_spi(struct sd_host *host) {
+static s32 stopWrSpi(struct SdHost *host) {
     unsigned timeout;
 
     /* wait for busy signal to be released */
-    timeout = msec_from_now(250);
-    while (host->spi_io(0xFF) != 0xFF) {
-        if (clock_after(timeout)) {
+    timeout = msecFromNow(250);
+    while (host->spiIo(0xFF) != 0xFF) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
 
     /* send stop transmission token */
-    host->spi_io(SPI_MBW_STOP);
+    host->spiIo(SPI_MBW_STOP);
 
     /* send 8 clocks to allow the transmission to end */
-    host->spi_io(0xFF);
+    host->spiIo(0xFF);
 
     /* and wait again */
-    timeout = msec_from_now(500);
-    while (host->spi_io(0xFF) != 0xFF) {
-        if (clock_after(timeout)) {
+    timeout = msecFromNow(500);
+    while (host->spiIo(0xFF) != 0xFF) {
+        if (clockAfter(timeout)) {
             return -SD_ERR_TIMEOUT;
         }
     }
@@ -502,30 +501,30 @@ static s32 stop_wr_spi(struct sd_host *host) {
     return 0;
 }
 
-static s32 stop_wr(struct sd_host *host) {
+static s32 stopWr(struct SdHost *host) {
     if (host->proto == SD_PROTO_SDBUS) {
-        return stop_wr_sd(host);
+        return stopWrSd(host);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        return stop_wr_spi(host);
+        return stopWrSpi(host);
     }
 }
 
-static s32 rx_mblk(struct sd_host *host, void *buf, size_t blk_size, size_t n_blk) {
+static s32 rxMblk(struct SdHost *host, void *buf, size_t blkSize, size_t nBlk) {
     s32 ret;
 
-    if (host->rx_mblk) {
-        ret = host->rx_mblk(buf, blk_size, n_blk);
+    if (host->rxMblk) {
+        ret = host->rxMblk(buf, blkSize, nBlk);
     } else {
         char *p = buf;
 
-        for (size_t i = 0; i < n_blk; i++) {
-            ret = rx_blk(host, p, blk_size);
+        for (size_t i = 0; i < nBlk; i++) {
+            ret = rxBlk(host, p, blkSize);
             if (ret != 0) {
                 break;
             }
 
             if (p != NULL) {
-                p += blk_size;
+                p += blkSize;
             }
         }
     }
@@ -533,26 +532,26 @@ static s32 rx_mblk(struct sd_host *host, void *buf, size_t blk_size, size_t n_bl
     return ret;
 }
 
-static s32 tx_mblk(struct sd_host *host, const void *buf, size_t blk_size, size_t n_blk) {
+static s32 txMblk(struct SdHost *host, const void *buf, size_t blkSize, size_t nBlk) {
     s32 ret;
 
     const char *p = buf;
 
-    for (size_t i = 0; i < n_blk; i++) {
-        ret = tx_blk(host, p, blk_size);
+    for (size_t i = 0; i < nBlk; i++) {
+        ret = txBlk(host, p, blkSize);
         if (ret != 0) {
             break;
         }
 
         if (p != NULL) {
-            p += blk_size;
+            p += blkSize;
         }
     }
 
     return ret;
 }
 
-s32 sd_init(struct sd_host *host) {
+s32 sdInit(struct SdHost *host) {
     s32 ret;
     u8 dat[64];
 
@@ -560,55 +559,55 @@ s32 sd_init(struct sd_host *host) {
     host->lock();
 
     /* reset card */
-    host->card_type = 0;
-    set_spd(host, 0);
+    host->cardType = 0;
+    setSpd(host, 0);
     /* provide 80 clocks for card initialization */
     if (host->proto == SD_PROTO_SDBUS) {
-        host->dat_tx_clk(0xF, 80);
+        host->datTxClk(0xF, 80);
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        host->spi_ss(0);
-        host->spi_tx_clk(0x1, 80);
-        host->spi_ss(1);
+        host->spiSs(0);
+        host->spiTxClk(0x1, 80);
+        host->spiSs(1);
     }
-    ret = card_cmd(host, GO_IDLE_STATE, 0, NULL);
+    ret = cardCmd(host, GO_IDLE_STATE, 0, NULL);
     if (ret != 0) {
         goto exit;
     }
 
     /* 2.7V - 3.6V, check pattern 0b10101010 */
-    ret = card_cmd(host, SEND_IF_COND, IF_COND_VHS_VDD1 | 0xAA, NULL);
+    ret = cardCmd(host, SEND_IF_COND, IF_COND_VHS_VDD1 | 0xAA, NULL);
     if (ret == 0) {
-        host->card_type |= SD_CARD_V2;
+        host->cardType |= SD_CARD_V2;
     } else if (ret != -SD_ERR_ILCMD) {
         goto exit;
     }
 
-    unsigned timeout = msec_from_now(1000);
+    unsigned timeout = msecFromNow(1000);
     for (;;) {
-        ret = card_cmd(host, APP_CMD, 0, NULL);
+        ret = cardCmd(host, APP_CMD, 0, NULL);
         if (ret != 0) {
             goto exit;
         }
 
         /* 3.2V - 3.4V */
-        u32 op_cond = OCR_3V2_3V3 | OCR_3V3_3V4;
-        if (host->card_type & SD_CARD_V2) {
+        u32 opCond = OCR_3V2_3V3 | OCR_3V3_3V4;
+        if (host->cardType & SD_CARD_V2) {
             /* Host Capacity Support */
-            op_cond = op_cond | OCR_CCS;
+            opCond = opCond | OCR_CCS;
         }
-        ret = card_cmd(host, SD_SEND_OP_COND, op_cond, dat);
+        ret = cardCmd(host, SD_SEND_OP_COND, opCond, dat);
         if (ret != 0) {
             goto exit;
         }
 
         if (host->proto == SD_PROTO_SDBUS) {
-            u32 ocr = r3_ocr(dat);
+            u32 ocr = r3Ocr(dat);
             /* check card power up status bit */
             if (ocr & OCR_BUSY) {
-                if (host->card_type & SD_CARD_V2) {
+                if (host->cardType & SD_CARD_V2) {
                     /* check Card Capacity Status */
                     if (ocr & OCR_CCS) {
-                        host->card_type |= SD_CARD_HC;
+                        host->cardType |= SD_CARD_HC;
                     }
                 }
                 break;
@@ -620,64 +619,64 @@ s32 sd_init(struct sd_host *host) {
             }
         }
 
-        if (clock_after(timeout)) {
+        if (clockAfter(timeout)) {
             ret = -SD_ERR_TIMEOUT;
             goto exit;
         }
     }
 
     /* switch to Default Speed (25MHz) */
-    set_spd(host, 25);
+    setSpd(host, 25);
 
     if (host->proto == SD_PROTO_SDBUS) {
         /* get rca and select card */
-        ret = card_cmd(host, ALL_SEND_CID, 0, NULL);
+        ret = cardCmd(host, ALL_SEND_CID, 0, NULL);
         if (ret != 0) {
             goto exit;
         }
-        ret = card_cmd(host, SEND_RELATIVE_ADDR, 0, dat);
+        ret = cardCmd(host, SEND_RELATIVE_ADDR, 0, dat);
         if (ret != 0) {
             goto exit;
         }
-        u32 rca = r6_rca(dat);
-        ret = card_cmd(host, SELECT_CARD, rca << 16, NULL);
+        u32 rca = r6Rca(dat);
+        ret = cardCmd(host, SELECT_CARD, rca << 16, NULL);
         if (ret != 0) {
             goto exit;
         }
 
         /* select wide (4 bit) data bus */
-        ret = card_cmd(host, APP_CMD, rca << 16, NULL);
+        ret = cardCmd(host, APP_CMD, rca << 16, NULL);
         if (ret != 0) {
             goto exit;
         }
-        ret = card_cmd(host, SET_BUS_WIDTH, 2, NULL);
+        ret = cardCmd(host, SET_BUS_WIDTH, 2, NULL);
         if (ret != 0) {
             goto exit;
         }
     } else { /* host->proto == SD_PROTO_SPIBUS */
-        if (host->card_type & SD_CARD_V2) {
+        if (host->cardType & SD_CARD_V2) {
             /* check Card Capacity Status */
-            ret = card_cmd(host, READ_OCR, 0, dat);
+            ret = cardCmd(host, READ_OCR, 0, dat);
             if (ret != 0) {
                 goto exit;
             }
 
-            if (r3_ocr(dat) & OCR_CCS) {
-                host->card_type |= SD_CARD_HC;
+            if (r3Ocr(dat) & OCR_CCS) {
+                host->cardType |= SD_CARD_HC;
             }
         }
     }
 
     /* try to switch to High Speed (50MHz) */
-    ret = card_cmd(host, SWITCH_FUNC, SWFN_SET | 0xFFFFF1, NULL);
+    ret = cardCmd(host, SWITCH_FUNC, SWFN_SET | 0xFFFFF1, NULL);
     if (ret == 0) {
-        ret = rx_blk(host, dat, SWFN_DAT_SIZE);
+        ret = rxBlk(host, dat, SWFN_DAT_SIZE);
         if (ret != 0) {
             goto exit;
         }
 
-        if (swfn_sel(dat, 1) == 1) {
-            set_spd(host, 50);
+        if (swfnSel(dat, 1) == 1) {
+            setSpd(host, 50);
         }
     } else if (ret != -SD_ERR_ILCMD) {
         goto exit;
@@ -692,31 +691,31 @@ exit:
     return ret;
 }
 
-s32 sd_read(struct sd_host *host, size_t lba, void *dst, size_t n_blk) {
+s32 sdRead(struct SdHost *host, size_t lba, void *dst, size_t nBlk) {
     s32 ret;
-    const size_t blk_size = 512;
+    const size_t blkSize = 512;
 
     /* acquire the host device */
     host->lock();
 
     /* send read command */
-    if (host->card_type & SD_CARD_HC) {
-        ret = card_cmd(host, READ_MULTIPLE_BLOCK, lba, NULL);
+    if (host->cardType & SD_CARD_HC) {
+        ret = cardCmd(host, READ_MULTIPLE_BLOCK, lba, NULL);
     } else {
-        ret = card_cmd(host, READ_MULTIPLE_BLOCK, lba * blk_size, NULL);
+        ret = cardCmd(host, READ_MULTIPLE_BLOCK, lba * blkSize, NULL);
     }
     if (ret != 0) {
         goto exit;
     }
 
     /* receive blocks */
-    ret = rx_mblk(host, dst, blk_size, n_blk);
+    ret = rxMblk(host, dst, blkSize, nBlk);
 
     /* stop transmission */
     if (ret == 0) {
-        ret = stop_rd(host);
+        ret = stopRd(host);
     } else if (ret != -SD_ERR_TIMEOUT) {
-        stop_rd(host);
+        stopRd(host);
     }
 
 exit:
@@ -726,31 +725,31 @@ exit:
     return ret;
 }
 
-s32 sd_write(struct sd_host *host, size_t lba, const void *src, size_t n_blk) {
+s32 sdWrite(struct SdHost *host, size_t lba, const void *src, size_t nBlk) {
     s32 ret;
-    const size_t blk_size = 512;
+    const size_t blkSize = 512;
 
     /* acquire the host device */
     host->lock();
 
     /* send write command */
-    if (host->card_type & SD_CARD_HC) {
-        ret = card_cmd(host, WRITE_MULTIPLE_BLOCK, lba, NULL);
+    if (host->cardType & SD_CARD_HC) {
+        ret = cardCmd(host, WRITE_MULTIPLE_BLOCK, lba, NULL);
     } else {
-        ret = card_cmd(host, WRITE_MULTIPLE_BLOCK, lba * blk_size, NULL);
+        ret = cardCmd(host, WRITE_MULTIPLE_BLOCK, lba * blkSize, NULL);
     }
     if (ret != 0) {
         goto exit;
     }
 
     /* transmit blocks */
-    ret = tx_mblk(host, src, blk_size, n_blk);
+    ret = txMblk(host, src, blkSize, nBlk);
 
     /* stop transmission */
     if (ret == 0) {
-        ret = stop_wr(host);
+        ret = stopWr(host);
     } else if (ret != -SD_ERR_TIMEOUT) {
-        stop_wr(host);
+        stopWr(host);
     }
 
 exit:

@@ -1,102 +1,103 @@
-#include <stdlib.h>
-#include "menu.h"
-#include "settings.h"
 #include "commands.h"
-#include "resource.h"
 #include "fp.h"
+#include "input.h"
+#include "menu.h"
+#include "resource.h"
+#include "settings.h"
 #include "watchlist.h"
+#include <stdlib.h>
 
-static u16 font_options[] = {
+static u16 fontOptions[] = {
     RES_FONT_FIPPS,        RES_FONT_NOTALOT35, RES_FONT_ORIGAMIMOMMY,  RES_FONT_PCSENIOR, RES_FONT_PIXELINTV,
     RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
-static s32 byte_optionmod_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_option_get(item) != *p) {
-            menu_option_set(item, *p);
+        if (menuOptionGet(item) != *p) {
+            menuOptionSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menu_option_get(item);
+        *p = menuOptionGet(item);
     }
     return 0;
 }
 
-static s32 control_stick_range_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 controlStickRangeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menu_intinput_get(item) != *p) {
-            menu_intinput_set(item, *p);
+        if (menuIntinputGet(item) != *p) {
+            menuIntinputSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        if (menu_intinput_get(item) > 127) {
+        if (menuIntinputGet(item) > 127) {
             *p = 127;
         } else {
-            *p = menu_intinput_get(item);
+            *p = menuIntinputGet(item);
         }
     }
     return 0;
 }
 
-static void profile_dec_proc(struct menu_item *item, void *data) {
+static void profileDecProc(struct MenuItem *item, void *data) {
     fp.profile += SETTINGS_PROFILE_MAX - 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
 }
 
-static void profile_inc_proc(struct menu_item *item, void *data) {
+static void profileIncProc(struct MenuItem *item, void *data) {
     fp.profile += 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
 }
 
-static s32 font_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 fontProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (settings->bits.font_resource != font_options[menu_option_get(item)]) {
-            s32 n_font_options = sizeof(font_options) / sizeof(*font_options);
-            for (s32 i = 0; i < n_font_options; ++i) {
-                if (settings->bits.font_resource == font_options[i]) {
-                    menu_option_set(item, i);
+        if (settings->bits.fontResource != fontOptions[menuOptionGet(item)]) {
+            s32 nFontOptions = sizeof(fontOptions) / sizeof(*fontOptions);
+            for (s32 i = 0; i < nFontOptions; ++i) {
+                if (settings->bits.fontResource == fontOptions[i]) {
+                    menuOptionSet(item, i);
                     break;
                 }
             }
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        s32 font_resource = font_options[menu_option_get(item)];
-        settings->bits.font_resource = font_resource;
-        if (settings->bits.font_resource == RES_FONT_FIPPS) {
-            gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
+        s32 fontResource = fontOptions[menuOptionGet(item)];
+        settings->bits.fontResource = fontResource;
+        if (settings->bits.fontResource == RES_FONT_FIPPS) {
+            gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
         } else {
-            gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
+            gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_FAST);
         }
-        struct gfx_font *font = resource_get(font_resource);
-        menu_set_font(fp.main_menu, font);
-        menu_set_cell_width(fp.main_menu, font->char_width + font->letter_spacing);
-        menu_set_cell_height(fp.main_menu, font->char_height + font->line_spacing);
-        menu_imitate(fp.global, fp.main_menu);
+        struct GfxFont *font = resourceGet(fontResource);
+        menuSetFont(fp.mainMenu, font);
+        menuSetCellWidth(fp.mainMenu, font->charWidth + font->letterSpacing);
+        menuSetCellHeight(fp.mainMenu, font->charHeight + font->lineSpacing);
+        menuImitate(fp.global, fp.mainMenu);
     }
     return 0;
 }
 
-static s32 drop_shadow_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 dropShadowProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
-        settings->bits.drop_shadow = menu_checkbox_get(item);
-        gfx_mode_set(GFX_MODE_DROPSHADOW, settings->bits.drop_shadow);
+        settings->bits.dropShadow = menuCheckboxGet(item);
+        gfxModeSet(GFX_MODE_DROPSHADOW, settings->bits.dropShadow);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, settings->bits.drop_shadow);
+        menuCheckboxSet(item, settings->bits.dropShadow);
     }
     return 0;
 }
 
-static s32 generic_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 genericPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     s16 *x = data;
     s16 *y = x + 1;
     s32 dist = 2;
-    if (input_pad() & BUTTON_Z) {
+    if (inputPad() & BUTTON_Z) {
         dist *= 2;
     }
     switch (reason) {
-        case MENU_CALLBACK_ACTIVATE: input_reserve(BUTTON_Z); break;
-        case MENU_CALLBACK_DEACTIVATE: input_free(BUTTON_Z); break;
+        case MENU_CALLBACK_ACTIVATE: inputReserve(BUTTON_Z); break;
+        case MENU_CALLBACK_DEACTIVATE: inputFree(BUTTON_Z); break;
         case MENU_CALLBACK_NAV_UP: *y -= dist; break;
         case MENU_CALLBACK_NAV_DOWN: *y += dist; break;
         case MENU_CALLBACK_NAV_LEFT: *x -= dist; break;
@@ -106,167 +107,171 @@ static s32 generic_position_proc(struct menu_item *item, enum menu_callback_reas
     return 0;
 }
 
-static s32 menu_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    s32 r = generic_position_proc(item, reason, &settings->menu_x);
-    menu_set_pxoffset(fp.main_menu, settings->menu_x);
-    menu_set_pyoffset(fp.main_menu, settings->menu_y);
+static s32 menuPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    s32 r = genericPositionProc(item, reason, &settings->menuX);
+    menuSetPxoffset(fp.mainMenu, settings->menuX);
+    menuSetPyoffset(fp.mainMenu, settings->menuY);
     return r;
 }
 
-static s32 timer_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 timerPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_ACTIVATE) {
-        fp.timer.moving = 1;
+        fp.timerMoving = TRUE;
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        fp.timer.moving = 0;
+        fp.timerMoving = FALSE;
     }
-    return generic_position_proc(item, reason, &settings->timer_x);
+    return genericPositionProc(item, reason, &settings->timerX);
 }
 
-static s32 input_display_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 inputDisplayProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.input_display = 1;
+        settings->bits.inputDisplay = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.input_display = 0;
+        settings->bits.inputDisplay = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, settings->bits.input_display);
+        menuCheckboxSet(item, settings->bits.inputDisplay);
     }
     return 0;
 }
 
-static s32 log_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
+static s32 logProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         settings->bits.log = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         settings->bits.log = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
-        menu_checkbox_set(item, settings->bits.log);
+        menuCheckboxSet(item, settings->bits.log);
     }
     return 0;
 }
 
-static s32 log_position_proc(struct menu_item *item, enum menu_callback_reason reason, void *data) {
-    fp_log("test log message!");
-    return generic_position_proc(item, reason, &settings->log_x);
+static s32 logPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    fpLog("test log message!");
+    return genericPositionProc(item, reason, &settings->logX);
 }
 
-static void activate_command_proc(struct menu_item *item, void *data) {
-    s32 command_index = (s32)data;
-    if (fp_commands[command_index].proc) {
-        fp_commands[command_index].proc();
+static void activateCommandProc(struct MenuItem *item, void *data) {
+    s32 commandIndex = (s32)data;
+    if (fpCommands[commandIndex].proc) {
+        fpCommands[commandIndex].proc();
     }
 }
 
-static void tab_prev_proc(struct menu_item *item, void *data) {
-    menu_tab_previous(data);
+static void tabPrevProc(struct MenuItem *item, void *data) {
+    menuTabPrevious(data);
 }
 
-static void tab_next_proc(struct menu_item *item, void *data) {
-    menu_tab_next(data);
+static void tabNextProc(struct MenuItem *item, void *data) {
+    menuTabNext(data);
 }
 
-static void restore_settings_proc(struct menu_item *item, void *data) {
-    settings_load_default();
-    apply_menu_settings();
-    fp_log("loaded defaults");
+static void restoreSettingsProc(struct MenuItem *item, void *data) {
+    settingsLoadDefault();
+    applyMenuSettings();
+    fpLog("loaded defaults");
 }
 
-static void save_settings_proc(struct menu_item *item, void *data) {
-    watchlist_store(fp.menu_watchlist);
-    settings_save(fp.profile);
-    fp_log("saved profile %i", fp.profile);
+void fpSaveSettingsProc(struct MenuItem *item, void *data) {
+    watchlistStore(fp.menuWatchlist);
+    settingsSave(fp.profile);
+    fpLog("saved profile %i", fp.profile);
 }
 
-static void load_settings_proc(struct menu_item *item, void *data) {
-    if (settings_load(fp.profile)) {
-        apply_menu_settings();
-        fp_log("loaded profile %i", fp.profile);
+static void loadSettingsProc(struct MenuItem *item, void *data) {
+    if (settingsLoad(fp.profile)) {
+        applyMenuSettings();
+        fpLog("loaded profile %i", fp.profile);
     } else {
-        fp_log("could not load");
+        fpLog("could not load");
     }
 }
 
-struct menu *create_settings_menu(void) {
-    static struct menu menu;
-    static struct menu commands;
+struct Menu *createSettingsMenu(void) {
+    static struct Menu menu;
+    static struct Menu commands;
 
     /* initialize menu */
-    menu_init(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu_init(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     s32 y = 0;
-    s32 MENU_X = 17;
-    menu.selector = menu_add_submenu(&menu, 0, y++, NULL, "return");
+    s32 menuX = 17;
+    menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
     /* appearance controls */
-    menu_add_static(&menu, 0, y, "profile", 0xC0C0C0);
-    menu_add_button(&menu, MENU_X, y, "-", profile_dec_proc, NULL);
-    menu_add_watch(&menu, MENU_X + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
-    menu_add_button(&menu, MENU_X + 4, y++, "+", profile_inc_proc, NULL);
-    menu_add_static(&menu, 0, y, "font", 0xC0C0C0);
-    menu_add_option(&menu, MENU_X, y++,
-                    "fipps\0"
-                    "notalot35\0"
-                    "origami mommy\0"
-                    "pc senior\0"
-                    "pixel intv\0"
-                    "press start 2p\0"
-                    "smw text nc\0"
-                    "werdna's return\0"
-                    "pixelzim\0",
-                    font_proc, NULL);
-    menu_add_static(&menu, 0, y, "drop shadow", 0xC0C0C0);
-    menu_add_checkbox(&menu, MENU_X, y++, drop_shadow_proc, NULL);
-    menu_add_static(&menu, 0, y, "menu position", 0xC0C0C0);
-    menu_add_positioning(&menu, MENU_X, y++, menu_position_proc, NULL);
-    menu_add_static(&menu, 0, y, "timer position", 0xC0C0C0);
-    menu_add_positioning(&menu, MENU_X, y++, timer_position_proc, NULL);
-    menu_add_static(&menu, 0, y, "input display", 0xC0C0C0);
-    menu_add_checkbox(&menu, MENU_X, y, input_display_proc, NULL);
-    menu_add_positioning(&menu, MENU_X + 2, y++, generic_position_proc, &settings->input_display_x);
-    menu_add_static(&menu, 1, y, "control stick", 0xC0C0C0);
-    menu_add_option(&menu, MENU_X, y++,
-                    "numerical\0"
-                    "graphical\0"
-                    "both\0",
-                    byte_optionmod_proc, &settings->control_stick);
-    menu_add_static(&menu, 1, y, "graphical range", 0xC0C0C0);
-    menu_add_intinput(&menu, MENU_X, y++, 10, 3, control_stick_range_proc, &settings->control_stick_range);
-    menu_add_static(&menu, 0, y, "log", 0xC0C0C0);
-    menu_add_checkbox(&menu, MENU_X, y, log_proc, NULL);
-    menu_add_positioning(&menu, MENU_X + 2, y++, log_position_proc, NULL);
-    menu_add_submenu(&menu, 0, y++, &commands, "commands");
+    menuAddStatic(&menu, 0, y, "profile", 0xC0C0C0);
+    struct MenuItem *firstAppearanceOption = menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
+    menuAddWatch(&menu, menuX + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
+    menuAddButton(&menu, menuX + 4, y++, "+", profileIncProc, NULL);
+    menuAddStatic(&menu, 0, y, "font", 0xC0C0C0);
+    menuAddOption(&menu, menuX, y++,
+                  "fipps\0"
+                  "notalot35\0"
+                  "origami mommy\0"
+                  "pc senior\0"
+                  "pixel intv\0"
+                  "press start 2p\0"
+                  "smw text nc\0"
+                  "werdna's return\0"
+                  "pixelzim\0",
+                  fontProc, NULL);
+    menuAddStatic(&menu, 0, y, "drop shadow", 0xC0C0C0);
+    menuAddCheckbox(&menu, menuX, y++, dropShadowProc, NULL);
+    menuAddStatic(&menu, 0, y, "menu position", 0xC0C0C0);
+    menuAddPositioning(&menu, menuX, y++, menuPositionProc, NULL);
+    menuAddStatic(&menu, 0, y, "timer position", 0xC0C0C0);
+    menuAddPositioning(&menu, menuX, y++, timerPositionProc, NULL);
+    menuAddStatic(&menu, 0, y, "input display", 0xC0C0C0);
+    menuAddCheckbox(&menu, menuX, y, inputDisplayProc, NULL);
+    menuAddPositioning(&menu, menuX + 2, y++, genericPositionProc, &settings->inputDisplayX);
+    menuAddStatic(&menu, 1, y, "control stick", 0xC0C0C0);
+    menuAddOption(&menu, menuX, y++,
+                  "numerical\0"
+                  "graphical\0"
+                  "both\0",
+                  byteOptionmodProc, &settings->controlStick);
+    menuAddStatic(&menu, 1, y, "graphical range", 0xC0C0C0);
+    menuAddIntinput(&menu, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
+    menuAddStatic(&menu, 0, y, "log", 0xC0C0C0);
+    struct MenuItem *lastAppearanceOption = menuAddCheckbox(&menu, menuX, y, logProc, NULL);
+    menuAddPositioning(&menu, menuX + 2, y++, logPositionProc, NULL);
+    struct MenuItem *commandsButton = menuAddSubmenu(&menu, 0, y++, &commands, "commands");
+    menuItemAddChainLink(menu.selector, firstAppearanceOption, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(commandsButton, lastAppearanceOption, MENU_NAVIGATE_UP);
+    y++;
+
     /* settings commands */
-    menu_add_button(&menu, 0, y++, "save settings", save_settings_proc, NULL);
-    menu_add_button(&menu, 0, y++, "load settings", load_settings_proc, NULL);
-    menu_add_button(&menu, 0, y++, "restore defaults", restore_settings_proc, NULL);
+    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "restore defaults", restoreSettingsProc, NULL);
 
     /* populate commands menu */
-    commands.selector = menu_add_submenu(&commands, 0, 0, NULL, "return");
-    const s32 page_length = 16;
-    s32 n_pages = (COMMAND_MAX + page_length - 1) / page_length;
-    struct menu *pages = malloc(sizeof(*pages) * n_pages);
-    struct menu_item *tab = menu_add_tab(&commands, 0, 1, pages, n_pages);
-    for (s32 i = 0; i < n_pages; i++) {
-        struct menu *page = &pages[i];
-        menu_init(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-        for (s32 j = 0; j < page_length; ++j) {
-            s32 n = i * page_length + j;
+    commands.selector = menuAddSubmenu(&commands, 0, 0, NULL, "return");
+    const s32 pageLength = 16;
+    s32 nPages = (COMMAND_MAX + pageLength - 1) / pageLength;
+    struct Menu *pages = malloc(sizeof(*pages) * nPages);
+    struct MenuItem *tab = menuAddTab(&commands, 0, 1, pages, nPages);
+    for (s32 i = 0; i < nPages; i++) {
+        struct Menu *page = &pages[i];
+        menuInit(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+        for (s32 j = 0; j < pageLength; ++j) {
+            s32 n = i * pageLength + j;
             if (n >= COMMAND_MAX) {
                 break;
             }
-            if (fp_commands[n].proc) {
-                menu_add_button(page, 0, j, fp_commands[n].text, activate_command_proc, (void *)n);
+            if (fpCommands[n].proc) {
+                menuAddButton(page, 0, j, fpCommands[n].text, activateCommandProc, (void *)n);
             } else {
-                menu_add_static(page, 0, j, fp_commands[n].text, 0xC0C0C0);
+                menuAddStatic(page, 0, j, fpCommands[n].text, 0xC0C0C0);
             }
-            binder_create(page, 18, j, n);
+            binderCreate(page, 18, j, n);
         }
     }
-    if (n_pages > 0) {
-        menu_tab_goto(tab, 0);
+    if (nPages > 0) {
+        menuTabGoto(tab, 0);
     }
-    menu_add_button(&commands, 8, 0, "<", tab_prev_proc, tab);
-    menu_add_button(&commands, 10, 0, ">", tab_next_proc, tab);
+    menuAddButton(&commands, 8, 0, "<", tabPrevProc, tab);
+    menuAddButton(&commands, 10, 0, ">", tabNextProc, tab);
 
     return &menu;
 }

@@ -1,15 +1,15 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include "input.h"
+#include "settings.h"
 #include "fp.h"
+#include "input.h"
 #include "resource.h"
 #include "watchlist.h"
+#include <stdlib.h>
+#include <string.h>
 
-static _Alignas(128) struct settings settings_store;
-struct settings_data *settings = &settings_store.data;
+static _Alignas(128) struct Settings settingsStore;
+struct SettingsData *settings = &settingsStore.data;
 
-static u16 settings_checksum_compute(struct settings *settings) {
+static u16 settingsChecksumCompute(struct Settings *settings) {
     u16 checksum = 0;
     u16 *p = (void *)&settings->data;
     u16 *e = p + sizeof(settings->data) / sizeof(*p);
@@ -19,116 +19,118 @@ static u16 settings_checksum_compute(struct settings *settings) {
     return checksum;
 }
 
-static _Bool settings_validate(struct settings *settings) {
-    return settings->header.version == SETTINGS_VERSION && settings->header.data_size == sizeof(settings->data) &&
-           settings->header.data_checksum == settings_checksum_compute(settings);
+static bool settingsValidate(struct Settings *settings) {
+    return settings->header.version == SETTINGS_VERSION && settings->header.dataSize == sizeof(settings->data) &&
+           settings->header.dataChecksum == settingsChecksumCompute(settings);
 }
 
-void settings_load_default(void) {
-    settings_store.header.version = SETTINGS_VERSION;
-    settings_store.header.data_size = sizeof(settings_store.data);
-    struct settings_data *d = &settings_store.data;
+void settingsLoadDefault(void) {
+    settingsStore.header.version = SETTINGS_VERSION;
+    settingsStore.header.dataSize = sizeof(settingsStore.data);
+    struct SettingsData *d = &settingsStore.data;
 
-    d->bits.font_resource = RES_FONT_PRESSSTART2P;
-    d->bits.drop_shadow = 1;
-    d->bits.input_display = 0;
+    d->bits.fontResource = RES_FONT_PRESSSTART2P;
+    d->bits.dropShadow = 1;
+    d->bits.inputDisplay = 0;
     d->bits.log = 1;
-    d->bits.timer_logging = 0;
-    d->bits.timer_show = 0;
-    d->bits.battle_debug = 0;
-    d->bits.quizmo_debug = 0;
-    d->bits.watches_visible = 1;
-    d->menu_x = 16;
-    d->menu_y = 60;
-    d->input_display_x = 16;
-    d->input_display_y = SCREEN_HEIGHT - 23;
-    d->log_x = SCREEN_WIDTH - 20;
-    d->log_y = SCREEN_HEIGHT - 33;
-    d->timer_x = 16;
-    d->timer_y = 68;
-    d->n_watches = 0;
+    d->bits.timerLogging = 0;
+    d->bits.timerShow = 0;
+    d->bits.battleDebug = 0;
+    d->bits.quizmoDebug = 0;
+    d->bits.watchesVisible = 1;
+    d->menuX = 16;
+    d->menuY = 60;
+    d->inputDisplayX = 16;
+    d->inputDisplayY = SCREEN_HEIGHT - 23;
+    d->logX = SCREEN_WIDTH - 20;
+    d->logY = SCREEN_HEIGHT - 33;
+    d->timerX = 16;
+    d->timerY = 68;
+    d->nWatches = 0;
     d->cheats = 0;
-    d->control_stick = 0;
-    d->control_stick_range = 90;
-    d->binds[COMMAND_MENU] = bind_make(2, BUTTON_R, BUTTON_D_UP);
-    d->binds[COMMAND_RETURN] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_LEVITATE] = bind_make(1, BUTTON_D_UP);
-    d->binds[COMMAND_TURBO] = bind_make(1, BUTTON_D_DOWN);
-    d->binds[COMMAND_SAVEPOS] = bind_make(1, BUTTON_D_LEFT);
-    d->binds[COMMAND_LOADPOS] = bind_make(1, BUTTON_D_RIGHT);
-    d->binds[COMMAND_LZS] = bind_make(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_RELOAD] = bind_make(2, BUTTON_R, BUTTON_D_DOWN);
-    d->binds[COMMAND_RELOAD_LAST_WARP] = bind_make(0);
-    d->binds[COMMAND_TOGGLE_WATCHES] = bind_make(2, BUTTON_R, BUTTON_D_RIGHT);
-    d->binds[COMMAND_REIMPORT_SAVE] = bind_make(2, BUTTON_R, BUTTON_Z);
-    d->binds[COMMAND_SAVE_GAME] = bind_make(2, BUTTON_L, BUTTON_D_LEFT);
-    d->binds[COMMAND_LOAD_GAME] = bind_make(2, BUTTON_L, BUTTON_D_RIGHT);
-    d->binds[COMMAND_START_TIMER] = bind_make(0);
-    d->binds[COMMAND_RESET_TIMER] = bind_make(0);
-    d->binds[COMMAND_SHOW_HIDE_TIMER] = bind_make(0);
-    d->binds[COMMAND_BREAK_FREE] = bind_make(2, BUTTON_L, BUTTON_D_DOWN);
+    d->controlStick = 0;
+    d->controlStickRange = 90;
+    d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
+    d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
+    d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);
+    d->binds[COMMAND_TURBO] = bindMake(1, BUTTON_D_DOWN);
+    d->binds[COMMAND_SAVEPOS] = bindMake(1, BUTTON_D_LEFT);
+    d->binds[COMMAND_LOADPOS] = bindMake(1, BUTTON_D_RIGHT);
+    d->binds[COMMAND_LZS] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
+    d->binds[COMMAND_RELOAD] = bindMake(2, BUTTON_R, BUTTON_D_DOWN);
+    d->binds[COMMAND_RELOAD_LAST_WARP] = bindMake(0);
+    d->binds[COMMAND_TOGGLE_WATCHES] = bindMake(2, BUTTON_R, BUTTON_D_RIGHT);
+    d->binds[COMMAND_REIMPORT_SAVE] = bindMake(2, BUTTON_R, BUTTON_Z);
+    d->binds[COMMAND_SAVE_GAME] = bindMake(2, BUTTON_L, BUTTON_D_LEFT);
+    d->binds[COMMAND_LOAD_GAME] = bindMake(2, BUTTON_L, BUTTON_D_RIGHT);
+    d->binds[COMMAND_START_TIMER] = bindMake(0);
+    d->binds[COMMAND_RESET_TIMER] = bindMake(0);
+    d->binds[COMMAND_SHOW_HIDE_TIMER] = bindMake(0);
+    d->binds[COMMAND_BREAK_FREE] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
+    d->binds[COMMAND_TOGGLE_INPUT_DISPLAY] = bindMake(0);
+    d->binds[COMMAND_CLIPPY] = bindMake(0);
 }
 
-void apply_menu_settings() {
-    struct gfx_font *font = resource_get(settings->bits.font_resource);
-    menu_set_font(fp.main_menu, font);
-    menu_set_cell_width(fp.main_menu, font->char_width + font->letter_spacing);
-    menu_set_cell_height(fp.main_menu, font->char_height + font->line_spacing);
-    gfx_mode_set(GFX_MODE_DROPSHADOW, settings->bits.drop_shadow);
-    gfx_mode_configure(GFX_MODE_TEXT, GFX_TEXT_FAST);
-    menu_set_pxoffset(fp.main_menu, settings->menu_x);
-    menu_set_pyoffset(fp.main_menu, settings->menu_y);
-    menu_imitate(fp.global, fp.main_menu);
-    watchlist_fetch(fp.menu_watchlist);
-    pm_status.battle_debug = settings->bits.battle_debug;
-    pm_status.quizmo_debug = settings->bits.quizmo_debug;
+void applyMenuSettings(void) {
+    struct GfxFont *font = resourceGet(settings->bits.fontResource);
+    menuSetFont(fp.mainMenu, font);
+    menuSetCellWidth(fp.mainMenu, font->charWidth + font->letterSpacing);
+    menuSetCellHeight(fp.mainMenu, font->charHeight + font->lineSpacing);
+    gfxModeSet(GFX_MODE_DROPSHADOW, settings->bits.dropShadow);
+    gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_FAST);
+    menuSetPxoffset(fp.mainMenu, settings->menuX);
+    menuSetPyoffset(fp.mainMenu, settings->menuY);
+    menuImitate(fp.global, fp.mainMenu);
+    watchlistFetch(fp.menuWatchlist);
+    pm_gGameStatus.debugEnemyContact = settings->bits.battleDebug;
+    pm_gGameStatus.debugQuizmo = settings->bits.quizmoDebug;
 }
 
-void settings_save(s32 profile) {
-    u16 *checksum = &settings_store.header.data_checksum;
-    *checksum = settings_checksum_compute(&settings_store);
+void settingsSave(s32 profile) {
+    u16 *checksum = &settingsStore.header.dataChecksum;
+    *checksum = settingsChecksumCompute(&settingsStore);
 
     // read in save file in the same slot as the profile
-    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
-    pm_FioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
+    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
+    pm_fioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
 
     // append settings data to the end and save to file
     char *offset = start + SETTINGS_SAVE_FILE_SIZE;
-    memcpy(offset, &settings_store, sizeof(settings_store));
-    pm_FioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    memcpy(offset, &settingsStore, sizeof(settingsStore));
+    pm_fioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
     free(start);
 }
 
-_Bool _save_file_exists() {
+static bool saveFileExists(void) {
     char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
     for (s32 i = 0; i < 8; i++) {
-        pm_FioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
-        if (pm_FioValidateFileChecksum(file)) {
+        pm_fioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
+        if (pm_fioValidateFileChecksum(file)) {
             free(file);
-            return 1;
+            return TRUE;
         }
     }
     free(file);
-    return 0;
+    return FALSE;
 }
 
-_Bool settings_load(s32 profile) {
+bool settingsLoad(s32 profile) {
     // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
     // now
-    if (!_save_file_exists()) {
-        return 0;
+    if (!saveFileExists()) {
+        return FALSE;
     }
 
     // read in save data along with the settings data in the same slot as the profile
-    char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
-    pm_FioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settings_store));
+    char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
+    pm_fioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
 
-    struct settings *settings_temp = (struct settings *)(file + SETTINGS_SAVE_FILE_SIZE);
-    if (!settings_validate(settings_temp)) {
+    struct Settings *settingsTemp = (struct Settings *)(file + SETTINGS_SAVE_FILE_SIZE);
+    if (!settingsValidate(settingsTemp)) {
         free(file);
-        return 0;
+        return FALSE;
     }
-    memcpy(&settings_store, settings_temp, sizeof(*settings_temp));
+    memcpy(&settingsStore, settingsTemp, sizeof(*settingsTemp));
     free(file);
-    return 1;
+    return TRUE;
 }

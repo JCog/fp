@@ -2,6 +2,6 @@
 #define BOSSES_H
 #include "menu.h"
 
-void create_bosses_menu(struct menu *menu);
+void createBossesMenu(struct Menu *menu);
 
 #endif

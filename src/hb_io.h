@@ -1,8 +1,8 @@
 #ifndef HB_IO_H
 #define HB_IO_H
 
-struct iodev;
+struct Iodev;
 
-extern struct iodev homeboy_iodev;
+extern struct Iodev homeboyIodev;
 
 #endif

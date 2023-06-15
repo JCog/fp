@@ -2,6 +2,7 @@
 #define TRAINER_H
 #include "menu.h"
 
-void create_trainer_menu(struct menu *menu);
+void trainerUpdate(void);
+void createTrainerMenu(struct Menu *menu);
 
 #endif

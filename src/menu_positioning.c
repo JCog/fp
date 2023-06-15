@@ -1,62 +1,63 @@
-#include <stdlib.h>
 #include "gfx.h"
 #include "menu.h"
 #include "resource.h"
+#include <stdlib.h>
 
-struct item_data {
-    menu_generic_callback callback_proc;
-    void *callback_data;
-    _Bool active;
+struct ItemData {
+    MenuGenericCallback callbackProc;
+    void *callbackData;
+    bool active;
 };
 
-static s32 draw_proc(struct menu_item *item, struct menu_draw_params *draw_params) {
-    static struct gfx_texture *texture = NULL;
+static s32 drawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    static struct GfxTexture *texture = NULL;
     if (!texture) {
-        texture = resource_load_grc_texture("move_icon");
+        texture = resourceLoadGrcTexture("move_icon");
     }
-    s32 cw = menu_get_cell_width(item->owner, 1);
-    struct gfx_sprite sprite = {
+    s32 cw = menuGetCellWidth(item->owner, TRUE);
+    struct GfxSprite sprite = {
         texture,
         0,
-        draw_params->x + (cw - texture->tile_width) / 2,
-        draw_params->y - (gfx_font_xheight(draw_params->font) + texture->tile_height + 1) / 2,
+        0,
+        drawParams->x + (cw - texture->tileWidth) / 2,
+        drawParams->y - (gfxFontXheight(drawParams->font) + texture->tileHeight + 1) / 2,
         1.f,
         1.f,
     };
-    gfx_mode_set(GFX_MODE_COLOR, GPACK_RGB24A8(draw_params->color, draw_params->alpha));
-    gfx_sprite_draw(&sprite);
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    gfxSpriteDraw(&sprite);
     return 1;
 }
 
-static s32 navigate_proc(struct menu_item *item, enum menu_navigation nav) {
-    struct item_data *data = item->data;
-    if (data->active && data->callback_proc) {
-        data->callback_proc(item, MENU_CALLBACK_NAV_UP + nav, data->callback_data);
+static s32 navigateProc(struct MenuItem *item, enum MenuNavigation nav) {
+    struct ItemData *data = item->data;
+    if (data->active && data->callbackProc) {
+        data->callbackProc(item, MENU_CALLBACK_NAV_UP + nav, data->callbackData);
     }
     return data->active;
 }
 
-static s32 activate_proc(struct menu_item *item) {
-    struct item_data *data = item->data;
-    if (!data->callback_proc ||
-        !data->callback_proc(item, data->active ? MENU_CALLBACK_DEACTIVATE : MENU_CALLBACK_ACTIVATE,
-                             data->callback_data)) {
+static s32 activateProc(struct MenuItem *item) {
+    struct ItemData *data = item->data;
+    if (!data->callbackProc ||
+        !data->callbackProc(item, data->active ? MENU_CALLBACK_DEACTIVATE : MENU_CALLBACK_ACTIVATE,
+                            data->callbackData)) {
         data->active = !data->active;
-        item->animate_highlight = data->active;
+        item->animateHighlight = data->active;
     }
     return 1;
 }
 
-struct menu_item *menu_add_positioning(struct menu *menu, s32 x, s32 y, menu_generic_callback callback_proc,
-                                       void *callback_data) {
-    struct item_data *data = malloc(sizeof(*data));
-    data->callback_proc = callback_proc;
-    data->callback_data = callback_data;
-    data->active = 0;
-    struct menu_item *item = menu_item_add(menu, x, y, NULL, 0xFFFFFF);
+struct MenuItem *menuAddPositioning(struct Menu *menu, s32 x, s32 y, MenuGenericCallback callbackProc,
+                                    void *callbackData) {
+    struct ItemData *data = malloc(sizeof(*data));
+    data->callbackProc = callbackProc;
+    data->callbackData = callbackData;
+    data->active = FALSE;
+    struct MenuItem *item = menuItemAdd(menu, x, y, NULL, 0xFFFFFF);
     item->data = data;
-    item->draw_proc = draw_proc;
-    item->navigate_proc = navigate_proc;
-    item->activate_proc = activate_proc;
+    item->drawProc = drawProc;
+    item->navigateProc = navigateProc;
+    item->activateProc = activateProc;
     return item;
 }

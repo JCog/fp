@@ -1,14 +1,13 @@
-#include <stddef.h>
-#include <stdint.h>
-#include <mips.h>
 #include "hb.h"
 #include "iodev.h"
+#include <mips.h>
+#include <stddef.h>
 
 /*  Homeboy devices are currently only implemented on systems that don't
  *  emulate the CPU cache. No flushing/invalidating is done.
  */
 
-static s32 hb_check(void) {
+static s32 hbCheck(void) {
     if (hb_regs.key == 0x1234) {
         return 0;
     } else {
@@ -16,7 +15,7 @@ static s32 hb_check(void) {
     }
 }
 
-static s32 hb_sd_init(void) {
+static s32 hbSdInit(void) {
     hb_regs.status = HB_STATUS_SD_INIT;
     while (hb_regs.status & HB_STATUS_SD_BUSY) {
         ;
@@ -30,10 +29,10 @@ static s32 hb_sd_init(void) {
     }
 }
 
-static s32 hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
-    hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(dst);
-    hb_regs.sd_n_blocks = n_blocks;
-    hb_regs.sd_read_lba = lba;
+static s32 hbSdRead(size_t lba, size_t nBlocks, void *dst) {
+    hb_regs.sdDramAddr = MIPS_KSEG0_TO_PHYS(dst);
+    hb_regs.sdNBlocks = nBlocks;
+    hb_regs.sdReadLba = lba;
     while (hb_regs.status & HB_STATUS_SD_BUSY) {
         ;
     }
@@ -45,11 +44,11 @@ static s32 hb_sd_read(size_t lba, size_t n_blocks, void *dst) {
     }
 }
 
-static s32 hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
+static s32 hbSdWrite(size_t lba, size_t nBlocks, const void *src) {
     if (src != NULL) {
-        hb_regs.sd_dram_addr = MIPS_KSEG0_TO_PHYS(src);
-        hb_regs.sd_n_blocks = n_blocks;
-        hb_regs.sd_write_lba = lba;
+        hb_regs.sdDramAddr = MIPS_KSEG0_TO_PHYS(src);
+        hb_regs.sdNBlocks = nBlocks;
+        hb_regs.sdWriteLba = lba;
         while (hb_regs.status & HB_STATUS_SD_BUSY) {
             ;
         }
@@ -62,12 +61,12 @@ static s32 hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
     } else {
         char data[512] = {0};
 
-        while (n_blocks != 0) {
-            if (hb_sd_write(lba, 1, data)) {
+        while (nBlocks != 0) {
+            if (hbSdWrite(lba, 1, data)) {
                 return -1;
             }
 
-            n_blocks--;
+            nBlocks--;
             lba++;
         }
 
@@ -75,45 +74,45 @@ static s32 hb_sd_write(size_t lba, size_t n_blocks, const void *src) {
     }
 }
 
-static s32 hb_reset(u32 dram_save_addr, u32 dram_save_len) {
-    hb_regs.dram_save_addr = dram_save_addr;
-    hb_regs.dram_save_len = dram_save_len;
+static s32 hbReset(u32 dramSaveAddr, u32 dramSaveLen) {
+    hb_regs.dramSaveAddr = dramSaveAddr;
+    hb_regs.dramSaveLen = dramSaveLen;
     hb_regs.status = HB_STATUS_RESET;
 
     return 0;
 }
 
-static u64 hb_get_timebase64(void) {
-    return ((u64)hb_regs.timebase_hi << 32) | hb_regs.timebase_lo;
+static u64 hbGetTimebase64(void) {
+    return ((u64)hb_regs.timebaseHi << 32) | hb_regs.timebaseLo;
 }
 
-static u32 clock_ticks(void) {
-    return hb_regs.timebase_lo;
+static u32 clockTicks(void) {
+    return hb_regs.timebaseLo;
 }
 
-static u32 clock_freq(void) {
+static u32 clockFreq(void) {
     return HB_TIMEBASE_FREQ;
 }
 
-static void cpu_reset(void) {
+static void cpuReset(void) {
     /* simulate 0.5s nmi delay */
-    u64 tb_wait = hb_get_timebase64() + HB_TIMEBASE_FREQ / 2;
-    while (hb_get_timebase64() < tb_wait) {
+    u64 tbWait = hbGetTimebase64() + HB_TIMEBASE_FREQ / 2;
+    while (hbGetTimebase64() < tbWait) {
         ;
     }
 
-    hb_reset(0x00400000, 0x00400000);
+    hbReset(0x00400000, 0x00400000);
 }
 
-struct iodev homeboy_iodev = {
-    .probe = hb_check,
+struct Iodev homeboyIodev = {
+    .probe = hbCheck,
 
-    .disk_init = hb_sd_init,
-    .disk_read = hb_sd_read,
-    .disk_write = hb_sd_write,
+    .diskInit = hbSdInit,
+    .diskRead = hbSdRead,
+    .diskWrite = hbSdWrite,
 
-    .clock_ticks = clock_ticks,
-    .clock_freq = clock_freq,
+    .clockTicks = clockTicks,
+    .clockFreq = clockFreq,
 
-    .cpu_reset = cpu_reset,
+    .cpuReset = cpuReset,
 };

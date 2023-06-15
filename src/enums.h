@@ -1,8 +1,7 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-typedef int8_t ActionState;
-enum action_state {
+enum ActionStates {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
     ACTION_STATE_RUN,
@@ -46,8 +45,7 @@ enum action_state {
     ACTION_STATE_USE_SPRING,
 };
 
-typedef uint16_t Area;
-enum areas {
+enum Areas {
     AREA_GOOMBA_VILLAGE,
     AREA_TOAD_TOWN,
     AREA_SEWERS,
@@ -78,8 +76,7 @@ enum areas {
     AREA_DEBUG,
 };
 
-typedef uint8_t Partner;
-enum partners {
+enum Partners {
     PARTNER_NONE,
     PARTNER_GOOMBARIO,
     PARTNER_KOOPER,
@@ -698,6 +695,135 @@ enum StoryProgress {
     /* 5f */ STORY_CH8_REACHED_PEACHS_CASTLE,
 
     /* 60 */ STORY_EPILOGUE,
+};
+
+enum HudElementOps {
+    /* 0x00 */ HUD_ELEMENT_OP_End,
+    /* 0x01 */ HUD_ELEMENT_OP_SetRGBA,
+    /* 0x02 */ HUD_ELEMENT_OP_SetCI,
+    /* 0x03 */ HUD_ELEMENT_OP_Restart,
+    /* 0x04 */ HUD_ELEMENT_OP_Loop,
+    /* 0x05 */ HUD_ELEMENT_OP_SetTileSize,
+    /* 0x06 */ HUD_ELEMENT_OP_SetSizesAutoScale,
+    /* 0x07 */ HUD_ELEMENT_OP_SetSizesFixedScale,
+    /* 0x08 */ HUD_ELEMENT_OP_SetVisible,
+    /* 0x09 */ HUD_ELEMENT_OP_SetHidden,
+    /* 0x0A */ HUD_ELEMENT_OP_AddTexelOffsetX,
+    /* 0x0B */ HUD_ELEMENT_OP_AddTexelOffsetY,
+    /* 0x0C */ HUD_ELEMENT_OP_SetTexelOffset,
+    /* 0x0D */ HUD_ELEMENT_OP_SetImage,
+    /* 0x0E */ HUD_ELEMENT_OP_SetScale,
+    /* 0x0F */ HUD_ELEMENT_OP_SetAlpha,
+    /* 0x10 */ HUD_ELEMENT_OP_RandomDelay,
+    /* 0x11 */ HUD_ELEMENT_OP_Delete,
+    /* 0x12 */ HUD_ELEMENT_OP_UseIA8,
+    /* 0x13 */ HUD_ELEMENT_OP_SetCustomSize,
+    /* 0x14 */ HUD_ELEMENT_OP_RandomRestart,
+    /* 0x15 */ HUD_ELEMENT_OP_op_15,
+    /* 0x16 */ HUD_ELEMENT_OP_op_16,
+    /* 0x17 */ HUD_ELEMENT_OP_RandomBranch,
+    /* 0x18 */ HUD_ELEMENT_OP_SetFlags,
+    /* 0x19 */ HUD_ELEMENT_OP_ClearFlags,
+    /* 0x1A */ HUD_ELEMENT_OP_PlaySound,
+    /* 0x1B */ HUD_ELEMENT_OP_SetPivot,
+};
+
+enum EvtOps {
+    /* 0x00 */ EVT_OP_INTERNAL_FETCH,
+    /* 0x01 */ EVT_OP_END,
+    /* 0x02 */ EVT_OP_RETURN,
+    /* 0x03 */ EVT_OP_LABEL, ///< Args: index
+    /* 0x04 */ EVT_OP_GOTO,  ///< Args: index
+    /* 0x05 */ EVT_OP_LOOP,  ///< Args: number of repeats (0 = infinite)
+    /* 0x06 */ EVT_OP_END_LOOP,
+    /* 0x07 */ EVT_OP_BREAK_LOOP,
+    /* 0x08 */ EVT_OP_WAIT_FRAMES,
+    /* 0x09 */ EVT_OP_WAIT_SECS,
+    /* 0x0A */ EVT_OP_IF_EQ,       ///< Args: a, b
+    /* 0x0B */ EVT_OP_IF_NE,       ///< Args: a, b
+    /* 0x0C */ EVT_OP_IF_LT,       ///< Args: a, b
+    /* 0x0D */ EVT_OP_IF_GT,       ///< Args: a, b
+    /* 0x0E */ EVT_OP_IF_LE,       ///< Args: a, b
+    /* 0x0F */ EVT_OP_IF_GE,       ///< Args: a, b
+    /* 0x10 */ EVT_OP_IF_FLAG,     ///< Args: a, b
+    /* 0x11 */ EVT_OP_IF_NOT_FLAG, ///< Args: a, b
+    /* 0x12 */ EVT_OP_ELSE,
+    /* 0x13 */ EVT_OP_END_IF,
+    /* 0x14 */ EVT_OP_SWITCH,       ///< Args: expression to test against
+    /* 0x15 */ EVT_OP_SWITCH_CONST, ///< Args: value to test against
+    /* 0x16 */ EVT_OP_CASE_EQ,      ///< Args: expression to test for
+    /* 0x17 */ EVT_OP_CASE_NE,      ///< Args: expression to test for
+    /* 0x18 */ EVT_OP_CASE_LT,      ///< Args: expression to test for
+    /* 0x19 */ EVT_OP_CASE_GT,      ///< Args: expression to test for
+    /* 0x1A */ EVT_OP_CASE_LE,      ///< Args: expression to test for
+    /* 0x1B */ EVT_OP_CASE_GE,      ///< Args: expression to test for
+    /* 0x1C */ EVT_OP_CASE_DEFAULT,
+    /* 0x1D */ EVT_OP_CASE_OR_EQ,     ///< Args: expression to test for
+    /* 0x1E */ EVT_OP_CASE_AND_EQ,    ///< Args: expression to test for
+    /* 0x1F */ EVT_OP_CASE_FLAG,      ///< Args: expression to test for
+    /* 0x20 */ EVT_OP_END_CASE_GROUP, ///< Ends the case block of EVT_OP_CASE_OR_EQ condition(s).
+    /* 0x21 */ EVT_OP_CASE_RANGE,     ///< Args: from, to
+    /* 0x22 */ EVT_OP_BREAK_SWITCH,
+    /* 0x23 */ EVT_OP_END_SWITCH,
+    /* 0x24 */ EVT_OP_SET,               ///< Args: container, expression
+    /* 0x25 */ EVT_OP_SET_CONST,         ///< Args: container, value
+    /* 0x26 */ EVT_OP_SETF,              ///< Args: container, expression
+    /* 0x27 */ EVT_OP_ADD,               ///< Args: container, expression to increment by
+    /* 0x28 */ EVT_OP_SUB,               ///< Args: container, expression to decrement by
+    /* 0x29 */ EVT_OP_MUL,               ///< Args: container, expression to multiply by
+    /* 0x2A */ EVT_OP_DIV,               ///< Integer division. Args: container, expression to divide by
+    /* 0x2B */ EVT_OP_MOD,               ///< Args: container, expression to divide by
+    /* 0x2C */ EVT_OP_ADDF,              ///< Args: container, expression to increment by
+    /* 0x2D */ EVT_OP_SUBF,              ///< Args: container, expression to decrement by
+    /* 0x2E */ EVT_OP_MULF,              ///< Args: container, expression to multiply by
+    /* 0x2F */ EVT_OP_DIVF,              ///< Args: container, expression to divide by
+    /* 0x30 */ EVT_OP_USE_BUF,           ///< Args: s32*
+    /* 0x31 */ EVT_OP_BUF_READ1,         /// Args: container
+    /* 0x32 */ EVT_OP_BUF_READ2,         /// Args: container, container
+    /* 0x33 */ EVT_OP_BUF_READ3,         /// Args: container, container, container
+    /* 0x34 */ EVT_OP_BUF_READ4,         /// Args: container, container, container, container
+    /* 0x35 */ EVT_OP_BUF_PEEK,          ///< Args: index, container
+    /* 0x36 */ EVT_OP_USE_FBUF,          ///< Identical to USE_BUFFER. Args: f32*
+    /* 0x37 */ EVT_OP_FBUF_READ1,        /// Args: container
+    /* 0x38 */ EVT_OP_FBUF_READ2,        /// Args: container, container
+    /* 0x39 */ EVT_OP_FBUF_READ3,        /// Args: container, container, container
+    /* 0x3A */ EVT_OP_FBUF_READ4,        /// Args: container, container, container, container
+    /* 0x3B */ EVT_OP_FBUF_PEEK,         ///< Args: index, container
+    /* 0x3C */ EVT_OP_USE_ARRAY,         ///< Args: *s32
+    /* 0x3D */ EVT_OP_USE_FLAGS,         ///< Args: *s32
+    /* 0x3E */ EVT_OP_MALLOC_ARRAY,      ///< Allocates a new array. Args: length, s32*
+    /* 0x3F */ EVT_OP_BITWISE_AND,       ///< Args: container, expression to bitwise AND with
+    /* 0x40 */ EVT_OP_BITWISE_AND_CONST, ///< Args: container, value to bitwise AND with
+    /* 0x41 */ EVT_OP_BITWISE_OR,        ///< Args: container, expression to bitwise OR with
+    /* 0x42 */ EVT_OP_BITWISE_OR_CONST,  ///< Args: container, value to bitwise OR with
+    /* 0x43 */ EVT_OP_CALL,              ///< Args: *function, ...
+    /* 0x44 */ EVT_OP_EXEC,              ///< Args: EvtScript*
+    /* 0x45 */ EVT_OP_EXEC_GET_TID,      ///< Args: EvtScript*, container
+    /* 0x46 */ EVT_OP_EXEC_WAIT,     ///< Spawns a script and waits for it to return before continuing. Args: EvtScript*
+    /* 0x47 */ EVT_OP_BIND_TRIGGER,  ///< Args: EvtScript*, trigger flags, s32 target, 1, Trigger*
+    /* 0x48 */ EVT_OP_UNBIND,        ///< Unbinds any triggers bound to this script.
+    /* 0x49 */ EVT_OP_KILL_THREAD,   ///< Args: ScriptID
+    /* 0x4A */ EVT_OP_JUMP,          ///< Args: EvtScript*
+    /* 0x4B */ EVT_OP_SET_PRIORITY,  ///< Args: priority
+    /* 0x4C */ EVT_OP_SET_TIMESCALE, ///< Args: timescale
+    /* 0x4D */ EVT_OP_SET_GROUP,     ///< Args: group
+    /* 0x4E */ EVT_OP_BIND_PADLOCK,  ///< Args: EvtScript*, trigger flags, s32 target, ItemList*, 0, 1
+    /* 0x4F */ EVT_OP_SUSPEND_GROUP, ///< Args: group
+    /* 0x50 */ EVT_OP_RESUME_GROUP,  ///< Args: group
+    /* 0x51 */ EVT_OP_SUSPEND_OTHERS,    ///< Args: group
+    /* 0x52 */ EVT_OP_RESUME_OTHERS,     ///< Args: group
+    /* 0x53 */ EVT_OP_SUSPEND_THREAD,    ///< Args: ScriptID
+    /* 0x54 */ EVT_OP_RESUME_THREAD,     ///< Args: ScriptID
+    /* 0x55 */ EVT_OP_IS_THREAD_RUNNING, ///< Args: ScriptID, container
+    /* 0x56 */ EVT_OP_THREAD,
+    /* 0x57 */ EVT_OP_END_THREAD,
+    /* 0x58 */ EVT_OP_CHILD_THREAD, ///< Parallel threads are killed as soon as the parent script returns.
+    /* 0x59 */ EVT_OP_END_CHILD_THREAD,
+    /* 0x5A */ EVT_OP_90,
+    /* 0x5B */ EVT_OP_DEBUG_PRINT, ///< Args: expression
+    /* 0x5C */ EVT_OP_92,
+    /* 0x5D */ EVT_OP_93,
+    /* 0x5E */ EVT_OP_94,
 };
 
 #endif

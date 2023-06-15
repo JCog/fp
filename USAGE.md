@@ -5,15 +5,16 @@
 - [2 Menus](#2-menus)
   - [2.1 Warps](#21-warps)
     - [2.1.1 Locations](#211-locations)
-    - [2.1.2 Bosses](#212-Bosses)
+    - [2.1.2 Bosses](#212-bosses)
   - [2.2 Cheats](#22-cheats)
   - [2.3 Player](#23-player)
-    - [2.3.1 Status](#231-status)
-    - [2.3.2 Partners](#232-partners)
-    - [2.3.3 Items and Badges](#233-items-and-badges)
-    - [2.3.4 Star Power](#234-star-power)
-    - [2.3.5 Princess Peach](#235-princess-peach)
-    - [2.3.6 Merlee](#236-merlee)
+    - [2.3.1 Stats](#231-stats)
+    - [2.3.2 Gear](#232-gear)
+    - [2.3.3 Partners](#233-partners)
+    - [2.3.4 Badges](#234-badges)
+    - [2.3.5 Items](#235-items)
+    - [2.3.6 Star Spirits](#236-star-spirits)
+    - [2.3.7 Misc](#237-misc)
   - [2.4 File](#24-file)
   - [2.5 Practice](#25-practice)
     - [2.5.1 Trainers](#251-trainers)
@@ -40,7 +41,7 @@ The **locations** menu provides a list of every room in the game and allows you 
 - **map**: The specific map in the selected area, typically accessed by a loading zone.
 - **entrance**: Where the map will be accessed from. This is mostly for selecting a loading zone, but certain entrances are also used to start cutscenes. The general rule of thumb is that earlier entrances are for loading zones and later entrances are for cutscenes.
 
-After selecting an area, map, and entrance, selecting `warp` will immediately warp you to your selected destination. This works even if you are in battle. Do note though that there are certain states where attempting to warp would cause a crash, such as when a battle menu is open, so generally fp will disallow you from doing this with a warning message.
+After selecting an area, map, and entrance, selecting `warp` will immediately warp you to your selected destination. This works even if you are in battle.
 
 #### 2.1.2 Bosses
 The **bosses** menu provides a list of every major, minor, and optional boss in the game. By selecting a boss, you will warp to the room that the boss is located in, and your story progress and any necessary flags will be set to allow you to fight the boss, regardless of your current state.
@@ -62,50 +63,56 @@ This menu allows toggling the builtin cheats on and off. The following cheats ar
 - **star pieces**: Freezes your star pieces at 160.
 - **peril**: Freezes your HP at 1 (note that this overrides the **hp** cheat).
 - **auto mash**: Instantly fills all bars that require you to mash A or Analog Left.
-- **auto action command**: Mario's action commands will be successful automatically. 
+- **auto action command**: Mario's action commands will automatically be successful.
+- **peekaboo**: Shows enemy HP without needing the peekaboo badge.
 - **brighten room**: Dark rooms will be fully lit without needing Watt's ability.
 - **quizmo spawns**: Forces Chuck Quizmo to always spawn at every location he can.
 
 ### 2.3 Player
 
-#### 2.3.1 Status
-The **status** menu allows you to change things about Mario's status, such as your boots and hammer, hp and fp, etc. Note that for action commands, having the Lucky Star in your inventory does nothing. Simply marking the checkbox is sufficient.
+#### 2.3.1 Stats
+The **stats** menu allows you to change Mario's stats, such as your hp, fp, level, etc. Note that for action commands, having the Lucky Star in your inventory does nothing. Simply marking the Lucky Star icon is sufficient.
 
-#### 2.3.2 Partners
-The **partners** menu allows you to control your active partner, which partners are in your party, and the rank of each partner.
+#### 2.3.2 Gear
+The **gear** menu allows you to choose which boots and hammer Mario has.
+
+#### 2.3.3 Partners
+The **partners** menu allows you to control your active partner, which partners are in your party, and the rank of each partner. Each partner's rank is denoted by the number of blue circles next to their icon.
 
 *Warning*: Although Goompa and Goombaria are in the game as available partners, their behavior is very buggy since they were never obtainable in the final game.
 
-#### 2.3.3 Items and Badges
-The **items**, **stored items**, **key items**, and **badges** menus let you edit your item and badge inventories. Items can be selected either by ID or by name. Arrows can be used to rearrange items.
+#### 2.3.4 Badges
+The **badges** menu lets you select which badges are in your inventory. Pressing the `full list` button gives you a menu that allows you to add anything from the full item list, including unused badges.
+
+#### 2.3.5 Items
+The **items** menu lets you edit your **items**, **stored items**, and **key items** inventories with the respective menus. To remove an item from a specific slot, select the slot and press the delete button.
 
 *Warning*: The game makes no distinction between normal items, key items, badges, or icons. If anything is placed in a menu it can't normally go, it can cause buggy behavior.
 
-#### 2.3.4 Star Power
-The **star power** menu allows you to edit how many Star Spirits have been saved, how full the star power meter is, and what beam upgrade you have is. `star spirits saved` determines both which star spirits are available in battle and your max star power. `partial bar` increases in increments of 0x20 and has 8 different levels.
+#### 2.3.6 Star Spirits
+The **star spirits** menu allows you to select how many Star Spirits have been saved and in turn, the maximum size of your star power meter. The beam upgrades are selected by cycling through the last item in the menu.
 
-*Warning*: 7 is the max `star spirits saved` that can be obtained in game. Setting this to anything higher can cause buggy behavior.
+*Warning*: The beam is not acquired in the base game until all 7 Star Spirits have been saved. Selecting either Star or Peach Beam with fewer than 7 Star Spirits can cause buggy behavior.
 
-*Warning*: `beam` can never be anything other than **none** in the base game until all 7 Star Spirits have been saved. Setting it to anything else with fewer than 7 Star Spirits can cause buggy behavior.
+#### 2.3.7 Misc
+The **misc** menu contains menus for less-used options:
 
-#### 2.3.5 Princess Peach
-The **princess peach** menu allows you to control whether you're controlling Peach instead of Mario, if Peach is transformed into a disguise, whether she can use the Sneaky Parasol, and what enemy her disguise is of.
+- **princess peach**: allows you to control whether you're controlling Peach instead of Mario, if Peach is transformed into a disguise, whether she can use the Sneaky Parasol, and what enemy her disguise is of.
+- **merlee**: allows you to set what Merlee's next spell will be, how many more times she can cast a spell, and how many more battle turns are left until she casts her next spell.
 
 *Warning*: Swapping to Peach or Mario in locations they can't typically get to can cause buggy behavior.
 
-#### 2.3.6 Merlee
-The **merlee** menu allows you to set what Merlee's next spell will be, how many more times she can cast a spell, and how many more battle turns are left until she casts her next spell.
-
 ### 2.4 File
-The **save slot** option lets you change which of the four save slots the game will save and load from. This includes the in-game save blocks and save menus. Selecting `save` will save your current game state to the selected slot as though you had used a save block. Selecting `load` will load the save file saved to the selected slot in a very similar manner to loading a file from file select.
+The **slot** option lets you change which of the four save slots the game will save and load from. This includes the in-game save blocks and save menus. Selecting `save` will save your current game state to the selected slot as though you had used a save block. Selecting `load` will load the save file saved to the selected slot in a very similar manner to loading a file from file select.
 
-Save files can be saved to and loaded from an SD card with the `export` and `import` options if playing on console. Pressing either one will bring up the file browser. Importing a file will immediately load a save, but none of the current in-game save slots will be overwritten unless done manually afterward. Exporting will save the file selected by *save slot*, not the current state of the game. The file extension used for save files on disk is **.pmsave**, and the default filename is **file**. The filename can be changed by pressing the name field. Pressing clear will set the name field to be empty. When the name field is empty, the default filename is untitled. When saving, pressing the name of a save file in the file browser will copy that name to the name field. Pressing accept will save the file to the current folder in the file browser with the specified file name. If the file exists, you will be prompted to overwrite it.
+Save files can be saved to and loaded from an SD card with the `export` and `import` options if playing on console or Wii Virtual Console. Pressing either one will bring up the file browser. Importing a file will immediately load a save, but none of the current in-game save slots will be overwritten unless done manually afterward. Exporting will save the file selected by *save slot*, not the current state of the game. The file extension used for save files on disk is **.pmsave**, and the default filename is **file**. The filename can be changed by pressing the name field. Pressing clear will set the name field to be empty. When the name field is empty, the default filename is untitled. When saving, pressing the name of a save file in the file browser will copy that name to the name field. Pressing accept will save the file to the current folder in the file browser with the specified file name. If the file exists, you will be prompted to overwrite it.
 
 Your `story progress` is the main byte that determines how far you've progressed in the story. See [this](https://docs.google.com/document/d/1wrIhXo5cQjnUC_RcW8gETNvN2LJHpeuriV2NhhSUBwc/edit) for a list of what each value corresponds to.
 
-Disabling `music` disables all in-game music. `quizzes answered` determines how many of Chuck Quizmo's questions have been answered successfully. This byte determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. The three `peach item` options determine what Kammy Koopa will spawn in Shy Guy's Toybox. Pressing `restore enemies` sets all overworld enemies to an undefeated state. Pressing `restore letters` resets all flags related to collecting letters in the overworld.
+Disabling `music` disables all in-game music. `quizmo` determines how many of Chuck Quizmo's questions have been answered successfully. This byte also determines which question Quimo will ask you next, and it's used in conjunction with your story progress to determine whether Quizmo can spawn. The three `toy box` options determine what Kammy Koopa will spawn in Shy Guy's Toybox. Pressing `restore enemies` sets all overworld enemies to an undefeated state.
 
 ### 2.5 Practice
+Both the **trainers** and **timer** menu have a `save settings` button. This button has the same function as the one in settings (see [2.9 Settings](#29-settings)) which is saving all fp settings to the current profile.
 
 #### 2.5.1 Trainers
 The **trainers** menu contains various different helpful menus and information screens to help with practicing and learning the game. The following trainers are available:
@@ -114,7 +121,7 @@ The **trainers** menu contains various different helpful menus and information s
 - **bowser blocks**: When enabled, causes Bowser to only attack using the specified move. Works with both Hallway and Final Bowser, though note that setting lightning will make Hallway Bowser wave since he doesn't have a lightning attack.
 - **clippy**: When attempting to obtain the *clippy* state by opening the partner menu while encountering an enemy and riding Lakilester, displays a log telling when you're early or late on the timing.
 - **ice staircase skip**: Used to help line up in the proper position to perform the Ice Staircase Skip trick. `position` can be either **good**, **inconsistent**, or **bad**, depending on whether using Lakilester's ability will always, sometimes, or never clip properly.
-- **lzs jumps**: Used to practice *Loading Zone Storage* jumps. Displays logs with information on why LZS jumps are failed and keeps track of the most consecutive jumps in the current session.
+- **lzs jumps**: Used to practice *Loading Zone Storage* jumps. Displays logs with information on why LZS jumps are failed. Also keeps track of the current and most consecutive jumps in the current session which can be seen by pressing the wrench button.
 - **oot ace**: JP-exclusive. Helps with performing arbitrary code execution aided by The Legend of Zelda: Ocarina of Time. `effects` shows the number of active particle effects. `flags` displays whether the animation flags located before the idle timer in Mario's player struct will cause a premature crash. `frame window` displays how big the frame window for stopping the idle timer and getting a successful jump to code stored on the expansion pak is. It will most likely always be 1 unless Ocarina of Time is used to zero out the expansion pak beforehand. Pressing `practice payload` will make it so that upon a successful jump to the expansion pak, the value of the idle timer will be displayed in the bottom-left of the screen. Pressing `oot instruction` will place the same ASM instruction on the expansion pak that doing the proper OoT setup would.
 
 #### 2.5.2 Timer
@@ -132,8 +139,7 @@ Note that button combinations can be configured for the `start/stop` and `reset`
 ### 2.6 Camera
 The free camera function provides full control of the game's camera. When enabled, the camera can be controlled with the joystick, C buttons, and Z trigger. These controls are disabled in-game when controlling the free camera. Press **lock** to disable the manual camera controls and restore the normal game controls. Note that changing the camera from its default will not affect how Mario controls. As far as the rest of the game knows, the camera is still where it normally would be. 
 
-The **behavior** setting decides how the camera moves and how the controls
-work;
+The **behavior** setting decides how the camera moves and how the controls work:
 
 - **manual:** The camera does not move by itself. Use the joystick to look
     around, and the C buttons to move. Hold Z to move with the joystick, look
@@ -228,7 +234,7 @@ The **commands** menu lets you bind commands to custom button combinations and/o
 The following commands are available:
 
 - **show/hide menu:** Opens the utility menu if it's closed, closes it if
-    it's opened. *Default: `R + L`*
+    it's opened. *Default: `R + D-Up`*
 - **return from menu:** Returns to the previous menu, as if the *return*
     button was pressed. *Default: `R + D-Left`*
 - **levitate**: Makes Mario fly into the air. *Default: `D-Up`*
@@ -245,7 +251,8 @@ The following commands are available:
 - **start/stop timer**: Sets the timer to start after the next cutscene or starts/stops the timer, depending on the timer mode. *Default: `unbound`*
 - **reset timer**: Sets the timer back to 0 and reverts it to an inactive state. *Default: `unbound`*
 - **show/hide timer**: Toggles whether the timer is showing when it's active. *Default: `unbound`*
-- **break free**: Attempts to break any effect that removes control of Mario.
+- **break free**: Attempts to break any effect that removes control of Mario. *Default: `L + D-Down`*
+- **toggle in. disp.**: Toggles the visibility of the input display.
 
 
 **_Warning:_** Unbinding the *show/hide menu* or *return from menu* commands,
