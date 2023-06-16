@@ -44,16 +44,29 @@ static s32 drawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     s8 texturePalette = data->texturePalettes[data->displayState];
     u32 color = data->colors[data->displayState];
     s32 cw = menuGetCellWidth(item->owner, TRUE);
-    s32 w = texture->tileWidth * data->scale;
-    s32 h = texture->tileHeight * data->scale;
+    f32 w = texture->tileWidth * data->scale;
+    f32 h = texture->tileHeight * data->scale;
     s32 x = drawParams->x + (cw - w) / 2;
     s32 y = drawParams->y - (gfxFontXheight(drawParams->font) + h) / 2;
     if (item->owner->selector == item) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha * 0x80 / 0xFF));
-        gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
-        gfxDisp(
-            gsSPScisTextureRectangle(qs102(x - 1), qs102(y - 1), qs102(x + w + 1), qs102(y + h + 1), 0, 0, 0, 0, 0));
-        gfxModePop(GFX_MODE_COMBINE);
+        f32 outlineScale = 1.2;
+        s32 outlineWidth = w * outlineScale;
+        s32 outlineHeight = h * outlineScale;
+        s32 outlineX = x - (outlineWidth - w) / 2;
+        s32 outlineY = y - (outlineHeight - h) / 2;
+
+        struct GfxSprite sprite = {
+            texture,
+            textureTile,
+            texturePalette,
+            outlineX,
+            outlineY,
+            data->scale * outlineScale,
+            data->scale * outlineScale,
+        };
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+        gfxSpriteDraw(&sprite);
+        gfxModePop(GFX_MODE_COLOR);
     }
     gfxModeSet(GFX_MODE_COLOR,
                GPACK_RGBA8888((color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF, drawParams->alpha));
