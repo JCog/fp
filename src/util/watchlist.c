@@ -1,7 +1,7 @@
 #include "adex.h"
-#include "fp/file/files.h"
 #include "fp.h"
 #include "fp/debug/mem.h"
+#include "fp/file/files.h"
 #include "menu/menu.h"
 #include "sys/input.h"
 #include "sys/resource.h"
