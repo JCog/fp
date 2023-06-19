@@ -1,5 +1,5 @@
 #include "menu.h"
-#include "util.h"
+#include "util/util.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>

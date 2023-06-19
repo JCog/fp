@@ -1,5 +1,5 @@
 #include "pi.h"
-#include "util.h"
+#include "util/util.h"
 
 typedef void IoFunc(u32 devAddr, u32 ramAddr, size_t size);
 

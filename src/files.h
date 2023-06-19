@@ -1,7 +1,7 @@
 #ifndef FILE_H
 #define FILE_H
 #include "common.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 enum GetFileMode {
     GETFILE_LOAD,

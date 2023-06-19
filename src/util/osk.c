@@ -1,7 +1,7 @@
 #include "osk.h"
-#include "input.h"
-#include "menu.h"
-#include "resource.h"
+#include "sys/input.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
 
 static char oskBuf[32];
 static OskCallback oskCallbackProc;

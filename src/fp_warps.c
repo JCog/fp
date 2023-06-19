@@ -1,7 +1,7 @@
 #include "bosses.h"
 #include "fp.h"
 #include "locations.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 struct Menu *createWarpsMenu(void) {
     static struct Menu menu;

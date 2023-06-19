@@ -1,9 +1,9 @@
 #include "common.h"
 #include "fp.h"
-#include "gfx.h"
+#include "sys/gfx.h"
 #include "items.h"
-#include "menu.h"
-#include "resource.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
 #include <stdlib.h>
 
 static const char *strHp = "HP";

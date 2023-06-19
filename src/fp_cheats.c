@@ -1,5 +1,5 @@
-#include "menu.h"
-#include "settings.h"
+#include "menu/menu.h"
+#include "sys/settings.h"
 
 static const char *labels[] = {
     "hp",          "fp",

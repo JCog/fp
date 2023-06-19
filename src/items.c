@@ -1,8 +1,8 @@
 #include "items.h"
 #include "common.h"
 #include "fp.h"
-#include "item_button.h"
-#include "resource.h"
+#include "menu/menu_item_button.h"
+#include "sys/resource.h"
 #include <stdio.h>
 #include <stdlib.h>
 

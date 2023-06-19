@@ -1,6 +1,6 @@
-#include "item_button.h"
+#include "menu_item_button.h"
 #include "common.h"
-#include "gfx.h"
+#include "sys/gfx.h"
 #include <list/list.h>
 #include <stdlib.h>
 

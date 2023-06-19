@@ -1,5 +1,5 @@
 #include "input.h"
-#include "menu.h"
+#include "menu/menu.h"
 #include "resource.h"
 #include "settings.h"
 #include <stdarg.h>

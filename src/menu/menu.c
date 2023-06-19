@@ -1,6 +1,6 @@
 #include "menu.h"
 #include "common.h"
-#include "gfx.h"
+#include "sys/gfx.h"
 #include <list/list.h>
 #include <stdlib.h>
 #include <string.h>

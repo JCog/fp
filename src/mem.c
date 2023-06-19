@@ -1,11 +1,11 @@
 #include "mem.h"
 #include "common.h"
 #include "fp.h"
-#include "input.h"
-#include "menu.h"
-#include "resource.h"
-#include "util.h"
-#include "watchlist.h"
+#include "sys/input.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
+#include "util/util.h"
+#include "util/watchlist.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>

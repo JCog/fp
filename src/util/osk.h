@@ -1,7 +1,7 @@
 #ifndef OSK_H
 #define OSK_H
 #include "common.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 typedef s32 (*OskCallback)(const char *str, void *data);
 

@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 #include "common.h"
-#include "gfx.h"
+#include "sys/gfx.h"
 #include <list/list.h>
 
 #define MENU_NOVALUE 0

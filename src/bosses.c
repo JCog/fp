@@ -1,6 +1,6 @@
 #include "common.h"
 #include "fp.h"
-#include "menu.h"
+#include "menu/menu.h"
 #include <stdlib.h>
 
 static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {

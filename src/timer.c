@@ -1,9 +1,9 @@
 #include "timer.h"
 #include "commands.h"
 #include "fp.h"
-#include "gfx.h"
-#include "menu.h"
-#include "settings.h"
+#include "sys/gfx.h"
+#include "menu/menu.h"
+#include "sys/settings.h"
 
 static s64 start = 0;
 static s64 end = 0;

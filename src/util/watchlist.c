@@ -1,11 +1,11 @@
 #include "adex.h"
 #include "files.h"
 #include "fp.h"
-#include "input.h"
+#include "sys/input.h"
 #include "mem.h"
-#include "menu.h"
-#include "resource.h"
-#include "settings.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
+#include "sys/settings.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

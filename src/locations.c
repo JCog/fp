@@ -1,6 +1,6 @@
 #include "common.h"
 #include "fp.h"
-#include "menu.h"
+#include "menu/menu.h"
 #include "warp_info.h"
 
 static u16 area;

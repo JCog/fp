@@ -1,9 +1,9 @@
 #include "files.h"
 #include "fp.h"
-#include "menu.h"
-#include "resource.h"
-#include "settings.h"
-#include "sys.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
+#include "sys/settings.h"
+#include "io/sys.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

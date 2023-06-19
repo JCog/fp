@@ -1,4 +1,4 @@
-#include "gfx.h"
+#include "sys/gfx.h"
 #include "menu.h"
 #include <stdlib.h>
 

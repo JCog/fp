@@ -1,7 +1,7 @@
 #ifndef WATCHLIST_H
 #define WATCHLIST_H
 #include "common.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 struct MenuItem *watchlistCreate(struct Menu *menu, struct Menu *menuRelease, s32 x, s32 y);
 void watchlistStore(struct MenuItem *item);

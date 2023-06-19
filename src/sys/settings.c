@@ -2,7 +2,7 @@
 #include "fp.h"
 #include "input.h"
 #include "resource.h"
-#include "watchlist.h"
+#include "util/watchlist.h"
 #include <stdlib.h>
 #include <string.h>
 

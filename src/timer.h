@@ -1,6 +1,6 @@
 #ifndef TIMER_H
 #define TIMER_H
-#include "menu.h"
+#include "menu/menu.h"
 
 enum TimerMode {
     TIMER_AUTO,

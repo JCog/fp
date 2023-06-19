@@ -1,8 +1,8 @@
 #include "trainer.h"
 #include "fp.h"
-#include "menu.h"
-#include "resource.h"
-#include "settings.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
+#include "sys/settings.h"
 #include <math.h>
 
 enum BowserVariant {

@@ -1,8 +1,8 @@
 #include "files.h"
-#include "menu.h"
-#include "osk.h"
-#include "resource.h"
-#include "sys.h"
+#include "menu/menu.h"
+#include "util/osk.h"
+#include "sys/resource.h"
+#include "io/sys.h"
 #include <errno.h>
 #include <set/set.h>
 #include <stdio.h>

@@ -1,7 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 #include "common.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 #define INPUT_REPEAT_DELAY 8
 #define BIND_END           6

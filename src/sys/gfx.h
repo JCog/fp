@@ -1,7 +1,7 @@
 #ifndef GFX_H
 #define GFX_H
 #include "common.h"
-#include "gu.h"
+#include "util/gu.h"
 #include <n64/gbi.h>
 
 #define GFX_FILE_DRAM    (-1)

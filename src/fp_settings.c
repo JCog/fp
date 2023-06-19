@@ -1,10 +1,10 @@
 #include "commands.h"
 #include "fp.h"
-#include "input.h"
-#include "menu.h"
-#include "resource.h"
-#include "settings.h"
-#include "watchlist.h"
+#include "sys/input.h"
+#include "menu/menu.h"
+#include "sys/resource.h"
+#include "sys/settings.h"
+#include "util/watchlist.h"
 #include <stdlib.h>
 
 static u16 fontOptions[] = {

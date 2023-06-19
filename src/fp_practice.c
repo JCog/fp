@@ -1,5 +1,5 @@
 #include "fp.h"
-#include "menu.h"
+#include "menu/menu.h"
 #include "timer.h"
 #include "trainer.h"
 

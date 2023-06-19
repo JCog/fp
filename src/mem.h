@@ -1,7 +1,7 @@
 #ifndef MEM_H
 #define MEM_H
 #include "common.h"
-#include "menu.h"
+#include "menu/menu.h"
 
 void memMenuCreate(struct Menu *menu);
 void memGoto(u32 address);

@@ -1,6 +1,6 @@
-#include "gfx.h"
+#include "sys/gfx.h"
 #include "menu.h"
-#include "resource.h"
+#include "sys/resource.h"
 #include <stdlib.h>
 
 struct ItemData {

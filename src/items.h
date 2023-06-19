@@ -1,7 +1,7 @@
 #ifndef ITEMS_H
 #define ITEMS_H
-#include "gfx.h"
-#include "menu.h"
+#include "sys/gfx.h"
+#include "menu/menu.h"
 
 void createBadgesMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);
 void createNormalItemsMenu(struct Menu *menu, struct GfxTexture *itemTextureList[]);

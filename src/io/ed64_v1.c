@@ -3,7 +3,7 @@
 #include "iodev.h"
 #include "pi.h"
 #include "sd_host.h"
-#include "util.h"
+#include "util/util.h"
 #include <n64.h>
 #include <stddef.h>
 

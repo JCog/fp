@@ -1,4 +1,4 @@
-#include "input.h"
+#include "sys/input.h"
 #include "menu.h"
 #include <stdlib.h>
 #include <string.h>

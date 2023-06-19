@@ -1,6 +1,6 @@
 #include "resource.h"
 #include "gfx.h"
-#include "gu.h"
+#include "util/gu.h"
 #include <grc.h>
 #include <stdlib.h>
 
