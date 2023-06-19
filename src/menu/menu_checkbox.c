@@ -1,5 +1,5 @@
-#include "sys/gfx.h"
 #include "menu.h"
+#include "sys/gfx.h"
 #include "sys/resource.h"
 #include <stdlib.h>
 

@@ -1,6 +1,6 @@
 #include "fp.h"
-#include "sys/input.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include <string.h>
 
 static void setCamInputMask(void) {

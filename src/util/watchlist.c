@@ -1,9 +1,9 @@
 #include "adex.h"
 #include "files.h"
 #include "fp.h"
-#include "sys/input.h"
 #include "mem.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include <errno.h>

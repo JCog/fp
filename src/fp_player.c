@@ -1,8 +1,8 @@
 #include "common.h"
 #include "fp.h"
-#include "sys/gfx.h"
 #include "items.h"
 #include "menu/menu.h"
+#include "sys/gfx.h"
 #include "sys/resource.h"
 #include <stdlib.h>
 

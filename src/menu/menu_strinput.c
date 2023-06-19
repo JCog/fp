@@ -1,5 +1,5 @@
-#include "sys/input.h"
 #include "menu.h"
+#include "sys/input.h"
 #include <stdlib.h>
 #include <string.h>
 

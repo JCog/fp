@@ -1,7 +1,7 @@
 #include "fp.h"
-#include "util/geometry.h"
 #include "gu.h"
 #include "sys/input.h"
+#include "util/geometry.h"
 #include <math.h>
 #include <n64.h>
 

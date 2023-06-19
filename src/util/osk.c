@@ -1,6 +1,6 @@
 #include "osk.h"
-#include "sys/input.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 
 static char oskBuf[32];

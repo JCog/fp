@@ -1,5 +1,5 @@
-#include "sys/gfx.h"
 #include "menu.h"
+#include "sys/gfx.h"
 #include <stdlib.h>
 
 struct static_icon_data {

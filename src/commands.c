@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "fp.h"
-#include "sys/input.h"
 #include "pm64.h"
+#include "sys/input.h"
 #include "timer.h"
 #include "util/watchlist.h"
 #include <stdarg.h>

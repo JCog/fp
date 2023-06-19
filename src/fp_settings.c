@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "fp.h"
-#include "sys/input.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include "util/watchlist.h"

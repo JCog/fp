@@ -2,7 +2,6 @@
 #define TYPES_H
 #include <stdint.h>
 
-// NOLINTBEGIN
 typedef uint8_t u8;
 typedef int8_t s8;
 typedef uint16_t u16;
@@ -14,7 +13,6 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 typedef _Bool bool;
-// NOLINTEND
 
 typedef struct {
     /* 0x00 */ s8 x;

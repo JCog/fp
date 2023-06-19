@@ -1,8 +1,8 @@
 #include "timer.h"
 #include "commands.h"
 #include "fp.h"
-#include "sys/gfx.h"
 #include "menu/menu.h"
+#include "sys/gfx.h"
 #include "sys/settings.h"
 
 static s64 start = 0;

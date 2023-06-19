@@ -1,13 +1,13 @@
 #include "fp.h"
 #include "commands.h"
 #include "common.h"
-#include "sys/crash_screen.h"
-#include "util/geometry.h"
-#include "sys/input.h"
 #include "io/io.h"
+#include "sys/crash_screen.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 #include "timer.h"
 #include "trainer.h"
+#include "util/geometry.h"
 #include "util/watchlist.h"
 #include <n64.h>
 #include <startup.h>

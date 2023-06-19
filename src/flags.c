@@ -1,7 +1,7 @@
 #include "flags.h"
 #include "common.h"
-#include "sys/gfx.h"
 #include "menu/menu.h"
+#include "sys/gfx.h"
 #include "sys/resource.h"
 #include <math.h>
 #include <stdio.h>
