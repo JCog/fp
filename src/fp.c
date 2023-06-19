@@ -5,8 +5,8 @@
 #include "sys/crash_screen.h"
 #include "sys/input.h"
 #include "sys/resource.h"
-#include "timer.h"
-#include "trainer.h"
+#include "fp/practice/timer.h"
+#include "fp/practice/trainer.h"
 #include "util/geometry.h"
 #include "util/watchlist.h"
 #include <n64.h>

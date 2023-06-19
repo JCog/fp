@@ -2,7 +2,7 @@
 #include "fp.h"
 #include "pm64.h"
 #include "sys/input.h"
-#include "timer.h"
+#include "fp/practice/timer.h"
 #include "util/watchlist.h"
 #include <stdarg.h>
 #include <stdio.h>
