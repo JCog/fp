@@ -50,5 +50,5 @@ jobs:
       - name: Upload patches to bucket
         if: github.event_name == 'release'
         run: |
-          s3cmd put fp-us.xdelta --acl-public s3://fp-web-patcher-files/fp/${{  github.ref_name }}/us.xdelta
-          s3cmd put fp-jp.xdelta --acl-public s3://fp-web-patcher-files/fp/${{  github.ref_name }}/jp.xdelta
+          s3cmd put fp-us.xdelta --acl-public s3://fp-web-patcher-files/fp/${{ github.ref_name }}/us.xdelta
+          s3cmd put fp-jp.xdelta --acl-public s3://fp-web-patcher-files/fp/${{ github.ref_name }}/jp.xdelta
