@@ -1,41 +1,54 @@
 name: Build fp patches
-
 on:
   push:
-    branches: [ develop ]
-
+    branches: [develop]
+  release:
+    types: [published]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install prerequisite packages
-      run: |
-        curl https://practicerom.com/public/packages/debian/pgp.pub | sudo apt-key add -
-        echo deb https://practicerom.com/public/packages/debian ./staging main | sudo tee /etc/apt/sources.list.d/practicerom.list
-        sudo apt-get update
-        sudo apt-get install practicerom-dev xdelta3 ninja-build
-        pip install -r requirements.txt
-    - name: Download ROMs
-      run: |
-        mkdir rom
-        curl -sL -o base-jp.z64 ${{ secrets.JP_ROM }}
-        curl -sL -o base-us.z64 ${{ secrets.US_ROM }}
-    - name: Make fp ROMs
-      run: |
-        ./makerom base-jp.z64
-        ./makerom base-us.z64
-    - name: Create xdelta patches
-      run: |
-        xdelta3 -e -S none -s base-jp.z64 fp-jp.z64 fp-jp.xdelta
-        xdelta3 -e -S none -s base-us.z64 fp-us.z64 fp-us.xdelta
-    - name: Upload JP patch
-      uses: actions/upload-artifact@v2.2.4
-      with:
-        name: fp-jp.xdelta
-        path: fp-jp.xdelta
-    - name: Upload US patch
-      uses: actions/upload-artifact@v2.2.4
-      with:
-        name: fp-us.xdelta
-        path: fp-us.xdelta
+      - uses: actions/checkout@v2
+      - name: Install prerequisite packages
+        run: |
+          curl https://practicerom.com/public/packages/debian/pgp.pub | sudo apt-key add -
+          echo deb https://practicerom.com/public/packages/debian ./staging main | sudo tee /etc/apt/sources.list.d/practicerom.list
+          sudo apt-get update
+          sudo apt-get install practicerom-dev xdelta3 ninja-build
+          pip install -r requirements.txt
+      - name: Download ROMs
+        run: |
+          mkdir rom
+          curl -sL -o base-jp.z64 ${{ secrets.JP_ROM }}
+          curl -sL -o base-us.z64 ${{ secrets.US_ROM }}
+      - name: Make fp ROMs
+        run: |
+          ./makerom base-jp.z64
+          ./makerom base-us.z64
+      - name: Create xdelta patches
+        run: |
+          xdelta3 -e -S none -s base-jp.z64 fp-jp.z64 fp-jp.xdelta
+          xdelta3 -e -S none -s base-us.z64 fp-us.z64 fp-us.xdelta
+      - name: Upload JP patch
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: fp-jp.xdelta
+          path: fp-jp.xdelta
+      - name: Upload US patch
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: fp-us.xdelta
+          path: fp-us.xdelta
+      - name: Set up S3cmd
+        if: github.event_name == 'release'
+        uses: s3-actions/s3cmd@v1.5.0
+        with:
+          provider: aws
+          region: 'ca-central-1'
+          access_key: ${{ secrets.S3_ACCESS_KEY }}
+          secret_key: ${{ secrets.S3_SECRET_KEY }}
+      - name: Upload patches to bucket
+        if: github.event_name == 'release'
+        run: |
+          s3cmd put fp-us.xdelta --acl-public s3://fp-web-patcher-files/fp/${{  github.ref_name }}/us.xdelta
+          s3cmd put fp-jp.xdelta --acl-public s3://fp-web-patcher-files/fp/${{  github.ref_name }}/jp.xdelta
