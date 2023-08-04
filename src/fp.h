@@ -1,7 +1,7 @@
 #ifndef FP_H
 #define FP_H
 #include "common.h"
-#include "settings.h"
+#include "sys/settings.h"
 #include <vector/vector.h>
 
 enum CamBhv {

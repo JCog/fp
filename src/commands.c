@@ -1,9 +1,9 @@
 #include "commands.h"
 #include "fp.h"
-#include "input.h"
+#include "fp/practice/timer.h"
 #include "pm64.h"
-#include "timer.h"
-#include "watchlist.h"
+#include "sys/input.h"
+#include "util/watchlist.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
