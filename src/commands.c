@@ -135,16 +135,17 @@ void fpSetGlobalByte(s32 byteIndex, s8 value) {
 }
 
 void commandLevitateProc(void) {
-    // TODO: figure out how to get some version of this working for peach
-    if (!(pm_gGameStatus.peachFlags & (1 << 0))) {
-        pm_gPlayerStatus.flags |= 1 << 1;
-        pm_gPlayerStatus.flags &= ~(1 << 2);
-        pm_gPlayerStatus.ySpeed = 11;
-        pm_gPlayerStatus.framesInAir = 1;
-        // these are the default starting values for when you fall
-        pm_gPlayerStatus.yAcceleration = -0.350080013275f;
-        pm_gPlayerStatus.yJerk = -0.182262003422f;
-        pm_gPlayerStatus.ySnap = 0.0115200001746f;
+    pm_gPlayerStatus.flags |= 1 << 1;
+    pm_gPlayerStatus.flags &= ~(1 << 2);
+    pm_gPlayerStatus.ySpeed = 11;
+    pm_gPlayerStatus.framesInAir = 1;
+    // these are the default starting values for when you fall
+    pm_gPlayerStatus.yAcceleration = -0.350080013275f;
+    pm_gPlayerStatus.yJerk = -0.182262003422f;
+    pm_gPlayerStatus.ySnap = 0.0115200001746f;
+
+    if (pm_gGameStatus.peachFlags & (1 << 0)) {
+        pm_playerActionsTable[5].flag = TRUE;
     }
 }
 
