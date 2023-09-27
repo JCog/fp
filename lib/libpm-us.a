@@ -21,6 +21,7 @@ pm_gCurrentSaveFile = 0x800DACC0;
 pm_battleState = 0x800DC068;
 pm_gBattleStatus = 0x800DC070;
 pm_battleState2 = 0x800DC4DC;
+pm_playerActionsTable = 0x800F7C8C;
 pm_popupMenuVar = 0x8010D640;
 pm_gPartnerActionStatus = 0x8010EBB0;
 pm_gUiStatus = 0x8010EF58;

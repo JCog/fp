@@ -1195,6 +1195,13 @@ typedef struct Npc {
     /* 0x336 */ char unk_336[10];
 } pm_Npc; // size = 0x340
 
+typedef struct Action {
+    /* 0x00 */ void (*update)(void);
+    /* 0x04 */ void *dmaStart;
+    /* 0x08 */ void *dmaEnd;
+    /* 0x0C */ s8 flag;
+} pm_Action; // size = 0x10
+
 typedef void *(*PrintCallback)(void *, const char *, u32);
 typedef pm_Evt *pm_ScriptList[128];
 
@@ -1222,6 +1229,7 @@ extern_data pm_SaveData pm_gCurrentSaveFile;
 extern_data s32 pm_battleState;
 extern_data pm_BattleStatus pm_gBattleStatus;
 extern_data s32 pm_battleState2;
+extern_data pm_Action pm_playerActionsTable[39];
 extern_data s32 pm_popupMenuVar;
 extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
 extern_data pm_UiStatus pm_gUiStatus;
