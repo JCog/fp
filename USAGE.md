@@ -66,6 +66,7 @@ This menu allows toggling the builtin cheats on and off. The following cheats ar
 - **auto action command**: Mario's action commands will automatically be successful.
 - **peekaboo**: Shows enemy HP without needing the peekaboo badge.
 - **brighten room**: Dark rooms will be fully lit without needing Watt's ability.
+- **hide hud**: Prevents the heads-up display from appearing. Applies both in and out of battle.
 - **quizmo spawns**: Forces Chuck Quizmo to always spawn at every location he can.
 
 ### 2.3 Player
