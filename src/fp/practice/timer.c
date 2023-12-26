@@ -18,6 +18,9 @@ static u8 cutsceneTarget = 1;
 static u8 cutsceneCount = 0;
 static s64 timerCount = 0;
 static s32 lagFrames = 0;
+static u16 prevAreaID = 0;
+static u16 prevMapID = 0;
+static bool newMapWaiting = FALSE;
 
 static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
@@ -65,8 +68,8 @@ static s32 timerLoggingProc(struct MenuItem *item, enum MenuCallbackReason reaso
     return 0;
 }
 
-static void startProc(struct MenuItem *item, void *data) {
-    timerStart();
+static void startStopProc(struct MenuItem *item, void *data) {
+    timerStartStop();
 }
 
 static void resetProc(struct MenuItem *item, void *data) {
@@ -143,11 +146,23 @@ s32 timerGetLagFrames(void) {
 
 void timerUpdate(void) {
     bool inCutscene = pm_gPlayerStatus.flags & 0x00002000;
+    bool newMap = pm_gGameStatus.mapID != prevMapID || pm_gGameStatus.areaID != prevAreaID;
 
     switch (timerState) {
         case TIMER_WAITING:
+            if (timerMode == TIMER_LOADING_ZONE) {
+                if (newMap) {
+                    newMapWaiting = TRUE;
+                }
+            } else {
+                newMapWaiting = FALSE;
+            }
             if (timerMode == TIMER_MANUAL || (prevCutsceneState && !inCutscene)) {
+                if (timerMode == TIMER_LOADING_ZONE && !newMapWaiting) {
+                    break;
+                }
                 timerState = TIMER_RUNNING;
+                newMapWaiting = FALSE;
                 start = fp.cpuCounter;
                 lagStart = pm_viFrames;
                 frameStart = pm_gGameStatus.frameCounter;
@@ -157,10 +172,15 @@ void timerUpdate(void) {
             }
             break;
         case TIMER_RUNNING:
-            if (timerMode == TIMER_AUTO && !prevCutsceneState && inCutscene) {
+            if (timerMode == TIMER_CUTSCENE && !prevCutsceneState && inCutscene) {
                 cutsceneCount++;
                 if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
                     fpLog("cutscene started");
+                }
+            } else if (timerMode == TIMER_LOADING_ZONE && newMap) {
+                cutsceneCount++;
+                if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
+                    fpLog("loading zone");
                 }
             }
             if (cutsceneCount == cutsceneTarget) {
@@ -181,34 +201,36 @@ void timerUpdate(void) {
     }
 
     prevCutsceneState = pm_gPlayerStatus.flags & 0x00002000;
+    prevAreaID = pm_gGameStatus.areaID;
+    prevMapID = pm_gGameStatus.mapID;
 }
 
-void timerStart(void) {
+void timerStartStop(void) {
     if (timerState == TIMER_INACTIVE) {
         timerState = TIMER_WAITING;
-        if (timerMode == TIMER_AUTO) {
+        if (timerMode != TIMER_MANUAL) {
             fpLog("timer set to start");
         }
-    } else if (timerState == TIMER_RUNNING && timerMode == TIMER_MANUAL) {
+    } else if (timerState == TIMER_RUNNING) {
         cutsceneCount = cutsceneTarget;
     } else if (timerState == TIMER_STOPPED) {
         timerState = TIMER_WAITING;
         cutsceneCount = 0;
-        if (timerMode == TIMER_AUTO) {
+        if (timerMode != TIMER_MANUAL) {
             fpLog("timer set to start");
         }
     }
 }
 
 void timerReset(void) {
-    timerState = 0;
+    timerState = TIMER_INACTIVE;
     cutsceneCount = 0;
     fpLog("timer reset");
 }
 
 void createTimerMenu(struct Menu *menu) {
     s32 y = 0;
-    s32 menuX = 15;
+    s32 menuX = 14;
 
     /* initialize menu */
     menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -219,15 +241,16 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStaticCustom(menu, 7, y++, timerStatusDrawProc, NULL, 0xC0C0C0);
     menuAddStaticCustom(menu, 0, y++, timerDrawProc, NULL, 0xC0C0C0);
     y++;
-    menuAddButton(menu, 0, y, "start/stop", startProc, NULL);
+    menuAddButton(menu, 0, y, "start/stop", startStopProc, NULL);
     menuAddButton(menu, 11, y++, "reset", resetProc, NULL);
     y++;
     menuAddStatic(menu, 0, y, "timer mode", 0xC0C0C0);
     menuAddOption(menu, menuX, y++,
-                  "automatic\0"
+                  "cutscene\0"
+                  "loading zone\0"
                   "manual\0",
                   timerModeProc, &timerMode);
-    menuAddStatic(menu, 0, y, "cutscene count", 0xC0C0C0);
+    menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
     menuAddIntinput(menu, menuX, y++, 10, 2, byteModProc, &cutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
     menuAddCheckbox(menu, menuX, y++, showTimerProc, NULL);
