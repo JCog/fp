@@ -7,6 +7,7 @@ static const char *labels[] = {
     "star pieces", "peril",
     "auto mash",   "auto action command",
     "peekaboo",    "brighten room",
+    "hide hud",
 };
 
 static s32 battleProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
