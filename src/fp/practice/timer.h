@@ -15,9 +15,12 @@ enum TimerState {
     TIMER_STOPPED,
 };
 
+enum TimerMode timerGetMode(void);
 enum TimerState timerGetState(void);
 s64 timerGetTimerCount(void);
 s32 timerGetLagFrames(void);
+u8 timerGetCutsceneTarget(void);
+u8 timerGetCutsceneCount(void);
 
 void timerUpdate(void);
 void timerStartStop(void);

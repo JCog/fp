@@ -114,6 +114,9 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
         gfxPrintf(font, x, y, "timer  %d.%02d", seconds, hundredths);
     }
     gfxPrintf(font, x, y + chHeight, "lag    %d", lagFrames >= 0 ? lagFrames : 0);
+    if (timerMode != TIMER_MANUAL) {
+        gfxPrintf(font, x, y + chHeight * 2, "cs/lz  %d/%d", cutsceneCount, cutsceneTarget);
+    }
     return 1;
 }
 
@@ -132,6 +135,10 @@ static s32 timerStatusDrawProc(struct MenuItem *item, struct MenuDrawParams *dra
     return 1;
 }
 
+enum TimerMode timerGetMode(void) {
+    return timerMode;
+}
+
 enum TimerState timerGetState(void) {
     return timerState;
 }
@@ -142,6 +149,14 @@ s64 timerGetTimerCount(void) {
 
 s32 timerGetLagFrames(void) {
     return lagFrames;
+}
+
+u8 timerGetCutsceneTarget(void) {
+    return cutsceneTarget;
+}
+
+u8 timerGetCutsceneCount(void) {
+    return cutsceneCount;
 }
 
 void timerUpdate(void) {
@@ -240,6 +255,7 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStatic(menu, 0, y, "status", 0xC0C0C0);
     menuAddStaticCustom(menu, 7, y++, timerStatusDrawProc, NULL, 0xC0C0C0);
     menuAddStaticCustom(menu, 0, y++, timerDrawProc, NULL, 0xC0C0C0);
+    y++;
     y++;
     menuAddButton(menu, 0, y, "start/stop", startStopProc, NULL);
     menuAddButton(menu, 11, y++, "reset", resetProc, NULL);
