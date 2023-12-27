@@ -357,6 +357,9 @@ void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
     }
+    if (CHEAT_ACTIVE(CHEAT_HIDE_HUD)) {
+        pm_gUiStatus.hidden = TRUE;
+    }
     if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
         pm_gActionCommandStatus.autoSucceed = 1;
     }
