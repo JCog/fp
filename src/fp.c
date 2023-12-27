@@ -327,6 +327,9 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     }
 
     gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
+    if (timerGetMode() != TIMER_MANUAL) {
+        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerGetCutsceneCount(), timerGetCutsceneTarget());
+    }
 }
 
 void fpUpdateCheats(void) {

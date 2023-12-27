@@ -51,7 +51,7 @@ void commandToggleWatchesProc(void);
 void commandImportSaveProc(void);
 void commandSaveGameProc(void);
 void commandLoadGameProc(void);
-void commandStartTimerProc(void);
+void commandStartStopTimerProc(void);
 void commandResetTimerProc(void);
 void commandShowHideTimerProc(void);
 void commandBreakFreeProc(void);

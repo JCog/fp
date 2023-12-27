@@ -22,7 +22,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"reimport save",    COMMAND_PRESS_ONCE, 0, commandImportSaveProc    },
     {"save game",        COMMAND_PRESS_ONCE, 0, commandSaveGameProc      },
     {"load game",        COMMAND_PRESS_ONCE, 0, commandLoadGameProc      },
-    {"start/stop timer", COMMAND_PRESS_ONCE, 0, commandStartTimerProc    },
+    {"start/stop timer", COMMAND_PRESS_ONCE, 0, commandStartStopTimerProc},
     {"reset timer",      COMMAND_PRESS_ONCE, 0, commandResetTimerProc    },
     {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
@@ -233,8 +233,8 @@ void commandSaveGameProc(void) {
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void commandStartTimerProc(void) {
-    timerStart();
+void commandStartStopTimerProc(void) {
+    timerStartStop();
 }
 
 void commandResetTimerProc(void) {

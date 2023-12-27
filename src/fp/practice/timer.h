@@ -3,7 +3,8 @@
 #include "menu/menu.h"
 
 enum TimerMode {
-    TIMER_AUTO,
+    TIMER_CUTSCENE,
+    TIMER_LOADING_ZONE,
     TIMER_MANUAL,
 };
 
@@ -14,12 +15,15 @@ enum TimerState {
     TIMER_STOPPED,
 };
 
+enum TimerMode timerGetMode(void);
 enum TimerState timerGetState(void);
 s64 timerGetTimerCount(void);
 s32 timerGetLagFrames(void);
+u8 timerGetCutsceneTarget(void);
+u8 timerGetCutsceneCount(void);
 
 void timerUpdate(void);
-void timerStart(void);
+void timerStartStop(void);
 void timerReset(void);
 
 void createTimerMenu(struct Menu *menu);

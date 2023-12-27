@@ -128,9 +128,10 @@ The **trainers** menu contains various different helpful menus and information s
 #### 2.5.2 Timer
 The **timer** menu provides a real-time timer that is unaffected by lag. Separately, it also displays 30 fps lag frames by taking half of the game's vertical interrupt counter and subtracting the number of game frames that have passed. Note that lag frames can decrease due to the game speeding up to account for lag. Additionally, the timer is only guaranteed to be accurate on console.
 
-The timer has two modes, **automatic** and **manual**.
+The timer has three modes: **cutscene**, **loading zone**, and **manual**.
 
-- **automatic**: In this mode, pressing `start/stop` will prime the timer to start, but it won't start right away. Instead, once primed, the timer will begin the next time a cutscene ends. A cutscene, in this context, is anything that takes the player's control away from Mario, such as entering a loading zone or opening a menu. The timer will then continue to run until the number of cutscenes that have occurred equals the configurable `cutscene count`. In this way, any arbitrary sequence of events can be timed without worrying about human error affecting the starting/stopping of the timer.
+- **cutscene**: In this mode, pressing `start/stop` will prime the timer to start, but it won't start right away. Instead, once primed, the timer will begin the next time a cutscene ends. A cutscene, in this context, is anything that takes the player's control away from Mario, such as entering a loading zone or opening a menu. The timer will then continue to run until the number of cutscenes that have occurred equals the configurable `cutscene count`. In this way, any arbitrary sequence of events can be timed without worrying about human error affecting the starting/stopping of the timer.
+- **loading zone**: This mode functions identically to cutscene mode, but only map changes will trigger it.
 - **manual**: This mode is much simpler. Pressing `start/stop` will start the timer immediately, and it will continue to run unless `start/stop` or `reset` is pressed.
 
 The timer will continue to function even if the utility menu is closed, but by default it will not be displayed when running due to lag concerns. Additionally, no log messages related to the timer will be displayed when the timer is running. These can be changed by toggling the `show timer` and `timer logging` options.
