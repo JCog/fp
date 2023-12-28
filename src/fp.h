@@ -55,6 +55,8 @@ typedef struct {
     pm_Controller inputMask;
     bool camEnabledBefore;
     pm_Camera savedCam;
+    s8 moveSpeed;
+    s8 panSpeed;
 } FpCtxt;
 
 extern FpCtxt fp;
@@ -68,6 +70,8 @@ s32 fpImportFile(const char *path, void *data);
 void fpSetInputMask(u16 pad, u8 x, u8 y);
 void fpUpdateCam(void);
 void fpSaveSettingsProc(struct MenuItem *item, void *data);
+void setMoveSpeed(s8 s);
+void setPanSpeed(s8 s);
 
 struct Menu *createWarpsMenu(void);
 struct Menu *createCheatsMenu(void);

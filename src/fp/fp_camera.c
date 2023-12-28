@@ -79,28 +79,58 @@ static s32 camDistMaxProc(struct MenuItem *item, enum MenuCallbackReason reason,
     return 0;
 }
 
+static s32 camMoveSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.moveSpeed = menuIntinputGets(item);
+        setMoveSpeed(fp.moveSpeed);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.moveSpeed) {
+            menuIntinputSet(item, fp.moveSpeed);
+        }
+    }
+    return 0;
+}
+
+static s32 camRotSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.panSpeed = menuIntinputGets(item);
+        setPanSpeed(fp.panSpeed);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.panSpeed) {
+            menuIntinputSet(item, fp.panSpeed);
+        }
+    }
+    return 0;
+}
+
 struct Menu *createCameraMenu(void) {
     static struct Menu menu;
 
+    int y = 0;
+
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu.selector = menuAddSubmenu(&menu, 0, 0, NULL, "return");
+    menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
 
-    menuAddStatic(&menu, 0, 1, "enable", 0xC0C0C0);
-    menuAddCheckbox(&menu, 16, 1, enableCamProc, NULL);
-    menuAddStatic(&menu, 0, 2, "lock", 0xC0C0C0);
-    menuAddCheckbox(&menu, 16, 2, lockCamProc, NULL);
-    menuAddStatic(&menu, 0, 4, "behavior", 0xC0C0C0);
-    menuAddOption(&menu, 16, 4,
+    menuAddStatic(&menu, 0, y, "enable", 0xC0C0C0);
+    menuAddCheckbox(&menu, 16, y++, enableCamProc, NULL);
+    menuAddStatic(&menu, 0, y, "lock", 0xC0C0C0);
+    menuAddCheckbox(&menu, 16, y++, lockCamProc, NULL);
+    menuAddStatic(&menu, 0, ++y, "behavior", 0xC0C0C0);
+    menuAddOption(&menu, 16, y++,
                   "manual\0"
                   "birdseye follow\0"
                   "radial follow\0",
                   camBhvProc, NULL);
-    menuAddStatic(&menu, 0, 5, "distance min", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, 5, -10, 5, camDistMinProc, NULL);
-    menuAddStatic(&menu, 0, 6, "distance max", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, 6, -10, 5, camDistMaxProc, NULL);
-    menuAddButton(&menu, 16, 7, "reset", resetCamProc, NULL);
+    menuAddStatic(&menu, 0, y, "distance min", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMinProc, NULL);
+    menuAddStatic(&menu, 0, y, "distance max", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMaxProc, NULL);
+    menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 2, camMoveSpeedProc, NULL);
+    menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 2, camRotSpeedProc, NULL);
+    menuAddButton(&menu, 16, y++, "reset", resetCamProc, NULL);
 
     return &menu;
 }

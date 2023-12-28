@@ -5,12 +5,25 @@
 #include <math.h>
 #include <n64.h>
 
-static const f32 joyMspeed = 0.25f;
-static const f32 joyRspeed = 0.0007f;
-static const s32 joyMax = 60.f;
-static const f32 pitchLim = M_PI / 2.f - joyRspeed;
+static f32 joyMspeed = 0.25f;
+static f32 joyRspeed = 0.0007f;
+static const f32 joyMax = 60.f;
+#define PITCH_LIM (M_PI / 2.f - joyRspeed)
 static const f32 folMspeed = 1.f / 3.f;
 static const f32 folRspeed = 1.f / 3.f;
+
+void setMoveSpeed(s8 s) {
+    if (s < 0) {
+        joyMspeed = (s + 14) / joyMax;
+    } else {
+        joyMspeed = (s + 1) * 15 / joyMax;
+    }
+    fpLog("%.2f", joyMspeed);
+}
+
+void setPanSpeed(s8 s) {
+    joyRspeed = 0.0007 + s * 0.00005;
+}
 
 s32 adjustJoystick(s32 v) {
     if (v < 0) {
@@ -84,10 +97,10 @@ static void camManual(void) {
             }
         }
 
-        if (fp.camPitch > pitchLim) {
-            fp.camPitch = pitchLim;
-        } else if (fp.camPitch < -pitchLim) {
-            fp.camPitch = -pitchLim;
+        if (fp.camPitch > PITCH_LIM) {
+            fp.camPitch = PITCH_LIM;
+        } else if (fp.camPitch < -PITCH_LIM) {
+            fp.camPitch = -PITCH_LIM;
         }
     }
 }
@@ -199,10 +212,10 @@ static void camRadial(void) {
             fp.camYaw -= -joyMax * joyRspeed;
         }
 
-        if (fp.camPitch > pitchLim) {
-            fp.camPitch = pitchLim;
-        } else if (fp.camPitch < -pitchLim) {
-            fp.camPitch = -pitchLim;
+        if (fp.camPitch > PITCH_LIM) {
+            fp.camPitch = PITCH_LIM;
+        } else if (fp.camPitch < -PITCH_LIM) {
+            fp.camPitch = -PITCH_LIM;
         }
 
         Vec3f vfoc;
