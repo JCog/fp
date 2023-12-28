@@ -81,23 +81,23 @@ static s32 camDistMaxProc(struct MenuItem *item, enum MenuCallbackReason reason,
 
 static s32 camMoveSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
-        fp.moveSpeed = menuIntinputGets(item);
-        setMoveSpeed(fp.moveSpeed);
+        fp.freeCamMoveSpeed = menuIntinputGets(item);
+        setFreeCamMoveSpeed(fp.freeCamMoveSpeed);
     } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.moveSpeed) {
-            menuIntinputSet(item, fp.moveSpeed);
+        if (menuIntinputGets(item) != fp.freeCamMoveSpeed) {
+            menuIntinputSet(item, fp.freeCamMoveSpeed);
         }
     }
     return 0;
 }
 
-static s32 camRotSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+static s32 camPanSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
-        fp.panSpeed = menuIntinputGets(item);
-        setPanSpeed(fp.panSpeed);
+        fp.freeCamPanSpeed = menuIntinputGets(item);
+        setFreeCamPanSpeed(fp.freeCamPanSpeed);
     } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.panSpeed) {
-            menuIntinputSet(item, fp.panSpeed);
+        if (menuIntinputGets(item) != fp.freeCamPanSpeed) {
+            menuIntinputSet(item, fp.freeCamPanSpeed);
         }
     }
     return 0;
@@ -129,7 +129,7 @@ struct Menu *createCameraMenu(void) {
     menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
     menuAddIntinput(&menu, 16, y++, -10, 2, camMoveSpeedProc, NULL);
     menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, y++, -10, 2, camRotSpeedProc, NULL);
+    menuAddIntinput(&menu, 16, y++, -10, 2, camPanSpeedProc, NULL);
     menuAddButton(&menu, 16, y++, "reset", resetCamProc, NULL);
 
     return &menu;

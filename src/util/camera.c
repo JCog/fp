@@ -12,7 +12,7 @@ static const f32 joyMax = 60.f;
 static const f32 folMspeed = 1.f / 3.f;
 static const f32 folRspeed = 1.f / 3.f;
 
-void setMoveSpeed(s8 s) {
+void setFreeCamMoveSpeed(s8 s) {
     if (s < 0) {
         joyMspeed = (s + 14) / joyMax;
     } else {
@@ -21,7 +21,7 @@ void setMoveSpeed(s8 s) {
     fpLog("%.2f", joyMspeed);
 }
 
-void setPanSpeed(s8 s) {
+void setFreeCamPanSpeed(s8 s) {
     joyRspeed = 0.0007 + s * 0.00005;
 }
 
