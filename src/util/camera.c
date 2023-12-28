@@ -18,7 +18,6 @@ void setFreeCamMoveSpeed(s8 s) {
     } else {
         joyMspeed = (s + 1) * 15 / joyMax;
     }
-    fpLog("%.2f", joyMspeed);
 }
 
 void setFreeCamPanSpeed(s8 s) {
