@@ -14,9 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-__attribute__((section(".data"))) FpCtxt fp = {
-    .ready = FALSE,
-};
+FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -43,43 +41,6 @@ void fpInit(void) {
     gfxStart();
     gfxModeConfigure(GFX_MODE_FILTER, G_TF_POINT);
     gfxModeConfigure(GFX_MODE_COMBINE, G_CC_MODE(G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM));
-
-    fp.profile = 0;
-    fp.settingsLoaded = FALSE;
-    fp.versionShown = FALSE;
-    fp.cpuCounter = 0;
-    fp.cpuCounterFreq = 0;
-    fp.menuActive = FALSE;
-
-    for (s32 i = 0; i < SETTINGS_LOG_MAX; i++) {
-        fp.log[i].msg = NULL;
-    }
-
-    fp.savedPos.x = 0;
-    fp.savedPos.y = 0;
-    fp.savedPos.z = 0;
-    fp.savedFacingAngle = 0;
-    fp.savedArea = 0x1c;
-    fp.savedMap = 0;
-    fp.savedEntrance = 0;
-    fp.turbo = FALSE;
-    fp.aceLastTimer = 0;
-    fp.aceLastFlagStatus = FALSE;
-    fp.aceLastJumpStatus = FALSE;
-    fp.warp = FALSE;
-    fp.warpDelay = 0;
-    fp.lastImportedSavePath = NULL;
-    fp.freeCam = FALSE;
-    fp.lockCam = FALSE;
-    fp.camBhv = CAMBHV_MANUAL;
-    fp.camDistMin = 100;
-    fp.camDistMax = 1000;
-    fp.camYaw = 0;
-    fp.camPitch = 0;
-    fp.camPos.x = 0;
-    fp.camPos.y = 0;
-    fp.camPos.z = 0;
-    fp.camEnabledBefore = FALSE;
 
     ioInit();
 
