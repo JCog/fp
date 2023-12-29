@@ -14,4 +14,6 @@
 
 #define ARRAY_LENGTH(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
+#define SQ(x)             ((x) * (x))
+
 #endif // MACROS_H

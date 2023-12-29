@@ -52,54 +52,54 @@ static void camManual(void) {
         Vec3f vf;
         Vec3f vr;
         Vec3f move;
-        vec3fPy(&vf, fp.camPitch, fp.camYaw);
-        vec3fPy(&vr, 0.f, fp.camYaw - M_PI / 2.f);
+        vec3fPy(&vf, fp.cam.pitch, fp.cam.yaw);
+        vec3fPy(&vr, 0.f, fp.cam.yaw - M_PI / 2.f);
 
         if (inputPad() & BUTTON_Z) {
             vec3fScale(&move, &vf, y * joyMspeed);
-            vec3fAdd(&fp.camPos, &fp.camPos, &move);
+            vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
 
             vec3fScale(&move, &vr, x * joyMspeed);
-            vec3fAdd(&fp.camPos, &fp.camPos, &move);
+            vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
 
             if (inputPad() & BUTTON_C_UP) {
-                fp.camPos.y += joyMax * joyMspeed;
+                fp.cam.eye.y += joyMax * joyMspeed;
             }
             if (inputPad() & BUTTON_C_DOWN) {
-                fp.camPos.y += -joyMax * joyMspeed;
+                fp.cam.eye.y += -joyMax * joyMspeed;
             }
             if (inputPad() & BUTTON_C_RIGHT) {
-                fp.camYaw -= joyMax * joyRspeed;
+                fp.cam.yaw -= joyMax * joyRspeed;
             }
             if (inputPad() & BUTTON_C_LEFT) {
-                fp.camYaw -= -joyMax * joyRspeed;
+                fp.cam.yaw -= -joyMax * joyRspeed;
             }
         } else {
-            fp.camPitch += y * joyRspeed;
-            fp.camYaw -= x * joyRspeed;
+            fp.cam.pitch += y * joyRspeed;
+            fp.cam.yaw -= x * joyRspeed;
 
             if (inputPad() & BUTTON_C_UP) {
                 vec3fScale(&move, &vf, joyMax * joyMspeed);
-                vec3fAdd(&fp.camPos, &fp.camPos, &move);
+                vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
             if (inputPad() & BUTTON_C_DOWN) {
                 vec3fScale(&move, &vf, -joyMax * joyMspeed);
-                vec3fAdd(&fp.camPos, &fp.camPos, &move);
+                vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
             if (inputPad() & BUTTON_C_RIGHT) {
                 vec3fScale(&move, &vr, joyMax * joyMspeed);
-                vec3fAdd(&fp.camPos, &fp.camPos, &move);
+                vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
             if (inputPad() & BUTTON_C_LEFT) {
                 vec3fScale(&move, &vr, -joyMax * joyMspeed);
-                vec3fAdd(&fp.camPos, &fp.camPos, &move);
+                vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
         }
 
-        if (fp.camPitch > PITCH_LIM) {
-            fp.camPitch = PITCH_LIM;
-        } else if (fp.camPitch < -PITCH_LIM) {
-            fp.camPitch = -PITCH_LIM;
+        if (fp.cam.pitch > PITCH_LIM) {
+            fp.cam.pitch = PITCH_LIM;
+        } else if (fp.cam.pitch < -PITCH_LIM) {
+            fp.cam.pitch = -PITCH_LIM;
         }
     }
 }
@@ -111,36 +111,36 @@ static void camBirdseye(void) {
     vt.z = pm_gPlayerStatus.position.z;
 
     Vec3f vd;
-    vec3fSub(&vd, &vt, &fp.camPos);
+    vec3fSub(&vd, &vt, &fp.cam.eye);
 
     f32 pitch, yaw;
     vec3fPyangles(&vd, &pitch, &yaw);
 
-    f32 dPitch = angleDif(pitch, fp.camPitch);
+    f32 dPitch = angleDif(pitch, fp.cam.pitch);
     if (fabsf(dPitch) < .001f) {
-        fp.camPitch = pitch;
+        fp.cam.pitch = pitch;
     } else {
-        fp.camPitch += dPitch * folRspeed;
+        fp.cam.pitch += dPitch * folRspeed;
     }
 
-    f32 dYaw = angleDif(yaw, fp.camYaw);
+    f32 dYaw = angleDif(yaw, fp.cam.yaw);
     if (fabsf(dYaw) < .001f) {
-        fp.camYaw = yaw;
+        fp.cam.yaw = yaw;
     } else {
-        fp.camYaw += dYaw * folRspeed;
+        fp.cam.yaw += dYaw * folRspeed;
     }
 
     f32 dist = vec3fMag(&vd);
     if (dist < fp.camDistMin) {
         Vec3f move;
-        vec3fPy(&move, fp.camPitch, fp.camYaw);
+        vec3fPy(&move, fp.cam.pitch, fp.cam.yaw);
         vec3fScale(&move, &move, (dist - fp.camDistMin) * folMspeed);
-        vec3fAdd(&fp.camPos, &fp.camPos, &move);
+        vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
     } else if (dist > fp.camDistMax) {
         Vec3f move;
-        vec3fPy(&move, fp.camPitch, fp.camYaw);
+        vec3fPy(&move, fp.cam.pitch, fp.cam.yaw);
         vec3fScale(&move, &move, (dist - fp.camDistMax) * folMspeed);
-        vec3fAdd(&fp.camPos, &fp.camPos, &move);
+        vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
     }
 
     camManual();
@@ -148,7 +148,7 @@ static void camBirdseye(void) {
 
 static void camRadial(void) {
     Vec3f vf;
-    vec3fPy(&vf, fp.camPitch, fp.camYaw);
+    vec3fPy(&vf, fp.cam.pitch, fp.cam.yaw);
 
     Vec3f vt;
     vt.x = pm_gPlayerStatus.position.x;
@@ -156,7 +156,7 @@ static void camRadial(void) {
     vt.z = pm_gPlayerStatus.position.z;
 
     Vec3f vd;
-    vec3fSub(&vd, &vt, &fp.camPos);
+    vec3fSub(&vd, &vt, &fp.cam.eye);
 
     f32 dist = vec3fDot(&vd, &vf);
     Vec3f vp;
@@ -167,19 +167,19 @@ static void camRadial(void) {
     {
         Vec3f move;
         vec3fScale(&move, &vr, folMspeed);
-        vec3fAdd(&fp.camPos, &fp.camPos, &move);
+        vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
     }
 
     if (dist < fp.camDistMin) {
         f32 norm = 1.f / dist;
         Vec3f move;
         vec3fScale(&move, &vp, (dist - fp.camDistMin) * folMspeed * norm);
-        vec3fAdd(&fp.camPos, &fp.camPos, &move);
+        vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
     } else if (dist > fp.camDistMax) {
         f32 norm = 1.f / dist;
         Vec3f move;
         vec3fScale(&move, &vp, (dist - fp.camDistMax) * folMspeed * norm);
-        vec3fAdd(&fp.camPos, &fp.camPos, &move);
+        vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
     }
 
     if (!fp.lockCam) {
@@ -189,13 +189,13 @@ static void camRadial(void) {
         if (inputPad() & BUTTON_Z) {
             dist -= y * joyMspeed;
             if (inputPad() & BUTTON_C_UP) {
-                fp.camPitch += joyMax * joyRspeed;
+                fp.cam.pitch += joyMax * joyRspeed;
             }
             if (inputPad() & BUTTON_C_DOWN) {
-                fp.camPitch += -joyMax * joyRspeed;
+                fp.cam.pitch += -joyMax * joyRspeed;
             }
         } else {
-            fp.camPitch += y * joyRspeed;
+            fp.cam.pitch += y * joyRspeed;
             if (inputPad() & BUTTON_C_UP) {
                 dist -= joyMax * joyMspeed;
             }
@@ -203,27 +203,27 @@ static void camRadial(void) {
                 dist -= -joyMax * joyMspeed;
             }
         }
-        fp.camYaw -= x * joyRspeed;
+        fp.cam.yaw -= x * joyRspeed;
         if (inputPad() & BUTTON_C_LEFT) {
-            fp.camYaw -= joyMax * joyRspeed;
+            fp.cam.yaw -= joyMax * joyRspeed;
         }
         if (inputPad() & BUTTON_C_RIGHT) {
-            fp.camYaw -= -joyMax * joyRspeed;
+            fp.cam.yaw -= -joyMax * joyRspeed;
         }
 
-        if (fp.camPitch > PITCH_LIM) {
-            fp.camPitch = PITCH_LIM;
-        } else if (fp.camPitch < -PITCH_LIM) {
-            fp.camPitch = -PITCH_LIM;
+        if (fp.cam.pitch > PITCH_LIM) {
+            fp.cam.pitch = PITCH_LIM;
+        } else if (fp.cam.pitch < -PITCH_LIM) {
+            fp.cam.pitch = -PITCH_LIM;
         }
 
         Vec3f vfoc;
-        vec3fAdd(&vfoc, &fp.camPos, &vp);
+        vec3fAdd(&vfoc, &fp.cam.eye, &vp);
 
         Vec3f move;
-        vec3fPy(&move, fp.camPitch, fp.camYaw);
+        vec3fPy(&move, fp.cam.pitch, fp.cam.yaw);
         vec3fScale(&move, &move, -dist);
-        vec3fAdd(&fp.camPos, &vfoc, &move);
+        vec3fAdd(&fp.cam.eye, &vfoc, &move);
     }
 }
 

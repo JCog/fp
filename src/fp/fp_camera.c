@@ -18,6 +18,7 @@ static s32 enableCamProc(struct MenuItem *item, enum MenuCallbackReason reason, 
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         fp.freeCam = FALSE;
         pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
+        pm_gCameras[pm_gCurrentCameraID].moveSpeed = 1;
         setCamInputMask();
     } else if (reason == MENU_CALLBACK_THINK) {
         menuCheckboxSet(item, fp.freeCam);
@@ -39,11 +40,16 @@ static s32 lockCamProc(struct MenuItem *item, enum MenuCallbackReason reason, vo
 }
 
 static void resetCamProc(struct MenuItem *item, void *data) {
-    fp.camYaw = 0.f;
-    fp.camPitch = 0.f;
-    fp.camPos.x = 0.f;
-    fp.camPos.y = 0.f;
-    fp.camPos.z = 0.f;
+    pm_Camera cam = pm_gCameras[0];
+    pm_gCameras[0].targetPos = pm_gPlayerStatus.position;
+    pm_gCameras[0].updateMode = 3;
+    pm_update_cameras();
+    fp.cam.eye = pm_gCameras[0].lookAt_eye;
+    fp.cam.obj = pm_gCameras[0].lookAt_obj;
+    fp.cam.pitch = pm_gCameras[0].currentPitch;
+    fp.cam.yaw = pm_gCameras[0].currentYaw;
+    pm_gCameras[0] = cam;
+    fp.resetCam = TRUE;
 }
 
 static s32 camBhvProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {

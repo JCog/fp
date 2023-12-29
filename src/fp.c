@@ -9,6 +9,7 @@
 #include "sys/resource.h"
 #include "util/geometry.h"
 #include "util/watchlist.h"
+#include <math.h>
 #include <n64.h>
 #include <startup.h>
 #include <stdlib.h>
@@ -378,9 +379,9 @@ void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha
 void fpCamUpdate(void) {
     if (fp.freeCam) {
         if (!fp.camEnabledBefore) {
-            fp.camPos.x = pm_gCameras->lookAt_eye.x;
-            fp.camPos.y = pm_gCameras->lookAt_eye.y;
-            fp.camPos.z = pm_gCameras->lookAt_eye.z;
+            fp.cam.eye = pm_gCameras->lookAt_eye;
+            fp.cam.pitch = pm_gCameras->currentPitch;
+            fp.cam.yaw = pm_gCameras->currentYaw;
             fp.camEnabledBefore = TRUE;
         } else {
             fpUpdateCam();
@@ -388,11 +389,22 @@ void fpCamUpdate(void) {
         Vec3f *cameraAt = &pm_gCameras->lookAt_obj;
         Vec3f *cameraEye = &pm_gCameras->lookAt_eye;
 
-        *cameraEye = fp.camPos;
+        *cameraEye = fp.cam.eye;
+
+        if (fp.resetCam) {
+            fp.cam.pitch = (fp.cam.obj.y - cameraEye->y) * -1.0 /
+                           sqrtf(SQ(fp.cam.obj.x - cameraEye->x) + SQ(fp.cam.obj.y - cameraEye->y) +
+                                 SQ(fp.cam.obj.z - cameraEye->z));
+            fp.cam.yaw = (fp.cam.obj.x - cameraEye->x) * -1.0 /
+                         sqrtf(SQ(fp.cam.obj.x - cameraEye->x) + SQ(fp.cam.obj.y - cameraEye->y) +
+                               SQ(fp.cam.obj.z - cameraEye->z));
+            fp.resetCam = FALSE;
+        }
 
         Vec3f vf;
-        vec3fPy(&vf, fp.camPitch, fp.camYaw);
+        vec3fPy(&vf, fp.cam.pitch, fp.cam.yaw);
         vec3fAdd(cameraAt, cameraEye, &vf);
+        pm_gCameras[pm_gCurrentCameraID].moveSpeed = 100;
     }
 }
 

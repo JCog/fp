@@ -16,6 +16,13 @@ struct LogEntry {
 };
 
 typedef struct {
+    Vec3f eye;
+    Vec3f obj;
+    f32 pitch;
+    f32 yaw;
+} FpCam;
+
+typedef struct {
     bool ready;
     struct Menu *mainMenu;
     struct Menu *global;
@@ -49,9 +56,8 @@ typedef struct {
     enum CamBhv camBhv;
     s16 camDistMin;
     s16 camDistMax;
-    f32 camPitch;
-    f32 camYaw;
-    Vec3f camPos;
+    FpCam cam;
+    bool resetCam;
     pm_Controller inputMask;
     bool camEnabledBefore;
     pm_Camera savedCam;
