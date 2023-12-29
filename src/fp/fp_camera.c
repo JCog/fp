@@ -40,15 +40,15 @@ static s32 lockCamProc(struct MenuItem *item, enum MenuCallbackReason reason, vo
 }
 
 static void resetCamProc(struct MenuItem *item, void *data) {
-    pm_Camera cam = pm_gCameras[0];
-    pm_gCameras[0].targetPos = pm_gPlayerStatus.position;
-    pm_gCameras[0].updateMode = 3;
+    pm_Camera cam = pm_gCameras[pm_gCurrentCameraID];
+    pm_gCameras[pm_gCurrentCameraID].targetPos = pm_gPlayerStatus.position;
+    pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
     pm_update_cameras();
-    fp.cam.eye = pm_gCameras[0].lookAt_eye;
-    fp.cam.obj = pm_gCameras[0].lookAt_obj;
-    fp.cam.pitch = pm_gCameras[0].currentPitch;
-    fp.cam.yaw = pm_gCameras[0].currentYaw;
-    pm_gCameras[0] = cam;
+    fp.cam.eye = pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
+    fp.cam.obj = pm_gCameras[pm_gCurrentCameraID].lookAt_obj;
+    fp.cam.pitch = pm_gCameras[pm_gCurrentCameraID].currentPitch;
+    fp.cam.yaw = pm_gCameras[pm_gCurrentCameraID].currentYaw;
+    pm_gCameras[pm_gCurrentCameraID] = cam;
     fp.resetCam = TRUE;
 }
 
