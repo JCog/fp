@@ -379,20 +379,20 @@ void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha
 void fpCamUpdate(void) {
     if (fp.freeCam) {
         if (!fp.camEnabledBefore) {
-            fp.cam.eye = pm_gCameras->lookAt_eye;
-            fp.cam.pitch = pm_gCameras->currentPitch;
-            fp.cam.yaw = pm_gCameras->currentYaw;
+            fp.cam.eye = pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
+            fp.cam.pitch = pm_gCameras[pm_gCurrentCameraID].currentPitch;
+            fp.cam.yaw = pm_gCameras[pm_gCurrentCameraID].currentYaw;
             fp.camEnabledBefore = TRUE;
         } else {
             fpUpdateCam();
         }
-        Vec3f *cameraAt = &pm_gCameras->lookAt_obj;
-        Vec3f *cameraEye = &pm_gCameras->lookAt_eye;
+        Vec3f *cameraAt = &pm_gCameras[pm_gCurrentCameraID].lookAt_obj;
+        Vec3f *cameraEye = &pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
 
         *cameraEye = fp.cam.eye;
 
         if (fp.resetCam) {
-            pm_gCameras[0].currentYaw = fp.cam.yaw;
+            pm_gCameras[pm_gCurrentCameraID].currentYaw = fp.cam.yaw;
             fp.cam.pitch = (fp.cam.obj.y - cameraEye->y) * -1.0 /
                            sqrtf(SQ(fp.cam.obj.x - cameraEye->x) + SQ(fp.cam.obj.y - cameraEye->y) +
                                  SQ(fp.cam.obj.z - cameraEye->z));
