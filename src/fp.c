@@ -392,6 +392,7 @@ void fpCamUpdate(void) {
         *cameraEye = fp.cam.eye;
 
         if (fp.resetCam) {
+            pm_gCameras[0].currentYaw = fp.cam.yaw;
             fp.cam.pitch = (fp.cam.obj.y - cameraEye->y) * -1.0 /
                            sqrtf(SQ(fp.cam.obj.x - cameraEye->x) + SQ(fp.cam.obj.y - cameraEye->y) +
                                  SQ(fp.cam.obj.z - cameraEye->z));
