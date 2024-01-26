@@ -403,8 +403,8 @@ static void updateQuickJumpTrainer(void) {
     static bool qAPressed;
     static u8 qJumpCounter;
 
-    if (settings->trainerBits.qJumpEnabled && pm_gGameStatus.isBattle && pm_gBattleStatus.playerActor &&
-        pm_gBattleStatus.playerActor->partsTable && pm_gActionCommandStatus.actionCommandID == 1) {
+    if (settings->trainerBits.qJumpEnabled && pm_gGameStatus.isBattle && pm_gActionCommandStatus.actionCommandID == 1) {
+        // only increment counter if mario is crouching
         if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10006) {
             if (inputPressed() & BUTTON_A) {
                 qAPressed = TRUE;
