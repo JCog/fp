@@ -49,6 +49,7 @@ struct TrainerBits {
     u32 lzsEnabled    : 1;
     u32 acEnabled     : 1;
     u32 clippyEnabled : 1;
+    u32 qJumpEnabled  : 1;
 };
 
 struct SettingsData {

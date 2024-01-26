@@ -1,6 +1,7 @@
 #include "trainer.h"
 #include "fp.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include <math.h>
@@ -175,6 +176,17 @@ static s32 enableClippyTrainerProc(struct MenuItem *item, enum MenuCallbackReaso
         settings->trainerBits.clippyEnabled = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
         menuCheckboxSet(item, settings->trainerBits.clippyEnabled);
+    }
+    return 0;
+}
+
+static s32 enableQJumpTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->trainerBits.qJumpEnabled = 1;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->trainerBits.qJumpEnabled = 0;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, settings->trainerBits.qJumpEnabled);
     }
     return 0;
 }
@@ -382,6 +394,29 @@ static void updateBowserBlockTrainer(void) {
                     enemy0->takeTurnScriptSource = (void *)vanillaScript;
                 }
             }
+        }
+    }
+}
+
+static void updateQuickJumpTrainer(void) {
+    static bool qAPressed;
+    static u8 qJumpCounter;
+
+    if (settings->trainerBits.qJumpEnabled && pm_gGameStatus.isBattle && pm_gBattleStatus.playerActor &&
+        pm_gBattleStatus.playerActor->partsTable) {
+        if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10006) {
+            if (inputPressed() & BUTTON_A) {
+                qAPressed = TRUE;
+            }
+            qJumpCounter++;
+        } else if (qJumpCounter != 0) {
+            if (qJumpCounter > 2 && qJumpCounter < 8) {
+                fpLog("%d frame%s late", qJumpCounter - 3, qJumpCounter == 1 ? "" : "s");
+            } else if (qJumpCounter == 8 && qAPressed) {
+                fpLog(">= 5 frames late");
+            }
+            qJumpCounter = 0;
+            qAPressed = FALSE;
         }
     }
 }
@@ -602,6 +637,7 @@ void trainerUpdate(void) {
     updateLzsTrainer();
     updateBlockTrainer();
     updateClippyTrainer();
+    updateQuickJumpTrainer();
 }
 
 void createTrainerMenu(struct Menu *menu) {
@@ -644,6 +680,9 @@ void createTrainerMenu(struct Menu *menu) {
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
     struct MenuItem *lastOption = menuAddCheckbox(menu, xOffset, y++, enableClippyTrainerProc, NULL);
+
+    menuAddStatic(menu, 0, y, "quick jumps", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, enableQJumpTrainerProc, NULL);
 #if PM64_VERSION == JP
     menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
