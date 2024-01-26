@@ -1,7 +1,6 @@
 #include "trainer.h"
 #include "fp.h"
 #include "menu/menu.h"
-#include "pm64.h"
 #include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
