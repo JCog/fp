@@ -1,6 +1,7 @@
 #include "trainer.h"
 #include "fp.h"
 #include "menu/menu.h"
+#include "pm64.h"
 #include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
@@ -403,7 +404,7 @@ static void updateQuickJumpTrainer(void) {
     static u8 qJumpCounter;
 
     if (settings->trainerBits.qJumpEnabled && pm_gGameStatus.isBattle && pm_gBattleStatus.playerActor &&
-        pm_gBattleStatus.playerActor->partsTable) {
+        pm_gBattleStatus.playerActor->partsTable && pm_gActionCommandStatus.actionCommandID == 1) {
         if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10006) {
             if (inputPressed() & BUTTON_A) {
                 qAPressed = TRUE;
