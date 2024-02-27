@@ -52,18 +52,6 @@ static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reas
     return 0;
 }
 
-static s32 checkboxModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        *p = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        *p = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, *p);
-    }
-    return 0;
-}
-
 static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -258,11 +246,10 @@ struct Menu *createFileMenu(void) {
     menuItemAddChainLink(plusButton, progressInput, MENU_NAVIGATE_DOWN);
     y++;
 
-    menuAddStatic(&menu, 0, y, "music", 0xC0C0C0);
-    struct MenuItem *musicCheckbox = menuAddCheckbox(&menu, menuX, y++, checkboxModProc, &pm_gGameStatus.musicEnabled);
-    menuItemAddChainLink(musicCheckbox, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
+    struct MenuItem *quizmoInput =
+        menuAddIntinput(&menu, menuX, y++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
+    menuItemAddChainLink(quizmoInput, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "goomba\0"

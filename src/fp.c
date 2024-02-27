@@ -324,6 +324,10 @@ void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_HIDE_HUD)) {
         pm_gUiStatus.hidden = TRUE;
     }
+    if (CHEAT_ACTIVE(CHEAT_MUTE_MUSIC)) {
+        // the game is constantly trying to raise this by 1 every frame, so 0 would just make it quiet instead of muted
+        pm_musicCurrentVolume = -1;
+    }
     if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
         pm_gActionCommandStatus.autoSucceed = 1;
     }
