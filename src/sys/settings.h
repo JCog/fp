@@ -23,6 +23,7 @@ enum Cheats {
     CHEAT_PEEKABOO,
     CHEAT_BRIGHTEN_ROOM,
     CHEAT_HIDE_HUD,
+    CHEAT_MUTE_MUSIC,
     CHEAT_MAX
 };
 

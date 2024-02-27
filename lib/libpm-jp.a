@@ -27,6 +27,7 @@ pm_gPartnerActionStatus = 0x8010ED70;
 pm_gUiStatus = 0x8010F118;
 pm_gPlayerStatus = 0x8010F188;
 pm_gHudElementSizes = 0x8015406C;
+pm_musicCurrentVolume = 0x8015EA66;
 pm_gActionCommandStatus = 0x8029FED0;
 pm_gNumScripts = 0x802DA488;
 pm_gCurrentScriptListPtr = 0x802DA890;

@@ -1235,6 +1235,7 @@ extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
+extern_data s16 pm_musicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
