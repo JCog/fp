@@ -6,7 +6,7 @@ static const char *labels[] = {
     "hp",          "fp",
     "coins",       "star power",
     "star pieces", "peril",
-    "auto mash",   "auto action command",
+    "auto mash",   "action commands",
     "peekaboo",    "brighten room",
     "hide hud",    "mute music",
 };
