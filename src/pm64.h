@@ -1251,6 +1251,8 @@ void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
 void pm_setCurtainScaleGoal(f32 goal);
 void pm_setCurtainDrawCallback(void *callback);
 void pm_setCurtainFadeGoal(f32 goal);
+void pm_update_cameras(void);
+void pm_update_camera_zone_interp(pm_Camera *camera);
 void pm_setGameMode(s32 mode);
 pm_Npc *pm_get_npc_safe(s32 npcID);
 s32 pm_func_800554A4(s32);

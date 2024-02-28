@@ -16,6 +16,13 @@ struct LogEntry {
 };
 
 typedef struct {
+    Vec3f eye;
+    Vec3f obj;
+    f32 pitch;
+    f32 yaw;
+} FpCam;
+
+typedef struct {
     bool ready;
     struct Menu *mainMenu;
     struct Menu *global;
@@ -49,12 +56,13 @@ typedef struct {
     enum CamBhv camBhv;
     s16 camDistMin;
     s16 camDistMax;
-    f32 camPitch;
-    f32 camYaw;
-    Vec3f camPos;
+    FpCam cam;
+    bool resetCam;
     pm_Controller inputMask;
     bool camEnabledBefore;
     pm_Camera savedCam;
+    s8 freeCamMoveSpeed;
+    s8 freeCamPanSpeed;
 } FpCtxt;
 
 extern FpCtxt fp;
@@ -68,6 +76,8 @@ s32 fpImportFile(const char *path, void *data);
 void fpSetInputMask(u16 pad, u8 x, u8 y);
 void fpUpdateCam(void);
 void fpSaveSettingsProc(struct MenuItem *item, void *data);
+void setFreeCamMoveSpeed(s8 s);
+void setFreeCamPanSpeed(s8 s);
 
 struct Menu *createWarpsMenu(void);
 struct Menu *createCheatsMenu(void);
