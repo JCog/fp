@@ -3,12 +3,9 @@
 #include "sys/settings.h"
 
 static const char *labels[] = {
-    "hp",          "fp",
-    "coins",       "star power",
-    "star pieces", "peril",
-    "auto mash",   "action commands",
-    "peekaboo",    "brighten room",
-    "hide hud",    "mute music",
+    "hp",       "fp",         "coins",           "star power", "star pieces",
+    "peril",    "auto mash",  "action commands", "peekaboo",   "brighten room",
+    "hide hud", "mute music",
 };
 
 static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
