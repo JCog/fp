@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// aligned because the game's flash read function does so in 128-byte chunks
 static _Alignas(128) struct Settings settingsStore;
-static struct Settings settingsBuffer[SETTINGS_PROFILE_MAX];
+static _Alignas(128) struct Settings settingsBuffer[SETTINGS_PROFILE_MAX];
 struct SettingsData *settings = &settingsStore.data;
 
 static u16 settingsChecksumCompute(struct Settings *settings) {

@@ -1245,7 +1245,7 @@ void osSyncPrintf(const char *fmt, ...);
 s32 pm_fioValidateFileChecksum(void *buffer);
 bool pm_fioFetchSavedFileInfo(void);
 void pm_fioDeserializeState(void);
-void pm_fioReadFlash(s32 slot, void *buffer, u32 size);
+void pm_fioReadFlash(s32 slot, void *buffer, u32 size); // writes to buffer in 128-byte blocks
 void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
 void pm_setCurtainScaleGoal(f32 goal);
 void pm_setCurtainDrawCallback(void *callback);
