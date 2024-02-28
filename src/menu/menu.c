@@ -19,7 +19,7 @@ void menuInit(struct Menu *menu, s32 cellWidth, s32 cellHeight, struct GfxFont *
     menu->parent = NULL;
     menu->child = NULL;
     menu->highlightColorAnimated = 0x000000;
-    menu->highlightColorStatic = 0x2020FF;
+    menu->highlightColorStatic = 0x8080FF;
     menu->highlightState[0] = 17;
     menu->highlightState[1] = 19;
     menu->highlightState[2] = 23;

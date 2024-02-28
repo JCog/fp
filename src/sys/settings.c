@@ -34,11 +34,14 @@ void settingsLoadDefault(void) {
     d->cheats = 0;
     d->menuFontResource = RES_FONT_PRESSSTART2P;
     d->menuDropShadow = 1;
+    d->menuBackground = 1;
+    d->menuBackgroundAlpha = 0xE0;
     d->inputDisplay = 0;
     d->log = 1;
     d->timerLogging = 0;
     d->timerShow = 0;
     d->battleDebug = 0;
+    d->quizmoDebug = 0;
     d->watchesVisible = 1;
     d->trainerAcEnabled = 0;
     d->trainerBowserEnabled = 0;

@@ -147,10 +147,12 @@ static void loadSettingsProc(struct MenuItem *item, void *data) {
 struct Menu *createSettingsMenu(void) {
     static struct Menu menu;
     static struct Menu commands;
+    static struct Menu menuAppearance;
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menuAppearance, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     s32 y = 0;
@@ -161,22 +163,6 @@ struct Menu *createSettingsMenu(void) {
     struct MenuItem *firstAppearanceOption = menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
     menuAddWatch(&menu, menuX + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
     menuAddButton(&menu, menuX + 4, y++, "+", profileIncProc, NULL);
-    menuAddStatic(&menu, 0, y, "font", 0xC0C0C0);
-    menuAddOption(&menu, menuX, y++,
-                  "fipps\0"
-                  "notalot35\0"
-                  "origami mommy\0"
-                  "pc senior\0"
-                  "pixel intv\0"
-                  "press start 2p\0"
-                  "smw text nc\0"
-                  "werdna's return\0"
-                  "pixelzim\0",
-                  fontProc, NULL);
-    menuAddStatic(&menu, 0, y, "drop shadow", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y++, dropShadowProc, NULL);
-    menuAddStatic(&menu, 0, y, "menu position", 0xC0C0C0);
-    menuAddPositioning(&menu, menuX, y++, menuPositionProc, NULL);
     menuAddStatic(&menu, 0, y, "timer position", 0xC0C0C0);
     menuAddPositioning(&menu, menuX, y++, timerPositionProc, NULL);
     menuAddStatic(&menu, 0, y, "input display", 0xC0C0C0);
@@ -196,6 +182,7 @@ struct Menu *createSettingsMenu(void) {
     struct MenuItem *commandsButton = menuAddSubmenu(&menu, 0, y++, &commands, "commands");
     menuItemAddChainLink(menu.selector, firstAppearanceOption, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(commandsButton, lastAppearanceOption, MENU_NAVIGATE_UP);
+    menuAddSubmenu(&menu, 0, y++, &menuAppearance, "menu appearance");
     y++;
 
     /* settings commands */
@@ -230,6 +217,32 @@ struct Menu *createSettingsMenu(void) {
     }
     menuAddButton(&commands, 8, 0, "<", menuTabPrevProc, tab);
     menuAddButton(&commands, 10, 0, ">", menuTabNextProc, tab);
+
+    /* populate appearance menu */
+    menuX = 12;
+    y = 0;
+    menuAppearance.selector = menuAddSubmenu(&menuAppearance, 0, y++, NULL, "return");
+    menuAddStatic(&menuAppearance, 0, y, "font", 0xC0C0C0);
+    menuAddOption(&menuAppearance, menuX, y++,
+                  "fipps\0"
+                  "notalot35\0"
+                  "origami mommy\0"
+                  "pc senior\0"
+                  "pixel intv\0"
+                  "press start 2p\0"
+                  "smw text nc\0"
+                  "werdna's return\0"
+                  "pixelzim\0",
+                  fontProc, NULL);
+    menuAddStatic(&menuAppearance, 0, y, "drop shadow", 0xC0C0C0);
+    menuAddCheckbox(&menuAppearance, menuX, y++, dropShadowProc, NULL);
+    menuAddStatic(&menuAppearance, 0, y, "position", 0xC0C0C0);
+    menuAddPositioning(&menuAppearance, menuX, y++, menuPositionProc, NULL);
+    y++;
+    menuAddStatic(&menuAppearance, 0, y, "background", 0xC0C0C0);
+    menuAddCheckbox(&menuAppearance, menuX, y++, menuByteCheckboxProc, &setting->menuBackground);
+    menuAddStatic(&menuAppearance, 1, y, "alpha", 0xC0C0C0);
+    menuAddIntinput(&menuAppearance, menuX, y++, 16, 2, menuByteModProc, &settings->menuBackgroundAlpha);
 
     return &menu;
 }
