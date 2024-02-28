@@ -10,14 +10,14 @@ static const char *labels[] = {
     "hide hud",    "mute music",
 };
 
-static s32 battleProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != pm_gGameStatus.debugEnemyContact) {
-            menuOptionSet(item, pm_gGameStatus.debugEnemyContact);
+        if (menuOptionGet(item) != *p) {
+            menuOptionSet(item, *p);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_gGameStatus.debugEnemyContact = menuOptionGet(item);
-        settings->bits.battleDebug = pm_gGameStatus.debugEnemyContact;
+        *p = menuOptionGet(item);
     }
     return 0;
 }
@@ -62,7 +62,7 @@ struct Menu *createCheatsMenu(void) {
                                                       "defeat on contact\0"
                                                       "auto-win\0"
                                                       "auto-runaway\0",
-                                                      battleProc, NULL);
+                                                      byteOptionmodProc, &settings->cheatEnemyContact);
     s32 i;
     menuItemAddChainLink(menu.selector, encountersOption, MENU_NAVIGATE_DOWN);
     for (i = 0; i < CHEAT_MAX; ++i) {

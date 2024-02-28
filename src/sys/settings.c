@@ -52,6 +52,7 @@ void settingsLoadDefault(void) {
     d->cheats = 0;
     d->controlStick = 0;
     d->controlStickRange = 90;
+    d->cheatEnemyContact = 0;
     d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);
