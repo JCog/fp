@@ -1,3 +1,4 @@
+#include "fp.h"
 #include "menu/menu.h"
 #include "sys/settings.h"
 
@@ -52,28 +53,31 @@ struct Menu *createCheatsMenu(void) {
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menu.selector = menuAddSubmenu(&menu, 0, 0, NULL, "return");
+    s32 y = 0;
+    menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
 
     /*build menu*/
-    menuAddStatic(&menu, 0, 1, "encounters", 0xC0C0C0);
-    struct MenuItem *encountersOption = menuAddOption(&menu, 11, 1,
+    menuAddStatic(&menu, 0, y, "encounters", 0xC0C0C0);
+    struct MenuItem *encountersOption = menuAddOption(&menu, 11, y++,
                                                       "normal\0"
                                                       "no encounters\0"
                                                       "defeat on contact\0"
                                                       "auto-win\0"
                                                       "auto-runaway\0",
                                                       byteOptionmodProc, &settings->cheatEnemyContact);
-    s32 i;
+    y++;
     menuItemAddChainLink(menu.selector, encountersOption, MENU_NAVIGATE_DOWN);
-    for (i = 0; i < CHEAT_MAX; ++i) {
-        struct MenuItem *option = menuAddCheckbox(&menu, 0, 3 + i, cheatProc, (void *)i);
-        menuAddStatic(&menu, 2, 3 + i, labels[i], 0xC0C0C0);
+    for (s32 i = 0; i < CHEAT_MAX; i++) {
+        struct MenuItem *option = menuAddCheckbox(&menu, 0, y, cheatProc, (void *)i);
+        menuAddStatic(&menu, 2, y++, labels[i], 0xC0C0C0);
         if (i == 0) {
             menuItemAddChainLink(option, encountersOption, MENU_NAVIGATE_UP);
         }
     }
-    menuAddCheckbox(&menu, 0, 3 + i, quizmoProc, NULL);
-    menuAddStatic(&menu, 2, 3 + i, "quizmo spawns", 0xC0C0C0);
+    menuAddCheckbox(&menu, 0, y, quizmoProc, NULL);
+    menuAddStatic(&menu, 2, y++, "quizmo spawns", 0xC0C0C0);
+    y++;
+    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 
     return &menu;
 }
