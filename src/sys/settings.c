@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// aligned because the game's flash read function does so in 128-byte chunks
 static _Alignas(128) struct Settings settingsStore;
+static _Alignas(128) struct Settings settingsBuffer[SETTINGS_PROFILE_MAX];
 struct SettingsData *settings = &settingsStore.data;
 
 static u16 settingsChecksumCompute(struct Settings *settings) {
@@ -87,50 +89,17 @@ void applyMenuSettings(void) {
 }
 
 void settingsSave(s32 profile) {
-    u16 *checksum = &settingsStore.header.dataChecksum;
-    *checksum = settingsChecksumCompute(&settingsStore);
-
-    // read in save file in the same slot as the profile
-    char *start = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
-    pm_fioReadFlash(profile, start, SETTINGS_SAVE_FILE_SIZE);
-
-    // append settings data to the end and save to file
-    char *offset = start + SETTINGS_SAVE_FILE_SIZE;
-    memcpy(offset, &settingsStore, sizeof(settingsStore));
-    pm_fioWriteFlash(profile, start, SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
-    free(start);
-}
-
-static bool saveFileExists(void) {
-    char *file = malloc(SETTINGS_SAVE_FILE_SIZE);
-    for (s32 i = 0; i < 8; i++) {
-        pm_fioReadFlash(i, file, SETTINGS_SAVE_FILE_SIZE);
-        if (pm_fioValidateFileChecksum(file)) {
-            free(file);
-            return TRUE;
-        }
-    }
-    free(file);
-    return FALSE;
+    pm_fioReadFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
+    settingsStore.header.dataChecksum = settingsChecksumCompute(&settingsStore);
+    memcpy(&settingsBuffer[profile], &settingsStore, sizeof(settingsStore));
+    pm_fioWriteFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
 }
 
 bool settingsLoad(s32 profile) {
-    // unfortunate side effect here is that you need at least one existing file to load settings - not a big deal for
-    // now
-    if (!saveFileExists()) {
+    pm_fioReadFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
+    if (!settingsValidate(&settingsBuffer[profile])) {
         return FALSE;
     }
-
-    // read in save data along with the settings data in the same slot as the profile
-    char *file = malloc(SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
-    pm_fioReadFlash(profile, file, SETTINGS_SAVE_FILE_SIZE + sizeof(settingsStore));
-
-    struct Settings *settingsTemp = (struct Settings *)(file + SETTINGS_SAVE_FILE_SIZE);
-    if (!settingsValidate(settingsTemp)) {
-        free(file);
-        return FALSE;
-    }
-    memcpy(&settingsStore, settingsTemp, sizeof(*settingsTemp));
-    free(file);
+    memcpy(&settingsStore, &settingsBuffer[profile], sizeof(settingsStore));
     return TRUE;
 }

@@ -96,3 +96,6 @@ pm_update_player_input = 0x800E1F70;
 fire_flower_hook = 0x803AD0A0;
 
 peekaboo_hook = 0x801AF3A0;
+
+flush_backups_hook_1 = 0x8002B064;
+flush_backups_hook_2 = 0x8002B074;
