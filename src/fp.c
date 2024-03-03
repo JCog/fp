@@ -366,7 +366,7 @@ void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha
             free(ent->msg);
             ent->msg = NULL;
             continue;
-        } else if (!settings->bits.log) {
+        } else if (!settings->log) {
             continue;
         } else if (ent->age > fadeBegin) {
             msgAlpha = 0xFF - (ent->age - fadeBegin) * 0xFF / fadeDuration;
@@ -501,13 +501,13 @@ void fpDraw(void) {
         fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    if (settings->bits.inputDisplay) {
+    if (settings->inputDisplay) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
 
     enum TimerState timerState = timerGetState();
     if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
-        (settings->bits.timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
         fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
     }
 

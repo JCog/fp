@@ -40,10 +40,10 @@ static void profileIncProc(struct MenuItem *item, void *data) {
 
 static s32 fontProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (settings->bits.fontResource != fontOptions[menuOptionGet(item)]) {
+        if (settings->menuFontResource != fontOptions[menuOptionGet(item)]) {
             s32 nFontOptions = sizeof(fontOptions) / sizeof(*fontOptions);
             for (s32 i = 0; i < nFontOptions; ++i) {
-                if (settings->bits.fontResource == fontOptions[i]) {
+                if (settings->menuFontResource == fontOptions[i]) {
                     menuOptionSet(item, i);
                     break;
                 }
@@ -51,8 +51,8 @@ static s32 fontProc(struct MenuItem *item, enum MenuCallbackReason reason, void 
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
         s32 fontResource = fontOptions[menuOptionGet(item)];
-        settings->bits.fontResource = fontResource;
-        if (settings->bits.fontResource == RES_FONT_FIPPS) {
+        settings->menuFontResource = fontResource;
+        if (settings->menuFontResource == RES_FONT_FIPPS) {
             gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_NORMAL);
         } else {
             gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_FAST);
@@ -68,10 +68,10 @@ static s32 fontProc(struct MenuItem *item, enum MenuCallbackReason reason, void 
 
 static s32 dropShadowProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
-        settings->bits.dropShadow = menuCheckboxGet(item);
-        gfxModeSet(GFX_MODE_DROPSHADOW, settings->bits.dropShadow);
+        settings->menuDropShadow = menuCheckboxGet(item);
+        gfxModeSet(GFX_MODE_DROPSHADOW, settings->menuDropShadow);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.dropShadow);
+        menuCheckboxSet(item, settings->menuDropShadow);
     }
     return 0;
 }
@@ -109,28 +109,6 @@ static s32 timerPositionProc(struct MenuItem *item, enum MenuCallbackReason reas
         fp.timerMoving = FALSE;
     }
     return genericPositionProc(item, reason, &settings->timerX);
-}
-
-static s32 inputDisplayProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.inputDisplay = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.inputDisplay = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.inputDisplay);
-    }
-    return 0;
-}
-
-static s32 logProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.log = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.log = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.log);
-    }
-    return 0;
 }
 
 static s32 logPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
@@ -202,7 +180,7 @@ struct Menu *createSettingsMenu(void) {
     menuAddStatic(&menu, 0, y, "timer position", 0xC0C0C0);
     menuAddPositioning(&menu, menuX, y++, timerPositionProc, NULL);
     menuAddStatic(&menu, 0, y, "input display", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y, inputDisplayProc, NULL);
+    menuAddCheckbox(&menu, menuX, y, menuByteCheckboxProc, &settings->inputDisplay);
     menuAddPositioning(&menu, menuX + 2, y++, genericPositionProc, &settings->inputDisplayX);
     menuAddStatic(&menu, 1, y, "control stick", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
@@ -213,7 +191,7 @@ struct Menu *createSettingsMenu(void) {
     menuAddStatic(&menu, 1, y, "graphical range", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
     menuAddStatic(&menu, 0, y, "log", 0xC0C0C0);
-    struct MenuItem *lastAppearanceOption = menuAddCheckbox(&menu, menuX, y, logProc, NULL);
+    struct MenuItem *lastAppearanceOption = menuAddCheckbox(&menu, menuX, y, menuByteCheckboxProc, &settings->log);
     menuAddPositioning(&menu, menuX + 2, y++, logPositionProc, NULL);
     struct MenuItem *commandsButton = menuAddSubmenu(&menu, 0, y++, &commands, "commands");
     menuItemAddChainLink(menu.selector, firstAppearanceOption, MENU_NAVIGATE_DOWN);

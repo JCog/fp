@@ -8,25 +8,14 @@ static const char *labels[] = {
     "hide hud", "mute music",
 };
 
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 quizmoProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    // TODO: get rid of this after rebasing
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         pm_gGameStatus.debugQuizmo = 1;
-        settings->bits.quizmoDebug = 1;
+        settings->quizmoDebug = 1;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
         pm_gGameStatus.debugQuizmo = 0;
-        settings->bits.quizmoDebug = 0;
+        settings->quizmoDebug = 0;
     } else if (reason == MENU_CALLBACK_THINK) {
         menuCheckboxSet(item, pm_gGameStatus.debugQuizmo);
     }

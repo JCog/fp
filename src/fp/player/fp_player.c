@@ -159,35 +159,15 @@ static s32 starSpiritSwitchProc(struct MenuItem *item, enum MenuCallbackReason r
     return 0;
 }
 
-static s32 peachOrMarioProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+static s32 peachFlagProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    // 0 = peach or mario, 1 = transformed, 3 = parasol
+    u32 flag = (u32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 0);
+        pm_gGameStatus.peachFlags |= (1 << flag);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 0);
+        pm_gGameStatus.peachFlags &= ~(1 << flag);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 0));
-    }
-    return 0;
-}
-
-static s32 peachTransformedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 1);
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 1);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 1));
-    }
-    return 0;
-}
-
-static s32 peachParasolProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 2);
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 2);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 2));
+        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << flag));
     }
     return 0;
 }
@@ -309,7 +289,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 actionCommandY = 2;
     item =
         menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1, 0xFFFFFF,
-                      0.7f, FALSE, menuByteButtonToggleProc, &pm_gPlayerStatus.playerData.hasActionCommands);
+                      0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerStatus.playerData.hasActionCommands);
     item->tooltip = strActionCommands;
 }
 
@@ -353,7 +333,7 @@ static void createPartyMenu(struct Menu *menu) {
         s32 partnerY = baseY + (i % colHeight) * spacingY;
 
         partners[i] = menuAddSwitch(menu, partnerX, partnerY, texPartner, i + 1, 0, 0xFFFFFF, texPartner, i + 1, 1,
-                                    0xFFFFFF, scale, FALSE, menuByteButtonToggleProc,
+                                    0xFFFFFF, scale, FALSE, menuByteSwitchToggleProc,
                                     &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]].enabled);
         partners[i]->tooltip = strPartnerNames[i];
 
@@ -416,13 +396,13 @@ static void createPeachMenu(struct Menu *menu) {
     menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
 
     menuAddStatic(menu, 0, y, "peach", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachOrMarioProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)0);
 
     menuAddStatic(menu, 0, y, "transformed", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachTransformedProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)1);
 
     menuAddStatic(menu, 0, y, "parasol", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachParasolProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)2);
 
     menuAddStatic(menu, 0, y, "disguise", 0xC0C0C0);
     menuAddOption(menu, 12, y++,

@@ -192,7 +192,7 @@ static s32 dataTypeProc(struct MenuItem *item, enum MenuCallbackReason reason, v
                 break;
             case 3:
                 viewDataSize = 4;
-                viewFloat = FALSE;
+                viewFloat = TRUE;
                 break;
         }
         makeCells(item->owner);

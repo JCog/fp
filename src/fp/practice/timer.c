@@ -22,48 +22,6 @@ static u16 prevAreaID = 0;
 static u16 prevMapID = 0;
 static bool newMapWaiting = FALSE;
 
-static s32 timerModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    enum TimerMode *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
-static s32 showTimerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.timerShow = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.timerShow = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.timerShow);
-    }
-    return 0;
-}
-
-static s32 timerLoggingProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.timerLogging = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.timerLogging = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.timerLogging);
-    }
-    return 0;
-}
-
-static void startStopProc(struct MenuItem *item, void *data) {
-    timerStartStop();
-}
-
-static void resetProc(struct MenuItem *item, void *data) {
-    timerReset();
-}
-
 static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -169,7 +127,7 @@ void timerUpdate(void) {
                 start = fp.cpuCounter;
                 lagStart = pm_viFrames;
                 frameStart = pm_gGameStatus.frameCounter;
-                if (settings->bits.timerLogging) {
+                if (settings->timerLogging) {
                     fpLog("timer started");
                 }
             }
@@ -177,12 +135,12 @@ void timerUpdate(void) {
         case TIMER_RUNNING:
             if (timerMode == TIMER_CUTSCENE && !prevCutsceneState && inCutscene) {
                 cutsceneCount++;
-                if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
+                if (settings->timerLogging && cutsceneCount != cutsceneTarget) {
                     fpLog("cutscene started");
                 }
             } else if (timerMode == TIMER_LOADING_ZONE && newMap) {
                 cutsceneCount++;
-                if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
+                if (settings->timerLogging && cutsceneCount != cutsceneTarget) {
                     fpLog("loading zone");
                 }
             }
@@ -245,21 +203,21 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStaticCustom(menu, 0, y++, timerDrawProc, NULL, 0xC0C0C0);
     y++;
     y++;
-    menuAddButton(menu, 0, y, "start/stop", startStopProc, NULL);
-    menuAddButton(menu, 11, y++, "reset", resetProc, NULL);
+    menuAddButton(menu, 0, y, "start/stop", menuFuncProc, &timerStartStop);
+    menuAddButton(menu, 11, y++, "reset", menuFuncProc, &timerReset);
     y++;
     menuAddStatic(menu, 0, y, "timer mode", 0xC0C0C0);
     menuAddOption(menu, menuX, y++,
                   "cutscene\0"
                   "loading zone\0"
                   "manual\0",
-                  timerModeProc, &timerMode);
+                  menuWordOptionmodProc, &timerMode);
     menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
     menuAddIntinput(menu, menuX, y++, 10, 2, menuByteModProc, &cutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
-    menuAddCheckbox(menu, menuX, y++, showTimerProc, NULL);
+    menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerShow);
     menuAddStatic(menu, 0, y, "timer logging", 0xC0C0C0);
-    menuAddCheckbox(menu, menuX, y++, timerLoggingProc, NULL);
+    menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerLogging);
     y++;
     menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 }

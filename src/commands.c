@@ -213,8 +213,8 @@ void commandReloadLastWarpProc(void) {
 }
 
 void commandToggleWatchesProc(void) {
-    settings->bits.watchesVisible = !settings->bits.watchesVisible;
-    if (settings->bits.watchesVisible) {
+    settings->watchesVisible = !settings->watchesVisible;
+    if (settings->watchesVisible) {
         watchlistShow(fp.menuWatchlist);
     } else {
         watchlistHide(fp.menuWatchlist);
@@ -242,7 +242,7 @@ void commandResetTimerProc(void) {
 }
 
 void commandShowHideTimerProc(void) {
-    settings->bits.timerShow = !settings->bits.timerShow;
+    settings->timerShow = !settings->timerShow;
 }
 
 void commandLoadGameProc(void) {
@@ -271,7 +271,7 @@ void commandBreakFreeProc(void) {
 }
 
 void commandToggleInpDispProc(void) {
-    settings->bits.inputDisplay ^= 1;
+    settings->inputDisplay ^= 1;
 }
 
 void commandClippyProc(void) {

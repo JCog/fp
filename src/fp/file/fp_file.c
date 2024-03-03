@@ -20,14 +20,6 @@ static void saveSlotIncProc(struct MenuItem *item, void *data) {
     pm_gGameStatus.saveSlot %= 4;
 }
 
-static void saveProc(struct MenuItem *item, void *data) {
-    commandSaveGameProc();
-}
-
-static void loadProc(struct MenuItem *item, void *data) {
-    commandLoadGameProc();
-}
-
 static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -188,9 +180,11 @@ struct Menu *createFileMenu(void) {
 
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
     y++;
-    struct MenuItem *saveButton = menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, saveProc, NULL);
+    struct MenuItem *saveButton =
+        menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, menuFuncProc, commandSaveGameProc);
     saveButton->tooltip = "save";
-    struct MenuItem *loadButton = menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, loadProc, NULL);
+    struct MenuItem *loadButton =
+        menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, menuFuncProc, commandLoadGameProc);
     loadButton->tooltip = "load";
     struct MenuItem *exportButton = menuAddButtonIcon(&menu, 6, y, tSave, 1, 0, 0xFFFFFF, 1.0f, exportFileProc, NULL);
     exportButton->tooltip = "export";
