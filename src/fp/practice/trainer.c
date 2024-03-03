@@ -179,18 +179,6 @@ static s32 enableClippyTrainerProc(struct MenuItem *item, enum MenuCallbackReaso
     return 0;
 }
 
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -633,7 +621,7 @@ void createTrainerMenu(struct Menu *menu) {
                   "claw\0"
                   "wave\0"
                   "lightning\0",
-                  byteOptionmodProc, &bowserAttack);
+                  menuByteOptionmodProc, &bowserAttack);
 
     menuAddStatic(menu, 0, y, "lzs jumps", 0xC0C0C0);
     menuAddCheckbox(menu, xOffset, y, enableLzsTrainerProc, NULL);

@@ -12,18 +12,6 @@ static u16 fontOptions[] = {
     RES_FONT_PRESSSTART2P, RES_FONT_SMWTEXTNC, RES_FONT_WERDNASRETURN, RES_FONT_PIXELZIM,
 };
 
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 controlStickRangeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u8 *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
@@ -157,14 +145,6 @@ static void activateCommandProc(struct MenuItem *item, void *data) {
     }
 }
 
-static void tabPrevProc(struct MenuItem *item, void *data) {
-    menuTabPrevious(data);
-}
-
-static void tabNextProc(struct MenuItem *item, void *data) {
-    menuTabNext(data);
-}
-
 static void restoreSettingsProc(struct MenuItem *item, void *data) {
     settingsLoadDefault();
     applyMenuSettings();
@@ -229,7 +209,7 @@ struct Menu *createSettingsMenu(void) {
                   "numerical\0"
                   "graphical\0"
                   "both\0",
-                  byteOptionmodProc, &settings->controlStick);
+                  menuByteOptionmodProc, &settings->controlStick);
     menuAddStatic(&menu, 1, y, "graphical range", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
     menuAddStatic(&menu, 0, y, "log", 0xC0C0C0);
@@ -270,8 +250,8 @@ struct Menu *createSettingsMenu(void) {
     if (nPages > 0) {
         menuTabGoto(tab, 0);
     }
-    menuAddButton(&commands, 8, 0, "<", tabPrevProc, tab);
-    menuAddButton(&commands, 10, 0, ">", tabNextProc, tab);
+    menuAddButton(&commands, 8, 0, "<", menuTabPrevProc, tab);
+    menuAddButton(&commands, 10, 0, ">", menuTabNextProc, tab);
 
     return &menu;
 }

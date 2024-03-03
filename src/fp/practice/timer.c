@@ -22,18 +22,6 @@ static u16 prevAreaID = 0;
 static u16 prevMapID = 0;
 static bool newMapWaiting = FALSE;
 
-static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
 static s32 timerModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     enum TimerMode *p = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
@@ -267,7 +255,7 @@ void createTimerMenu(struct Menu *menu) {
                   "manual\0",
                   timerModeProc, &timerMode);
     menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
-    menuAddIntinput(menu, menuX, y++, 10, 2, byteModProc, &cutsceneTarget);
+    menuAddIntinput(menu, menuX, y++, 10, 2, menuByteModProc, &cutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
     menuAddCheckbox(menu, menuX, y++, showTimerProc, NULL);
     menuAddStatic(menu, 0, y, "timer logging", 0xC0C0C0);
