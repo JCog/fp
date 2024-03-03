@@ -267,7 +267,7 @@ void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 
 }
 
 void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
-    s32 hundredths = timerGetTimerCount() * 100 / fp.cpuCounterFreq;
+    s32 hundredths = timerCount * 100 / fp.cpuCounterFreq;
     s32 seconds = hundredths / 100;
     s32 minutes = seconds / 60;
     s32 hours = minutes / 60;
@@ -288,9 +288,9 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
         gfxPrintf(font, x, y, "%d.%02d", seconds, hundredths);
     }
 
-    gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
-    if (timerGetMode() != TIMER_MANUAL) {
-        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerGetCutsceneCount(), timerGetCutsceneTarget());
+    gfxPrintf(font, x, y + cellHeight, "%d", timerLagFrames);
+    if (timerMode != TIMER_MANUAL) {
+        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerCutsceneCount, timerCutsceneTarget);
     }
 }
 
@@ -505,7 +505,6 @@ void fpDraw(void) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    enum TimerState timerState = timerGetState();
     if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
         (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
         fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);

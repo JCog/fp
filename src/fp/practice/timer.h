@@ -15,17 +15,17 @@ enum TimerState {
     TIMER_STOPPED,
 };
 
-enum TimerMode timerGetMode(void);
-enum TimerState timerGetState(void);
-s64 timerGetTimerCount(void);
-s32 timerGetLagFrames(void);
-u8 timerGetCutsceneTarget(void);
-u8 timerGetCutsceneCount(void);
-
 void timerUpdate(void);
 void timerStartStop(void);
 void timerReset(void);
 
 void createTimerMenu(struct Menu *menu);
+
+extern enum TimerMode timerMode;
+extern enum TimerState timerState;
+extern s64 timerCount;
+extern s32 timerLagFrames;
+extern u8 timerCutsceneTarget;
+extern u8 timerCutsceneCount;
 
 #endif
