@@ -1449,7 +1449,7 @@ static s32 generateSfn(struct Fat *fat, u32 clust, const char *lfn, char *sfn) {
     for (s32 i = 1; i < 1000000; ++i) {
         /* make discriminator */
         char sfnDisc[8];
-        sprintf(sfnDisc, "%li", i);
+        snprintf(sfnDisc, sizeof(sfnDisc), "%li", i);
         s32 sfnDiscLength = strlen(sfnDisc);
         /* make name */
         s16 sfnNdLength = 7 - sfnDiscLength;
@@ -1457,7 +1457,7 @@ static s32 generateSfn(struct Fat *fat, u32 clust, const char *lfn, char *sfn) {
             sfnNdLength = sfnNameLength;
         }
         char nameBuf[13];
-        sprintf(nameBuf, "%.*s~%s.%.*s", sfnNdLength, &sfn[0], sfnDisc, sfnExtLength, &sfn[8]);
+        snprintf(nameBuf, sizeof(nameBuf), "%.*s~%s.%.*s", sfnNdLength, &sfn[0], sfnDisc, sfnExtLength, &sfn[8]);
         /* check if exists */
         s32 e = errno;
         if (dirFind(fat, clust, nameBuf, NULL) == 0) {

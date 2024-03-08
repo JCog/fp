@@ -53,16 +53,16 @@ void fpLog(const char *fmt, ...) {
 
     va_list va;
     va_start(va, fmt);
-    s32 l = vsnprintf(NULL, 0, fmt, va);
+    s32 msgSize = vsnprintf(NULL, 0, fmt, va) + 1;
     va_end(va);
 
     ent = &fp.log[0];
-    ent->msg = malloc(l + 1);
+    ent->msg = malloc(msgSize);
     if (!ent->msg) {
         return;
     }
     va_start(va, fmt);
-    vsprintf(ent->msg, fmt, va);
+    vsnprintf(ent->msg, msgSize, fmt, va);
     va_end(va);
     ent->age = 0;
 }

@@ -42,11 +42,11 @@ static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *d
 
     char buffer[24];
     if (chapter == 0) {
-        sprintf(buffer, "pro. (%d/%d) -", chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "pro. (%d/%d) -", chapterProgress, chapterMax);
     } else if (chapter > 8) {
-        sprintf(buffer, "invalid     -");
+        snprintf(buffer, sizeof(buffer), "invalid     -");
     } else {
-        sprintf(buffer, "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
     }
     gfxPrintf(font, x, y, buffer);
     return 1;

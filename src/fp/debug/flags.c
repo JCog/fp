@@ -60,7 +60,7 @@ static void addEvent(s32 recordIndex, s32 flagIndex, bool value) {
     e->recordIndex = recordIndex;
     e->flagIndex = flagIndex;
     e->value = value;
-    sprintf(e->description, "%s[0x%0*lx] := %i", r->name, r->indexLength, flagIndex, value);
+    snprintf(e->description, sizeof(e->description), "%s[0x%0*lx] := %i", r->name, r->indexLength, flagIndex, value);
 }
 
 static u32 getFlagWord(void *data, size_t wordSize, s32 index) {

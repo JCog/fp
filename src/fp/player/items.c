@@ -622,7 +622,7 @@ static void createItemsMenu(struct Menu *menu, enum ItemType itemType, struct Gf
         menuInit(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         if (pageCount > 1) {
             char buffer[8];
-            sprintf(buffer, "(%ld/%ld)", iPage + 1, pageCount);
+            snprintf(buffer, sizeof(buffer), "(%ld/%ld)", iPage + 1, pageCount);
             menuAddStatic(page, 12, 0, buffer, 0xC0C0C0);
         }
 
