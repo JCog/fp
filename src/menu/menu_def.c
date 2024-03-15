@@ -2,7 +2,7 @@
 #include "sys/gfx.h"
 #include <stdlib.h>
 
-struct static_icon_data {
+struct StaticIconData {
     struct GfxTexture *texture;
     s32 textureTile;
     f32 scale;
@@ -15,7 +15,7 @@ struct MenuItem *menuAddStatic(struct Menu *menu, s32 x, s32 y, const char *text
 }
 
 static s32 staticIconDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
-    struct static_icon_data *data = item->data;
+    struct StaticIconData *data = item->data;
     s32 cw = menuGetCellWidth(item->owner, TRUE);
     s32 w = data->texture->tileWidth * data->scale;
     s32 h = data->texture->tileHeight * data->scale;
@@ -39,7 +39,7 @@ static s32 staticIconDrawProc(struct MenuItem *item, struct MenuDrawParams *draw
 
 struct MenuItem *menuAddStaticIcon(struct Menu *menu, s32 x, s32 y, struct GfxTexture *texture, s32 textureTile,
                                    u32 color, f32 scale) {
-    struct static_icon_data *data = malloc(sizeof(*data));
+    struct StaticIconData *data = malloc(sizeof(*data));
     data->texture = texture;
     data->textureTile = textureTile;
     data->scale = scale;

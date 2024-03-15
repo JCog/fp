@@ -295,6 +295,7 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 }
 
 void fpUpdateCheats(void) {
+    pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
     }

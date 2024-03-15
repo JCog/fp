@@ -5,7 +5,7 @@
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
-#define SETTINGS_VERSION        5
+#define SETTINGS_VERSION        6
 #define SETTINGS_FIO_PAGE       7
 
 #define SETTINGS_WATCHES_MAX    18
@@ -70,6 +70,7 @@ struct SettingsData {
     s16 watchX[SETTINGS_WATCHES_MAX];
     s16 watchY[SETTINGS_WATCHES_MAX];
     u16 binds[SETTINGS_BIND_MAX];
+    s8 cheatEnemyContact;
     s8 controlStickRange;
     u8 controlStick;
     struct WatchInfo watchInfo[SETTINGS_WATCHES_MAX];

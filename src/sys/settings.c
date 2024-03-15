@@ -31,6 +31,7 @@ void settingsLoadDefault(void) {
     settingsStore.header.dataSize = sizeof(settingsStore.data);
     struct SettingsData *d = &settingsStore.data;
 
+    d->cheats = 0;
     d->bits.fontResource = RES_FONT_PRESSSTART2P;
     d->bits.dropShadow = 1;
     d->bits.inputDisplay = 0;
@@ -48,10 +49,6 @@ void settingsLoadDefault(void) {
     d->logY = SCREEN_HEIGHT - 33;
     d->timerX = 16;
     d->timerY = 68;
-    d->nWatches = 0;
-    d->cheats = 0;
-    d->controlStick = 0;
-    d->controlStickRange = 90;
     d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);
@@ -71,6 +68,10 @@ void settingsLoadDefault(void) {
     d->binds[COMMAND_BREAK_FREE] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
     d->binds[COMMAND_TOGGLE_INPUT_DISPLAY] = bindMake(0);
     d->binds[COMMAND_CLIPPY] = bindMake(0);
+    d->cheatEnemyContact = 0;
+    d->controlStickRange = 90;
+    d->controlStick = 0;
+    d->nWatches = 0;
 }
 
 void applyMenuSettings(void) {
