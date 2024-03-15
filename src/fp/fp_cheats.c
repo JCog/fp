@@ -8,20 +8,6 @@ static const char *labels[] = {
     "hide hud", "mute music",
 };
 
-static s32 quizmoProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    // TODO: get rid of this after rebasing
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.debugQuizmo = 1;
-        settings->quizmoDebug = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.debugQuizmo = 0;
-        settings->quizmoDebug = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.debugQuizmo);
-    }
-    return 0;
-}
-
 static s32 cheatProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     s32 cheatIndex = (s32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -50,7 +36,7 @@ struct Menu *createCheatsMenu(void) {
                                                       "defeat on contact\0"
                                                       "auto-win\0"
                                                       "auto-runaway\0",
-                                                      byteOptionmodProc, &settings->cheatEnemyContact);
+                                                      menuByteOptionmodProc, &settings->cheatEnemyContact);
     y++;
     menuItemAddChainLink(menu.selector, encountersOption, MENU_NAVIGATE_DOWN);
     for (s32 i = 0; i < CHEAT_MAX; i++) {
@@ -60,7 +46,7 @@ struct Menu *createCheatsMenu(void) {
             menuItemAddChainLink(option, encountersOption, MENU_NAVIGATE_UP);
         }
     }
-    menuAddCheckbox(&menu, 0, y, quizmoProc, NULL);
+    menuAddCheckbox(&menu, 0, y, menuByteCheckboxProc, &settings->quizmoDebug);
     menuAddStatic(&menu, 2, y++, "quizmo spawns", 0xC0C0C0);
     y++;
     menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
