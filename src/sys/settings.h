@@ -25,6 +25,7 @@ enum Cheats {
     CHEAT_BRIGHTEN_ROOM,
     CHEAT_HIDE_HUD,
     CHEAT_MUTE_MUSIC,
+    CHEAT_QUIZMO,
     CHEAT_MAX
 };
 
@@ -63,7 +64,6 @@ struct SettingsData {
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
     u8 battleDebug;
-    u8 quizmoDebug;
     u8 watchesVisible;
     struct WatchInfo watchInfo[SETTINGS_WATCHES_MAX];
     u8 nWatches;

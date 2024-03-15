@@ -5,7 +5,7 @@
 static const char *labels[] = {
     "hp",       "fp",         "coins",           "star power", "star pieces",
     "peril",    "auto mash",  "action commands", "peekaboo",   "brighten room",
-    "hide hud", "mute music",
+    "hide hud", "mute music", "quizmo spawns",
 };
 
 static s32 cheatProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
@@ -46,8 +46,6 @@ struct Menu *createCheatsMenu(void) {
             menuItemAddChainLink(option, encountersOption, MENU_NAVIGATE_UP);
         }
     }
-    menuAddCheckbox(&menu, 0, y, menuByteCheckboxProc, &settings->quizmoDebug);
-    menuAddStatic(&menu, 2, y++, "quizmo spawns", 0xC0C0C0);
     y++;
     menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 

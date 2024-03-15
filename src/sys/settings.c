@@ -39,7 +39,6 @@ void settingsLoadDefault(void) {
     d->timerLogging = 0;
     d->timerShow = 0;
     d->battleDebug = 0;
-    d->quizmoDebug = 0;
     d->watchesVisible = 1;
     d->trainerAcEnabled = 0;
     d->trainerBowserEnabled = 0;
@@ -89,8 +88,6 @@ void applyMenuSettings(void) {
     menuSetPyoffset(fp.mainMenu, settings->menuY);
     menuImitate(fp.global, fp.mainMenu);
     watchlistFetch(fp.menuWatchlist);
-    pm_gGameStatus.debugEnemyContact = settings->battleDebug;
-    pm_gGameStatus.debugQuizmo = settings->quizmoDebug;
 }
 
 void settingsSave(s32 profile) {

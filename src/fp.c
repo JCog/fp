@@ -296,7 +296,6 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 
 void fpUpdateCheats(void) {
     pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
-    pm_gGameStatus.debugQuizmo = settings->quizmoDebug;
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
     }
@@ -321,6 +320,9 @@ void fpUpdateCheats(void) {
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
+    if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
+        pm_gActionCommandStatus.autoSucceed = 1;
+    }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
     }
@@ -331,9 +333,7 @@ void fpUpdateCheats(void) {
         // the game is constantly trying to raise this by 1 every frame, so 0 would just make it quiet instead of muted
         pm_musicCurrentVolume = -1;
     }
-    if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
-        pm_gActionCommandStatus.autoSucceed = 1;
-    }
+    pm_gGameStatus.debugQuizmo = CHEAT_ACTIVE(CHEAT_QUIZMO) != 0;
 }
 
 void fpUpdateWarps(void) {
