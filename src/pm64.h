@@ -1195,6 +1195,13 @@ typedef struct Npc {
     /* 0x336 */ char unk_336[10];
 } pm_Npc; // size = 0x340
 
+typedef struct Action {
+    /* 0x00 */ void (*update)(void);
+    /* 0x04 */ void *dmaStart;
+    /* 0x08 */ void *dmaEnd;
+    /* 0x0C */ s8 flag;
+} pm_Action; // size = 0x10
+
 typedef void *(*PrintCallback)(void *, const char *, u32);
 typedef pm_Evt *pm_ScriptList[128];
 
@@ -1222,11 +1229,13 @@ extern_data pm_SaveData pm_gCurrentSaveFile;
 extern_data s32 pm_battleState;
 extern_data pm_BattleStatus pm_gBattleStatus;
 extern_data s32 pm_battleState2;
+extern_data pm_Action pm_playerActionsTable[39];
 extern_data s32 pm_popupMenuVar;
 extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
+extern_data s16 pm_musicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
@@ -1237,11 +1246,13 @@ void osSyncPrintf(const char *fmt, ...);
 s32 pm_fioValidateFileChecksum(void *buffer);
 bool pm_fioFetchSavedFileInfo(void);
 void pm_fioDeserializeState(void);
-void pm_fioReadFlash(s32 slot, void *buffer, u32 size);
+void pm_fioReadFlash(s32 slot, void *buffer, u32 size); // writes to buffer in 128-byte blocks
 void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
 void pm_setCurtainScaleGoal(f32 goal);
 void pm_setCurtainDrawCallback(void *callback);
 void pm_setCurtainFadeGoal(f32 goal);
+void pm_update_cameras(void);
+void pm_update_camera_zone_interp(pm_Camera *camera);
 void pm_setGameMode(s32 mode);
 pm_Npc *pm_get_npc_safe(s32 npcID);
 s32 pm_func_800554A4(s32);

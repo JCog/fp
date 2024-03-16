@@ -1,0 +1,142 @@
+#include "fp.h"
+#include "menu/menu.h"
+#include "sys/input.h"
+#include <string.h>
+
+static void setCamInputMask(void) {
+    if (fp.freeCam && !fp.lockCam) {
+        fpSetInputMask(BUTTON_C_RIGHT | BUTTON_C_LEFT | BUTTON_C_DOWN | BUTTON_C_UP | BUTTON_Z | BUTTON_L, 0xFF, 0xFF);
+    } else {
+        fpSetInputMask(BUTTON_L, 0x00, 0x00);
+    }
+}
+
+static s32 enableCamProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        fp.freeCam = TRUE;
+        setCamInputMask();
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        fp.freeCam = FALSE;
+        pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
+        pm_gCameras[pm_gCurrentCameraID].moveSpeed = 1;
+        setCamInputMask();
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, fp.freeCam);
+    }
+    return 0;
+}
+
+static s32 lockCamProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        fp.lockCam = TRUE;
+        setCamInputMask();
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        fp.lockCam = FALSE;
+        setCamInputMask();
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, fp.lockCam);
+    }
+    return 0;
+}
+
+static void resetCamProc(struct MenuItem *item, void *data) {
+    pm_Camera cam = pm_gCameras[pm_gCurrentCameraID];
+    pm_gCameras[pm_gCurrentCameraID].targetPos = pm_gPlayerStatus.position;
+    pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
+    pm_update_cameras();
+    fp.cam.eye = pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
+    fp.cam.obj = pm_gCameras[pm_gCurrentCameraID].lookAt_obj;
+    fp.cam.pitch = pm_gCameras[pm_gCurrentCameraID].currentPitch;
+    fp.cam.yaw = pm_gCameras[pm_gCurrentCameraID].currentYaw;
+    pm_gCameras[pm_gCurrentCameraID] = cam;
+    fp.resetCam = TRUE;
+}
+
+static s32 camBhvProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.camBhv = menuOptionGet(item);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuOptionGet(item) != fp.camBhv) {
+            menuOptionSet(item, fp.camBhv);
+        }
+    }
+    return 0;
+}
+
+static s32 camDistMinProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.camDistMin = menuIntinputGets(item);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.camDistMin) {
+            menuIntinputSet(item, fp.camDistMin);
+        }
+    }
+    return 0;
+}
+
+static s32 camDistMaxProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.camDistMax = menuIntinputGets(item);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.camDistMax) {
+            menuIntinputSet(item, fp.camDistMax);
+        }
+    }
+    return 0;
+}
+
+static s32 camMoveSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.freeCamMoveSpeed = menuIntinputGets(item);
+        setFreeCamMoveSpeed(fp.freeCamMoveSpeed);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.freeCamMoveSpeed) {
+            menuIntinputSet(item, fp.freeCamMoveSpeed);
+        }
+    }
+    return 0;
+}
+
+static s32 camPanSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_CHANGED) {
+        fp.freeCamPanSpeed = menuIntinputGets(item);
+        setFreeCamPanSpeed(fp.freeCamPanSpeed);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        if (menuIntinputGets(item) != fp.freeCamPanSpeed) {
+            menuIntinputSet(item, fp.freeCamPanSpeed);
+        }
+    }
+    return 0;
+}
+
+struct Menu *createCameraMenu(void) {
+    static struct Menu menu;
+
+    int y = 0;
+
+    /* initialize menu */
+    menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
+
+    menuAddStatic(&menu, 0, y, "enable", 0xC0C0C0);
+    menuAddCheckbox(&menu, 16, y++, enableCamProc, NULL);
+    menuAddStatic(&menu, 0, y, "lock", 0xC0C0C0);
+    menuAddCheckbox(&menu, 16, y++, lockCamProc, NULL);
+    menuAddStatic(&menu, 0, ++y, "behavior", 0xC0C0C0);
+    menuAddOption(&menu, 16, y++,
+                  "manual\0"
+                  "birdseye follow\0"
+                  "radial follow\0",
+                  camBhvProc, NULL);
+    menuAddStatic(&menu, 0, y, "distance min", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMinProc, NULL);
+    menuAddStatic(&menu, 0, y, "distance max", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMaxProc, NULL);
+    menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 2, camMoveSpeedProc, NULL);
+    menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
+    menuAddIntinput(&menu, 16, y++, -10, 2, camPanSpeedProc, NULL);
+    menuAddButton(&menu, 16, y++, "reset", resetCamProc, NULL);
+
+    return &menu;
+}

@@ -1,9 +1,9 @@
 #include "commands.h"
 #include "fp.h"
-#include "input.h"
+#include "fp/practice/timer.h"
 #include "pm64.h"
-#include "timer.h"
-#include "watchlist.h"
+#include "sys/input.h"
+#include "util/watchlist.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"reimport save",    COMMAND_PRESS_ONCE, 0, commandImportSaveProc    },
     {"save game",        COMMAND_PRESS_ONCE, 0, commandSaveGameProc      },
     {"load game",        COMMAND_PRESS_ONCE, 0, commandLoadGameProc      },
-    {"start/stop timer", COMMAND_PRESS_ONCE, 0, commandStartTimerProc    },
+    {"start/stop timer", COMMAND_PRESS_ONCE, 0, commandStartStopTimerProc},
     {"reset timer",      COMMAND_PRESS_ONCE, 0, commandResetTimerProc    },
     {"show/hide timer",  COMMAND_PRESS_ONCE, 0, commandShowHideTimerProc },
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
@@ -135,16 +135,17 @@ void fpSetGlobalByte(s32 byteIndex, s8 value) {
 }
 
 void commandLevitateProc(void) {
-    // TODO: figure out how to get some version of this working for peach
-    if (!(pm_gGameStatus.peachFlags & (1 << 0))) {
-        pm_gPlayerStatus.flags |= 1 << 1;
-        pm_gPlayerStatus.flags &= ~(1 << 2);
-        pm_gPlayerStatus.ySpeed = 11;
-        pm_gPlayerStatus.framesInAir = 1;
-        // these are the default starting values for when you fall
-        pm_gPlayerStatus.yAcceleration = -0.350080013275f;
-        pm_gPlayerStatus.yJerk = -0.182262003422f;
-        pm_gPlayerStatus.ySnap = 0.0115200001746f;
+    pm_gPlayerStatus.flags |= 1 << 1;
+    pm_gPlayerStatus.flags &= ~(1 << 2);
+    pm_gPlayerStatus.ySpeed = 11;
+    pm_gPlayerStatus.framesInAir = 1;
+    // these are the default starting values for when you fall
+    pm_gPlayerStatus.yAcceleration = -0.350080013275f;
+    pm_gPlayerStatus.yJerk = -0.182262003422f;
+    pm_gPlayerStatus.ySnap = 0.0115200001746f;
+
+    if (pm_gGameStatus.peachFlags & (1 << 0)) {
+        pm_playerActionsTable[5].flag = TRUE;
     }
 }
 
@@ -232,8 +233,8 @@ void commandSaveGameProc(void) {
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void commandStartTimerProc(void) {
-    timerStart();
+void commandStartStopTimerProc(void) {
+    timerStartStop();
 }
 
 void commandResetTimerProc(void) {

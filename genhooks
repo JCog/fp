@@ -45,3 +45,7 @@ genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
 genhook "$sym_fire_flower_hook" "nop;"
 
 genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
+
+# Remove calls to update backup save in slot 7 to make room for fp settings saves
+genhook "$sym_flush_backups_hook_1" "nop;"
+genhook "$sym_flush_backups_hook_2" "nop;"
