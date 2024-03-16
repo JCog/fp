@@ -35,7 +35,7 @@ void settingsLoadDefault(void) {
     d->menuFontResource = RES_FONT_PRESSSTART2P;
     d->menuDropShadow = 1;
     d->menuBackground = 1;
-    d->menuBackgroundAlpha = 0xE0;
+    d->menuBackgroundAlpha = 0xC0;
     d->inputDisplay = 0;
     d->log = 1;
     d->timerLogging = 0;
