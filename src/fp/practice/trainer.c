@@ -135,62 +135,6 @@ asm(".set noreorder;"
     "JR $ra;"
     "SW $t1, 0x0000 ($t0);");
 
-static s32 enableBowserTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->trainerBits.bowserEnabled = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->trainerBits.bowserEnabled = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->trainerBits.bowserEnabled);
-    }
-    return 0;
-}
-
-static s32 enableLzsTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->trainerBits.lzsEnabled = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->trainerBits.lzsEnabled = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->trainerBits.lzsEnabled);
-    }
-    return 0;
-}
-
-static s32 enableAcTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->trainerBits.acEnabled = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->trainerBits.acEnabled = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->trainerBits.acEnabled);
-    }
-    return 0;
-}
-
-static s32 enableClippyTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->trainerBits.clippyEnabled = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->trainerBits.clippyEnabled = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->trainerBits.clippyEnabled);
-    }
-    return 0;
-}
-
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -370,7 +314,7 @@ static void updateBowserBlockTrainer(void) {
             }
 
             if (isBowser) {
-                if (settings->trainerBits.bowserEnabled) {
+                if (settings->trainerBowserEnabled) {
                     enemy0->state.varTable[0] = 2; // total turns, to make bowser stop talking
                     enemy0->takeTurnScriptSource = (void *)&bowserCustomScript;
 
@@ -387,7 +331,7 @@ static void updateBowserBlockTrainer(void) {
 }
 
 static void updateLzsTrainer(void) {
-    if (settings->trainerBits.lzsEnabled) {
+    if (settings->trainerLzsEnabled) {
         // detect if loading zone is stored
         for (s32 evtIdx = 0; evtIdx < pm_gNumScripts; evtIdx++) {
             if (pm_gScriptIndexList[evtIdx] >= 128) {
@@ -513,7 +457,7 @@ static void blockCheckSuccessOrEarly(void) {
 }
 
 static void updateBlockTrainer(void) {
-    if (settings->trainerBits.acEnabled && pm_gGameStatus.isBattle) {
+    if (settings->trainerAcEnabled && pm_gGameStatus.isBattle) {
         // blocks
         switch (pm_gBattleStatus.blockResult) {
             case BLOCK_EARLY:
@@ -573,7 +517,7 @@ static void updateBlockTrainer(void) {
 }
 
 static void updateClippyTrainer(void) {
-    if (settings->trainerBits.clippyEnabled) {
+    if (settings->trainerClippyEnabled) {
         if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
             if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
                 clippyStatus = CLIPPY_EARLY;
@@ -626,24 +570,26 @@ void createTrainerMenu(struct Menu *menu) {
     menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
 
     menuAddStatic(menu, 0, y, "bowser blocks", 0xC0C0C0);
-    struct MenuItem *firstOption = menuAddCheckbox(menu, xOffset, y, enableBowserTrainerProc, NULL);
+    struct MenuItem *firstOption =
+        menuAddCheckbox(menu, xOffset, y, menuByteCheckboxProc, &settings->trainerBowserEnabled);
     menuAddOption(menu, xOffset + 2, y++,
                   "fire\0"
                   "butt stomp\0"
                   "claw\0"
                   "wave\0"
                   "lightning\0",
-                  byteOptionmodProc, &bowserAttack);
+                  menuByteOptionmodProc, &bowserAttack);
 
     menuAddStatic(menu, 0, y, "lzs jumps", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y, enableLzsTrainerProc, NULL);
+    menuAddCheckbox(menu, xOffset, y, menuByteCheckboxProc, &settings->trainerLzsEnabled);
     menuAddSubmenuIcon(menu, xOffset + 2, y++, &lzsMenu, wrench, 0, 0, 1.0f);
 
     menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
-    menuAddCheckbox(menu, xOffset, y++, enableAcTrainerProc, NULL);
+    menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerAcEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
-    struct MenuItem *lastOption = menuAddCheckbox(menu, xOffset, y++, enableClippyTrainerProc, NULL);
+    struct MenuItem *lastOption =
+        menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerClippyEnabled);
 #if PM64_VERSION == JP
     menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);

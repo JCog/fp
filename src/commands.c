@@ -53,16 +53,16 @@ void fpLog(const char *fmt, ...) {
 
     va_list va;
     va_start(va, fmt);
-    s32 l = vsnprintf(NULL, 0, fmt, va);
+    s32 msgSize = vsnprintf(NULL, 0, fmt, va) + 1;
     va_end(va);
 
     ent = &fp.log[0];
-    ent->msg = malloc(l + 1);
+    ent->msg = malloc(msgSize);
     if (!ent->msg) {
         return;
     }
     va_start(va, fmt);
-    vsprintf(ent->msg, fmt, va);
+    vsnprintf(ent->msg, msgSize, fmt, va);
     va_end(va);
     ent->age = 0;
 }
@@ -213,8 +213,8 @@ void commandReloadLastWarpProc(void) {
 }
 
 void commandToggleWatchesProc(void) {
-    settings->bits.watchesVisible = !settings->bits.watchesVisible;
-    if (settings->bits.watchesVisible) {
+    settings->watchesVisible = !settings->watchesVisible;
+    if (settings->watchesVisible) {
         watchlistShow(fp.menuWatchlist);
     } else {
         watchlistHide(fp.menuWatchlist);
@@ -242,7 +242,7 @@ void commandResetTimerProc(void) {
 }
 
 void commandShowHideTimerProc(void) {
-    settings->bits.timerShow = !settings->bits.timerShow;
+    settings->timerShow = !settings->timerShow;
 }
 
 void commandLoadGameProc(void) {
@@ -271,7 +271,7 @@ void commandBreakFreeProc(void) {
 }
 
 void commandToggleInpDispProc(void) {
-    settings->bits.inputDisplay ^= 1;
+    settings->inputDisplay ^= 1;
 }
 
 void commandClippyProc(void) {

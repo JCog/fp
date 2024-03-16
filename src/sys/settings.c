@@ -32,15 +32,18 @@ void settingsLoadDefault(void) {
     struct SettingsData *d = &settingsStore.data;
 
     d->cheats = 0;
-    d->bits.fontResource = RES_FONT_PRESSSTART2P;
-    d->bits.dropShadow = 1;
-    d->bits.inputDisplay = 0;
-    d->bits.log = 1;
-    d->bits.timerLogging = 0;
-    d->bits.timerShow = 0;
-    d->bits.battleDebug = 0;
-    d->bits.quizmoDebug = 0;
-    d->bits.watchesVisible = 1;
+    d->menuFontResource = RES_FONT_PRESSSTART2P;
+    d->menuDropShadow = 1;
+    d->inputDisplay = 0;
+    d->log = 1;
+    d->timerLogging = 0;
+    d->timerShow = 0;
+    d->battleDebug = 0;
+    d->watchesVisible = 1;
+    d->trainerAcEnabled = 0;
+    d->trainerBowserEnabled = 0;
+    d->trainerClippyEnabled = 0;
+    d->trainerLzsEnabled = 0;
     d->menuX = 16;
     d->menuY = 60;
     d->inputDisplayX = 16;
@@ -75,18 +78,16 @@ void settingsLoadDefault(void) {
 }
 
 void applyMenuSettings(void) {
-    struct GfxFont *font = resourceGet(settings->bits.fontResource);
+    struct GfxFont *font = resourceGet(settings->menuFontResource);
     menuSetFont(fp.mainMenu, font);
     menuSetCellWidth(fp.mainMenu, font->charWidth + font->letterSpacing);
     menuSetCellHeight(fp.mainMenu, font->charHeight + font->lineSpacing);
-    gfxModeSet(GFX_MODE_DROPSHADOW, settings->bits.dropShadow);
+    gfxModeSet(GFX_MODE_DROPSHADOW, settings->menuDropShadow);
     gfxModeConfigure(GFX_MODE_TEXT, GFX_TEXT_FAST);
     menuSetPxoffset(fp.mainMenu, settings->menuX);
     menuSetPyoffset(fp.mainMenu, settings->menuY);
     menuImitate(fp.global, fp.mainMenu);
     watchlistFetch(fp.menuWatchlist);
-    pm_gGameStatus.debugEnemyContact = settings->bits.battleDebug;
-    pm_gGameStatus.debugQuizmo = settings->bits.quizmoDebug;
 }
 
 void settingsSave(s32 profile) {

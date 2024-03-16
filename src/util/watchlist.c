@@ -187,7 +187,7 @@ static s32 addMember(struct ItemData *data, u32 address, enum WatchType type, s3
     menuAddButtonIcon(imenu, 0, 0, listIcons, 1, 0, 0xFF0000, 1.0f, removeButtonProc, memberData);
     menuAddButtonIcon(imenu, 2, 0, wrench, 0, 0, 0xFFFFFF, 1.0f, editWatchInMemoryProc, memberData);
 
-    if (!settings->bits.watchesVisible) {
+    if (!settings->watchesVisible) {
         struct MenuItem *watch = menuUserwatchWatch(memberData->userwatch);
         menuItemDisable(watch);
     }
@@ -275,14 +275,14 @@ void watchlistHide(struct MenuItem *item) {
 static s32 toggleVisibilityProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     struct MenuItem *watchlist = data;
     if (reason == MENU_CALLBACK_CHANGED) {
-        settings->bits.watchesVisible = menuCheckboxGet(item);
-        if (settings->bits.watchesVisible) {
+        settings->watchesVisible = menuCheckboxGet(item);
+        if (settings->watchesVisible) {
             watchlistShow(watchlist);
         } else {
             watchlistHide(watchlist);
         }
     } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.watchesVisible);
+        menuCheckboxSet(item, settings->watchesVisible);
     }
     return 0;
 }

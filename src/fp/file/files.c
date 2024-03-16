@@ -255,7 +255,7 @@ static void returnPath(const char *name) {
             strcpy(&path[dl + 1 + nl], gfSuffix);
             if ((gfMode == GETFILE_SAVE || gfMode == GETFILE_SAVE_PREFIX_INC) && stat(path, NULL) == 0) {
                 char prompt[48];
-                sprintf(prompt, "'%.31s' exists", name);
+                snprintf(prompt, sizeof(prompt), "'%.31s' exists", name);
                 menuPrompt(&gfMenu, prompt,
                            "overwrite\0"
                            "cancel\0",

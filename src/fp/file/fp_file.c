@@ -20,38 +20,6 @@ static void saveSlotIncProc(struct MenuItem *item, void *data) {
     pm_gGameStatus.saveSlot %= 4;
 }
 
-static void saveProc(struct MenuItem *item, void *data) {
-    commandSaveGameProc();
-}
-
-static void loadProc(struct MenuItem *item, void *data) {
-    commandLoadGameProc();
-}
-
-static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -74,11 +42,11 @@ static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *d
 
     char buffer[24];
     if (chapter == 0) {
-        sprintf(buffer, "pro. (%d/%d) -", chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "pro. (%d/%d) -", chapterProgress, chapterMax);
     } else if (chapter > 8) {
-        sprintf(buffer, "invalid     -");
+        snprintf(buffer, sizeof(buffer), "invalid     -");
     } else {
-        sprintf(buffer, "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
     }
     gfxPrintf(font, x, y, buffer);
     return 1;
@@ -212,9 +180,11 @@ struct Menu *createFileMenu(void) {
 
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
     y++;
-    struct MenuItem *saveButton = menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, saveProc, NULL);
+    struct MenuItem *saveButton =
+        menuAddButtonIcon(&menu, 0, y, tSave, 3, 0, 0xFFFFFF, 1.0f, menuFuncProc, commandSaveGameProc);
     saveButton->tooltip = "save";
-    struct MenuItem *loadButton = menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, loadProc, NULL);
+    struct MenuItem *loadButton =
+        menuAddButtonIcon(&menu, 3, y, tSave, 2, 0, 0xFFFFFF, 1.0f, menuFuncProc, commandLoadGameProc);
     loadButton->tooltip = "load";
     struct MenuItem *exportButton = menuAddButtonIcon(&menu, 6, y, tSave, 1, 0, 0xFFFFFF, 1.0f, exportFileProc, NULL);
     exportButton->tooltip = "export";
@@ -241,33 +211,33 @@ struct Menu *createFileMenu(void) {
 
     menuAddStatic(&menu, 0, y++, "story progress", 0xC0C0C0);
     menuAddStaticCustom(&menu, 0, y, storyProgressDrawProc, NULL, 0xC0C0C0);
-    struct MenuItem *progressInput = menuAddIntinput(&menu, 14, y++, 16, 2, byteModProc, &STORY_PROGRESS);
+    struct MenuItem *progressInput = menuAddIntinput(&menu, 14, y++, 16, 2, menuByteModProc, &STORY_PROGRESS);
     menuItemAddChainLink(minusButton, progressInput, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(plusButton, progressInput, MENU_NAVIGATE_DOWN);
     y++;
 
     menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
     struct MenuItem *quizmoInput =
-        menuAddIntinput(&menu, menuX, y++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
+        menuAddIntinput(&menu, menuX, y++, 10, 2, menuByteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
     menuItemAddChainLink(quizmoInput, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "goomba\0"
                   "clubba\0"
                   "mushroom\0",
-                  byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD8]);
+                  menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD8]);
     menuAddStatic(&menu, 0, y, "toy box 2", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
                   "fuzzy\0"
                   "hammer bros.\0"
                   "thunder rage\0",
-                  byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
+                  menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
     menuAddStatic(&menu, 0, y, "toy box 3", 0xC0C0C0);
     struct MenuItem *toyboxItem3Option = menuAddOption(&menu, menuX, y++,
                                                        "pokey\0"
                                                        "koopatrol\0"
                                                        "super soda\0",
-                                                       byteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+                                                       menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
     y++;
 
     struct MenuItem *enemiesButton = menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);

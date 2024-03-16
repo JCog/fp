@@ -3,18 +3,6 @@
 #include "menu/menu.h"
 #include <stdlib.h>
 
-static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
 static void bowserHallwayProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;
     fpSetGlobalFlag(0x1fa, FALSE); // hallway not defeated
@@ -231,14 +219,6 @@ static void master3Proc(struct MenuItem *item, void *data) {
     }
 }
 
-static void tabPrevProc(struct MenuItem *item, void *data) {
-    menuTabPrevious(data);
-}
-
-static void tabNextProc(struct MenuItem *item, void *data) {
-    menuTabNext(data);
-}
-
 void createBossesMenu(struct Menu *menu) {
     s32 yMain = 0;
 
@@ -263,7 +243,7 @@ void createBossesMenu(struct Menu *menu) {
     menuAddButton(page, 0, yTab++, "final phase 2", bowserPhase2Proc, NULL);
     yTab++;
     menuAddStatic(page, 0, yTab, "phase 2 hp:", 0xC0C0C0);
-    menuAddIntinput(page, 12, yTab++, 10, 2, byteModProc, &pm_gCurrentSaveFile.globalBytes[0x18a]);
+    menuAddIntinput(page, 12, yTab++, 10, 2, menuByteModProc, &pm_gCurrentSaveFile.globalBytes[0x18a]);
 
     /* chapter bosses */
     yTab = 0;
@@ -323,6 +303,6 @@ void createBossesMenu(struct Menu *menu) {
     menuAddButton(page, 0, yTab++, "master 3", master3Proc, NULL);
 
     menuTabGoto(tab, 0);
-    menuAddButton(menu, 8, 0, "<", tabPrevProc, tab);
-    menuAddButton(menu, 10, 0, ">", tabNextProc, tab);
+    menuAddButton(menu, 8, 0, "<", menuTabPrevProc, tab);
+    menuAddButton(menu, 10, 0, ">", menuTabNextProc, tab);
 }

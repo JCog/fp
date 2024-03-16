@@ -267,7 +267,7 @@ void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 
 }
 
 void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
-    s32 hundredths = timerGetTimerCount() * 100 / fp.cpuCounterFreq;
+    s32 hundredths = timerCount * 100 / fp.cpuCounterFreq;
     s32 seconds = hundredths / 100;
     s32 minutes = seconds / 60;
     s32 hours = minutes / 60;
@@ -288,9 +288,9 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
         gfxPrintf(font, x, y, "%d.%02d", seconds, hundredths);
     }
 
-    gfxPrintf(font, x, y + cellHeight, "%d", timerGetLagFrames());
-    if (timerGetMode() != TIMER_MANUAL) {
-        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerGetCutsceneCount(), timerGetCutsceneTarget());
+    gfxPrintf(font, x, y + cellHeight, "%d", timerLagFrames);
+    if (timerMode != TIMER_MANUAL) {
+        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerCutsceneCount, timerCutsceneTarget);
     }
 }
 
@@ -320,6 +320,9 @@ void fpUpdateCheats(void) {
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
+    if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
+        pm_gActionCommandStatus.autoSucceed = 1;
+    }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
     }
@@ -330,9 +333,7 @@ void fpUpdateCheats(void) {
         // the game is constantly trying to raise this by 1 every frame, so 0 would just make it quiet instead of muted
         pm_musicCurrentVolume = -1;
     }
-    if (CHEAT_ACTIVE(CHEAT_AUTO_ACTION_CMD)) {
-        pm_gActionCommandStatus.autoSucceed = 1;
-    }
+    pm_gGameStatus.debugQuizmo = CHEAT_ACTIVE(CHEAT_QUIZMO) != 0;
 }
 
 void fpUpdateWarps(void) {
@@ -366,7 +367,7 @@ void fpDrawLog(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha
             free(ent->msg);
             ent->msg = NULL;
             continue;
-        } else if (!settings->bits.log) {
+        } else if (!settings->log) {
             continue;
         } else if (ent->age > fadeBegin) {
             msgAlpha = 0xFF - (ent->age - fadeBegin) * 0xFF / fadeDuration;
@@ -501,13 +502,12 @@ void fpDraw(void) {
         fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    if (settings->bits.inputDisplay) {
+    if (settings->inputDisplay) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    enum TimerState timerState = timerGetState();
     if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
-        (settings->bits.timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
         fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
     }
 

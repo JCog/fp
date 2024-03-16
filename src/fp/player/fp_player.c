@@ -49,42 +49,6 @@ static struct GfxTexture **getItemTextureList(void) {
     return itemTextureList;
 }
 
-static s32 halfwordModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u16 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
-static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
-static s32 byteOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
 static s32 maxHpProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menuIntinputGet(item) != pm_gPlayerStatus.playerData.maxHP) {
@@ -142,30 +106,6 @@ static s32 hammerProc(struct MenuItem *item, enum MenuCallbackReason reason, voi
     return 0;
 }
 
-static s32 actionCommandsProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *hasActionCommands = &pm_gPlayerStatus.playerData.hasActionCommands;
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        *hasActionCommands = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        *hasActionCommands = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuSwitchSet(item, *hasActionCommands);
-    }
-    return 0;
-}
-
-static s32 inPartyProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    pm_PartnerData *partner = (pm_PartnerData *)data;
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        partner->enabled = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        partner->enabled = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuSwitchSet(item, partner->enabled);
-    }
-    return 0;
-}
-
 static s32 superRankProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     pm_PartnerData *partner = (pm_PartnerData *)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
@@ -219,45 +159,15 @@ static s32 starSpiritSwitchProc(struct MenuItem *item, enum MenuCallbackReason r
     return 0;
 }
 
-static s32 beamRankProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *beamRank = &pm_gPlayerStatus.playerData.starBeamLevel;
-    if (reason == MENU_CALLBACK_CHANGED) {
-        *beamRank = menuCycleGet(item);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCycleSet(item, *beamRank);
-    }
-    return 0;
-}
-
-static s32 peachOrMarioProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+static s32 peachFlagProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    // 0 = peach or mario, 1 = transformed, 3 = parasol
+    u32 flag = (u32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 0);
+        pm_gGameStatus.peachFlags |= (1 << flag);
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 0);
+        pm_gGameStatus.peachFlags &= ~(1 << flag);
     } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 0));
-    }
-    return 0;
-}
-
-static s32 peachTransformedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 1);
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 1);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 1));
-    }
-    return 0;
-}
-
-static s32 peachParasolProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        pm_gGameStatus.peachFlags |= (1 << 2);
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        pm_gGameStatus.peachFlags &= ~(1 << 2);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << 2));
+        menuCheckboxSet(item, pm_gGameStatus.peachFlags & (1 << flag));
     }
     return 0;
 }
@@ -328,7 +238,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 hpX = 1;
     s32 hpY = 2;
     menuAddStaticIcon(menu, hpX, hpY, texHeart, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, hpX + 2, hpY, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.curHP);
+    item = menuAddIntinput(menu, hpX + 2, hpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.curHP);
     item->tooltip = strHp;
     menuAddStatic(menu, hpX + 4, hpY, "/", 0xC0C0C0);
     item = menuAddIntinput(menu, hpX + 5, hpY, 10, 2, maxHpProc, NULL);
@@ -337,7 +247,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 fpX = 1;
     s32 fpY = 4;
     menuAddStaticIcon(menu, fpX, fpY, texFlower, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, fpX + 2, fpY, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.curFP);
+    item = menuAddIntinput(menu, fpX + 2, fpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.curFP);
     item->tooltip = strFp;
     menuAddStatic(menu, fpX + 4, fpY, "/", 0xC0C0C0);
     item = menuAddIntinput(menu, fpX + 5, fpY, 10, 2, maxFpProc, NULL);
@@ -346,39 +256,40 @@ static void createStatsMenu(struct Menu *menu) {
     s32 bpX = 1;
     s32 bpY = 6;
     menuAddStaticIcon(menu, bpX, bpY, texBpIcon, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, bpX + 2, bpY, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.maxBP);
+    item = menuAddIntinput(menu, bpX + 2, bpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.maxBP);
     item->tooltip = strBp;
 
     s32 coinX = 10;
     s32 coinY = 2;
     menuAddStaticIcon(menu, coinX, coinY, texCoin, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, coinX + 2, coinY, 10, 3, halfwordModProc, &pm_gPlayerStatus.playerData.coins);
+    item = menuAddIntinput(menu, coinX + 2, coinY, 10, 3, menuHalfwordModProc, &pm_gPlayerStatus.playerData.coins);
     item->tooltip = strCoins;
 
     s32 starPieceX = 10;
     s32 starPieceY = 4;
     menuAddStaticIcon(menu, starPieceX, starPieceY, texStarPiece, 0, 0xFFFFFF, 1.0f);
-    item =
-        menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, byteModProc, &pm_gPlayerStatus.playerData.starPieces);
+    item = menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, menuByteModProc,
+                           &pm_gPlayerStatus.playerData.starPieces);
     item->tooltip = strStarPieces;
 
     s32 levelX = 17;
     s32 levelY = 2;
     menuAddStaticIcon(menu, levelX, levelY, texMarioHead, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, levelX + 2, levelY, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.level);
+    item = menuAddIntinput(menu, levelX + 2, levelY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.level);
     item->tooltip = strLevel;
 
     s32 starPointX = 17;
     s32 starPointY = 4;
     menuAddStaticIcon(menu, starPointX, starPointY, texStarPoint, 0, 0xFFFFFF, 1.0f);
-    item =
-        menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.starPoints);
+    item = menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, menuByteModProc,
+                           &pm_gPlayerStatus.playerData.starPoints);
     item->tooltip = strStarPoints;
 
     s32 actionCommandX = 23;
     s32 actionCommandY = 2;
-    item = menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1,
-                         0xFFFFFF, 0.7f, FALSE, actionCommandsProc, NULL);
+    item =
+        menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1, 0xFFFFFF,
+                      0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerStatus.playerData.hasActionCommands);
     item->tooltip = strActionCommands;
 }
 
@@ -421,9 +332,9 @@ static void createPartyMenu(struct Menu *menu) {
         s32 partnerX = baseX + (i / colHeight) * spacingX;
         s32 partnerY = baseY + (i % colHeight) * spacingY;
 
-        partners[i] =
-            menuAddSwitch(menu, partnerX, partnerY, texPartner, i + 1, 0, 0xFFFFFF, texPartner, i + 1, 1, 0xFFFFFF,
-                          scale, FALSE, inPartyProc, &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]]);
+        partners[i] = menuAddSwitch(menu, partnerX, partnerY, texPartner, i + 1, 0, 0xFFFFFF, texPartner, i + 1, 1,
+                                    0xFFFFFF, scale, FALSE, menuByteSwitchToggleProc,
+                                    &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]].enabled);
         partners[i]->tooltip = strPartnerNames[i];
 
         // super tex
@@ -474,7 +385,7 @@ static void createStarSpiritMenu(struct Menu *menu) {
     s8 beamPalettes[] = {1, 0, 0};
     u32 beamColors[] = {0xFFFFFF, 0xFFFFFF, 0xFFFFFF};
     struct MenuItem *item = menuAddCycle(menu, ssX, ssY, 3, beamTextures, beamTiles, beamPalettes, beamColors, scale,
-                                         FALSE, beamRankProc, NULL);
+                                         FALSE, menuByteCycleProc, &pm_gPlayerStatus.playerData.starBeamLevel);
     item->tooltip = strStarPeachBeam;
     menuItemCreateChain(starSpirits, 8, MENU_NAVIGATE_RIGHT, FALSE, FALSE);
     menuItemCreateChain(starSpirits, 8, MENU_NAVIGATE_LEFT, FALSE, TRUE);
@@ -485,13 +396,13 @@ static void createPeachMenu(struct Menu *menu) {
     menu->selector = menuAddSubmenu(menu, 0, y++, NULL, "return");
 
     menuAddStatic(menu, 0, y, "peach", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachOrMarioProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)0);
 
     menuAddStatic(menu, 0, y, "transformed", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachTransformedProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)1);
 
     menuAddStatic(menu, 0, y, "parasol", 0xC0C0C0);
-    menuAddCheckbox(menu, 12, y++, peachParasolProc, NULL);
+    menuAddCheckbox(menu, 12, y++, peachFlagProc, (void *)2);
 
     menuAddStatic(menu, 0, y, "disguise", 0xC0C0C0);
     menuAddOption(menu, 12, y++,
@@ -499,7 +410,7 @@ static void createPeachMenu(struct Menu *menu) {
                   "koopatrol\0"
                   "hammer bro\0"
                   "clubba\0",
-                  byteOptionmodProc, &pm_gGameStatus.peachDisguise);
+                  menuByteOptionmodProc, &pm_gGameStatus.peachDisguise);
 }
 
 static void createMerleeMenu(struct Menu *menu) {
@@ -513,13 +424,13 @@ static void createMerleeMenu(struct Menu *menu) {
                   "+3 DEF\0"
                   "EXP x2\0"
                   "Coins x2\0",
-                  byteOptionmodProc, &pm_gPlayerStatus.playerData.merleeSpellType);
+                  menuByteOptionmodProc, &pm_gPlayerStatus.playerData.merleeSpellType);
 
     menuAddStatic(menu, 0, yValue, "casts remaining", 0xC0C0C0);
-    menuAddIntinput(menu, 16, yValue++, 10, 2, byteModProc, &pm_gPlayerStatus.playerData.merleeCastsRemaining);
+    menuAddIntinput(menu, 16, yValue++, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.merleeCastsRemaining);
 
     menuAddStatic(menu, 0, yValue, "turns remaining", 0xC0C0C0);
-    menuAddIntinput(menu, 16, yValue++, 10, 3, halfwordModProc, &pm_gPlayerStatus.playerData.merleeTurnCount);
+    menuAddIntinput(menu, 16, yValue++, 10, 3, menuHalfwordModProc, &pm_gPlayerStatus.playerData.merleeTurnCount);
 }
 
 struct Menu *createPlayerMenu(void) {

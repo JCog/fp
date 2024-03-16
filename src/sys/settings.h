@@ -25,6 +25,7 @@ enum Cheats {
     CHEAT_BRIGHTEN_ROOM,
     CHEAT_HIDE_HUD,
     CHEAT_MUTE_MUSIC,
+    CHEAT_QUIZMO,
     CHEAT_MAX
 };
 
@@ -34,31 +35,10 @@ struct WatchInfo {
     u8 positionSet : 1;
 };
 
-struct SettingsBits {
-    u32 fontResource   : 4;
-    u32 dropShadow     : 1;
-    u32 inputDisplay   : 1;
-    u32 log            : 1;
-    u32 timerShow      : 1;
-    u32 timerLogging   : 1;
-    u32 battleDebug    : 3;
-    u32 quizmoDebug    : 1;
-    u32 watchesVisible : 1;
-};
-
-struct TrainerBits {
-    u32 bowserEnabled : 1;
-    u32 lzsEnabled    : 1;
-    u32 acEnabled     : 1;
-    u32 clippyEnabled : 1;
-};
-
 struct SettingsData {
     /* order elements by size for space-efficient packing */
     u32 watchAddress[SETTINGS_WATCHES_MAX];
     u32 cheats;
-    struct SettingsBits bits;
-    struct TrainerBits trainerBits;
     s16 menuX;
     s16 menuY;
     s16 inputDisplayX;
@@ -73,6 +53,18 @@ struct SettingsData {
     s8 cheatEnemyContact;
     s8 controlStickRange;
     u8 controlStick;
+    u8 menuFontResource;
+    u8 menuDropShadow;
+    u8 inputDisplay;
+    u8 log;
+    u8 timerShow;
+    u8 timerLogging;
+    u8 trainerBowserEnabled;
+    u8 trainerLzsEnabled;
+    u8 trainerAcEnabled;
+    u8 trainerClippyEnabled;
+    u8 battleDebug;
+    u8 watchesVisible;
     struct WatchInfo watchInfo[SETTINGS_WATCHES_MAX];
     u8 nWatches;
 };

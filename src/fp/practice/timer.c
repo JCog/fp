@@ -5,6 +5,12 @@
 #include "sys/gfx.h"
 #include "sys/settings.h"
 
+enum TimerMode timerMode = 0;
+enum TimerState timerState = 0;
+s64 timerCount = 0;
+s32 timerLagFrames = 0;
+u8 timerCutsceneTarget = 1;
+u8 timerCutsceneCount = 0;
 static s64 start = 0;
 static s64 end = 0;
 static u32 lagStart = 0;
@@ -12,69 +18,9 @@ static u32 lagEnd = 0;
 static u16 frameStart = 0;
 static u16 frameEnd = 0;
 static bool prevCutsceneState = FALSE;
-static enum TimerMode timerMode = 0;
-static enum TimerState timerState = 0;
-static u8 cutsceneTarget = 1;
-static u8 cutsceneCount = 0;
-static s64 timerCount = 0;
-static s32 lagFrames = 0;
 static u16 prevAreaID = 0;
 static u16 prevMapID = 0;
 static bool newMapWaiting = FALSE;
-
-static s32 byteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != *p) {
-            menuIntinputSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_CHANGED) {
-        *p = menuIntinputGet(item);
-    }
-    return 0;
-}
-
-static s32 timerModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    enum TimerMode *p = data;
-    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
-        }
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
-    }
-    return 0;
-}
-
-static s32 showTimerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.timerShow = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.timerShow = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.timerShow);
-    }
-    return 0;
-}
-
-static s32 timerLoggingProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_SWITCH_ON) {
-        settings->bits.timerLogging = 1;
-    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
-        settings->bits.timerLogging = 0;
-    } else if (reason == MENU_CALLBACK_THINK) {
-        menuCheckboxSet(item, settings->bits.timerLogging);
-    }
-    return 0;
-}
-
-static void startStopProc(struct MenuItem *item, void *data) {
-    timerStartStop();
-}
-
-static void resetProc(struct MenuItem *item, void *data) {
-    timerReset();
-}
 
 static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
@@ -86,16 +32,16 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
     switch (timerState) {
         case TIMER_RUNNING:
             timerCount = fp.cpuCounter - start;
-            lagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
+            timerLagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
             break;
         case TIMER_STOPPED:
             timerCount = end - start;
-            lagFrames = (lagEnd - lagStart) / 2 - (frameEnd - frameStart);
+            timerLagFrames = (lagEnd - lagStart) / 2 - (frameEnd - frameStart);
             break;
         case TIMER_INACTIVE:
         case TIMER_WAITING:
             timerCount = 0;
-            lagFrames = 0;
+            timerLagFrames = 0;
             break;
     }
 
@@ -113,9 +59,9 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
     } else {
         gfxPrintf(font, x, y, "timer  %d.%02d", seconds, hundredths);
     }
-    gfxPrintf(font, x, y + chHeight, "lag    %d", lagFrames >= 0 ? lagFrames : 0);
+    gfxPrintf(font, x, y + chHeight, "lag    %d", timerLagFrames >= 0 ? timerLagFrames : 0);
     if (timerMode != TIMER_MANUAL) {
-        gfxPrintf(font, x, y + chHeight * 2, "cs/lz  %d/%d", cutsceneCount, cutsceneTarget);
+        gfxPrintf(font, x, y + chHeight * 2, "cs/lz  %d/%d", timerCutsceneCount, timerCutsceneTarget);
     }
     return 1;
 }
@@ -133,30 +79,6 @@ static s32 timerStatusDrawProc(struct MenuItem *item, struct MenuDrawParams *dra
         case TIMER_STOPPED: gfxPrintf(font, x, y, "stopped"); break;
     }
     return 1;
-}
-
-enum TimerMode timerGetMode(void) {
-    return timerMode;
-}
-
-enum TimerState timerGetState(void) {
-    return timerState;
-}
-
-s64 timerGetTimerCount(void) {
-    return timerCount;
-}
-
-s32 timerGetLagFrames(void) {
-    return lagFrames;
-}
-
-u8 timerGetCutsceneTarget(void) {
-    return cutsceneTarget;
-}
-
-u8 timerGetCutsceneCount(void) {
-    return cutsceneCount;
 }
 
 void timerUpdate(void) {
@@ -181,24 +103,24 @@ void timerUpdate(void) {
                 start = fp.cpuCounter;
                 lagStart = pm_viFrames;
                 frameStart = pm_gGameStatus.frameCounter;
-                if (settings->bits.timerLogging) {
+                if (settings->timerLogging) {
                     fpLog("timer started");
                 }
             }
             break;
         case TIMER_RUNNING:
             if (timerMode == TIMER_CUTSCENE && !prevCutsceneState && inCutscene) {
-                cutsceneCount++;
-                if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
+                timerCutsceneCount++;
+                if (settings->timerLogging && timerCutsceneCount != timerCutsceneTarget) {
                     fpLog("cutscene started");
                 }
             } else if (timerMode == TIMER_LOADING_ZONE && newMap) {
-                cutsceneCount++;
-                if (settings->bits.timerLogging && cutsceneCount != cutsceneTarget) {
+                timerCutsceneCount++;
+                if (settings->timerLogging && timerCutsceneCount != timerCutsceneTarget) {
                     fpLog("loading zone");
                 }
             }
-            if (cutsceneCount == cutsceneTarget) {
+            if (timerCutsceneCount == timerCutsceneTarget) {
                 timerState = TIMER_STOPPED;
                 end = fp.cpuCounter;
                 lagEnd = pm_viFrames;
@@ -206,11 +128,11 @@ void timerUpdate(void) {
                 fpLog("timer stopped");
             }
             timerCount = fp.cpuCounter - start;
-            lagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
+            timerLagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
             break;
         case TIMER_STOPPED:
             timerCount = end - start;
-            lagFrames = (lagEnd - lagStart) / 2 - (frameEnd - frameStart);
+            timerLagFrames = (lagEnd - lagStart) / 2 - (frameEnd - frameStart);
             break;
         case TIMER_INACTIVE: break;
     }
@@ -227,10 +149,10 @@ void timerStartStop(void) {
             fpLog("timer set to start");
         }
     } else if (timerState == TIMER_RUNNING) {
-        cutsceneCount = cutsceneTarget;
+        timerCutsceneCount = timerCutsceneTarget;
     } else if (timerState == TIMER_STOPPED) {
         timerState = TIMER_WAITING;
-        cutsceneCount = 0;
+        timerCutsceneCount = 0;
         if (timerMode != TIMER_MANUAL) {
             fpLog("timer set to start");
         }
@@ -239,7 +161,7 @@ void timerStartStop(void) {
 
 void timerReset(void) {
     timerState = TIMER_INACTIVE;
-    cutsceneCount = 0;
+    timerCutsceneCount = 0;
     fpLog("timer reset");
 }
 
@@ -257,21 +179,21 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStaticCustom(menu, 0, y++, timerDrawProc, NULL, 0xC0C0C0);
     y++;
     y++;
-    menuAddButton(menu, 0, y, "start/stop", startStopProc, NULL);
-    menuAddButton(menu, 11, y++, "reset", resetProc, NULL);
+    menuAddButton(menu, 0, y, "start/stop", menuFuncProc, &timerStartStop);
+    menuAddButton(menu, 11, y++, "reset", menuFuncProc, &timerReset);
     y++;
     menuAddStatic(menu, 0, y, "timer mode", 0xC0C0C0);
     menuAddOption(menu, menuX, y++,
                   "cutscene\0"
                   "loading zone\0"
                   "manual\0",
-                  timerModeProc, &timerMode);
+                  menuWordOptionmodProc, &timerMode);
     menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
-    menuAddIntinput(menu, menuX, y++, 10, 2, byteModProc, &cutsceneTarget);
+    menuAddIntinput(menu, menuX, y++, 10, 2, menuByteModProc, &timerCutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
-    menuAddCheckbox(menu, menuX, y++, showTimerProc, NULL);
+    menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerShow);
     menuAddStatic(menu, 0, y, "timer logging", 0xC0C0C0);
-    menuAddCheckbox(menu, menuX, y++, timerLoggingProc, NULL);
+    menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerLogging);
     y++;
     menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 }

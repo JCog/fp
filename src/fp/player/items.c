@@ -474,14 +474,6 @@ static s32 badgeProcSwitch(struct MenuItem *item, enum MenuCallbackReason reason
     return 0;
 }
 
-static void tabPrevProc(struct MenuItem *item, void *data) {
-    menuTabPrevious(data);
-}
-
-static void tabNextProc(struct MenuItem *item, void *data) {
-    menuTabNext(data);
-}
-
 static void itemListButtonProc(struct MenuItem *item, void *data) {
     itemSlotToUpdate = menuItemButtonGetSlot(item);
     enum ItemType itemType = menuItemButtonGetType(item);
@@ -608,8 +600,8 @@ void createItemSelectionMenu(struct GfxTexture *itemTextureList[]) {
                             ARRAY_LENGTH(listMisc));
 
     menuTabGoto(itemSelectionMenuTab, 0);
-    menuAddButton(menu, 8, 0, "<", tabPrevProc, itemSelectionMenuTab);
-    menuAddButton(menu, 10, 0, ">", tabNextProc, itemSelectionMenuTab);
+    menuAddButton(menu, 8, 0, "<", menuTabPrevProc, itemSelectionMenuTab);
+    menuAddButton(menu, 10, 0, ">", menuTabNextProc, itemSelectionMenuTab);
 }
 
 static void createItemsMenu(struct Menu *menu, enum ItemType itemType, struct GfxTexture *itemTextureList[],
@@ -630,7 +622,7 @@ static void createItemsMenu(struct Menu *menu, enum ItemType itemType, struct Gf
         menuInit(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
         if (pageCount > 1) {
             char buffer[8];
-            sprintf(buffer, "(%ld/%ld)", iPage + 1, pageCount);
+            snprintf(buffer, sizeof(buffer), "(%ld/%ld)", iPage + 1, pageCount);
             menuAddStatic(page, 12, 0, buffer, 0xC0C0C0);
         }
 
@@ -647,8 +639,8 @@ static void createItemsMenu(struct Menu *menu, enum ItemType itemType, struct Gf
     }
     menuTabGoto(tab, 0);
     if (pageCount > 1) {
-        menuAddButton(menu, 8, 0, "<", tabPrevProc, tab);
-        menuAddButton(menu, 10, 0, ">", tabNextProc, tab);
+        menuAddButton(menu, 8, 0, "<", menuTabPrevProc, tab);
+        menuAddButton(menu, 10, 0, ">", menuTabNextProc, tab);
     }
 }
 
