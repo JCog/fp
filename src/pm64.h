@@ -524,6 +524,46 @@ typedef struct {
     /* 0x4C */ f32 distance;
 } pm_ActorMovement; // size = 0x50;
 
+typedef struct ActorPart {
+    /* 0x00 */ s32 flags;
+    /* 0x04 */ s32 targetFlags; /* initialized to 0 */
+    /* 0x08 */ void *staticData;
+    /* 0x0C */ struct ActorPart *nextPart;
+    /* 0x10 */ void *movement;
+    /* 0x14 */ Vec3s partOffset;
+    /* 0x1A */ Vec3s visualOffset;
+    /* 0x20 */ Vec3f partOffsetFloat;
+    /* 0x2C */ Vec3f absolutePos;
+    /* 0x38 */ Vec3f rot;
+    /* 0x44 */ Vec3s rotPivotOffset;
+    /* 0x4A */ char unk_4A[2];
+    /* 0x4C */ Vec3f scale;
+    /* 0x58 */ Vec3f curPos;
+    /* 0x64 */ f32 yaw;
+    /* 0x68 */ s16 palAnimPosOffset[2]; // used by some palette animations to slightly adjust the screen position
+    /* 0x6C */ s16 targetOffset[2];
+    /* 0x70 */ s16 targetPriorityOffset;
+    /* 0x72 */ Vec2bu size;
+    /* 0x74 */ s8 verticalStretch;
+    /* 0x75 */ Vec2b projectileTargetOffset;
+    /* 0x77 */ char unk_77[1];
+    /* 0x78 */ u32 *defenseTable;
+    /* 0x7C */ s32 eventFlags;
+    /* 0x80 */ s32 elementalImmunities; // bits from Elements, i.e., ELEMENT_FIRE | ELEMENT_QUAKE
+    /* 0x84 */ s32 spriteInstanceID;
+    /* 0x88 */ u32 curAnimation;
+    /* 0x8C */ s32 animNotifyValue;
+    /* 0x90 */ f32 animationRate;
+    /* 0x94 */ u32 *idleAnimations;
+    /* 0x98 */ s16 opacity;
+    /* 0x9A */ char unk_9A[2];
+    /* 0x9C */ s32 shadowIndex;
+    /* 0xA0 */ f32 shadowScale;
+    /* 0xA4 */ s32 partTypeData[6];
+    /* 0xBC */ s16 actorTypeData2b[2];
+    /* 0xC0 */ void *decorationTable;
+} pm_ActorPart; // size = 0xC4
+
 typedef struct {
     /* 0x000 */ s32 flags;
     /* 0x004 */ s32 flags2;
@@ -582,7 +622,7 @@ typedef struct {
     /* 0x1F1 */ s8 turnPriority;
     /* 0x1F2 */ s8 enemyIndex; /* actorID = this | 200 */
     /* 0x1F3 */ s8 numParts;
-    /* 0x1F4 */ void *partsTable; // ActorPart
+    /* 0x1F4 */ pm_ActorPart *partsTable;
     /* 0x1F8 */ s16 lastDamageTaken;
     /* 0x1FA */ s16 hpChangeCounter;
     /* 0x1FC */ u16 damageCounter;
