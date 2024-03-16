@@ -1,7 +1,7 @@
 name: Build fp patches
 on:
   push:
-    branches: [develop]
+    branches: [main]
   release:
     types: [published]
 jobs:
