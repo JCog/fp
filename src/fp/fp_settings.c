@@ -240,7 +240,7 @@ struct Menu *createSettingsMenu(void) {
     menuAddPositioning(&menuAppearance, menuX, y++, menuPositionProc, NULL);
     y++;
     menuAddStatic(&menuAppearance, 0, y, "background", 0xC0C0C0);
-    menuAddCheckbox(&menuAppearance, menuX, y++, menuByteCheckboxProc, &setting->menuBackground);
+    menuAddCheckbox(&menuAppearance, menuX, y++, menuByteCheckboxProc, &settings->menuBackground);
     menuAddStatic(&menuAppearance, 1, y, "alpha", 0xC0C0C0);
     menuAddIntinput(&menuAppearance, menuX, y++, 16, 2, menuByteModProc, &settings->menuBackgroundAlpha);
 
