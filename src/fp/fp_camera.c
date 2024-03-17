@@ -52,39 +52,6 @@ static void resetCamProc(struct MenuItem *item, void *data) {
     fp.resetCam = TRUE;
 }
 
-static s32 camBhvProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED) {
-        fp.camBhv = menuOptionGet(item);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuOptionGet(item) != fp.camBhv) {
-            menuOptionSet(item, fp.camBhv);
-        }
-    }
-    return 0;
-}
-
-static s32 camDistMinProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED) {
-        fp.camDistMin = menuIntinputGets(item);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.camDistMin) {
-            menuIntinputSet(item, fp.camDistMin);
-        }
-    }
-    return 0;
-}
-
-static s32 camDistMaxProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED) {
-        fp.camDistMax = menuIntinputGets(item);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.camDistMax) {
-            menuIntinputSet(item, fp.camDistMax);
-        }
-    }
-    return 0;
-}
-
 static s32 camMoveSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_CHANGED) {
         fp.freeCamMoveSpeed = menuIntinputGets(item);
@@ -130,11 +97,11 @@ struct Menu *createCameraMenu(void) {
                                                  "manual\0"
                                                  "birdseye follow\0"
                                                  "radial follow\0",
-                                                 camBhvProc, NULL);
+                                                 menuWordOptionmodProc, &fp.camBhv);
     menuAddStatic(&menu, 0, y, "distance min", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, -10, 5, camDistMinProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, 10, 4, menuHalfwordModProc, &fp.camDistMin);
     menuAddStatic(&menu, 0, y, "distance max", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, -10, 5, camDistMaxProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, 10, 4, menuHalfwordModProc, &fp.camDistMax);
     menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, -10, 2, camMoveSpeedProc, NULL);
     menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
