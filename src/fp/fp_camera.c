@@ -113,30 +113,37 @@ struct Menu *createCameraMenu(void) {
     static struct Menu menu;
 
     int y = 0;
+    int menuX = 13;
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
 
     menuAddStatic(&menu, 0, y, "enable", 0xC0C0C0);
-    menuAddCheckbox(&menu, 16, y++, enableCamProc, NULL);
+    struct MenuItem *enableButton = menuAddCheckbox(&menu, menuX, y++, enableCamProc, NULL);
     menuAddStatic(&menu, 0, y, "lock", 0xC0C0C0);
-    menuAddCheckbox(&menu, 16, y++, lockCamProc, NULL);
-    menuAddStatic(&menu, 0, ++y, "behavior", 0xC0C0C0);
-    menuAddOption(&menu, 16, y++,
-                  "manual\0"
-                  "birdseye follow\0"
-                  "radial follow\0",
-                  camBhvProc, NULL);
+    struct MenuItem *lockButton = menuAddCheckbox(&menu, menuX, y++, lockCamProc, NULL);
+    struct MenuItem *resetButton = menuAddButton(&menu, 0, y++, "reset", resetCamProc, NULL);
+    y++;
+    menuAddStatic(&menu, 0, y, "behavior", 0xC0C0C0);
+    struct MenuItem *firstOption = menuAddOption(&menu, menuX, y++,
+                                                 "manual\0"
+                                                 "birdseye follow\0"
+                                                 "radial follow\0",
+                                                 camBhvProc, NULL);
     menuAddStatic(&menu, 0, y, "distance min", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMinProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, -10, 5, camDistMinProc, NULL);
     menuAddStatic(&menu, 0, y, "distance max", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, y++, -10, 5, camDistMaxProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, -10, 5, camDistMaxProc, NULL);
     menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, y++, -10, 2, camMoveSpeedProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, -10, 2, camMoveSpeedProc, NULL);
     menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
-    menuAddIntinput(&menu, 16, y++, -10, 2, camPanSpeedProc, NULL);
-    menuAddButton(&menu, 16, y++, "reset", resetCamProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, -10, 2, camPanSpeedProc, NULL);
+
+    menuItemAddChainLink(menu.selector, enableButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(lockButton, resetButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(firstOption, resetButton, MENU_NAVIGATE_UP);
+    menuItemAddChainLink(resetButton, lockButton, MENU_NAVIGATE_UP);
 
     return &menu;
 }
