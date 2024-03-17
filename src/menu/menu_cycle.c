@@ -49,7 +49,7 @@ static s32 drawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     s32 x = drawParams->x + (cw - w) / 2;
     s32 y = drawParams->y - (gfxFontXheight(drawParams->font) + h) / 2;
     if (item->owner->selector == item) {
-        f32 outlineScale = 1.2;
+        f32 outlineScale = 1.25;
         s32 outlineWidth = w * outlineScale;
         s32 outlineHeight = h * outlineScale;
         s32 outlineX = x - (outlineWidth - w) / 2;

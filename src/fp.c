@@ -512,6 +512,14 @@ void fpDraw(void) {
     }
 
     if (fp.menuActive) {
+        if (settings->menuBackground) {
+            gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(0x000000, settings->menuBackgroundAlpha));
+            gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+            gfxDisp(
+                gsSPScisTextureRectangle(qs102(0), qs102(0), qs102(SCREEN_WIDTH), qs102(SCREEN_HEIGHT), 0, 0, 0, 0, 0));
+            gfxModePop(GFX_MODE_COMBINE);
+        }
+
         menuDraw(fp.mainMenu);
     }
 

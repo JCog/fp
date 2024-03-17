@@ -76,44 +76,16 @@ static s32 dropShadowProc(struct MenuItem *item, enum MenuCallbackReason reason,
     return 0;
 }
 
-static s32 genericPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s16 *x = data;
-    s16 *y = x + 1;
-    s32 dist = 2;
-    if (inputPad() & BUTTON_Z) {
-        dist *= 2;
-    }
-    switch (reason) {
-        case MENU_CALLBACK_ACTIVATE: inputReserve(BUTTON_Z); break;
-        case MENU_CALLBACK_DEACTIVATE: inputFree(BUTTON_Z); break;
-        case MENU_CALLBACK_NAV_UP: *y -= dist; break;
-        case MENU_CALLBACK_NAV_DOWN: *y += dist; break;
-        case MENU_CALLBACK_NAV_LEFT: *x -= dist; break;
-        case MENU_CALLBACK_NAV_RIGHT: *x += dist; break;
-        default: break;
-    }
-    return 0;
-}
-
 static s32 menuPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s32 r = genericPositionProc(item, reason, &settings->menuX);
+    s32 r = menuGenericPositionProc(item, reason, &settings->menuX);
     menuSetPxoffset(fp.mainMenu, settings->menuX);
     menuSetPyoffset(fp.mainMenu, settings->menuY);
     return r;
 }
 
-static s32 timerPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_ACTIVATE) {
-        fp.timerMoving = TRUE;
-    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        fp.timerMoving = FALSE;
-    }
-    return genericPositionProc(item, reason, &settings->timerX);
-}
-
 static s32 logPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     fpLog("test log message!");
-    return genericPositionProc(item, reason, &settings->logX);
+    return menuGenericPositionProc(item, reason, &settings->logX);
 }
 
 static void activateCommandProc(struct MenuItem *item, void *data) {
@@ -146,23 +118,42 @@ static void loadSettingsProc(struct MenuItem *item, void *data) {
 
 struct Menu *createSettingsMenu(void) {
     static struct Menu menu;
-    static struct Menu commands;
+    static struct Menu menuAppearance;
+    static struct Menu menuDisplay;
+    static struct Menu menuCommands;
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
-    menuInit(&commands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menuAppearance, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menuDisplay, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menuCommands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     s32 y = 0;
-    s32 menuX = 17;
+    s32 menuX = 8;
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
-    /* appearance controls */
     menuAddStatic(&menu, 0, y, "profile", 0xC0C0C0);
-    struct MenuItem *firstAppearanceOption = menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
+    struct MenuItem *profileButton = menuAddButton(&menu, menuX, y, "-", profileDecProc, NULL);
     menuAddWatch(&menu, menuX + 2, y, (u32)&fp.profile, WATCH_TYPE_U8);
     menuAddButton(&menu, menuX + 4, y++, "+", profileIncProc, NULL);
-    menuAddStatic(&menu, 0, y, "font", 0xC0C0C0);
-    menuAddOption(&menu, menuX, y++,
+    y++;
+    struct MenuItem *firstMenuButton = menuAddSubmenu(&menu, 0, y++, &menuAppearance, "menu appearance");
+    menuAddSubmenu(&menu, 0, y++, &menuDisplay, "display");
+    menuAddSubmenu(&menu, 0, y++, &menuCommands, "commands");
+    y++;
+    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
+    menuAddButton(&menu, 0, y++, "restore defaults", restoreSettingsProc, NULL);
+
+    menuItemAddChainLink(menu.selector, profileButton, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(firstMenuButton, profileButton, MENU_NAVIGATE_UP);
+
+    /* appearance menu */
+    menuX = 12;
+    y = 0;
+    menuAppearance.selector = menuAddSubmenu(&menuAppearance, 0, y++, NULL, "return");
+    menuAddStatic(&menuAppearance, 0, y, "font", 0xC0C0C0);
+    menuAddOption(&menuAppearance, menuX, y++,
                   "fipps\0"
                   "notalot35\0"
                   "origami mommy\0"
@@ -173,42 +164,42 @@ struct Menu *createSettingsMenu(void) {
                   "werdna's return\0"
                   "pixelzim\0",
                   fontProc, NULL);
-    menuAddStatic(&menu, 0, y, "drop shadow", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y++, dropShadowProc, NULL);
-    menuAddStatic(&menu, 0, y, "menu position", 0xC0C0C0);
-    menuAddPositioning(&menu, menuX, y++, menuPositionProc, NULL);
-    menuAddStatic(&menu, 0, y, "timer position", 0xC0C0C0);
-    menuAddPositioning(&menu, menuX, y++, timerPositionProc, NULL);
-    menuAddStatic(&menu, 0, y, "input display", 0xC0C0C0);
-    menuAddCheckbox(&menu, menuX, y, menuByteCheckboxProc, &settings->inputDisplay);
-    menuAddPositioning(&menu, menuX + 2, y++, genericPositionProc, &settings->inputDisplayX);
-    menuAddStatic(&menu, 1, y, "control stick", 0xC0C0C0);
-    menuAddOption(&menu, menuX, y++,
+    menuAddStatic(&menuAppearance, 0, y, "drop shadow", 0xC0C0C0);
+    menuAddCheckbox(&menuAppearance, menuX, y++, dropShadowProc, NULL);
+    menuAddStatic(&menuAppearance, 0, y, "position", 0xC0C0C0);
+    menuAddPositioning(&menuAppearance, menuX, y++, menuPositionProc, NULL);
+    y++;
+    menuAddStatic(&menuAppearance, 0, y, "background", 0xC0C0C0);
+    menuAddCheckbox(&menuAppearance, menuX, y++, menuByteCheckboxProc, &settings->menuBackground);
+    menuAddStatic(&menuAppearance, 1, y, "alpha", 0xC0C0C0);
+    menuAddIntinput(&menuAppearance, menuX, y++, 16, 2, menuByteModProc, &settings->menuBackgroundAlpha);
+
+    /* display menu */
+    menuX = 16;
+    y = 0;
+    menuDisplay.selector = menuAddSubmenu(&menuDisplay, 0, y++, NULL, "return");
+    menuAddStatic(&menuDisplay, 0, y, "logging", 0xC0C0C0);
+    menuAddCheckbox(&menuDisplay, menuX, y, menuByteCheckboxProc, &settings->log);
+    menuAddPositioning(&menuDisplay, menuX + 2, y++, logPositionProc, NULL);
+    y++;
+    menuAddStatic(&menuDisplay, 0, y, "input display", 0xC0C0C0);
+    menuAddCheckbox(&menuDisplay, menuX, y, menuByteCheckboxProc, &settings->inputDisplay);
+    menuAddPositioning(&menuDisplay, menuX + 2, y++, menuGenericPositionProc, &settings->inputDisplayX);
+    menuAddStatic(&menuDisplay, 0, y, "analog type", 0xC0C0C0);
+    menuAddOption(&menuDisplay, menuX, y++,
                   "numerical\0"
                   "graphical\0"
                   "both\0",
                   menuByteOptionmodProc, &settings->controlStick);
-    menuAddStatic(&menu, 1, y, "graphical range", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
-    menuAddStatic(&menu, 0, y, "log", 0xC0C0C0);
-    struct MenuItem *lastAppearanceOption = menuAddCheckbox(&menu, menuX, y, menuByteCheckboxProc, &settings->log);
-    menuAddPositioning(&menu, menuX + 2, y++, logPositionProc, NULL);
-    struct MenuItem *commandsButton = menuAddSubmenu(&menu, 0, y++, &commands, "commands");
-    menuItemAddChainLink(menu.selector, firstAppearanceOption, MENU_NAVIGATE_DOWN);
-    menuItemAddChainLink(commandsButton, lastAppearanceOption, MENU_NAVIGATE_UP);
-    y++;
+    menuAddStatic(&menuDisplay, 0, y, "graphical range", 0xC0C0C0);
+    menuAddIntinput(&menuDisplay, menuX, y++, 10, 3, controlStickRangeProc, &settings->controlStickRange);
 
-    /* settings commands */
-    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
-    menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
-    menuAddButton(&menu, 0, y++, "restore defaults", restoreSettingsProc, NULL);
-
-    /* populate commands menu */
-    commands.selector = menuAddSubmenu(&commands, 0, 0, NULL, "return");
+    /* commands menu */
+    menuCommands.selector = menuAddSubmenu(&menuCommands, 0, 0, NULL, "return");
     const s32 pageLength = 16;
     s32 nPages = (COMMAND_MAX + pageLength - 1) / pageLength;
     struct Menu *pages = malloc(sizeof(*pages) * nPages);
-    struct MenuItem *tab = menuAddTab(&commands, 0, 1, pages, nPages);
+    struct MenuItem *tab = menuAddTab(&menuCommands, 0, 1, pages, nPages);
     for (s32 i = 0; i < nPages; i++) {
         struct Menu *page = &pages[i];
         menuInit(page, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -228,8 +219,8 @@ struct Menu *createSettingsMenu(void) {
     if (nPages > 0) {
         menuTabGoto(tab, 0);
     }
-    menuAddButton(&commands, 8, 0, "<", menuTabPrevProc, tab);
-    menuAddButton(&commands, 10, 0, ">", menuTabNextProc, tab);
+    menuAddButton(&menuCommands, 8, 0, "<", menuTabPrevProc, tab);
+    menuAddButton(&menuCommands, 10, 0, ">", menuTabNextProc, tab);
 
     return &menu;
 }

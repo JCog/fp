@@ -232,6 +232,7 @@ s32 menuByteCheckboxProc(struct MenuItem *item, enum MenuCallbackReason reason, 
 s32 menuByteCycleProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data);
 s32 menuHalfwordModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data);
 s32 menuWordOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data);
+s32 menuGenericPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data);
 void menuFuncProc(struct MenuItem *item, void *data);
 void menuTabPrevProc(struct MenuItem *item, void *data);
 void menuTabNextProc(struct MenuItem *item, void *data);

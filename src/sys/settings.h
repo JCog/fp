@@ -55,6 +55,8 @@ struct SettingsData {
     u8 controlStick;
     u8 menuFontResource;
     u8 menuDropShadow;
+    u8 menuBackground;
+    s8 menuBackgroundAlpha;
     u8 inputDisplay;
     u8 log;
     u8 timerShow;

@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "sys/input.h"
 
 s32 menuByteModProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     s8 *p = data;
@@ -74,6 +75,25 @@ s32 menuWordOptionmodProc(struct MenuItem *item, enum MenuCallbackReason reason,
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
         *p = menuOptionGet(item);
+    }
+    return 0;
+}
+
+s32 menuGenericPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    s16 *x = data;
+    s16 *y = x + 1;
+    s32 dist = 2;
+    if (inputPad() & BUTTON_Z) {
+        dist *= 2;
+    }
+    switch (reason) {
+        case MENU_CALLBACK_ACTIVATE: inputReserve(BUTTON_Z); break;
+        case MENU_CALLBACK_DEACTIVATE: inputFree(BUTTON_Z); break;
+        case MENU_CALLBACK_NAV_UP: *y -= dist; break;
+        case MENU_CALLBACK_NAV_DOWN: *y += dist; break;
+        case MENU_CALLBACK_NAV_LEFT: *x -= dist; break;
+        case MENU_CALLBACK_NAV_RIGHT: *x += dist; break;
+        default: break;
     }
     return 0;
 }

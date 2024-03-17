@@ -292,9 +292,11 @@ struct MenuItem *watchlistCreate(struct Menu *menu, struct Menu *menuRelease, s3
     struct MenuItem *item = menuAddImenu(menu, x, y + 3, &imenu);
     struct ItemData *data = malloc(sizeof(*data));
 
-    menuAddButton(menu, x, y, "save settings", fpSaveSettingsProc, NULL);
+    struct MenuItem *saveButton = menuAddButton(menu, x, y, "save settings", fpSaveSettingsProc, NULL);
     menuAddStatic(menu, x, y + 2, "visible", 0xC0C0C0);
     data->visibilityCheckbox = menuAddCheckbox(menu, x + 8, y + 2, toggleVisibilityProc, item);
+
+    menuItemAddChainLink(saveButton, data->visibilityCheckbox, MENU_NAVIGATE_DOWN);
 
     data->menuRelease = menuRelease;
     data->imenu = imenu;

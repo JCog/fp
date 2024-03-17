@@ -81,6 +81,15 @@ static s32 timerStatusDrawProc(struct MenuItem *item, struct MenuDrawParams *dra
     return 1;
 }
 
+static s32 timerPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.timerMoving = TRUE;
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.timerMoving = FALSE;
+    }
+    return menuGenericPositionProc(item, reason, &settings->timerX);
+}
+
 void timerUpdate(void) {
     bool inCutscene = pm_gPlayerStatus.flags & 0x00002000;
     bool newMap = pm_gGameStatus.mapID != prevMapID || pm_gGameStatus.areaID != prevAreaID;
@@ -167,7 +176,7 @@ void timerReset(void) {
 
 void createTimerMenu(struct Menu *menu) {
     s32 y = 0;
-    s32 menuX = 14;
+    s32 menuX = 15;
 
     /* initialize menu */
     menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
@@ -179,21 +188,26 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStaticCustom(menu, 0, y++, timerDrawProc, NULL, 0xC0C0C0);
     y++;
     y++;
-    menuAddButton(menu, 0, y, "start/stop", menuFuncProc, &timerStartStop);
+    struct MenuItem *startStopButton = menuAddButton(menu, 0, y, "start/stop", menuFuncProc, &timerStartStop);
     menuAddButton(menu, 11, y++, "reset", menuFuncProc, &timerReset);
     y++;
     menuAddStatic(menu, 0, y, "timer mode", 0xC0C0C0);
-    menuAddOption(menu, menuX, y++,
-                  "cutscene\0"
-                  "loading zone\0"
-                  "manual\0",
-                  menuWordOptionmodProc, &timerMode);
+    struct MenuItem *optionsStart = menuAddOption(menu, menuX, y++,
+                                                  "cutscene\0"
+                                                  "loading zone\0"
+                                                  "manual\0",
+                                                  menuWordOptionmodProc, &timerMode);
     menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
     menuAddIntinput(menu, menuX, y++, 10, 2, menuByteModProc, &timerCutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
     menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerShow);
     menuAddStatic(menu, 0, y, "timer logging", 0xC0C0C0);
     menuAddCheckbox(menu, menuX, y++, menuByteCheckboxProc, &settings->timerLogging);
+    menuAddStatic(menu, 0, y, "timer position", 0xC0C0C0);
+    struct MenuItem *optionsEnd = menuAddPositioning(menu, menuX, y++, timerPositionProc, NULL);
     y++;
-    menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    struct MenuItem *saveButton = menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+
+    menuItemAddChainLink(startStopButton, optionsStart, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(saveButton, optionsEnd, MENU_NAVIGATE_UP);
 }
