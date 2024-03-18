@@ -110,6 +110,8 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_setCurtainFadeGoal(0.0f);
 
     fp.warp = TRUE;
+    // disable frame advance when warping
+    fp.pendingFrames = -1;
 
     return TRUE;
 }
