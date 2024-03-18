@@ -49,3 +49,7 @@ genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
 # Remove calls to update backup save in slot 7 to make room for fp settings saves
 genhook "$sym_flush_backups_hook_1" "nop;"
 genhook "$sym_flush_backups_hook_2" "nop;"
+
+# Patch pause screen to not lag on wii u vc
+genhook "$sym_pause_no_lag_hook" "J $sym_pause_no_lag_addr_jump;"
+

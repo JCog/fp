@@ -101,3 +101,6 @@ peekaboo_hook = 0x801A7110;
 
 flush_backups_hook_1 = 0x8002B0A4;
 flush_backups_hook_2 = 0x8002B0B4;
+
+pause_no_lag_hook = 0x80027A2C;
+pause_no_lag_addr_jump = 0x80027B3C;
