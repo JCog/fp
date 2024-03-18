@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000};
+FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .pendingFrames = -1};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -538,7 +538,14 @@ ENTRY void fpUpdateEntry(void) {
         PRINTF("\n**** fp initialized ****\n\n");
     }
 
-    pm_step_game_loop();
+    if (fp.pendingFrames) {
+        pm_step_game_loop();
+        if (fp.pendingFrames > 0) {
+            fp.pendingFrames--;
+        }
+    } else {
+        pm_gPlayerStatus.flags |= 0x40000000;
+    }
     initStack(fpUpdate);
 }
 

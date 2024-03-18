@@ -63,6 +63,7 @@ typedef struct {
     pm_Camera savedCam;
     s8 freeCamMoveSpeed;
     s8 freeCamPanSpeed;
+    s32 pendingFrames;
 } FpCtxt;
 
 extern FpCtxt fp;

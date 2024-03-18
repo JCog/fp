@@ -56,8 +56,8 @@ void settingsLoadDefault(void) {
     d->timerY = 68;
     d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
-    d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);
-    d->binds[COMMAND_TURBO] = bindMake(1, BUTTON_D_DOWN);
+    d->binds[COMMAND_LEVITATE] = bindMake(2, BUTTON_R, BUTTON_A);
+    d->binds[COMMAND_TURBO] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
     d->binds[COMMAND_SAVEPOS] = bindMake(1, BUTTON_D_LEFT);
     d->binds[COMMAND_LOADPOS] = bindMake(1, BUTTON_D_RIGHT);
     d->binds[COMMAND_LZS] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
@@ -73,6 +73,8 @@ void settingsLoadDefault(void) {
     d->binds[COMMAND_BREAK_FREE] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
     d->binds[COMMAND_TOGGLE_INPUT_DISPLAY] = bindMake(0);
     d->binds[COMMAND_CLIPPY] = bindMake(0);
+    d->binds[COMMAND_PAUSE] = bindMake(1, BUTTON_D_DOWN);
+    d->binds[COMMAND_ADVANCE] = bindMake(1, BUTTON_D_UP);
     d->cheatEnemyContact = 0;
     d->controlStickRange = 90;
     d->controlStick = 0;

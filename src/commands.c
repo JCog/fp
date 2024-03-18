@@ -28,6 +28,8 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
+    {"pause",            COMMAND_PRESS_ONCE, 0, commandPauseProc         },
+    {"advance",          COMMAND_PRESS_ONCE, 0, commandAdvanceProc       },
 };
 
 void showMenu(void) {
@@ -283,5 +285,23 @@ void commandClippyProc(void) {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 1;
         pm_gPartnerActionStatus.shouldResumeAbility = 1;
         fpLog("clippy enabled");
+    }
+}
+
+void commandPauseProc() {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames = -1;
+        fpLog("unpaused");
+    } else {
+        fp.pendingFrames = 0;
+        fpLog("paused");
+    }
+}
+
+void commandAdvanceProc(void) {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames++;
+    } else {
+        commandPauseProc();
     }
 }
