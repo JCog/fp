@@ -10,6 +10,7 @@ pm_timeFreezeMode = 0x8009A5B8;
 pm_gameState = 0x8009A5E0;
 nuGfxCfb_ptr = 0x8009A62C;
 pm_masterGfxPos = 0x8009A64C;
+pm_gDisplayContext = 0x8009A654;
 pm_logicalSaveInfo = 0x8009BA10;
 pm_gameMode = 0x8009E700;
 pm_gMapTransitionAlpha = 0x8009E750;
@@ -28,6 +29,7 @@ pm_gPartnerActionStatus = 0x8010ED70;
 pm_gUiStatus = 0x8010F118;
 pm_gPlayerStatus = 0x8010F188;
 pm_gHudElementSizes = 0x8015406C;
+pm_screen_overlay_frontZoom = 0x8015B884;
 pm_musicCurrentVolume = 0x8015EA66;
 pm_gActionCommandStatus = 0x8029FED0;
 pm_gNumScripts = 0x802DA488;
@@ -45,6 +47,7 @@ pm_update_cameras = 0x8002D090;
 pm_update_camera_zone_interp = 0x80031124;
 pm_setCurtainDrawCallback = 0x8002BEC4;
 pm_setCurtainFadeGoal = 0x8002BED4;
+nuGfxTaskStart = 0x8002CF24;
 pm_setGameMode = 0x80033180;
 pm_get_npc_safe = 0x8003A808;
 pm_func_800554A4 = 0x80055154;
@@ -85,6 +88,11 @@ pm_saveGame = 0x802DC150;
 
 update_hook = 0x80026100;
 pm_step_game_loop = 0x80026710;
+
+background_hook = 0x80026124;
+draw_frame_hook = 0x8002612C;
+pm_gfx_task_background = 0x800269C0;
+pm_gfx_draw_frame = 0x80026AD4;
 
 draw_hook = 0x80026C88;
 pm_state_render_frontUI = 0x801181D4;

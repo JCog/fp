@@ -14,6 +14,7 @@ static Gfx *gfxDisp;
 static Gfx *gfxDispW;
 static Gfx *gfxDispP;
 static Gfx *gfxDispD;
+static u32 *fpDispPos;
 
 #define GFX_STACK_LENGTH 8
 static u64 gfxModes[GFX_MODE_ALL];
@@ -167,10 +168,15 @@ void *gfxDataAppend(void *data, size_t size) {
     return gfxDispD;
 }
 
-void gfxFlush(void) {
+void gfxFlush(s32 pendingFrames) {
     flushChars();
     gSPEndDisplayList(gfxDispP++);
-    gSPDisplayList(pm_masterGfxPos++, gfxDisp);
+    if (pendingFrames) {
+        fpDispPos = ((u32 *)pm_masterGfxPos + 1);
+        gSPDisplayList(pm_masterGfxPos++, gfxDisp);
+    } else {
+        *fpDispPos = (u32)gfxDisp;
+    }
     Gfx *disp_w = gfxDispW;
     gfxDispW = gfxDisp;
     gfxDisp = disp_w;

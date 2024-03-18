@@ -36,6 +36,8 @@ genhook()
 }
 
 genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
+genhook "$sym_background_hook" "jal $sym_fpBackgroundEntry;"
+genhook "$sym_draw_frame_hook" "jal $sym_fpFrameEntry;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
 genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"

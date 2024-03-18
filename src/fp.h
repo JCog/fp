@@ -64,6 +64,8 @@ typedef struct {
     s8 freeCamMoveSpeed;
     s8 freeCamPanSpeed;
     s32 pendingFrames;
+    s32 prevPendingFrames;
+    Gfx *savedBackgroundGfx;
 } FpCtxt;
 
 extern FpCtxt fp;
