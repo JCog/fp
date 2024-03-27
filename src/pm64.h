@@ -1242,7 +1242,7 @@ extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];
 
-    /* Functions */
+/* Functions */
 void osSyncPrintf(const char *fmt, ...);
 s32 pm_fioValidateFileChecksum(void *buffer);
 bool pm_fioFetchSavedFileInfo(void);
