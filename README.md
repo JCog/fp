@@ -2,10 +2,10 @@
 This is practice tool for Paper Mario 64 intended for use on N64 with an Everdrive and Wii/Wii U through the Virtual Console. It's also known informally as "the practice rom".
 
 # Download
-The latest release and installation instructions can be found on the [releases page](https://github.com/jcog/fp/releases).
+The latest release can be downloaded using the [web patcher](https://fp-patcher.starhaven.dev/).
 
 # Usage
-See the [user manual](https://docs.spoodlyspun.com/) for information on how to use fp.
+See the [user manual](https://fp-docs.starhaven.dev/) for information on how to use fp.
 
 # Building
 To build from source, refer to [this guide](https://github.com/jcog/fp/blob/develop/BUILDING.md).  
