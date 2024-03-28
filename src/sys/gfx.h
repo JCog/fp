@@ -90,7 +90,7 @@ void gfxModeReplace(enum GfxMode mode, u64 value);
 /* all sizes are specified in number of bytes */
 Gfx *gfxDispAppend(Gfx *disp, size_t size);
 void *gfxDataAppend(void *data, size_t size);
-void gfxFlush(void);
+void gfxFlush(s32 pendingFrames);
 
 void gfxTexldrInit(struct GfxTexldr *texldr);
 struct GfxTexture *gfxTexldrLoad(struct GfxTexldr *texldr, const struct GfxTexdesc *texdesc,
