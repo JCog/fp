@@ -32,6 +32,7 @@ void settingsLoadDefault(void) {
     struct SettingsData *d = &settingsStore.data;
 
     d->cheats = 0;
+    d->timerMode = 0;
     d->menuFontResource = RES_FONT_PRESSSTART2P;
     d->menuDropShadow = 1;
     d->menuBackground = 1;

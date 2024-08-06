@@ -289,7 +289,7 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
     }
 
     gfxPrintf(font, x, y + cellHeight, "%d", timerLagFrames);
-    if (timerMode != TIMER_MANUAL) {
+    if (settings->timerMode != TIMER_MANUAL) {
         gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerCutsceneCount, timerCutsceneTarget);
     }
 }

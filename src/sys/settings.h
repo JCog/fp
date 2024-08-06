@@ -2,6 +2,7 @@
 #define SETTINGS_H
 #include "commands.h"
 #include "common.h"
+#include "fp/practice/timer.h"
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
@@ -39,6 +40,7 @@ struct SettingsData {
     /* order elements by size for space-efficient packing */
     u32 watchAddress[SETTINGS_WATCHES_MAX];
     u32 cheats;
+    enum TimerMode timerMode;
     s16 menuX;
     s16 menuY;
     s16 inputDisplayX;

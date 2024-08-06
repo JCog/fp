@@ -5,7 +5,6 @@
 #include "sys/gfx.h"
 #include "sys/settings.h"
 
-enum TimerMode timerMode = 0;
 enum TimerState timerState = 0;
 s64 timerCount = 0;
 s32 timerLagFrames = 0;
@@ -60,7 +59,7 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
         gfxPrintf(font, x, y, "timer  %d.%02d", seconds, hundredths);
     }
     gfxPrintf(font, x, y + chHeight, "lag    %d", timerLagFrames >= 0 ? timerLagFrames : 0);
-    if (timerMode != TIMER_MANUAL) {
+    if (settings->timerMode != TIMER_MANUAL) {
         gfxPrintf(font, x, y + chHeight * 2, "cs/lz  %d/%d", timerCutsceneCount, timerCutsceneTarget);
     }
     return 1;
@@ -96,15 +95,15 @@ void timerUpdate(void) {
 
     switch (timerState) {
         case TIMER_WAITING:
-            if (timerMode == TIMER_LOADING_ZONE) {
+            if (settings->timerMode == TIMER_LOADING_ZONE) {
                 if (newMap) {
                     newMapWaiting = TRUE;
                 }
             } else {
                 newMapWaiting = FALSE;
             }
-            if (timerMode == TIMER_MANUAL || (prevCutsceneState && !inCutscene)) {
-                if (timerMode == TIMER_LOADING_ZONE && !newMapWaiting) {
+            if (settings->timerMode == TIMER_MANUAL || (prevCutsceneState && !inCutscene)) {
+                if (settings->timerMode == TIMER_LOADING_ZONE && !newMapWaiting) {
                     break;
                 }
                 timerState = TIMER_RUNNING;
@@ -118,12 +117,12 @@ void timerUpdate(void) {
             }
             break;
         case TIMER_RUNNING:
-            if (timerMode == TIMER_CUTSCENE && !prevCutsceneState && inCutscene) {
+            if (settings->timerMode == TIMER_CUTSCENE && !prevCutsceneState && inCutscene) {
                 timerCutsceneCount++;
                 if (settings->timerLogging && timerCutsceneCount != timerCutsceneTarget) {
                     fpLog("cutscene started");
                 }
-            } else if (timerMode == TIMER_LOADING_ZONE && newMap) {
+            } else if (settings->timerMode == TIMER_LOADING_ZONE && newMap) {
                 timerCutsceneCount++;
                 if (settings->timerLogging && timerCutsceneCount != timerCutsceneTarget) {
                     fpLog("loading zone");
@@ -154,7 +153,7 @@ void timerUpdate(void) {
 void timerStartStop(void) {
     if (timerState == TIMER_INACTIVE) {
         timerState = TIMER_WAITING;
-        if (timerMode != TIMER_MANUAL) {
+        if (settings->timerMode != TIMER_MANUAL) {
             fpLog("timer set to start");
         }
     } else if (timerState == TIMER_RUNNING) {
@@ -162,7 +161,7 @@ void timerStartStop(void) {
     } else if (timerState == TIMER_STOPPED) {
         timerState = TIMER_WAITING;
         timerCutsceneCount = 0;
-        if (timerMode != TIMER_MANUAL) {
+        if (settings->timerMode != TIMER_MANUAL) {
             fpLog("timer set to start");
         }
     }
@@ -196,7 +195,7 @@ void createTimerMenu(struct Menu *menu) {
                                                   "cutscene\0"
                                                   "loading zone\0"
                                                   "manual\0",
-                                                  menuWordOptionmodProc, &timerMode);
+                                                  menuWordOptionmodProc, &settings->timerMode);
     menuAddStatic(menu, 0, y, "cs/lz count", 0xC0C0C0);
     menuAddIntinput(menu, menuX, y++, 10, 2, menuByteModProc, &timerCutsceneTarget);
     menuAddStatic(menu, 0, y, "show timer", 0xC0C0C0);
