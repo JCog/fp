@@ -39,6 +39,7 @@ pm_fioFetchSavedFileInfo = 0x8002B114;
 pm_fioDeserializeState = 0x8002B450;
 pm_fioReadFlash = 0x8002B828;
 pm_fioWriteFlash = 0x8002B908;
+pm_fioEraseFlash = 0x8002B9DC;
 pm_setCurtainScaleGoal = 0x8002BE9C;
 pm_update_cameras = 0x8002D090;
 pm_update_camera_zone_interp = 0x80031124;
