@@ -1,6 +1,7 @@
 #include "ed64_io.h"
 #include "hb_io.h"
 #include "iodev.h"
+#include "sc64_io.h"
 #include <errno.h>
 #include <n64.h>
 
@@ -18,10 +19,7 @@ static struct Iodev *currentDev;
 
 s32 ioInit(void) {
     struct Iodev *devs[] = {
-        &homeboyIodev,
-        &everdrive64X,
-        &everdrive64V2,
-        &everdrive64V1,
+        &homeboyIodev, &everdrive64X, &everdrive64V2, &everdrive64V1, &sc64,
     };
 
     s32 nDevs = sizeof(devs) / sizeof(devs[0]);

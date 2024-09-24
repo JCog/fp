@@ -39,6 +39,7 @@ pm_fioFetchSavedFileInfo = 0x8002B154;
 pm_fioDeserializeState = 0x8002B490;
 pm_fioReadFlash = 0x8002B868;
 pm_fioWriteFlash = 0x8002B948;
+pm_fioEraseFlash = 0x8002BA1C;
 pm_setCurtainScaleGoal = 0x8002BEDC;
 pm_setCurtainDrawCallback = 0x8002BF04;
 pm_setCurtainFadeGoal = 0x8002BF14;

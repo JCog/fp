@@ -97,6 +97,7 @@ void settingsSave(s32 profile) {
     pm_fioReadFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
     settingsStore.header.dataChecksum = settingsChecksumCompute(&settingsStore);
     memcpy(&settingsBuffer[profile], &settingsStore, sizeof(settingsStore));
+    pm_fioEraseFlash(SETTINGS_FIO_PAGE);
     pm_fioWriteFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
 }
 
