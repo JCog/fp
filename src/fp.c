@@ -3,6 +3,7 @@
 #include "common.h"
 #include "fp/practice/timer.h"
 #include "fp/practice/trainer.h"
+#include "fp/warps/bosses.h"
 #include "io/io.h"
 #include "sys/crash_screen.h"
 #include "sys/input.h"
@@ -575,6 +576,14 @@ HOOK s32 fpIsAbilityActive(s32 ability) {
         return TRUE;
     }
     return pm_is_ability_active(ability);
+}
+
+HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) {
+    if (npcId == BATTLE_DUMMY_ID) {
+        bossesDummyNpc.pos = pm_gPlayerStatus.position;
+        return &bossesDummyNpc;
+    }
+    return pm_get_npc_unsafe(npcId);
 }
 
 #include <grc.c>

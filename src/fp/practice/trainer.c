@@ -518,24 +518,24 @@ static void updateBlockTrainer(void) {
 
 static void updateClippyTrainer(void) {
     if (settings->trainerClippyEnabled) {
-        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
-            if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.firstStrikeType != 2) {
+            if (pm_gEncounterState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
                 clippyStatus = CLIPPY_EARLY;
             } else if (clippyFramesSinceBattle > 0) {
                 clippyStatus = CLIPPY_LATE;
-            } else if (pm_gameState == 3 && clippyFramesSinceBattle == 0) {
+            } else if (pm_gEncounterState == 3 && clippyFramesSinceBattle == 0) {
                 clippyStatus = CLIPPY_SUCCESS;
             }
         }
 
-        if (pm_gameState == 3) {
+        if (pm_gEncounterState == 3) {
             clippyFramesSinceBattle++;
             switch (clippyStatus) {
                 case CLIPPY_EARLY: fpLog("early"); break;
                 case CLIPPY_LATE: fpLog("late"); break;
             }
             clippyStatus = CLIPPY_NONE;
-        } else if (pm_gameState != 3) {
+        } else if (pm_gEncounterState != 3) {
             clippyFramesSinceBattle = 0;
         }
     }

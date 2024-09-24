@@ -1,7 +1,42 @@
+#include "bosses.h"
 #include "common.h"
 #include "fp.h"
 #include "menu/menu.h"
 #include <stdlib.h>
+
+pm_Npc bossesDummyNpc = {0};
+
+static pm_Enemy dummyEnemy = {
+    .npcID = BATTLE_DUMMY_ID,
+};
+
+static pm_Encounter dummyEncounter = {
+    .enemy[0] = &dummyEnemy,
+    .count = 0,
+    .battle = 0,
+    .stage = 0
+};
+
+static void battleWarp(s16 battleId, s16 stageId, s32 songId) {
+    dummyEncounter.battle = battleId;
+    dummyEncounter.stage = stageId;
+
+    pm_EncounterStatus *es = &pm_gCurrentEncounter;
+    es->curEncounter = &dummyEncounter;
+    es->curEnemy = &dummyEnemy;
+    es->hitType = 1;
+    es->firstStrikeType = 0;
+    es->forbidFleeing = FALSE;
+    es->scriptedBattle = TRUE;
+    es->songID = songId;
+    es->unk_18 = -1;
+    es->fadeOutAmount = 0;
+    es->unk_94 = 0;
+
+    pm_disable_player_input();
+    pm_gEncounterState = 3;
+    pm_gEncounterSubState = 0;
+}
 
 static void bowserHallwayProc(struct MenuItem *item, void *data) {
     STORY_PROGRESS = STORY_CH8_REACHED_PEACHS_CASTLE;

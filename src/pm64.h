@@ -825,44 +825,117 @@ typedef struct {
     /* 0x45C */ char unk_45C[4];
 } pm_BattleStatus; // size = 0x460
 
-typedef struct {
+typedef struct pm_Enemy {
+    /* 0x00 */ s32 flags;
+    /* 0x04 */ s8 encounterIndex;
+    /* 0x05 */ s8 encountered;
+    /* 0x06 */ u8 scriptGroup; /* scripts launched for this npc controller will be assigned this group */
+    /* 0x07 */ s8 hitboxIsActive; // when set, contact will trigger a first strike
+    /* 0x08 */ s16 npcID;
+    /* 0x0A */ s16 spawnPos[3];
+    /* 0x10 */ Vec3s unk_10;    //TODO hitbox pos?
+    /* 0x16 */ char unk_16[2];
+    /* 0x18 */ void *npcSettings;
+    /* 0x1C */ void *initBytecode;
+    /* 0x20 */ void *interactBytecode;
+    /* 0x24 */ void *aiBytecode;
+    /* 0x28 */ void *hitBytecode;
+    /* 0x2C */ void *auxBytecode;
+    /* 0x30 */ void *defeatBytecode;
+    /* 0x34 */ struct pm_Evt *initScript;
+    /* 0x38 */ struct pm_Evt *interactScript;
+    /* 0x3C */ struct pm_Evt *aiScript;
+    /* 0x40 */ struct pm_Evt *hitScript;
+    /* 0x44 */ struct pm_Evt *auxScript;
+    /* 0x48 */ struct pm_Evt *defeatScript;
+    /* 0x4C */ s32 initScriptID;
+    /* 0x50 */ s32 interactScriptID;
+    /* 0x54 */ s32 aiScriptID;
+    /* 0x58 */ s32 hitScriptID;
+    /* 0x5C */ s32 auxScriptID;
+    /* 0x60 */ s32 defeatScriptID;
+    /* 0x64 */ void *unk_64;
+    /* 0x68 */ char unk_68[4];
+    /* 0x6C */ union {
+        /*      */      s32 varTable[16];
+        /*      */      f32 varTableF[16];
+        /*      */      void *varTablePtr[16];
+    /*      */ };
+    /* 0xAC */ u8 aiDetectFlags; // detect player flags: 1 = require line of sight | 2 = adjust hitbox for moving player
+    /* 0xAD */ char unk_AD[3];
+    /* 0xB0 */ u32 aiFlags;
+    /* 0xB4 */ s8 aiSuspendTime;
+    /* 0xB5 */ s8 instigatorValue; // value is passed to first actor in formation if a battle is triggered with this enemy
+    /* 0xB6 */ char unk_B6[2];
+    /* 0xB8 */ void *unk_B8; // some bytecode
+    /* 0xBC */ struct pm_Evt *unk_BC; // some script
+    /* 0xC0 */ s32 unk_C0; // some script ID
+    /* 0xC4 */ s32 unk_C4;
+    /* 0xC8 */ s32 unk_C8;
+    /* 0xCC */ s32 *animList;
+    /* 0xD0 */ void *territory;
+    /* 0xD4 */ void *drops;
+    /* 0xD8 */ u32 tattleMsg;
+    /* 0xDC */ s32 unk_DC;
+    /* 0xE0 */ s16 savedNpcYaw;
+    /* 0xE2 */ char unk_E2[6];
+} pm_Enemy; // size = 0xE8
+
+typedef struct pm_Encounter {
+    /* 0x00 */ s32 count;
+    /* 0x04 */ pm_Enemy *enemy[16];
+    /* 0x44 */ s16 battle;
+    /* 0x46 */ s16 stage;
+    /* 0x48 */ s16 encounterID;
+    /* 0x4A */ char unk_4C[2];
+} pm_Encounter; // size = 0x4C
+
+typedef struct pm_FieldStatus {
+    /* 0x00 */ s8 status;
+    /* 0x01 */ char pad_01;
+    /* 0x02 */ s16 duration;
+} pm_FieldStatus;
+
+typedef struct pm_EncounterStatus{
     /* 0x000 */ s32 flags;
-    /* 0x004 */ s8 eFirstStrike; /* 0 = none, 1 = player, 2 = enemy */
-    /* 0x005 */ s8 hitType;      /* 1 = none/enemy, 2 = jump */
-    /* 0x006 */ s8 hitTier;      /* 0 = normal, 1 = super, 2 = ultra */
+    /* 0x004 */ s8 firstStrikeType; /* 0 = none, 1 = player, 2 = enemy */
+    /* 0x005 */ s8 hitType; /* 1 = none/enemy, 2 = jump */
+    /* 0x006 */ s8 hitTier; /* 0 = normal, 1 = super, 2 = ultra */
     /* 0x007 */ char unk_07;
     /* 0x008 */ s8 unk_08;
     /* 0x009 */ s8 battleOutcome; /* 0 = won, 1 = lost */
-    /* 0x00A */ s8 unk_0A;
-    /* 0x00B */ s8 merleeCoinBonus; /* triple coins when != 0 */
-    /* 0x00C */ u8 damageTaken;     /* valid after battle */
+    /* 0x00A */ s8 battleTriggerCooldown; ///< set to 15 after victory, 45 after fleeing
+    /* 0x00B */ bool hasMerleeCoinBonus; /* triple coins when TRUE */
+    /* 0x00C */ u8 damageTaken; /* valid after battle */
     /* 0x00D */ char unk_0D;
     /* 0x00E */ s16 coinsEarned; /* valid after battle */
-    /* 0x010 */ char unk_10;
-    /* 0x011 */ u8 allowFleeing;
-    /* 0x012 */ s8 unk_12;
-    /* 0x013 */ u8 dropWhackaBump;
+    /* 0x010 */ s8 instigatorValue;
+    /* 0x011 */ s8 forbidFleeing;
+    /* 0x012 */ s8 scriptedBattle; ///< battle started by StartBattle but not by encounter
+    /* 0x013 */ s8 dropWhackaBump;
     /* 0x014 */ s32 songID;
     /* 0x018 */ s32 unk_18;
     /* 0x01C */ s8 numEncounters; /* number of encounters for current map (in list) */
-    /* 0x01D */ s8 currentAreaIndex;
-    /* 0x01E */ u8 currentMapIndex;
-    /* 0x01F */ u8 currentEntryIndex;
+    /* 0x01D */ s8 curAreaIndex;
+    /* 0x01E */ u8 curMapIndex;
+    /* 0x01F */ u8 curEntryIndex;
     /* 0x020 */ s8 mapID;
     /* 0x021 */ s8 resetMapEncounterFlags;
     /* 0x022 */ char unk_22[2];
     /* 0x024 */ s32 *npcGroupList;
-    /* 0x028 */ s32 *encounterList[24]; /* struct Encounter* */
-    /* 0x088 */ s32 *currentEncounter;  /* struct Encounter* */
-    /* 0x08C */ s32 *currentEnemy;      /* struct Enemy* */
+    /* 0x028 */ pm_Encounter *encounterList[24];
+    /* 0x088 */ pm_Encounter *curEncounter;
+    /* 0x08C */ pm_Enemy *curEnemy;
     /* 0x090 */ s32 fadeOutAmount;
     /* 0x094 */ s32 unk_94;
     /* 0x098 */ s32 fadeOutAccel;
     /* 0x09C */ s32 battleStartCountdown;
-    /* 0x0A0 */ char unk_A0[16];
+    /* 0x0A0 */ pm_FieldStatus dizzyAttack;
+    /* 0x0A4 */ pm_FieldStatus unusedAttack1;
+    /* 0x0A8 */ pm_FieldStatus unusedAttack2;
+    /* 0x0AC */ pm_FieldStatus unusedAttack3;
     /* 0x0B0 */ s32 defeatFlags[60][12];
-    /* 0xFB0 */ s16 recentMaps[2];
-    /* 0xFB4 */ char unk_FB4[4];
+    /* 0xBF0 */ s16 recentMaps[2];
 } pm_EncounterStatus; // size = 0xFB8
 
 typedef struct {
@@ -1195,6 +1268,13 @@ typedef struct Npc {
     /* 0x336 */ char unk_336[10];
 } pm_Npc; // size = 0x340
 
+typedef struct pm_NpcBlueprint {
+    /* 0x00 */ s32 flags;
+    /* 0x04 */ s32 initialAnim;
+    /* 0x08 */ void (*onUpdate)(pm_Npc*);
+    /* 0x0C */ void (*onRender)(pm_Npc*);
+} pm_NpcBlueprint; // size = 0x10
+
 typedef struct Action {
     /* 0x00 */ void (*update)(void);
     /* 0x04 */ void *dmaStart;
@@ -1214,8 +1294,9 @@ extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
 extern_data pm_Area pm_gAreas[29];
 extern_data u32 pm_viFrames;
+extern_data s32 pm_gEncounterSubState;
 extern_data s32 pm_timeFreezeMode;
-extern_data s32 pm_gameState;
+extern_data s32 pm_gEncounterState;
 extern_data void *pm_gSoundManager;
 extern_data u16 *nuGfxCfb_ptr;
 extern_data Gfx *pm_masterGfxPos;
@@ -1256,7 +1337,9 @@ void pm_setCurtainFadeGoal(f32 goal);
 void pm_update_cameras(void);
 void pm_update_camera_zone_interp(pm_Camera *camera);
 void pm_setGameMode(s32 mode);
+pm_Npc *pm_get_npc_unsafe(s32 npcID);
 pm_Npc *pm_get_npc_safe(s32 npcID);
+void pm_free_npc(pm_Npc *npc);
 void pm_au_sfx_reset_players(void *soundManager);
 void pm_snd_ambient_stop_all(s32 time);
 void pm_removeEffect(pm_EffectInstance *effect);
