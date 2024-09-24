@@ -580,7 +580,7 @@ HOOK s32 fpIsAbilityActive(s32 ability) {
 }
 
 HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) {
-    if (npcId == BATTLE_DUMMY_ID) {
+    if (npcId == BOSSES_DUMMY_ID) {
         bossesDummyNpc.pos = pm_gPlayerStatus.position;
         return &bossesDummyNpc;
     }

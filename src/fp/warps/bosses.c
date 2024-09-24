@@ -1,6 +1,5 @@
 #include "bosses.h"
 #include "common.h"
-#include "fp.h"
 #include "menu/menu.h"
 #include <stdlib.h>
 
@@ -108,7 +107,7 @@ static BattlePage *pageList[] = {
 pm_Npc bossesDummyNpc = {0};
 
 static pm_Enemy dummyEnemy = {
-    .npcID = BATTLE_DUMMY_ID,
+    .npcID = BOSSES_DUMMY_ID,
 };
 
 static pm_Encounter dummyEncounter = {
@@ -118,15 +117,12 @@ static pm_Encounter dummyEncounter = {
     .stage = 0
 };
 
-static s8 warping = -1;
+static s8 warpCountdown = 0;
+static bool leavingBattle = FALSE;
+static u8 page = 0;
+static u8 battle = 0;
 
-static void bossWarpProc(struct MenuItem *item, void *data) {
-    if (pm_gGameStatus.isBattle) {
-        fpLog("can't warp now");
-        return;
-    }
-    u8 page = (u8)((s32)data >> 8);
-    u8 battle = (u8)((s32)data & 0xFF);
+static void bossWarp() {
     BattleInfo info = pageList[page]->battles[battle];
 
     dummyEncounter.battle = info.battleId;
@@ -140,21 +136,52 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     es->forbidFleeing = FALSE;
     es->scriptedBattle = TRUE;
     es->songID = info.songId;
-    es->unk_18 = -1;
-    es->unk_94 = 0;
 
-    pm_gEncounterState = 3;
-    pm_gEncounterSubState = 0;
-    warping = 1;
+    pm_gEncounterState = 3; // ENCOUNTER_STATE_PRE_BATTLE
+    pm_gEncounterSubState = 0; // ENCOUNTER_SUBSTATE_PRE_BATTLE_INIT
+    warpCountdown = 31;
+    // may want to try and clear speech bubbles, but it doesn't seem to crash, so not worried for now
+}
+
+static void bossWarpProc(struct MenuItem *item, void *data) {
+    if (warpCountdown > 0) {
+        // prevent warp spamming
+        return;
+    }
+    page = (u8)((s32)data >> 8);
+    battle = (u8)((s32)data & 0xFF);
+    pm_clearWindows();
+    // isBattle is also true when paused, so checking game mode
+    if (pm_gGameStatus.isBattle && pm_gameMode != 10 && pm_gameMode != 11) {
+        // end battle cleanly so next fight can start fresh
+        pm_gBattleState = 32; // BATTLE_STATE_END_BATTLE
+        pm_gBattleSubState = 2; // BTL_SUBSTATE_END_BATTLE_EXEC_STAGE_SCRIPT
+        pm_bgm_pop_battle_song();
+        leavingBattle = TRUE;
+        return;
+    }
+    bossWarp();
 }
 
 void battleUpdateWarps() {
-    if (warping == 0) {
+    if (leavingBattle && !pm_gGameStatus.isBattle) {
+        leavingBattle = FALSE;
+        bossWarp();
+    } else if (warpCountdown == 30) {
+        // speed up warp fadeout
         pm_gCurrentEncounter.fadeOutAmount = 0xFF;
         pm_gCurrentEncounter.battleStartCountdown = 0;
-        warping = FALSE;
-    } else if (warping > 0) {
-        warping--;
+        warpCountdown--;
+    } else if (warpCountdown > 30) {
+        if (pm_gameMode == 10) {
+            // unpause
+            pm_setGameMode(11);
+        } else if (pm_gameMode != 11) {
+            // delay countdown until unpaused
+            warpCountdown--;
+        }
+    } else if (warpCountdown > 0){
+        warpCountdown--;
     }
 }
 

@@ -2,7 +2,7 @@
 #define BOSSES_H
 #include "menu/menu.h"
 
-#define BATTLE_DUMMY_ID (s16)0xDEAD
+#define BOSSES_DUMMY_ID (s16)0xDEAD
 
 extern pm_Npc bossesDummyNpc;
 

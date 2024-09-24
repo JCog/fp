@@ -490,8 +490,8 @@ static void updateBlockTrainer(void) {
         }
 
         // Either goombario or mario attacking
-        if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
-            pm_battleState2 == 4) {
+        if ((pm_gBattleSubState == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+            pm_gBattleSubState == 4) {
             if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
                 acLastAPress = pm_gGameStatus.frameCounter;
             } else if (pm_gActionCommandStatus.state == 11) {
