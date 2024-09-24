@@ -74,14 +74,9 @@ void fpSetInputMask(u16 pad, u8 x, u8 y) {
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {
-    pm_func_800554A4(0); // stop koopa village radio from playing
-    pm_func_800554A4(1);
-    pm_func_800554A4(2);
-    pm_func_800554A4(3);
     pm_bgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
-    pm_sfxStopSound(0xA5);         // clear Goomba King's Castle rumble
-    pm_sfxStopSound(0x19C);        // clear upward vine sound
-    pm_sfxStopSound(0x19D);        // clear downward vine sound
+    pm_snd_ambient_stop_all(0);
+    pm_au_sfx_reset_players(pm_gSoundManager);
     pm_disable_player_input();
     pm_gGameStatus.loadingZoneTangent = 0;
     pm_gGameStatus.areaID = area;
