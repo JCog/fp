@@ -95,14 +95,8 @@ static BattlePage pageDojo = {
 };
 // clang-format on
 
-static BattlePage *pageList[] = {
-    &pageBowser,
-    &pageChapterBosses,
-    &pageJrTroopa,
-    &pageMinorBosses,
-    &pageOptionalBosses,
-    &pageDojo,
-};
+static BattlePage *pageList[] = {&pageBowser,      &pageChapterBosses,  &pageJrTroopa,
+                                 &pageMinorBosses, &pageOptionalBosses, &pageDojo};
 
 pm_Npc bossesDummyNpc = {0};
 
@@ -110,12 +104,7 @@ static pm_Enemy dummyEnemy = {
     .npcID = BOSSES_DUMMY_ID,
 };
 
-static pm_Encounter dummyEncounter = {
-    .enemy[0] = &dummyEnemy,
-    .count = 0,
-    .battle = 0,
-    .stage = 0
-};
+static pm_Encounter dummyEncounter = {.enemy[0] = &dummyEnemy, .count = 0, .battle = 0, .stage = 0};
 
 static s8 warpCountdown = 0;
 static bool leavingBattle = FALSE;
@@ -137,7 +126,7 @@ static void bossWarp() {
     es->scriptedBattle = TRUE;
     es->songID = info.songId;
 
-    pm_gEncounterState = 3; // ENCOUNTER_STATE_PRE_BATTLE
+    pm_gEncounterState = 3;    // ENCOUNTER_STATE_PRE_BATTLE
     pm_gEncounterSubState = 0; // ENCOUNTER_SUBSTATE_PRE_BATTLE_INIT
     warpCountdown = 31;
     // may want to try and clear speech bubbles, but it doesn't seem to crash, so not worried for now
@@ -154,7 +143,7 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     // isBattle is also true when paused, so checking game mode
     if (pm_gGameStatus.isBattle && pm_gameMode != 10 && pm_gameMode != 11) {
         // end battle cleanly so next fight can start fresh
-        pm_gBattleState = 32; // BATTLE_STATE_END_BATTLE
+        pm_gBattleState = 32;   // BATTLE_STATE_END_BATTLE
         pm_gBattleSubState = 2; // BTL_SUBSTATE_END_BATTLE_EXEC_STAGE_SCRIPT
         pm_bgm_pop_battle_song();
         leavingBattle = TRUE;
@@ -180,7 +169,7 @@ void battleUpdateWarps() {
             // delay countdown until unpaused
             warpCountdown--;
         }
-    } else if (warpCountdown > 0){
+    } else if (warpCountdown > 0) {
         warpCountdown--;
     }
 }
@@ -205,7 +194,7 @@ void createBossesMenu(struct Menu *menu) {
         for (u8 battleIdx = 0; battleIdx < battlePage->battleCount; battleIdx++) {
             s32 data = pageIdx << 8;
             data |= battleIdx;
-            menuAddButton(page, 0, yTab++, battlePage->battles[battleIdx].name, bossWarpProc, (void*)data);
+            menuAddButton(page, 0, yTab++, battlePage->battles[battleIdx].name, bossWarpProc, (void *)data);
         }
         if (pageIdx == 0) {
             yTab++;

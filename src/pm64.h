@@ -829,11 +829,11 @@ typedef struct pm_Enemy {
     /* 0x00 */ s32 flags;
     /* 0x04 */ s8 encounterIndex;
     /* 0x05 */ s8 encountered;
-    /* 0x06 */ u8 scriptGroup; /* scripts launched for this npc controller will be assigned this group */
+    /* 0x06 */ u8 scriptGroup;    /* scripts launched for this npc controller will be assigned this group */
     /* 0x07 */ s8 hitboxIsActive; // when set, contact will trigger a first strike
     /* 0x08 */ s16 npcID;
     /* 0x0A */ s16 spawnPos[3];
-    /* 0x10 */ Vec3s unk_10;    //TODO hitbox pos?
+    /* 0x10 */ Vec3s unk_10; // TODO hitbox pos?
     /* 0x16 */ char unk_16[2];
     /* 0x18 */ void *npcSettings;
     /* 0x1C */ void *initBytecode;
@@ -857,19 +857,19 @@ typedef struct pm_Enemy {
     /* 0x64 */ void *unk_64;
     /* 0x68 */ char unk_68[4];
     /* 0x6C */ union {
-        /*      */      s32 varTable[16];
-        /*      */      f32 varTableF[16];
-        /*      */      void *varTablePtr[16];
+        /*      */ s32 varTable[16];
+        /*      */ f32 varTableF[16];
+        /*      */ void *varTablePtr[16];
     /*      */ };
     /* 0xAC */ u8 aiDetectFlags; // detect player flags: 1 = require line of sight | 2 = adjust hitbox for moving player
     /* 0xAD */ char unk_AD[3];
     /* 0xB0 */ u32 aiFlags;
     /* 0xB4 */ s8 aiSuspendTime;
-    /* 0xB5 */ s8 instigatorValue; // value is passed to first actor in formation if a battle is triggered with this enemy
+    /* 0xB5 */ s8 instigatorValue; // value passed to first actor in formation if battle triggered with this enemy
     /* 0xB6 */ char unk_B6[2];
-    /* 0xB8 */ void *unk_B8; // some bytecode
+    /* 0xB8 */ void *unk_B8;          // some bytecode
     /* 0xBC */ struct pm_Evt *unk_BC; // some script
-    /* 0xC0 */ s32 unk_C0; // some script ID
+    /* 0xC0 */ s32 unk_C0;            // some script ID
     /* 0xC4 */ s32 unk_C4;
     /* 0xC8 */ s32 unk_C8;
     /* 0xCC */ s32 *animList;
@@ -896,17 +896,17 @@ typedef struct pm_FieldStatus {
     /* 0x02 */ s16 duration;
 } pm_FieldStatus;
 
-typedef struct pm_EncounterStatus{
+typedef struct pm_EncounterStatus {
     /* 0x000 */ s32 flags;
     /* 0x004 */ s8 firstStrikeType; /* 0 = none, 1 = player, 2 = enemy */
-    /* 0x005 */ s8 hitType; /* 1 = none/enemy, 2 = jump */
-    /* 0x006 */ s8 hitTier; /* 0 = normal, 1 = super, 2 = ultra */
+    /* 0x005 */ s8 hitType;         /* 1 = none/enemy, 2 = jump */
+    /* 0x006 */ s8 hitTier;         /* 0 = normal, 1 = super, 2 = ultra */
     /* 0x007 */ char unk_07;
     /* 0x008 */ s8 unk_08;
-    /* 0x009 */ s8 battleOutcome; /* 0 = won, 1 = lost */
+    /* 0x009 */ s8 battleOutcome;         /* 0 = won, 1 = lost */
     /* 0x00A */ s8 battleTriggerCooldown; ///< set to 15 after victory, 45 after fleeing
-    /* 0x00B */ bool hasMerleeCoinBonus; /* triple coins when TRUE */
-    /* 0x00C */ u8 damageTaken; /* valid after battle */
+    /* 0x00B */ bool hasMerleeCoinBonus;  /* triple coins when TRUE */
+    /* 0x00C */ u8 damageTaken;           /* valid after battle */
     /* 0x00D */ char unk_0D;
     /* 0x00E */ s16 coinsEarned; /* valid after battle */
     /* 0x010 */ s8 instigatorValue;
@@ -1267,13 +1267,6 @@ typedef struct Npc {
     /* 0x332 */ s16 decorationUnk[2];
     /* 0x336 */ char unk_336[10];
 } pm_Npc; // size = 0x340
-
-typedef struct pm_NpcBlueprint {
-    /* 0x00 */ s32 flags;
-    /* 0x04 */ s32 initialAnim;
-    /* 0x08 */ void (*onUpdate)(pm_Npc*);
-    /* 0x0C */ void (*onRender)(pm_Npc*);
-} pm_NpcBlueprint; // size = 0x10
 
 typedef struct Action {
     /* 0x00 */ void (*update)(void);
