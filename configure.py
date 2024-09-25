@@ -50,7 +50,7 @@ else:
         FP_VERSION = tag
 
 FP_BIN_ADDRESS = "0x80400060"
-CFLAGS = f"-c -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks -Isrc {' '.join([i for l in args.cflags for i in l])}"
+CFLAGS = f"-c -std=gnu11 -Wall -ffunction-sections -fdata-sections -O2 -fno-reorder-blocks -fdiagnostics-color -Isrc {' '.join([i for l in args.cflags for i in l])}"
 CPPFLAGS = f"-DURL=github.com/jcog/fp -DFP_VERSION={FP_VERSION} -DF3DEX_GBI_2 {' '.join([i for l in args.cppflags for i in l])}"
 LDFLAGS = f"-T gl-n64.ld -L{LIBDIR} -nostartfiles -specs=nosys.specs -Wl,--gc-sections {' '.join([i for l in args.ldflags for i in l])}"
 
