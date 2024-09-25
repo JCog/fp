@@ -30,7 +30,7 @@ jobs:
           xdelta3 -e -S none -s base-jp.z64 fp-jp.z64 fp-jp.xdelta
           xdelta3 -e -S none -s base-us.z64 fp-us.z64 fp-us.xdelta
       - name: Upload JP patch
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v4
         with:
           name: fp-jp.xdelta
           path: fp-jp.xdelta

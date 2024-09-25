@@ -6,7 +6,7 @@
 
 extern pm_Npc bossesDummyNpc;
 
-void battleUpdateWarps(void);
+void bossesUpdateWarps(void);
 
 void createBossesMenu(struct Menu *menu);
 

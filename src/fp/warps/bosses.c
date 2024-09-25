@@ -100,12 +100,8 @@ static BattlePage *pageList[] = {&pageBowser,      &pageChapterBosses,  &pageJrT
 
 pm_Npc bossesDummyNpc = {0};
 
-static pm_Enemy dummyEnemy = {
-    .npcID = BOSSES_DUMMY_ID,
-};
-
-static pm_Encounter dummyEncounter = {.enemy[0] = &dummyEnemy, .count = 0, .battle = 0, .stage = 0};
-
+static pm_Enemy dummyEnemy = {.npcID = BOSSES_DUMMY_ID};
+static pm_Encounter dummyEncounter = {.enemy[0] = &dummyEnemy};
 static s8 warpCountdown = 0;
 static bool leavingBattle = FALSE;
 static u8 page = 0;
@@ -140,6 +136,7 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     page = (u8)((s32)data >> 8);
     battle = (u8)((s32)data & 0xFF);
     pm_clearWindows();
+    pm_clear_printers();
     // isBattle is also true when paused, so checking game mode
     if (pm_gGameStatus.isBattle && pm_gameMode != 10 && pm_gameMode != 11) {
         // end battle cleanly so next fight can start fresh
@@ -152,7 +149,7 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     bossWarp();
 }
 
-void battleUpdateWarps() {
+void bossesUpdateWarps() {
     if (leavingBattle && !pm_gGameStatus.isBattle) {
         leavingBattle = FALSE;
         bossWarp();

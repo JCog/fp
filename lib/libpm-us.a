@@ -74,6 +74,7 @@ pm_disable_player_input = 0x800E0178;
 pm_is_ability_active = 0x800E9D48;
 pm_hidePopupMenu = 0x800F13B0;
 pm_destroyPopupMenu = 0x800F1538;
+pm_clear_printers = 0x80123674;
 pm_set_screen_overlay_alpha = 0x801380D4;
 pm_setMapTransitionEffect = 0x801382A0;
 pm_updateExitMapScreenOverlay = 0x801382AC;

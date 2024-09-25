@@ -471,7 +471,7 @@ void fpUpdate(void) {
     }
 
     fpUpdateWarps();
-    battleUpdateWarps();
+    bossesUpdateWarps();
 
     // Override updateMode so update_cameras switch always defaults
     if (fp.freeCam) {

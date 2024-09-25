@@ -1349,6 +1349,7 @@ void pm_disable_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
 void pm_hidePopupMenu(void);
 void pm_destroyPopupMenu(void);
+void pm_clear_printers(void);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
 s32 pm_setMapTransitionEffect(s32 transition);
 s32 pm_updateExitMapScreenOverlay(s16 *progress);
