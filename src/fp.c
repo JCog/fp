@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000};
+FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .pendingFrames = -1};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -527,7 +527,7 @@ void fpDraw(void) {
 
     menuDraw(fp.global);
     fpDrawLog(font, cellWidth, cellHeight, menuAlpha);
-    gfxFlush();
+    gfxFlush(fp.prevPendingFrames);
 }
 
 /* ========================== HOOK ENTRY POINTS ========================== */
@@ -540,8 +540,40 @@ ENTRY void fpUpdateEntry(void) {
         PRINTF("\n**** fp initialized ****\n\n");
     }
 
-    pm_step_game_loop();
+    fp.prevPendingFrames = fp.pendingFrames;
+    if (fp.pendingFrames) {
+        pm_step_game_loop();
+        if (fp.pendingFrames > 0) {
+            fp.pendingFrames--;
+        }
+    }
     initStack(fpUpdate);
+}
+
+ENTRY void fpBackgroundEntry(void) {
+    init_gp();
+    if (fp.prevPendingFrames) {
+        pm_gfx_task_background();
+        fp.savedBackgroundGfx = pm_masterGfxPos;
+    } else {
+        if (pm_screen_overlay_frontZoom != 255.f) {
+            nuGfxTaskStart(&pm_gDisplayContext->backgroundGfx[0],
+                           (u32)(fp.savedBackgroundGfx - pm_gDisplayContext->backgroundGfx) * 8, 0, 0);
+        }
+    }
+}
+
+ENTRY void fpFrameEntry(void) {
+    init_gp();
+    if (fp.prevPendingFrames) {
+        pm_gfx_draw_frame();
+    } else {
+        initStack(fpDraw);
+        if (pm_screen_overlay_frontZoom != 255.f) {
+            nuGfxTaskStart(pm_gDisplayContext->mainGfx, (u32)(pm_masterGfxPos - pm_gDisplayContext->mainGfx) * 8, 0,
+                           0x40000);
+        }
+    }
 }
 
 ENTRY void fpDrawEntry(void) {

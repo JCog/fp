@@ -28,6 +28,8 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
+    {"pause",            COMMAND_PRESS_ONCE, 0, commandPauseProc         },
+    {"advance",          COMMAND_PRESS_ONCE, 0, commandAdvanceProc       },
 };
 
 void showMenu(void) {
@@ -103,6 +105,8 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_setCurtainFadeGoal(0.0f);
 
     fp.warp = TRUE;
+    // disable frame advance when warping
+    fp.pendingFrames = -1;
 
     return TRUE;
 }
@@ -278,5 +282,23 @@ void commandClippyProc(void) {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 1;
         pm_gPartnerActionStatus.shouldResumeAbility = 1;
         fpLog("clippy enabled");
+    }
+}
+
+void commandPauseProc() {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames = -1;
+        fpLog("unpaused");
+    } else {
+        fp.pendingFrames = 0;
+        fpLog("paused");
+    }
+}
+
+void commandAdvanceProc(void) {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames++;
+    } else {
+        commandPauseProc();
     }
 }
