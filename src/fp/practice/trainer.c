@@ -490,8 +490,8 @@ static void updateBlockTrainer(void) {
         }
 
         // Either goombario or mario attacking
-        if ((pm_battleState2 == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
-            pm_battleState2 == 4) {
+        if ((pm_gBattleSubState == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+            pm_gBattleSubState == 4) {
             if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
                 acLastAPress = pm_gGameStatus.frameCounter;
             } else if (pm_gActionCommandStatus.state == 11) {
@@ -518,24 +518,24 @@ static void updateBlockTrainer(void) {
 
 static void updateClippyTrainer(void) {
     if (settings->trainerClippyEnabled) {
-        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.eFirstStrike != 2) {
-            if (pm_gameState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.firstStrikeType != 2) {
+            if (pm_gEncounterState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
                 clippyStatus = CLIPPY_EARLY;
             } else if (clippyFramesSinceBattle > 0) {
                 clippyStatus = CLIPPY_LATE;
-            } else if (pm_gameState == 3 && clippyFramesSinceBattle == 0) {
+            } else if (pm_gEncounterState == 3 && clippyFramesSinceBattle == 0) {
                 clippyStatus = CLIPPY_SUCCESS;
             }
         }
 
-        if (pm_gameState == 3) {
+        if (pm_gEncounterState == 3) {
             clippyFramesSinceBattle++;
             switch (clippyStatus) {
                 case CLIPPY_EARLY: fpLog("early"); break;
                 case CLIPPY_LATE: fpLog("late"); break;
             }
             clippyStatus = CLIPPY_NONE;
-        } else if (pm_gameState != 3) {
+        } else if (pm_gEncounterState != 3) {
             clippyFramesSinceBattle = 0;
         }
     }
