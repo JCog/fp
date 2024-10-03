@@ -50,25 +50,39 @@ static struct GfxTexture **getItemTextureList(void) {
 }
 
 static s32 maxHpProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    s8 *curMaxHP = &pm_gPlayerStatus.playerData.curMaxHP;
+    s8 *hardMaxHP = &pm_gPlayerStatus.playerData.hardMaxHP;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != pm_gPlayerStatus.playerData.maxHP) {
-            menuIntinputSet(item, pm_gPlayerStatus.playerData.maxHP);
+        if (menuIntinputGet(item) != *curMaxHP) {
+            menuIntinputSet(item, *curMaxHP);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_gPlayerStatus.playerData.maxHP = menuIntinputGet(item);
-        pm_gPlayerStatus.playerData.hardMaxHP = menuIntinputGet(item);
+        s8 diff = *curMaxHP - *hardMaxHP;
+        s8 newHP = menuIntinputGet(item);
+        if (newHP - diff < 0) {
+            newHP = diff;
+        }
+        *curMaxHP = newHP;
+        *hardMaxHP = newHP - diff;
     }
     return 0;
 }
 
 static s32 maxFpProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    s8 *curMaxFP = &pm_gPlayerStatus.playerData.curMaxFP;
+    s8 *hardMaxFP = &pm_gPlayerStatus.playerData.hardMaxFP;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuIntinputGet(item) != pm_gPlayerStatus.playerData.curMaxFP) {
-            menuIntinputSet(item, pm_gPlayerStatus.playerData.curMaxFP);
+        if (menuIntinputGet(item) != *curMaxFP) {
+            menuIntinputSet(item, *curMaxFP);
         }
     } else if (reason == MENU_CALLBACK_CHANGED) {
-        pm_gPlayerStatus.playerData.curMaxFP = menuIntinputGet(item);
-        pm_gPlayerStatus.playerData.hardMaxFP = menuIntinputGet(item);
+        s8 diff = *curMaxFP - *hardMaxFP;
+        s8 newFP = menuIntinputGet(item);
+        if (newFP - diff < 0) {
+            newFP = diff;
+        }
+        *curMaxFP = newFP;
+        *hardMaxFP = newFP - diff;
     }
     return 0;
 }
@@ -84,7 +98,7 @@ static s32 currentPartnerProc(struct MenuItem *item, enum MenuCallbackReason rea
 
 static s32 bootsProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u32 trackedLevel = (u32)data;
-    u8 *bootsUpgrade = &pm_gPlayerStatus.playerData.bootsLevel;
+    s8 *bootsUpgrade = &pm_gPlayerStatus.playerData.bootsLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *bootsUpgrade = trackedLevel;
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -95,7 +109,7 @@ static s32 bootsProc(struct MenuItem *item, enum MenuCallbackReason reason, void
 
 static s32 hammerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u32 trackedLevel = (u32)data;
-    u8 *hammerUpgrade = &pm_gPlayerStatus.playerData.hammerLevel;
+    s8 *hammerUpgrade = &pm_gPlayerStatus.playerData.hammerLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *hammerUpgrade = trackedLevel;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -135,9 +149,9 @@ static s32 ultraRankProc(struct MenuItem *item, enum MenuCallbackReason reason, 
 }
 
 static s32 starSpiritSwitchProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u8 *ssSaved = &pm_gPlayerStatus.playerData.starSpiritsSaved;
-    u16 *starPower = &pm_gPlayerStatus.playerData.totalStarPower;
-    u32 ssIndex = (u32)data;
+    s8 *ssSaved = &pm_gPlayerStatus.playerData.maxStarPower;
+    s16 *starPower = &pm_gPlayerStatus.playerData.starPower;
+    s32 ssIndex = (u32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *ssSaved = ssIndex;
         *starPower = ssIndex * 0x100;

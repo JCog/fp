@@ -266,85 +266,83 @@ typedef struct {
 } pm_EffectInstance; // size = 0x14
 
 typedef struct {
-    /* 0x000 */ u8 bootsLevel; /*start: 8010F450*/
-    /* 0x001 */ u8 hammerLevel;
-    /* 0x002 */ u8 curHP;
-    /* 0x003 */ u8 maxHP;
-    /* 0x004 */ u8 hardMaxHP; /*gets copied to maxHP when unpausing */
-    /* 0x005 */ u8 curFP;
-    /* 0x006 */ u8 curMaxFP;
-    /* 0x007 */ u8 hardMaxFP; /*gets copied to maxHP when unpausing */
-    /* 0x008 */ u8 maxBP;
-    /* 0x009 */ u8 level;
+    /* 0x000 */ s8 bootsLevel; /*start: 8010F450*/
+    /* 0x001 */ s8 hammerLevel;
+    /* 0x002 */ s8 curHP;
+    /* 0x003 */ s8 curMaxHP; // hardMaxHP + HP Plus
+    /* 0x004 */ s8 hardMaxHP;
+    /* 0x005 */ s8 curFP;
+    /* 0x006 */ s8 curMaxFP; // hardMaxFP + FP Plus
+    /* 0x007 */ s8 hardMaxFP;
+    /* 0x008 */ s8 maxBP;
+    /* 0x009 */ s8 level;
     /* 0x00A */ u8 hasActionCommands;
     /* 0x00B */ char unk_0x0B;
     /* 0x00C */ s16 coins;
     /* 0x00E */ s8 fortressKeys;
     /* 0x00F */ u8 starPieces;
-    /* 0x010 */ u8 starPoints;
+    /* 0x010 */ s8 starPoints;
     /* 0x011 */ char unk_0x11;
-    /* 0x012 */ u8 currentPartner; /*0x00 - 0x0B*/
+    /* 0x012 */ s8 currentPartner;
     /* 0x013 */ char unk_0x13;
     union {
         /* 0x014 */ pm_Party party;
         /* 0x014 */ pm_PartnerData partners[12];
     };
-    /* 0x074 */ u16 keyItems[32];
-    /* 0x0B4 */ u16 badges[128];
-    /* 0x1B4 */ u16 invItems[10];
-    /* 0x1C8 */ u16 storedItems[32];
-    /* 0x208 */ u16 equippedBadges[64];
+    /* 0x074 */ s16 keyItems[32];
+    /* 0x0B4 */ s16 badges[128];
+    /* 0x1B4 */ s16 invItems[10];
+    /* 0x1C8 */ s16 storedItems[32];
+    /* 0x208 */ s16 equippedBadges[64];
     /* 0x288 */ char unk_0x288;
     /* 0x289 */ s8 merleeSpellType;
     /* 0x28A */ s8 merleeCastsRemaining;
-    /* 0x28B */ char unk_0x03;
+    /* 0x28B */ char pad_28B;
     /* 0x28C */ s16 merleeTurnCount;
-    /* 0x28E */ u8 starSpiritsSaved;
-    /* 0x28F */ char unk_0x28F;
+    /* 0x28E */ s8 maxStarPower;
+    /* 0x28F */ char pad_0x28F;
     union {
         struct {
-            /* 0x290 */ u8 starSpiritsFullBarsFilled;
-            /* 0x291 */ u8 starSpiritsPartialBarFilled;
+            /* 0x290 */ s8 starPowerFullBars;
+            /* 0x291 */ s8 starPowerPartialBars;
         };
-        /* 0x290 */ u16 totalStarPower;
+        /* 0x290 */ s16 starPower;
     };
-    /* 0x292 */ u8 starBeamLevel; /*1 for star beam, 2 for peach beam*/
-    /* 0x293 */ char unk_0x293;
-    /* 0x294 */ s16 actionCommandAttempts;
-    /* 0x296 */ s16 actionCommandSuccesses;
-    /* 0x298 */ s16 hitsTaken;
-    /* 0x29A */ s16 hitsBlocked;
-    /* 0x29C */ s16 playerFirstStrikes;
-    /* 0x29E */ s16 enemyFirstStrikes;
-    /* 0x2A0 */ s16 powerBounces;
-    /* 0x2A2 */ s16 battlesCount;
-    /* 0x2A4 */ s16 battlesWon;
-    /* 0x2A6 */ s16 unk_2A6;
-    /* 0x2A8 */ s16 battlesFled;
+    /* 0x292 */ s8 starBeamLevel; // 1 for star beam, 2 for peach beam
+    /* 0x293 */ char pad_293;
+    /* 0x294 */ u16 actionCommandAttempts;
+    /* 0x296 */ u16 actionCommandSuccesses;
+    /* 0x298 */ u16 hitsTaken;
+    /* 0x29A */ u16 hitsBlocked;
+    /* 0x29C */ u16 playerFirstStrikes;
+    /* 0x29E */ u16 enemyFirstStrikes;
+    /* 0x2A0 */ u16 powerBounces;
+    /* 0x2A2 */ u16 battlesCount;
+    /* 0x2A4 */ u16 battlesWon;
+    /* 0x2A6 */ u16 unk_2A6;
+    /* 0x2A8 */ u16 battlesFled;
     /* 0x2AA */ u16 trainingsDone;
     /* 0x2AC */ s32 walkingStepsTaken;
     /* 0x2B0 */ s32 runningStepsTaken;
     /* 0x2B4 */ u32 totalCoinsEarned;
     /* 0x2B8 */ s16 idleFrameCounter; /* frames with no inputs, overflows every ~36 minutes of idling */
-    /* 0x2BA */ char unk_2BA[2];
+    /* 0x2BA */ char pad_2BA[2];
     /* 0x2BC */ u32 frameCounter; /* increases by 2 per frame */
-    /* 0x2C0 */ s16 quizzesAnswered;
-    /* 0x2C2 */ s16 quizzesCorrect;
+    /* 0x2C0 */ u16 quizzesAnswered;
+    /* 0x2C2 */ u16 quizzesCorrect;
     /* 0x2C4 */ s32 partnerUnlockedTime[12];
     /* 0x2F4 */ s32 partnerUsedTime[12];
     /* 0x324 */ s32 tradeEventStartTime;
-    /* 0x328 */ s32 droTreeOrbitTime;
-    /* 0x32C */ s16 starPiecesCollected;
-    /* 0x32E */ s16 jumpGamePlays;
-    /* 0x330 */ s32 jumpGameTotal; /* all-time winnings, max = 99999 */
-    /* 0x334 */ s16 jumpGameRecord;
-    /* 0x336 */ s16 smashGamePlays;
-    /* 0x338 */ s32 smashGameTotal; /* all-time winnings, max = 99999 */
-    /* 0x33C */ s16 smashGameRecord;
-    /* 0x33E */ char unk_33E[2];
-    /* 0x340 */ char unk_340[0xE0];
-    /* 0x420 */ s32 starPoints2;
-    /* 0x424 */ char unk_424[4];
+    /* 0x328 */ s32 droTreeHintTime;
+    /* 0x32C */ u16 starPiecesCollected;
+    /* 0x32E */ u16 jumpGamePlays;
+    /* 0x330 */ u32 jumpGameTotal; /* all-time winnings, max = 99999 */
+    /* 0x334 */ u16 jumpGameRecord;
+    /* 0x336 */ u16 smashGamePlays;
+    /* 0x338 */ u32 smashGameTotal; /* all-time winnings, max = 99999 */
+    /* 0x33C */ u16 smashGameRecord;
+    /* 0x33E */ char pad_33E[2];
+    /* 0x340 */ char reserved[0xE8];
 } pm_PlayerData; // size = 0x428
 
 typedef struct {

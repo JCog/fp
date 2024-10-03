@@ -298,7 +298,7 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 void fpUpdateCheats(void) {
     pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
     if (CHEAT_ACTIVE(CHEAT_HP)) {
-        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
+        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.curMaxHP;
     }
     if (CHEAT_ACTIVE(CHEAT_FP)) {
         pm_gPlayerStatus.playerData.curFP = pm_gPlayerStatus.playerData.curMaxFP;
@@ -307,8 +307,8 @@ void fpUpdateCheats(void) {
         pm_gPlayerStatus.playerData.coins = 999;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_POWER)) {
-        pm_gPlayerStatus.playerData.starSpiritsFullBarsFilled = pm_gPlayerStatus.playerData.starSpiritsSaved;
-        pm_gPlayerStatus.playerData.starSpiritsPartialBarFilled = 0;
+        pm_gPlayerStatus.playerData.starPowerFullBars = pm_gPlayerStatus.playerData.maxStarPower;
+        pm_gPlayerStatus.playerData.starPowerPartialBars = 0;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_PIECES)) {
         pm_gPlayerStatus.playerData.starPieces = 160;

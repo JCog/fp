@@ -8,15 +8,15 @@ struct ItemData {
     MenuActionCallback callbackProc;
     void *callbackData;
     enum ItemType itemType;
-    u16 *itemSlot;
-    u16 itemId;
+    s16 *itemSlot;
+    s16 itemId;
     const char **itemNames;
     struct GfxTexture **itemTextureList;
     f32 scale;
     s32 animState;
 };
 
-static u16 getEmptyIcon(enum ItemType type) {
+static s16 getEmptyIcon(enum ItemType type) {
     switch (type) {
         case ITEM_TYPE_NORMAL:
         case ITEM_TYPE_STORED: return ITEM_MUSHROOM;
@@ -26,7 +26,7 @@ static u16 getEmptyIcon(enum ItemType type) {
     }
 }
 
-static u16 *getItemSlot(enum ItemType type, u16 itemIndex) {
+static s16 *getItemSlot(enum ItemType type, s16 itemIndex) {
     switch (type) {
         case ITEM_TYPE_NORMAL: return &pm_gPlayerStatus.playerData.invItems[itemIndex];
         case ITEM_TYPE_KEY: return &pm_gPlayerStatus.playerData.keyItems[itemIndex];
@@ -80,7 +80,7 @@ static s32 activateProc(struct MenuItem *item) {
 }
 
 struct MenuItem *menuAddItemButton(struct Menu *menu, s32 x, s32 y, const char **itemNames,
-                                   struct GfxTexture **itemTextureList, enum ItemType type, u16 itemSlotIndex,
+                                   struct GfxTexture **itemTextureList, enum ItemType type, s16 itemSlotIndex,
                                    f32 scale, MenuActionCallback callbackProc, void *callbackData) {
     struct ItemData *data = malloc(sizeof(*data));
     data->callbackProc = callbackProc;
@@ -101,7 +101,7 @@ struct MenuItem *menuAddItemButton(struct Menu *menu, s32 x, s32 y, const char *
     return item;
 }
 
-u16 *menuItemButtonGetSlot(struct MenuItem *item) {
+s16 *menuItemButtonGetSlot(struct MenuItem *item) {
     struct ItemData *data = item->data;
     return data->itemSlot;
 }
