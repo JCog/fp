@@ -167,6 +167,19 @@ static void importFileProc(struct MenuItem *item, void *data) {
     menuGetFile(fp.mainMenu, GETFILE_LOAD, NULL, ".pmsave", fpImportFile, NULL);
 }
 
+static s32 audioModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    u32 *p = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menuOptionGet(item) != *p) {
+            menuOptionSet(item, *p);
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        *p = menuOptionGet(item);
+        pm_fio_save_globals();
+    }
+    return 0;
+}
+
 struct Menu *createFileMenu(void) {
     static struct Menu menu;
 
@@ -175,7 +188,7 @@ struct Menu *createFileMenu(void) {
 
     /*build menu*/
     s32 y = 0;
-    const s32 menuX = 10;
+    const s32 menuX = 11;
     struct GfxTexture *tSave = resourceGet(RES_ICON_SAVE);
 
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
@@ -233,15 +246,20 @@ struct Menu *createFileMenu(void) {
                   "thunder rage\0",
                   menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
     menuAddStatic(&menu, 0, y, "toy box 3", 0xC0C0C0);
-    struct MenuItem *toyboxItem3Option = menuAddOption(&menu, menuX, y++,
-                                                       "pokey\0"
-                                                       "koopatrol\0"
-                                                       "super soda\0",
-                                                       menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    menuAddOption(&menu, menuX, y++,
+                  "pokey\0"
+                  "koopatrol\0"
+                  "super soda\0",
+                  menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    menuAddStatic(&menu, 0, y, "audio mode", 0xC0C0C0);
+    struct MenuItem *audioOption = menuAddOption(&menu, menuX, y++,
+                                                 "mono\0"
+                                                 "stereo\0",
+                                                 audioModeProc, &pm_gSaveGlobals.useMonoSound);
     y++;
 
     struct MenuItem *enemiesButton = menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);
-    menuItemAddChainLink(enemiesButton, toyboxItem3Option, MENU_NAVIGATE_UP);
+    menuItemAddChainLink(enemiesButton, audioOption, MENU_NAVIGATE_UP);
 
     return &menu;
 }

@@ -38,6 +38,7 @@ pm_gCurrentScriptListPtr = 0x802DA890;
 pm_gScriptIndexList = 0x802DA898;
 
 osSyncPrintf = 0x80025CFC;
+pm_fio_save_globals = 0x8002B00C;
 pm_fioValidateFileChecksum = 0x8002B0B8;
 pm_fioFetchSavedFileInfo = 0x8002B114;
 pm_fio_load_game = 0x8002B290;

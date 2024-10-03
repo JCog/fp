@@ -1330,6 +1330,7 @@ extern_data s32 pm_gScriptIndexList[128];
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
+bool pm_fio_save_globals(void);
 s32 pm_fioValidateFileChecksum(void *buffer);
 bool pm_fioFetchSavedFileInfo(void);
 bool pm_fio_load_game(s32 saveSlot);
