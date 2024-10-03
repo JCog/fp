@@ -68,6 +68,7 @@ struct SettingsData {
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
     u8 battleDebug;
+    u8 quickLaunch;
     u8 watchesVisible;
     struct WatchInfo watchInfo[SETTINGS_WATCHES_MAX];
     u8 nWatches;

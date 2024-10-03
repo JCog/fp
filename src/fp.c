@@ -441,6 +441,13 @@ void fpUpdate(void) {
 
     fpEmergencySettingsReset(padPressed);
 
+    // GAME_MODE_LOGOS
+    if (pm_gameMode == 1 && settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
+        pm_setGameMode(7);       // GAME_MODE_ENTER_WORLD
+        pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
+        fp.versionShown = TRUE;
+    }
+
     if (fp.menuActive) {
         fpUpdateMenu();
     } else if (inputBindPressedRaw(COMMAND_MENU)) {

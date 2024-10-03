@@ -42,6 +42,7 @@ void settingsLoadDefault(void) {
     d->timerLogging = 0;
     d->timerShow = 0;
     d->battleDebug = 0;
+    d->quickLaunch = 0;
     d->watchesVisible = 1;
     d->trainerAcEnabled = 0;
     d->trainerBowserEnabled = 0;

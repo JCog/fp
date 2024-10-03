@@ -1,9 +1,11 @@
+.idea/
+.vs/
 build/
+venv/
 *.exe
 *.z64
 *.wad
 *.bin
-romc
-/.vs
 .ninja_*
 build.ninja
+romc

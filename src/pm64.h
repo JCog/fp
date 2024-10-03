@@ -71,6 +71,16 @@ typedef struct {
     };
 } pm_Controller; // size = 0x04
 
+typedef struct pm_SaveGlobals {
+    /* 0x00 */ char magicString[16]; /* "Mario Story 006" string */
+    /* 0x10 */ s8 pad[32];           /* always zero */
+    /* 0x30 */ s32 crc1;
+    /* 0x34 */ s32 crc2;
+    /* 0x38 */ s32 useMonoSound;
+    /* 0x3C */ u32 lastFileSelected;
+    /* 0x40 */ s8 reserved[64]; // unused
+} pm_SaveGlobals;               // size = 0x80
+
 typedef struct {
     /* 0x000 */ pm_Controller currentButtons[4]; /* raw input */
     /* 0x010 */ pm_Controller pressedButtons[4]; /* one frame when pressedButtons*/
@@ -1292,6 +1302,7 @@ extern_data s32 pm_timeFreezeMode;
 extern_data s32 pm_gEncounterState;
 extern_data void *pm_gSoundManager;
 extern_data u16 *nuGfxCfb_ptr;
+extern_data s32 pm_gOverrideFlags;
 extern_data Gfx *pm_masterGfxPos;
 extern_data s32 pm_logicalSaveInfo[4][2];
 extern_data s16 pm_gameMode;
@@ -1300,6 +1311,7 @@ extern_data s16 pm_mapChangeState;
 extern_data pm_EncounterStatus pm_gCurrentEncounter;
 extern_data pm_Camera pm_gCameras[4];
 extern_data pm_EffectInstance *pm_gEffectInstances[96];
+extern_data pm_SaveGlobals pm_gSaveGlobals;
 extern_data pm_SaveData pm_gCurrentSaveFile;
 extern_data s32 pm_gBattleState;
 extern_data pm_BattleStatus pm_gBattleStatus;
@@ -1320,6 +1332,7 @@ extern_data s32 pm_gScriptIndexList[128];
 void osSyncPrintf(const char *fmt, ...);
 s32 pm_fioValidateFileChecksum(void *buffer);
 bool pm_fioFetchSavedFileInfo(void);
+bool pm_fio_load_game(s32 saveSlot);
 void pm_fioDeserializeState(void);
 void pm_fioReadFlash(s32 slot, void *buffer, u32 size); // writes to buffer in 128-byte blocks
 void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);

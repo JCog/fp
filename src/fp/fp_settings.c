@@ -121,12 +121,14 @@ struct Menu *createSettingsMenu(void) {
     static struct Menu menuAppearance;
     static struct Menu menuDisplay;
     static struct Menu menuCommands;
+    static struct Menu menuMisc;
 
     /* initialize menu */
     menuInit(&menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&menuAppearance, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&menuDisplay, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&menuCommands, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&menuMisc, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
     /*build menu*/
     s32 y = 0;
@@ -140,6 +142,7 @@ struct Menu *createSettingsMenu(void) {
     struct MenuItem *firstMenuButton = menuAddSubmenu(&menu, 0, y++, &menuAppearance, "menu appearance");
     menuAddSubmenu(&menu, 0, y++, &menuDisplay, "display");
     menuAddSubmenu(&menu, 0, y++, &menuCommands, "commands");
+    menuAddSubmenu(&menu, 0, y++, &menuMisc, "misc");
     y++;
     menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
     menuAddButton(&menu, 0, y++, "load settings", loadSettingsProc, NULL);
@@ -221,6 +224,13 @@ struct Menu *createSettingsMenu(void) {
     }
     menuAddButton(&menuCommands, 8, 0, "<", menuTabPrevProc, tab);
     menuAddButton(&menuCommands, 10, 0, ">", menuTabNextProc, tab);
+
+    /* misc menu */
+    menuX = 13;
+    y = 0;
+    menuMisc.selector = menuAddSubmenu(&menuMisc, 0, y++, NULL, "return");
+    menuAddStatic(&menuMisc, 0, y, "quick launch", 0xC0C0C0);
+    menuAddCheckbox(&menuMisc, menuX, y++, menuByteCheckboxProc, &settings->quickLaunch);
 
     return &menu;
 }
