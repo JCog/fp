@@ -303,6 +303,9 @@ void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_FP)) {
         pm_gPlayerStatus.playerData.curFP = pm_gPlayerStatus.playerData.curMaxFP;
     }
+    if (CHEAT_ACTIVE(CHEAT_ATTACK)) {
+        pm_gBattleStatus.merleeAttackBoost = 127;
+    }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
         pm_gPlayerStatus.playerData.coins = 999;
     }
@@ -439,10 +442,12 @@ void fpUpdate(void) {
 
     if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
+            // quick launch
             pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD
             pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
             fp.versionShown = TRUE;
         } else {
+            // skip logos and intro
             pm_set_curtain_scale(1.0f);
             pm_set_curtain_fade(0.0f);
             pm_set_game_mode(2); // GAME_MODE_TITLE_SCREEN

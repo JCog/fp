@@ -3,9 +3,20 @@
 #include "sys/settings.h"
 
 static const char *labels[] = {
-    "hp",       "fp",         "coins",           "star power", "star pieces",
-    "peril",    "auto mash",  "action commands", "peekaboo",   "brighten room",
-    "hide hud", "mute music", "quizmo spawns",
+    "hp",
+    "fp",
+    "attack",
+    "coins",
+    "star power",
+    "star pieces",
+    "peril",
+    "auto mash",
+    "action commands",
+    "peekaboo",
+    "brighten room",
+    "hide hud",
+    "mute music",
+    "quizmo spawns",
 };
 
 static s32 cheatProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
@@ -37,17 +48,28 @@ struct Menu *createCheatsMenu(void) {
                                                       "auto-win\0"
                                                       "auto-runaway\0",
                                                       menuByteOptionmodProc, &settings->cheatEnemyContact);
-    y++;
+    s32 x = 0;
+    s32 yBase = ++y;
+    s32 yMax = 0;
     menuItemAddChainLink(menu.selector, encountersOption, MENU_NAVIGATE_DOWN);
     for (s32 i = 0; i < CHEAT_MAX; i++) {
-        struct MenuItem *option = menuAddCheckbox(&menu, 0, y, cheatProc, (void *)i);
-        menuAddStatic(&menu, 2, y++, labels[i], 0xC0C0C0);
+        if (i % 10 == 0 && i != 0) {
+            x += 18;
+            y = yBase;
+        }
+        struct MenuItem *option = menuAddCheckbox(&menu, x, y, cheatProc, (void *)i);
+        menuAddStatic(&menu, x + 2, y++, labels[i], 0xC0C0C0);
         if (i == 0) {
+            menuItemAddChainLink(encountersOption, option, MENU_NAVIGATE_DOWN);
+        }
+        if (i % 10 == 0) {
             menuItemAddChainLink(option, encountersOption, MENU_NAVIGATE_UP);
         }
+        if (y > yMax) {
+            yMax = y;
+        }
     }
-    y++;
-    menuAddButton(&menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    menuAddButton(&menu, 0, yMax + 1, "save settings", fpSaveSettingsProc, NULL);
 
     return &menu;
 }

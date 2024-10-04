@@ -16,6 +16,7 @@
 enum Cheats {
     CHEAT_HP,
     CHEAT_FP,
+    CHEAT_ATTACK,
     CHEAT_COINS,
     CHEAT_STAR_POWER,
     CHEAT_STAR_PIECES,

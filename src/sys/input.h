@@ -6,7 +6,6 @@
 #define INPUT_REPEAT_DELAY 8
 #define BIND_END           6
 
-// stick values only valid for pm_Controller
 #define BUTTON_C_RIGHT     0x00000001
 #define BUTTON_C_LEFT      0x00000002
 #define BUTTON_C_DOWN      0x00000004

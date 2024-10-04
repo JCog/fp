@@ -38,15 +38,10 @@ genhook()
 genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
-genhook "$sym_update_camera_zone_interp_hook" "jal $sym_fpUpdateCameraZoneInterpHook;"
-genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
-
-# Fix wii vc fire flower crash
-genhook "$sym_fire_flower_hook" "nop;"
-
-genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
-genhook "$sym_get_npc_unsafe_hook" "jal $sym_fpGetNpcUnsafe;"
-
-# Remove calls to update backup save in slot 7 to make room for fp settings saves
-genhook "$sym_flush_backups_hook_1" "nop;"
+genhook "$sym_flush_backups_hook_1" "nop;" # Remove calls to update backup save in slot 7 to make room for fp settings
 genhook "$sym_flush_backups_hook_2" "nop;"
+genhook "$sym_update_camera_zone_interp_hook" "jal $sym_fpUpdateCameraZoneInterpHook;"
+genhook "$sym_get_npc_unsafe_hook" "jal $sym_fpGetNpcUnsafe;"
+genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
+genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
+genhook "$sym_fire_flower_hook" "nop;" # Fix wii vc fire flower crash
