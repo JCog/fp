@@ -30,7 +30,7 @@ static void spaceProc(struct MenuItem *item, void *data) {
 }
 
 static s32 navigateProc(struct MenuItem *item, enum MenuNavigation nav) {
-    if (inputPad() & BUTTON_Z) {
+    if (inputPad().z) {
         switch (nav) {
             case MENU_NAVIGATE_UP: {
                 oskShiftState = !oskShiftState;

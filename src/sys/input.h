@@ -6,20 +6,25 @@
 #define INPUT_REPEAT_DELAY 8
 #define BIND_END           6
 
-#define BUTTON_C_RIGHT     0x0001
-#define BUTTON_C_LEFT      0x0002
-#define BUTTON_C_DOWN      0x0004
-#define BUTTON_C_UP        0x0008
-#define BUTTON_R           0x0010
-#define BUTTON_L           0x0020
-#define BUTTON_D_RIGHT     0x0100
-#define BUTTON_D_LEFT      0x0200
-#define BUTTON_D_DOWN      0x0400
-#define BUTTON_D_UP        0x0800
-#define BUTTON_START       0x1000
-#define BUTTON_Z           0x2000
-#define BUTTON_B           0x4000
-#define BUTTON_A           0x8000
+// stick values only valid for pm_Controller
+#define BUTTON_C_RIGHT     0x00000001
+#define BUTTON_C_LEFT      0x00000002
+#define BUTTON_C_DOWN      0x00000004
+#define BUTTON_C_UP        0x00000008
+#define BUTTON_R           0x00000010
+#define BUTTON_L           0x00000020
+#define BUTTON_D_RIGHT     0x00000100
+#define BUTTON_D_LEFT      0x00000200
+#define BUTTON_D_DOWN      0x00000400
+#define BUTTON_D_UP        0x00000800
+#define BUTTON_START       0x00001000
+#define BUTTON_Z           0x00002000
+#define BUTTON_B           0x00004000
+#define BUTTON_A           0x00008000
+#define BUTTON_STICK_UP    0x00010000
+#define BUTTON_STICK_DOWN  0x00020000
+#define BUTTON_STICK_LEFT  0x00040000
+#define BUTTON_STICK_RIGHT 0x00080000
 
 u16 bindMake(s32 length, ...);
 s32 bindGetComponent(u16 bind, s32 index);
@@ -29,10 +34,10 @@ void inputUpdate(void);
 u16 inputZPad(void);
 s8 inputX(void);
 s8 inputY(void);
-u16 inputPad(void);
-u16 inputPressedRaw(void);
-u16 inputPressed(void);
-u16 inputReleased(void);
+pm_Controller inputPad(void);
+pm_Controller inputPressedRaw(void);
+pm_Controller inputPressed(void);
+pm_Controller inputReleased(void);
 void inputReserve(u16 bitmask);
 void inputFree(u16 bitmask);
 void inputBindSetDisable(s32 index, bool value);

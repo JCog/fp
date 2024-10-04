@@ -55,7 +55,7 @@ static u32 bowserCustomScript[] = {
 // clang-format on
 
 // LZS trainer vars
-static s8 lzsPrevPressedY = 0;
+static u8 lzsPrevPressedAnalog = 0;
 static u8 lzsPrevPrevActionState = 0;
 static bool lzsLzStored = NULL;
 static bool lzsPlayerLanded = NULL;
@@ -369,7 +369,7 @@ static void updateLzsTrainer(void) {
                        pm_gPlayerStatus.actionState == ACTION_STATE_SPIN_JUMP ||
                        pm_gPlayerStatus.actionState == ACTION_STATE_ULTRA_JUMP) {
                 fpLog("jump >= 2 frames early");
-                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                if (pm_gGameStatus.pressedButtons[0].analog || lzsPrevPressedAnalog) {
                     fpLog("control early");
                 }
             } else if (pm_gPlayerStatus.prevActionState == ACTION_STATE_FALLING) {
@@ -383,12 +383,12 @@ static void updateLzsTrainer(void) {
                 fpLog("control early");
             } else if (lzsFramesSinceLand == 3) {
                 fpLog("jump 1 frame late");
-                if (pm_gGameStatus.pressedButtons[0].yCardinal) {
+                if (pm_gGameStatus.pressedButtons[0].analog) {
                     fpLog("control late");
                 }
             } else if (lzsFramesSinceLand == 4) {
                 fpLog("jump 2 frames late");
-                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                if (pm_gGameStatus.pressedButtons[0].analog || lzsPrevPressedAnalog) {
                     fpLog("control late");
                 }
             } else if (lzsFramesSinceLand == 0 &&
@@ -397,7 +397,7 @@ static void updateLzsTrainer(void) {
                 fpLog("control early");
             } else if (lzsFramesSinceLand >= 5 && pm_mapChangeState == 0) {
                 fpLog("jump > 2 frames late");
-                if (pm_gGameStatus.pressedButtons[0].yCardinal || lzsPrevPressedY) {
+                if (pm_gGameStatus.pressedButtons[0].analog || lzsPrevPressedAnalog) {
                     fpLog("control late");
                 }
             } else if (lzsFramesSinceLand == 2) {
@@ -409,7 +409,7 @@ static void updateLzsTrainer(void) {
             lzsRecordJumps = lzsCurrentJumps;
         }
 
-        lzsPrevPressedY = pm_gGameStatus.pressedButtons[0].yCardinal;
+        lzsPrevPressedAnalog = pm_gGameStatus.pressedButtons[0].analog;
         lzsPrevPrevActionState = pm_gPlayerStatus.prevActionState;
 
         if (pm_mapChangeState == 1) {
@@ -518,7 +518,7 @@ static void updateBlockTrainer(void) {
 
 static void updateClippyTrainer(void) {
     if (settings->trainerClippyEnabled) {
-        if (pm_gGameStatus.pressedButtons[0].cr && pm_gCurrentEncounter.firstStrikeType != 2) {
+        if (pm_gGameStatus.pressedButtons[0].cRight && pm_gCurrentEncounter.firstStrikeType != 2) {
             if (pm_gEncounterState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
                 clippyStatus = CLIPPY_EARLY;
             } else if (clippyFramesSinceBattle > 0) {

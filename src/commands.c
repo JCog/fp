@@ -67,10 +67,10 @@ void fpLog(const char *fmt, ...) {
     ent->age = 0;
 }
 
-void fpSetInputMask(u16 pad, u8 x, u8 y) {
+void fpSetInputMask(u32 pad, s8 x, s8 y) {
     fp.inputMask.buttons = pad;
-    fp.inputMask.xCardinal = x;
-    fp.inputMask.yCardinal = y;
+    fp.inputMask.stickX = x;
+    fp.inputMask.stickY = y;
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {

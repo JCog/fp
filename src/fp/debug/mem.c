@@ -217,13 +217,13 @@ static void nextDomainProc(struct MenuItem *item, void *data) {
 
 static void pageUpProc(struct MenuItem *item, void *data) {
     struct MemDomain *d = vector_at(&domains, viewDomainIndex);
-    d->viewOffset -= ((inputPad() & BUTTON_Z) ? MEM_VIEW_SIZE : MEM_VIEW_COLS);
+    d->viewOffset -= inputPad().z ? MEM_VIEW_SIZE : MEM_VIEW_COLS;
     updateView();
 }
 
 static void pageDownProc(struct MenuItem *item, void *data) {
     struct MemDomain *d = vector_at(&domains, viewDomainIndex);
-    d->viewOffset += ((inputPad() & BUTTON_Z) ? MEM_VIEW_SIZE : MEM_VIEW_COLS);
+    d->viewOffset += inputPad().z ? MEM_VIEW_SIZE : MEM_VIEW_COLS;
     updateView();
 }
 

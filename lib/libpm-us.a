@@ -60,6 +60,7 @@ pm_au_sfx_reset_players = 0x8004D4BC;
 pm_snd_ambient_stop_all = 0x800557CC;
 pm_removeEffect = 0x8005A450;
 nuPiReadRom = 0x8005F490;
+nuContDataGet = 0x8005F650;
 __osPiGetAccess = 0x800614A4;
 __osPiRelAccess = 0x80061510;
 osWritebackDCacheAll = 0x800618D0;

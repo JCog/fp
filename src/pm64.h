@@ -46,29 +46,35 @@
 #define SCRIPT_BOWSER_FINAL_2_LIGHTNING 0x802339F4
 
 // NOLINTBEGIN
-typedef struct {
-    /* 0x00 */ s8 xCardinal;
-    /* 0x01 */ s8 yCardinal;
-    union {
-        struct {
-            u16 a  : 1;
-            u16 b  : 1;
-            u16 z  : 1;
-            u16 s  : 1;
-            u16 du : 1;
-            u16 dd : 1;
-            u16 dl : 1;
-            u16 dr : 1;
-            u16    : 2;
-            u16 l  : 1;
-            u16 r  : 1;
-            u16 cu : 1;
-            u16 cd : 1;
-            u16 cl : 1;
-            u16 cr : 1;
-        };
-        /* 0x02 */ u16 buttons;
+typedef union pm_Controller {
+    struct {
+        u32            : 12;
+        u32 stickRight : 1;
+        u32 stickLeft  : 1;
+        u32 stickDown  : 1;
+        u32 stickUp    : 1;
+        u32 a          : 1;
+        u32 b          : 1;
+        u32 z          : 1;
+        u32 start      : 1;
+        u32 dUp        : 1;
+        u32 dDown      : 1;
+        u32 dLeft      : 1;
+        u32 dRight     : 1;
+        u32            : 2;
+        u32 l          : 1;
+        u32 r          : 1;
+        u32 cUp        : 1;
+        u32 cDown      : 1;
+        u32 cLeft      : 1;
+        u32 cRight     : 1;
     };
+    struct {
+        u8 : 8;
+        u8 analog;
+        u16 buttons;
+    };
+    u32 pad;
 } pm_Controller; // size = 0x04
 
 typedef struct pm_SaveGlobals {
@@ -1351,6 +1357,7 @@ void pm_au_sfx_reset_players(void *soundManager);
 void pm_snd_ambient_stop_all(s32 time);
 void pm_removeEffect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
+void nuContDataGet(OSContPad *contpad, u32 cont_no);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 u64 osGetTime(void);

@@ -125,16 +125,16 @@ void fpUpdateMenu(void) {
     } else if (inputBindPressed(COMMAND_RETURN)) {
         menuReturn(fp.mainMenu);
     } else {
-        u16 padPressed = inputPressed();
-        if (padPressed & BUTTON_D_UP) {
+        pm_Controller padPressed = inputPressed();
+        if (padPressed.dUp) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_UP);
-        } else if (padPressed & BUTTON_D_DOWN) {
+        } else if (padPressed.dDown) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_DOWN);
-        } else if (padPressed & BUTTON_D_LEFT) {
+        } else if (padPressed.dLeft) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_LEFT);
-        } else if (padPressed & BUTTON_D_RIGHT) {
+        } else if (padPressed.dRight) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_RIGHT);
-        } else if (padPressed & BUTTON_L) {
+        } else if (padPressed.l) {
             menuActivate(fp.mainMenu);
         }
     }
@@ -426,16 +426,16 @@ void fpUpdate(void) {
     fpUpdateCpuCounter();
     inputUpdate();
 
-    u16 padPressed = inputPressed();
+    pm_Controller padPressed = inputPressed();
 
     if (!fp.settingsLoaded) {
-        if (!(inputPressed() & BUTTON_START) && settingsLoad(fp.profile)) {
+        if (!(padPressed.start) && settingsLoad(fp.profile)) {
             applyMenuSettings();
         }
         fp.settingsLoaded = TRUE;
     }
 
-    fpEmergencySettingsReset(padPressed);
+    fpEmergencySettingsReset(padPressed.buttons);
 
     if (pm_gameMode == 0) { // GAME_MODE_STARTUP
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
@@ -572,14 +572,14 @@ HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
 
 HOOK void fpUpdateInput(void) {
     pm_update_player_input();
-    pm_Controller *mask = &fp.inputMask;
+    FpControllerMask *mask = &fp.inputMask;
 
-    pm_gPlayerStatus.currentButtons.buttons &= ~mask->buttons;
-    pm_gPlayerStatus.previousButtons.buttons &= ~mask->buttons;
-    pm_gPlayerStatus.heldButtons.buttons &= ~mask->buttons;
+    pm_gPlayerStatus.currentButtons.pad &= ~mask->buttons;
+    pm_gPlayerStatus.previousButtons.pad &= ~mask->buttons;
+    pm_gPlayerStatus.heldButtons.pad &= ~mask->buttons;
 
-    pm_gPlayerStatus.stickAxisX &= ~mask->xCardinal;
-    pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
+    pm_gPlayerStatus.stickAxisX &= ~mask->stickX;
+    pm_gPlayerStatus.stickAxisY &= ~mask->stickY;
 }
 
 HOOK s32 fpIsAbilityActive(s32 ability) {

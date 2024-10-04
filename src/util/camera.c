@@ -55,42 +55,42 @@ static void camManual(void) {
         vec3fPy(&vf, fp.cam.pitch, fp.cam.yaw);
         vec3fPy(&vr, 0.f, fp.cam.yaw - M_PI / 2.f);
 
-        if (inputPad() & BUTTON_Z) {
+        if (inputPad().z) {
             vec3fScale(&move, &vf, y * joyMspeed);
             vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
 
             vec3fScale(&move, &vr, x * joyMspeed);
             vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
 
-            if (inputPad() & BUTTON_C_UP) {
+            if (inputPad().cUp) {
                 fp.cam.eye.y += joyMax * joyMspeed;
             }
-            if (inputPad() & BUTTON_C_DOWN) {
+            if (inputPad().cDown) {
                 fp.cam.eye.y += -joyMax * joyMspeed;
             }
-            if (inputPad() & BUTTON_C_RIGHT) {
+            if (inputPad().cRight) {
                 fp.cam.yaw -= joyMax * joyRspeed;
             }
-            if (inputPad() & BUTTON_C_LEFT) {
+            if (inputPad().cLeft) {
                 fp.cam.yaw -= -joyMax * joyRspeed;
             }
         } else {
             fp.cam.pitch += y * joyRspeed;
             fp.cam.yaw -= x * joyRspeed;
 
-            if (inputPad() & BUTTON_C_UP) {
+            if (inputPad().cUp) {
                 vec3fScale(&move, &vf, joyMax * joyMspeed);
                 vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
-            if (inputPad() & BUTTON_C_DOWN) {
+            if (inputPad().cDown) {
                 vec3fScale(&move, &vf, -joyMax * joyMspeed);
                 vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
-            if (inputPad() & BUTTON_C_RIGHT) {
+            if (inputPad().cRight) {
                 vec3fScale(&move, &vr, joyMax * joyMspeed);
                 vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
-            if (inputPad() & BUTTON_C_LEFT) {
+            if (inputPad().cLeft) {
                 vec3fScale(&move, &vr, -joyMax * joyMspeed);
                 vec3fAdd(&fp.cam.eye, &fp.cam.eye, &move);
             }
@@ -186,28 +186,28 @@ static void camRadial(void) {
         s32 x = adjustJoystick(inputX());
         s32 y = adjustJoystick(inputY());
 
-        if (inputPad() & BUTTON_Z) {
+        if (inputPad().z) {
             dist -= y * joyMspeed;
-            if (inputPad() & BUTTON_C_UP) {
+            if (inputPad().cUp) {
                 fp.cam.pitch += joyMax * joyRspeed;
             }
-            if (inputPad() & BUTTON_C_DOWN) {
+            if (inputPad().cDown) {
                 fp.cam.pitch += -joyMax * joyRspeed;
             }
         } else {
             fp.cam.pitch += y * joyRspeed;
-            if (inputPad() & BUTTON_C_UP) {
+            if (inputPad().cUp) {
                 dist -= joyMax * joyMspeed;
             }
-            if (inputPad() & BUTTON_C_DOWN) {
+            if (inputPad().cDown) {
                 dist -= -joyMax * joyMspeed;
             }
         }
         fp.cam.yaw -= x * joyRspeed;
-        if (inputPad() & BUTTON_C_LEFT) {
+        if (inputPad().cLeft) {
             fp.cam.yaw -= joyMax * joyRspeed;
         }
-        if (inputPad() & BUTTON_C_RIGHT) {
+        if (inputPad().cRight) {
             fp.cam.yaw -= -joyMax * joyRspeed;
         }
 
