@@ -428,10 +428,6 @@ void fpUpdate(void) {
 
     u16 padPressed = inputPressed();
 
-    if (!fp.versionShown) {
-        pm_gGameStatus.bSkipIntro = 1;
-    }
-
     if (!fp.settingsLoaded) {
         if (!(inputPressed() & BUTTON_START) && settingsLoad(fp.profile)) {
             applyMenuSettings();
@@ -441,11 +437,16 @@ void fpUpdate(void) {
 
     fpEmergencySettingsReset(padPressed);
 
-    // GAME_MODE_LOGOS
-    if (pm_gameMode == 1 && settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
-        pm_setGameMode(7);       // GAME_MODE_ENTER_WORLD
-        pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
-        fp.versionShown = TRUE;
+    if (pm_gameMode == 0) { // GAME_MODE_STARTUP
+        if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
+            pm_setGameMode(7);       // GAME_MODE_ENTER_WORLD
+            pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
+            fp.versionShown = TRUE;
+        } else {
+            pm_set_curtain_scale(1.0f);
+            pm_set_curtain_fade(0.0f);
+            pm_setGameMode(2); // GAME_MODE_TITLE_SCREEN
+        }
     }
 
     if (fp.menuActive) {
@@ -509,10 +510,6 @@ void fpDraw(void) {
     s32 cellWidth = menuGetCellWidth(fp.mainMenu, TRUE);
     s32 cellHeight = menuGetCellHeight(fp.mainMenu, TRUE);
 
-    if (!fp.versionShown) {
-        fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
-    }
-
     if (settings->inputDisplay) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
@@ -532,6 +529,10 @@ void fpDraw(void) {
         }
 
         menuDraw(fp.mainMenu);
+    }
+
+    if (!fp.versionShown) {
+        fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
     }
 
     menuDraw(fp.global);

@@ -1337,8 +1337,10 @@ void pm_fioReadFlash(s32 slot, void *buffer, u32 size); // writes to buffer in 1
 void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
 void pm_fioEraseFlash(s32 slot);
 void pm_setCurtainScaleGoal(f32 goal);
+void pm_set_curtain_scale(f32 scale);
 void pm_setCurtainDrawCallback(void *callback);
 void pm_setCurtainFadeGoal(f32 goal);
+void pm_set_curtain_fade(f32 fade);
 void pm_update_cameras(void);
 void pm_update_camera_zone_interp(pm_Camera *camera);
 void pm_setGameMode(s32 mode);

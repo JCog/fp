@@ -248,21 +248,20 @@ static void addWatchProc(struct MenuItem *item, void *data) {
 
 void memMenuCreate(struct Menu *menu) {
     /* initialize data */
-    /* this is copied from gz, and I have no idea why sp regs and si regs crash, but commenting them out for now */
     vector_init(&domains, sizeof(struct MemDomain));
     addDomain(0x80000000, 0x00C00000, "k0 rdram");
     addDomain(0xA0000000, 0x00C00000, "k1 rdram");
     addDomain(0xA3F00000, 0x00100000, "rdram regs");
     addDomain(0xA4000000, 0x00001000, "sp dmem");
     addDomain(0xA4001000, 0x00001000, "sp imem");
-    // add_domain(0xA4002000, 0x000FE000, "sp regs");
+    addDomain(0xA4002000, 0x000FE000, "sp regs");
     addDomain(0xA4100000, 0x00100000, "dp com");
     addDomain(0xA4200000, 0x00100000, "dp span");
     addDomain(0xA4300000, 0x00100000, "mi regs");
     addDomain(0xA4400000, 0x00100000, "vi regs");
     addDomain(0xA4500000, 0x00100000, "ai regs");
     addDomain(0xA4600000, 0x00100000, "pi regs");
-    // add_domain(0xA4800000, 0x00100000, "si regs");
+    addDomain(0xA4800000, 0x00100000, "si regs");
     addDomain(0xA8000000, 0x08000000, "cart dom2");
     addDomain(0xB0000000, 0x0FC00000, "cart dom1");
     addDomain(0xBFC00000, 0x000007C0, "pif rom");
