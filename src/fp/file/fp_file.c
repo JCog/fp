@@ -117,9 +117,9 @@ s32 fpImportFile(const char *path, void *data) {
                         errStr = strerror(errno);
                     }
                 } else {
-                    if (pm_fioValidateFileChecksum(file)) {
+                    if (pm_fio_validate_globals_checksums(file)) {
                         pm_gCurrentSaveFile = *file;
-                        pm_fioDeserializeState();
+                        pm_fio_deserialize_state();
                         fpWarp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fpLog("save file corrupt");
@@ -152,10 +152,10 @@ s32 fpImportFile(const char *path, void *data) {
 
 static void exportFileProc(struct MenuItem *item, void *data) {
     pm_SaveData *file = malloc(sizeof(*file));
-    pm_fioFetchSavedFileInfo();
-    pm_fioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
+    pm_fio_fetch_saved_file_info();
+    pm_fio_read_flash(pm_LogicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
 
-    if (pm_fioValidateFileChecksum(file)) {
+    if (pm_fio_validate_globals_checksums(file)) {
         menuGetFile(fp.mainMenu, GETFILE_SAVE, "file", ".pmsave", doExportFile, file);
     } else {
         free(file);

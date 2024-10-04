@@ -334,7 +334,7 @@ void fpUpdateCheats(void) {
     }
     if (CHEAT_ACTIVE(CHEAT_MUTE_MUSIC)) {
         // the game is constantly trying to raise this by 1 every frame, so 0 would just make it quiet instead of muted
-        pm_musicCurrentVolume = -1;
+        pm_MusicCurrentVolume = -1;
     }
     pm_gGameStatus.debugQuizmo = CHEAT_ACTIVE(CHEAT_QUIZMO) != 0;
 }
@@ -347,11 +347,11 @@ void fpUpdateWarps(void) {
 
     if (fp.warp && fp.warpDelay == 0) {
         PRINTF("changing game mode\n");
-        pm_setMapTransitionEffect(0); // normal black fade
-        pm_setGameMode(5);            // start the "change map" game mode
-        pm_mapChangeState = 1;        // skip the fade out
+        pm_set_map_transition_effect(0); // normal black fade
+        pm_set_game_mode(5);             // start the "change map" game mode
+        pm_gMapTransitionState = 1;      // skip the fade out
         pm_gMapTransitionAlpha = 0xFF;
-        pm_updateExitMapScreenOverlay(&pm_gMapTransitionAlpha);
+        pm_update_exit_map_screen_overlay(&pm_gMapTransitionAlpha);
         fp.warp = FALSE;
     }
 }
@@ -437,15 +437,15 @@ void fpUpdate(void) {
 
     fpEmergencySettingsReset(padPressed.buttons);
 
-    if (pm_gameMode == 0) { // GAME_MODE_STARTUP
+    if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
-            pm_setGameMode(7);       // GAME_MODE_ENTER_WORLD
+            pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD
             pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
             fp.versionShown = TRUE;
         } else {
             pm_set_curtain_scale(1.0f);
             pm_set_curtain_fade(0.0f);
-            pm_setGameMode(2); // GAME_MODE_TITLE_SCREEN
+            pm_set_game_mode(2); // GAME_MODE_TITLE_SCREEN
         }
     }
 
@@ -564,9 +564,9 @@ ENTRY void fpAfterDrawEntry(void) {
     crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
+HOOK void fpUpdateCameraZoneInterpHook(pm_Camera *cam) {
     if (!fp.freeCam) {
-        pm_update_camera_mode_6(cam);
+        pm_update_camera_no_interp(cam);
     }
 }
 

@@ -5,14 +5,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#define PAD_TO_CONTROLLER(x) (pm_Controller)(u32)x;
-
-typedef struct OSContPad {
-    u16 button;
-    s8 stick_x;
-    s8 stick_y;
-    u8 errno;
-} OSContPad;
+#define PAD_TO_CONTROLLER(x) (pm_Controller)(u32) x;
 
 static s8 joyX;
 static s8 joyY;

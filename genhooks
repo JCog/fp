@@ -38,7 +38,7 @@ genhook()
 genhook "$sym_update_hook" "jal $sym_fpUpdateEntry;"
 genhook "$sym_draw_hook" "jal $sym_fpDrawEntry;"
 genhook "$sym_after_draw_hook" "jal $sym_fpAfterDrawEntry;"
-genhook "$sym_update_camera_mode_6_hook" "jal $sym_fpUpdateCameraMode6;"
+genhook "$sym_update_camera_zone_interp_hook" "jal $sym_fpUpdateCameraZoneInterpHook;"
 genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
 
 # Fix wii vc fire flower crash

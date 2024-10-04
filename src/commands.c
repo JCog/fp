@@ -74,7 +74,7 @@ void fpSetInputMask(u32 pad, s8 x, s8 y) {
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {
-    pm_bgmSetSong(1, -1, 0, 0, 8); // clear secondary songs
+    pm_bgm_set_song(1, -1, 0, 0, 8); // clear secondary songs
     pm_snd_ambient_stop_all(0);
     pm_au_sfx_reset_players(pm_gSoundManager);
     pm_disable_player_input();
@@ -84,23 +84,23 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_gGameStatus.entryID = entrance;
 
     PRINTF("***** WARP TRIGGERED *****\n");
-    if (pm_gGameStatus.isBattle || pm_popupMenuVar == 1) {
+    if (pm_gGameStatus.isBattle || pm_gPopupState == 1) {
         // prevent crashes from warping when in battle menus or with partner/item menu open
-        pm_clearWindows();
+        pm_clear_windows();
     }
 
-    if (pm_gameMode == 0xA) { // paused
+    if (pm_CurGameMode == 0xA) { // paused
         fp.warpDelay = 5;
-        pm_setGameMode(0xB);
+        pm_set_game_mode(0xB);
     } else {
         fp.warpDelay = 0;
     }
 
     // set the global curtain to default+off state
     // this is mainly to prevent a crash when warping from "card obtained"
-    pm_setCurtainScaleGoal(2.0f);
-    pm_setCurtainDrawCallback(NULL);
-    pm_setCurtainFadeGoal(0.0f);
+    pm_set_curtain_scale_goal(2.0f);
+    pm_set_curtain_draw_callback(NULL);
+    pm_set_curtain_fade_goal(0.0f);
 
     fp.warp = TRUE;
 
@@ -140,7 +140,7 @@ void commandLevitateProc(void) {
     pm_gPlayerStatus.ySnap = 0.0115200001746f;
 
     if (pm_gGameStatus.peachFlags & (1 << 0)) {
-        pm_playerActionsTable[5].flag = TRUE;
+        pm_PlayerActionsTable[5].flag = TRUE;
     }
 }
 
@@ -223,8 +223,8 @@ void commandImportSaveProc(void) {
 }
 
 void commandSaveGameProc(void) {
-    pm_saveGame();
-    pm_playSfx(0x10);
+    pm_entity_SaveBlock_save_data();
+    pm_sfx_play_sound(0x10);
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
@@ -242,11 +242,11 @@ void commandShowHideTimerProc(void) {
 
 void commandLoadGameProc(void) {
     pm_SaveData *file = malloc(sizeof(*file));
-    pm_fioFetchSavedFileInfo();
-    pm_fioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
-    if (pm_fioValidateFileChecksum(file)) {
+    pm_fio_fetch_saved_file_info();
+    pm_fio_read_flash(pm_LogicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
+    if (pm_fio_validate_globals_checksums(file)) {
         pm_gCurrentSaveFile = *file;
-        pm_fioDeserializeState();
+        pm_fio_deserialize_state();
         fpWarp(file->areaID, file->mapID, file->entryID);
         fpLog("loaded from slot %d", pm_gGameStatus.saveSlot);
     } else {

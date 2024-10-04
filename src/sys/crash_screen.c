@@ -264,7 +264,7 @@ static void crashScreenDraw(OSThread *faultedThread) {
 }
 
 static OSThread *crashScreenGetFaultedThread(void) {
-    OSThread *thread = osGetActiveQueue();
+    OSThread *thread = __osGetActiveQueue();
 
     while (thread->priority != -1) {
         if (thread->priority > 0 && thread->priority < 0x7F && (thread->flags & 3)) {
