@@ -39,6 +39,7 @@ pm_gScriptIndexList         = 0x802DA898;
 
 osSyncPrintf                        = 0x80025CFC;
 pm_step_game_loop                   = 0x80026710;
+pm_fio_load_globals                 = 0x8002AF98;
 pm_fio_save_globals                 = 0x8002B00C;
 pm_fio_validate_globals_checksums   = 0x8002B0B8;
 pm_fio_fetch_saved_file_info        = 0x8002B114;

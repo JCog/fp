@@ -441,6 +441,7 @@ void fpUpdate(void) {
     fpEmergencySettingsReset(padPressed.buttons);
 
     if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
+        pm_fio_load_globals();
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
             // quick launch
             pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD
