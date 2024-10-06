@@ -1364,6 +1364,8 @@ pm_Npc *pm_get_npc_unsafe(s32 npcID);
 pm_Npc *pm_get_npc_safe(s32 npcID);
 void pm_au_sfx_reset_players(void *soundManager);
 void pm_snd_ambient_stop_all(s32 time);
+void pm_audio_set_stereo(void);
+void pm_audio_set_mono(void);
 void pm_remove_effect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
 void nuContDataGet(OSContPad *contpad, u32 cont_no);

@@ -168,14 +168,20 @@ static void importFileProc(struct MenuItem *item, void *data) {
 }
 
 static s32 audioModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    u32 *p = data;
+    u32 *useMonoSound = data;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        if (menuOptionGet(item) != *p) {
-            menuOptionSet(item, *p);
+        if (menuOptionGet(item) != *useMonoSound) {
+            menuOptionSet(item, *useMonoSound);
         }
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        *p = menuOptionGet(item);
+        *useMonoSound = menuOptionGet(item);
         pm_fio_save_globals();
+        pm_gGameStatus.soundOutputMode = !*useMonoSound;
+        if (*useMonoSound) {
+            pm_audio_set_mono();
+        } else {
+            pm_audio_set_stereo();
+        }
     }
     return 0;
 }
@@ -251,10 +257,11 @@ struct Menu *createFileMenu(void) {
                   "koopatrol\0"
                   "super soda\0",
                   menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    y++;
     menuAddStatic(&menu, 0, y, "audio mode", 0xC0C0C0);
     struct MenuItem *audioOption = menuAddOption(&menu, menuX, y++,
-                                                 "mono\0"
-                                                 "stereo\0",
+                                                 "stereo\0"
+                                                 "mono\0",
                                                  audioModeProc, &pm_gSaveGlobals.useMonoSound);
     y++;
 
