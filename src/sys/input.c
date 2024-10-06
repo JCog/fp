@@ -5,6 +5,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#define PAD_TO_CONTROLLER(x) (pm_Controller)(u32) x;
+
 static s8 joyX;
 static s8 joyY;
 static u16 pad;
@@ -67,9 +69,39 @@ const u32 inputButtonColor[] = {
 };
 
 void inputUpdate(void) {
-    joyX = pm_gGameStatus.stickX[0];
-    joyY = pm_gGameStatus.stickY[0];
-    u16 pmPad = pm_gGameStatus.currentButtons[0].buttons;
+    OSContPad osContPad;
+    nuContDataGet(&osContPad, 0);
+
+    // duplicating analog stick code to match game values
+    joyX = osContPad.stick_x;
+    joyY = osContPad.stick_y;
+    if (joyX > 0) {
+        joyX -= 4;
+        if (joyX < 0) {
+            joyX = 0;
+        }
+    }
+    if (joyX < 0) {
+        joyX += 4;
+        if (joyX > 0) {
+            joyX = 0;
+        }
+    }
+
+    if (joyY > 0) {
+        joyY -= 4;
+        if (joyY < 0) {
+            joyY = 0;
+        }
+    }
+    if (joyY < 0) {
+        joyY += 4;
+        if (joyY > 0) {
+            joyY = 0;
+        }
+    }
+
+    u16 pmPad = osContPad.button;
     padPressedRaw = (pad ^ pmPad) & pmPad;
     padReleased = (pad ^ pmPad) & ~pmPad;
     pad = pmPad;
@@ -157,35 +189,35 @@ s8 inputY(void) {
     return joyY;
 }
 
-u16 inputPad(void) {
+pm_Controller inputPad(void) {
     if (inputEnabled) {
-        return pad;
+        return PAD_TO_CONTROLLER(pad);
     } else {
-        return 0;
+        return PAD_TO_CONTROLLER(0);
     }
 }
 
-u16 inputPressedRaw(void) {
+pm_Controller inputPressedRaw(void) {
     if (inputEnabled) {
-        return padPressedRaw;
+        return PAD_TO_CONTROLLER(padPressedRaw);
     } else {
-        return 0;
+        return PAD_TO_CONTROLLER(0);
     }
 }
 
-u16 inputPressed(void) {
+pm_Controller inputPressed(void) {
     if (inputEnabled) {
-        return padPressed;
+        return PAD_TO_CONTROLLER(padPressed);
     } else {
-        return 0;
+        return PAD_TO_CONTROLLER(0);
     }
 }
 
-u16 inputReleased(void) {
+pm_Controller inputReleased(void) {
     if (inputEnabled) {
-        return padReleased;
+        return PAD_TO_CONTROLLER(padReleased);
     } else {
-        return 0;
+        return PAD_TO_CONTROLLER(0);
     }
 }
 

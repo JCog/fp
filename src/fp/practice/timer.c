@@ -31,7 +31,7 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
     switch (timerState) {
         case TIMER_RUNNING:
             timerCount = fp.cpuCounter - start;
-            timerLagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
+            timerLagFrames = (nuScRetraceCounter - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
             break;
         case TIMER_STOPPED:
             timerCount = end - start;
@@ -109,7 +109,7 @@ void timerUpdate(void) {
                 timerState = TIMER_RUNNING;
                 newMapWaiting = FALSE;
                 start = fp.cpuCounter;
-                lagStart = pm_viFrames;
+                lagStart = nuScRetraceCounter;
                 frameStart = pm_gGameStatus.frameCounter;
                 if (settings->timerLogging) {
                     fpLog("timer started");
@@ -131,12 +131,12 @@ void timerUpdate(void) {
             if (timerCutsceneCount == timerCutsceneTarget) {
                 timerState = TIMER_STOPPED;
                 end = fp.cpuCounter;
-                lagEnd = pm_viFrames;
+                lagEnd = nuScRetraceCounter;
                 frameEnd = pm_gGameStatus.frameCounter;
                 fpLog("timer stopped");
             }
             timerCount = fp.cpuCounter - start;
-            timerLagFrames = (pm_viFrames - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
+            timerLagFrames = (nuScRetraceCounter - lagStart) / 2 - (pm_gGameStatus.frameCounter - frameStart);
             break;
         case TIMER_STOPPED:
             timerCount = end - start;

@@ -117,9 +117,9 @@ s32 fpImportFile(const char *path, void *data) {
                         errStr = strerror(errno);
                     }
                 } else {
-                    if (pm_fioValidateFileChecksum(file)) {
+                    if (pm_fio_validate_globals_checksums(file)) {
                         pm_gCurrentSaveFile = *file;
-                        pm_fioDeserializeState();
+                        pm_fio_deserialize_state();
                         fpWarp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fpLog("save file corrupt");
@@ -152,10 +152,10 @@ s32 fpImportFile(const char *path, void *data) {
 
 static void exportFileProc(struct MenuItem *item, void *data) {
     pm_SaveData *file = malloc(sizeof(*file));
-    pm_fioFetchSavedFileInfo();
-    pm_fioReadFlash(pm_logicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
+    pm_fio_fetch_saved_file_info();
+    pm_fio_read_flash(pm_LogicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
 
-    if (pm_fioValidateFileChecksum(file)) {
+    if (pm_fio_validate_globals_checksums(file)) {
         menuGetFile(fp.mainMenu, GETFILE_SAVE, "file", ".pmsave", doExportFile, file);
     } else {
         free(file);
@@ -167,6 +167,25 @@ static void importFileProc(struct MenuItem *item, void *data) {
     menuGetFile(fp.mainMenu, GETFILE_LOAD, NULL, ".pmsave", fpImportFile, NULL);
 }
 
+static s32 audioModeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    u32 *useMonoSound = data;
+    if (reason == MENU_CALLBACK_THINK_INACTIVE) {
+        if (menuOptionGet(item) != *useMonoSound) {
+            menuOptionSet(item, *useMonoSound);
+        }
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        *useMonoSound = menuOptionGet(item);
+        pm_fio_save_globals();
+        pm_gGameStatus.soundOutputMode = !*useMonoSound;
+        if (*useMonoSound) {
+            pm_audio_set_mono();
+        } else {
+            pm_audio_set_stereo();
+        }
+    }
+    return 0;
+}
+
 struct Menu *createFileMenu(void) {
     static struct Menu menu;
 
@@ -175,7 +194,7 @@ struct Menu *createFileMenu(void) {
 
     /*build menu*/
     s32 y = 0;
-    const s32 menuX = 10;
+    const s32 menuX = 11;
     struct GfxTexture *tSave = resourceGet(RES_ICON_SAVE);
 
     menu.selector = menuAddSubmenu(&menu, 0, y++, NULL, "return");
@@ -233,15 +252,21 @@ struct Menu *createFileMenu(void) {
                   "thunder rage\0",
                   menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xD9]);
     menuAddStatic(&menu, 0, y, "toy box 3", 0xC0C0C0);
-    struct MenuItem *toyboxItem3Option = menuAddOption(&menu, menuX, y++,
-                                                       "pokey\0"
-                                                       "koopatrol\0"
-                                                       "super soda\0",
-                                                       menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    menuAddOption(&menu, menuX, y++,
+                  "pokey\0"
+                  "koopatrol\0"
+                  "super soda\0",
+                  menuByteOptionmodProc, &pm_gCurrentSaveFile.globalBytes[0xDA]);
+    y++;
+    menuAddStatic(&menu, 0, y, "audio mode", 0xC0C0C0);
+    struct MenuItem *audioOption = menuAddOption(&menu, menuX, y++,
+                                                 "stereo\0"
+                                                 "mono\0",
+                                                 audioModeProc, &pm_gSaveGlobals.useMonoSound);
     y++;
 
     struct MenuItem *enemiesButton = menuAddButton(&menu, 0, y++, "restore enemies", restoreEnemiesProc, NULL);
-    menuItemAddChainLink(enemiesButton, toyboxItem3Option, MENU_NAVIGATE_UP);
+    menuItemAddChainLink(enemiesButton, audioOption, MENU_NAVIGATE_UP);
 
     return &menu;
 }

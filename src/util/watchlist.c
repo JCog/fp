@@ -137,7 +137,7 @@ static s32 positionProc(struct MenuItem *item, enum MenuCallbackReason reason, v
         memberData->y = watch->pyoffset;
     }
     s32 dist = 2;
-    if (inputPad() & BUTTON_Z) {
+    if (inputPad().z) {
         dist *= 2;
     }
     switch (reason) {

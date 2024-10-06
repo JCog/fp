@@ -42,6 +42,7 @@ void settingsLoadDefault(void) {
     d->timerLogging = 0;
     d->timerShow = 0;
     d->battleDebug = 0;
+    d->quickLaunch = 0;
     d->watchesVisible = 1;
     d->trainerAcEnabled = 0;
     d->trainerBowserEnabled = 0;
@@ -94,15 +95,15 @@ void applyMenuSettings(void) {
 }
 
 void settingsSave(s32 profile) {
-    pm_fioReadFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
+    pm_fio_read_flash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
     settingsStore.header.dataChecksum = settingsChecksumCompute(&settingsStore);
     memcpy(&settingsBuffer[profile], &settingsStore, sizeof(settingsStore));
-    pm_fioEraseFlash(SETTINGS_FIO_PAGE);
-    pm_fioWriteFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
+    pm_fio_erase_flash(SETTINGS_FIO_PAGE);
+    pm_fio_write_flash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
 }
 
 bool settingsLoad(s32 profile) {
-    pm_fioReadFlash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
+    pm_fio_read_flash(SETTINGS_FIO_PAGE, &settingsBuffer, sizeof(settingsBuffer));
     if (!settingsValidate(&settingsBuffer[profile])) {
         return FALSE;
     }

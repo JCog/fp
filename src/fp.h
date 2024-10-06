@@ -23,6 +23,12 @@ typedef struct {
 } FpCam;
 
 typedef struct {
+    u32 buttons;
+    s8 stickX;
+    s8 stickY;
+} FpControllerMask;
+
+typedef struct {
     bool ready;
     struct Menu *mainMenu;
     struct Menu *global;
@@ -58,7 +64,7 @@ typedef struct {
     s16 camDistMax;
     FpCam cam;
     bool resetCam;
-    pm_Controller inputMask;
+    FpControllerMask inputMask;
     bool camEnabledBefore;
     pm_Camera savedCam;
     s8 freeCamMoveSpeed;
@@ -73,7 +79,7 @@ void fpSetGlobalFlag(s32 flagIndex, bool value);
 void fpSetAreaFlag(s32 flagIndex, bool value);
 void fpSetGlobalByte(s32 byteIndex, s8 value);
 s32 fpImportFile(const char *path, void *data);
-void fpSetInputMask(u16 pad, u8 x, u8 y);
+void fpSetInputMask(u32 pad, s8 x, s8 y);
 void fpUpdateCam(void);
 void fpSaveSettingsProc(struct MenuItem *item, void *data);
 void setFreeCamMoveSpeed(s8 s);

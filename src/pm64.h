@@ -46,32 +46,55 @@
 #define SCRIPT_BOWSER_FINAL_2_LIGHTNING 0x802339F4
 
 // NOLINTBEGIN
-typedef struct {
-    /* 0x00 */ s8 xCardinal;
-    /* 0x01 */ s8 yCardinal;
-    union {
-        struct {
-            u16 a  : 1;
-            u16 b  : 1;
-            u16 z  : 1;
-            u16 s  : 1;
-            u16 du : 1;
-            u16 dd : 1;
-            u16 dl : 1;
-            u16 dr : 1;
-            u16    : 2;
-            u16 l  : 1;
-            u16 r  : 1;
-            u16 cu : 1;
-            u16 cd : 1;
-            u16 cl : 1;
-            u16 cr : 1;
-        };
-        /* 0x02 */ u16 buttons;
+typedef struct OSContPad {
+    u16 button;
+    s8 stick_x;
+    s8 stick_y;
+    u8 errno;
+} OSContPad;
+
+typedef union pm_Controller {
+    struct {
+        u32            : 12;
+        u32 stickRight : 1;
+        u32 stickLeft  : 1;
+        u32 stickDown  : 1;
+        u32 stickUp    : 1;
+        u32 a          : 1;
+        u32 b          : 1;
+        u32 z          : 1;
+        u32 start      : 1;
+        u32 dUp        : 1;
+        u32 dDown      : 1;
+        u32 dLeft      : 1;
+        u32 dRight     : 1;
+        u32            : 2;
+        u32 l          : 1;
+        u32 r          : 1;
+        u32 cUp        : 1;
+        u32 cDown      : 1;
+        u32 cLeft      : 1;
+        u32 cRight     : 1;
     };
+    struct {
+        u8 : 8;
+        u8 analog;
+        u16 buttons;
+    };
+    u32 pad;
 } pm_Controller; // size = 0x04
 
-typedef struct {
+typedef struct pm_SaveGlobals {
+    /* 0x00 */ char magicString[16]; /* "Mario Story 006" string */
+    /* 0x10 */ s8 pad[32];           /* always zero */
+    /* 0x30 */ s32 crc1;
+    /* 0x34 */ s32 crc2;
+    /* 0x38 */ s32 useMonoSound;
+    /* 0x3C */ u32 lastFileSelected;
+    /* 0x40 */ s8 reserved[64]; // unused
+} pm_SaveGlobals;               // size = 0x80
+
+typedef struct pm_GameStatus {
     /* 0x000 */ pm_Controller currentButtons[4]; /* raw input */
     /* 0x010 */ pm_Controller pressedButtons[4]; /* one frame when pressedButtons*/
     /* 0x020 */ pm_Controller heldButtons[4];    /* once every 4 frames */
@@ -160,7 +183,7 @@ typedef struct {
     /* 0x16C */ char unk_16C[12];
 } pm_GameStatus; // size = 0x178
 
-typedef struct {
+typedef struct pm_PartnerActionStatus {
     /* 0x000 */ s8 partnerActionState;
     /* 0x001 */ s8 shouldResumeAbility;
     /* 0x002 */ s8 partnerAction_unk_2;
@@ -174,7 +197,7 @@ typedef struct {
     /* 0x15 */ char unk_15[3];
 } pm_PartnerActionStatus; // size = 0x18
 
-typedef struct {
+typedef struct pm_UiStatus {
     /* 0x00 */ u32 hpText;
     /* 0x04 */ u32 hpIcon;
     /* 0x08 */ u32 fpText;
@@ -226,13 +249,13 @@ typedef struct {
     /* 0x6C */ s8 unk_6C[4];
 } pm_UiStatus; // size = 0x70
 
-typedef struct {
+typedef struct pm_PartnerData {
     /* 0x00 */ u8 enabled;
     /* 0x01 */ u8 level;
     /* 0x02 */ s16 unk_0x02[3];
 } pm_PartnerData; // size = 0x08
 
-typedef struct {
+typedef struct pm_Party {
     /* 0x00 */ pm_PartnerData unk_partner;
     /* 0x08 */ pm_PartnerData goombario;
     /* 0x10 */ pm_PartnerData kooper;
@@ -247,7 +270,7 @@ typedef struct {
     /* 0x58 */ pm_PartnerData twink;
 } pm_Party; // size = 0x60
 
-typedef struct {
+typedef struct pm_EffectInstance {
     /* 0x00 */ s32 flags;
     /* 0x04 */ s32 effectIndex;
     /* 0x08 */ s32 numParts;
@@ -255,89 +278,87 @@ typedef struct {
     /* 0x10 */ struct EffectGraphics *graphics;
 } pm_EffectInstance; // size = 0x14
 
-typedef struct {
-    /* 0x000 */ u8 bootsLevel; /*start: 8010F450*/
-    /* 0x001 */ u8 hammerLevel;
-    /* 0x002 */ u8 curHP;
-    /* 0x003 */ u8 maxHP;
-    /* 0x004 */ u8 hardMaxHP; /*gets copied to maxHP when unpausing */
-    /* 0x005 */ u8 curFP;
-    /* 0x006 */ u8 curMaxFP;
-    /* 0x007 */ u8 hardMaxFP; /*gets copied to maxHP when unpausing */
-    /* 0x008 */ u8 maxBP;
-    /* 0x009 */ u8 level;
+typedef struct pm_PlayerData {
+    /* 0x000 */ s8 bootsLevel; /*start: 8010F450*/
+    /* 0x001 */ s8 hammerLevel;
+    /* 0x002 */ s8 curHP;
+    /* 0x003 */ s8 curMaxHP; // hardMaxHP + HP Plus
+    /* 0x004 */ s8 hardMaxHP;
+    /* 0x005 */ s8 curFP;
+    /* 0x006 */ s8 curMaxFP; // hardMaxFP + FP Plus
+    /* 0x007 */ s8 hardMaxFP;
+    /* 0x008 */ s8 maxBP;
+    /* 0x009 */ s8 level;
     /* 0x00A */ u8 hasActionCommands;
     /* 0x00B */ char unk_0x0B;
     /* 0x00C */ s16 coins;
     /* 0x00E */ s8 fortressKeys;
     /* 0x00F */ u8 starPieces;
-    /* 0x010 */ u8 starPoints;
+    /* 0x010 */ s8 starPoints;
     /* 0x011 */ char unk_0x11;
-    /* 0x012 */ u8 currentPartner; /*0x00 - 0x0B*/
+    /* 0x012 */ s8 currentPartner;
     /* 0x013 */ char unk_0x13;
     union {
         /* 0x014 */ pm_Party party;
         /* 0x014 */ pm_PartnerData partners[12];
     };
-    /* 0x074 */ u16 keyItems[32];
-    /* 0x0B4 */ u16 badges[128];
-    /* 0x1B4 */ u16 invItems[10];
-    /* 0x1C8 */ u16 storedItems[32];
-    /* 0x208 */ u16 equippedBadges[64];
+    /* 0x074 */ s16 keyItems[32];
+    /* 0x0B4 */ s16 badges[128];
+    /* 0x1B4 */ s16 invItems[10];
+    /* 0x1C8 */ s16 storedItems[32];
+    /* 0x208 */ s16 equippedBadges[64];
     /* 0x288 */ char unk_0x288;
     /* 0x289 */ s8 merleeSpellType;
     /* 0x28A */ s8 merleeCastsRemaining;
-    /* 0x28B */ char unk_0x03;
+    /* 0x28B */ char pad_28B;
     /* 0x28C */ s16 merleeTurnCount;
-    /* 0x28E */ u8 starSpiritsSaved;
-    /* 0x28F */ char unk_0x28F;
+    /* 0x28E */ s8 maxStarPower;
+    /* 0x28F */ char pad_0x28F;
     union {
         struct {
-            /* 0x290 */ u8 starSpiritsFullBarsFilled;
-            /* 0x291 */ u8 starSpiritsPartialBarFilled;
+            /* 0x290 */ s8 starPowerFullBars;
+            /* 0x291 */ s8 starPowerPartialBars;
         };
-        /* 0x290 */ u16 totalStarPower;
+        /* 0x290 */ s16 starPower;
     };
-    /* 0x292 */ u8 starBeamLevel; /*1 for star beam, 2 for peach beam*/
-    /* 0x293 */ char unk_0x293;
-    /* 0x294 */ s16 actionCommandAttempts;
-    /* 0x296 */ s16 actionCommandSuccesses;
-    /* 0x298 */ s16 hitsTaken;
-    /* 0x29A */ s16 hitsBlocked;
-    /* 0x29C */ s16 playerFirstStrikes;
-    /* 0x29E */ s16 enemyFirstStrikes;
-    /* 0x2A0 */ s16 powerBounces;
-    /* 0x2A2 */ s16 battlesCount;
-    /* 0x2A4 */ s16 battlesWon;
-    /* 0x2A6 */ s16 unk_2A6;
-    /* 0x2A8 */ s16 battlesFled;
+    /* 0x292 */ s8 starBeamLevel; // 1 for star beam, 2 for peach beam
+    /* 0x293 */ char pad_293;
+    /* 0x294 */ u16 actionCommandAttempts;
+    /* 0x296 */ u16 actionCommandSuccesses;
+    /* 0x298 */ u16 hitsTaken;
+    /* 0x29A */ u16 hitsBlocked;
+    /* 0x29C */ u16 playerFirstStrikes;
+    /* 0x29E */ u16 enemyFirstStrikes;
+    /* 0x2A0 */ u16 powerBounces;
+    /* 0x2A2 */ u16 battlesCount;
+    /* 0x2A4 */ u16 battlesWon;
+    /* 0x2A6 */ u16 unk_2A6;
+    /* 0x2A8 */ u16 battlesFled;
     /* 0x2AA */ u16 trainingsDone;
     /* 0x2AC */ s32 walkingStepsTaken;
     /* 0x2B0 */ s32 runningStepsTaken;
     /* 0x2B4 */ u32 totalCoinsEarned;
     /* 0x2B8 */ s16 idleFrameCounter; /* frames with no inputs, overflows every ~36 minutes of idling */
-    /* 0x2BA */ char unk_2BA[2];
+    /* 0x2BA */ char pad_2BA[2];
     /* 0x2BC */ u32 frameCounter; /* increases by 2 per frame */
-    /* 0x2C0 */ s16 quizzesAnswered;
-    /* 0x2C2 */ s16 quizzesCorrect;
+    /* 0x2C0 */ u16 quizzesAnswered;
+    /* 0x2C2 */ u16 quizzesCorrect;
     /* 0x2C4 */ s32 partnerUnlockedTime[12];
     /* 0x2F4 */ s32 partnerUsedTime[12];
     /* 0x324 */ s32 tradeEventStartTime;
-    /* 0x328 */ s32 droTreeOrbitTime;
-    /* 0x32C */ s16 starPiecesCollected;
-    /* 0x32E */ s16 jumpGamePlays;
-    /* 0x330 */ s32 jumpGameTotal; /* all-time winnings, max = 99999 */
-    /* 0x334 */ s16 jumpGameRecord;
-    /* 0x336 */ s16 smashGamePlays;
-    /* 0x338 */ s32 smashGameTotal; /* all-time winnings, max = 99999 */
-    /* 0x33C */ s16 smashGameRecord;
-    /* 0x33E */ char unk_33E[2];
-    /* 0x340 */ char unk_340[0xE0];
-    /* 0x420 */ s32 starPoints2;
-    /* 0x424 */ char unk_424[4];
+    /* 0x328 */ s32 droTreeHintTime;
+    /* 0x32C */ u16 starPiecesCollected;
+    /* 0x32E */ u16 jumpGamePlays;
+    /* 0x330 */ u32 jumpGameTotal; /* all-time winnings, max = 99999 */
+    /* 0x334 */ u16 jumpGameRecord;
+    /* 0x336 */ u16 smashGamePlays;
+    /* 0x338 */ u32 smashGameTotal; /* all-time winnings, max = 99999 */
+    /* 0x33C */ u16 smashGameRecord;
+    /* 0x33E */ char pad_33E[2];
+    /* 0x340 */ char reserved[0xE8];
 } pm_PlayerData; // size = 0x428
 
-typedef struct {
+typedef struct pm_PlayerStatus {
     /* 0x000 */ s32 flags; /* third byte related to cutscenes - write 0 to break free */
     /* 0x004 */ s32 animFlags;
     /* 0x008 */ u16 currentStateTime;
@@ -425,7 +446,7 @@ typedef struct {
     /* 0x2C8 */ pm_PlayerData playerData;
 } pm_PlayerStatus; // size = 0x6F0
 
-typedef struct {
+typedef struct pm_SaveMetadata {
     /* 0x00 */ s32 timePlayed;
     /* 0x04 */ u8 spiritsRescued;
     /* 0x05 */ char unk_05[0x1];
@@ -463,7 +484,7 @@ typedef struct {
     /* 0x1304 */ char unk_1304[0x7C];
 } pm_SaveData; // size = 0x1380
 
-typedef struct {
+typedef struct pm_SelectableTarget {
     /* 0x00 */ s16 actorID;
     /* 0x02 */ s16 partID; /* sometimes loaded as byte from 0x3 */
     /* 0x04 */ Vec3s pos;
@@ -481,7 +502,7 @@ typedef s32 pm_Bytecode;
 typedef s32 pm_ApiStatus;
 typedef pm_ApiStatus (*pm_ApiFunc)(struct pm_Evt *, s32);
 
-typedef struct {
+typedef struct pm_ActorState {
     /* 0x00 */ Vec3f currentPos;
     /* 0x0C */ Vec3f goalPos;
     /* 0x18 */ Vec3f unk_18;
@@ -512,7 +533,7 @@ typedef struct {
     };
 } pm_ActorState; // size = 0xBC;
 
-typedef struct {
+typedef struct pm_ActorMovement {
     /* 0x00 */ Vec3f currentPos;
     /* 0x0C */ Vec3f goalPos;
     /* 0x18 */ Vec3f unk_18;
@@ -524,7 +545,7 @@ typedef struct {
     /* 0x4C */ f32 distance;
 } pm_ActorMovement; // size = 0x50;
 
-typedef struct {
+typedef struct pm_Actor {
     /* 0x000 */ s32 flags;
     /* 0x004 */ s32 flags2;
     /* 0x008 */ void *actorBlueprint; /* ActorBlueprint* */
@@ -635,7 +656,7 @@ typedef struct {
     /* 0x440 */ pm_EffectInstance *debuffEffect;
 } pm_Actor; // size = 0x444
 
-typedef struct {
+typedef struct pm_Evt {
     /* 0x000 */ u8 state;
     /* 0x001 */ u8 currentArgc;
     /* 0x002 */ u8 currentOpcode;
@@ -692,7 +713,7 @@ typedef struct {
     /* 0x164 */ pm_Bytecode *ptrCurrentLine;
 } pm_Evt; // size = 0x168
 
-typedef struct {
+typedef struct pm_BattleStatus {
     /* 0x000 */ s32 flags1;
     /* 0x004 */ s32 flags2;
     union {
@@ -938,7 +959,7 @@ typedef struct pm_EncounterStatus {
     /* 0xBF0 */ s16 recentMaps[2];
 } pm_EncounterStatus; // size = 0xFB8
 
-typedef struct {
+typedef struct pm_CameraInitData {
     /* 0x00 */ s16 flags;
     /* 0x02 */ s8 updateMode;
     /* 0x03 */ char unk_03;
@@ -951,7 +972,7 @@ typedef struct {
     /* 0x10 */ s16 vfov;
 } pm_CameraInitData; // size = 0x12;
 
-typedef struct {
+typedef struct pm_CameraUnk {
     /* 0x00 */ s16 unk_00;
     /* 0x02 */ s16 unk_02;
     /* 0x04 */ char unk_04[0x8];
@@ -961,7 +982,7 @@ typedef struct {
     /* 0x68 */ char unk_68[0x24];
 } pm_CameraUnk; // size = 0x8C
 
-typedef struct {
+typedef struct pm_CameraControlSettings {
     /* 0x00 */ s32 type;
     /* 0x04 */ f32 boomLength;
     /* 0x08 */ f32 boomPitch;
@@ -987,7 +1008,7 @@ typedef struct {
     /* 0x28 */ s32 flag;
 } pm_CameraControlSettings; // size = 0x2C
 
-typedef struct {
+typedef struct pm_CamConfiguration {
     /* 0x00 */ f32 boomYaw;
     /* 0x04 */ f32 boomLength;
     /* 0x08 */ f32 boomPitch;
@@ -1093,7 +1114,7 @@ typedef struct pm_Camera {
     /* 0x556 */ s16 unk_556;
 } pm_Camera; // size = 0x558
 
-typedef struct {
+typedef struct pm_ActionCommandStatus {
     /* 0x00 */ s32 unk_00;
     /* 0x04 */ s32 hudElements[15];
     /* 0x40 */ char unk_40[0x4];
@@ -1129,7 +1150,7 @@ typedef struct {
     /* 0x80 */ s8 mashMeterIntervals;
 } pm_ActionCommandStatus; // size = 0x84
 
-typedef struct {
+typedef struct pm_ItemData {
     /* 0x00 */ s32 nameMsg;
     /* 0x04 */ s16 hudElemID;
     /* 0x06 */ s16 sortValue;
@@ -1145,18 +1166,18 @@ typedef struct {
     /* 0x1D */ char unk_1D[3];
 } pm_ItemData; // size = 0x20
 
-typedef struct {
+typedef struct pm_HudElementSize {
     /* 0x00 */ s16 width;
     /* 0x02 */ s16 height;
     /* 0x04 */ s16 size;
 } pm_HudElementSize; // size = 0x06
 
-typedef struct {
+typedef struct pm_IconHudScriptPair {
     /* 0x00 */ s32 *enabled;
     /* 0x04 */ s32 *disabled;
 } pm_IconHudScriptPair; // size = 0x08
 
-typedef struct Map {
+typedef struct pm_Map {
     /* 0x00 */ char *id;     ///< "xxx_yyy" excluding null terminator.
     /* 0x04 */ void *config; // MapConfig*
     /* 0x08 */ void *dmaStart;
@@ -1174,17 +1195,17 @@ typedef struct Map {
     };
 } pm_Map; // size = 0x20
 
-typedef struct Area {
+typedef struct pm_Area {
     /* 0x00 */ s32 mapCount;
     /* 0x04 */ pm_Map *maps;
     /* 0x08 */ char *id;   ///< "area_xxx"
     /* 0x0C */ char *name; ///< JP debug name.
 } pm_Area;                 // size = 0x10
 
-typedef struct Npc {
+typedef struct pm_Npc {
     /* 0x000 */ s32 flags;
-    /* 0x004 */ void (*onUpdate)(struct Npc *); ///< Run before anything else for this NPC in update_npcs()
-    /* 0x008 */ void (*onRender)(struct Npc *); ///< Run after the display list for this NPC is built
+    /* 0x004 */ void (*onUpdate)(struct pm_Npc *); ///< Run before anything else for this NPC in update_npcs()
+    /* 0x008 */ void (*onRender)(struct pm_Npc *); ///< Run after the display list for this NPC is built
     /* 0x00C */ f32 yaw;
     /* 0x010 */ f32 planarFlyDist; /* also used for speech, temp0? */
     /* 0x014 */ f32 jumpScale;     /* also used for speech, temp1? */
@@ -1196,7 +1217,7 @@ typedef struct Npc {
         void *chomp;
         void *quizmo;
         void *followData;
-        struct Npc *keepAwayNpc;
+        struct pm_Npc *keepAwayNpc;
         s32 *keepAwayStarted;
     } blur;
     /* 0x024 */ s32 spriteInstanceID;
@@ -1268,7 +1289,7 @@ typedef struct Npc {
     /* 0x336 */ char unk_336[10];
 } pm_Npc; // size = 0x340
 
-typedef struct Action {
+typedef struct pm_Action {
     /* 0x00 */ void (*update)(void);
     /* 0x04 */ void *dmaStart;
     /* 0x08 */ void *dmaEnd;
@@ -1286,31 +1307,33 @@ extern_data s32 pm_gCurrentCameraID;
 extern_data pm_ItemData pm_gItemTable[0x16C];
 extern_data pm_IconHudScriptPair pm_gItemHudScripts[337];
 extern_data pm_Area pm_gAreas[29];
-extern_data u32 pm_viFrames;
+extern_data u32 nuScRetraceCounter;
 extern_data s32 pm_gEncounterSubState;
 extern_data s32 pm_timeFreezeMode;
 extern_data s32 pm_gEncounterState;
 extern_data void *pm_gSoundManager;
 extern_data u16 *nuGfxCfb_ptr;
-extern_data Gfx *pm_masterGfxPos;
-extern_data s32 pm_logicalSaveInfo[4][2];
-extern_data s16 pm_gameMode;
+extern_data s32 pm_gOverrideFlags;
+extern_data Gfx *pm_gMainGfxPos;
+extern_data s32 pm_LogicalSaveInfo[4][2];
+extern_data s16 pm_CurGameMode;
 extern_data s16 pm_gMapTransitionAlpha;
-extern_data s16 pm_mapChangeState;
+extern_data s16 pm_gMapTransitionState;
 extern_data pm_EncounterStatus pm_gCurrentEncounter;
 extern_data pm_Camera pm_gCameras[4];
 extern_data pm_EffectInstance *pm_gEffectInstances[96];
+extern_data pm_SaveGlobals pm_gSaveGlobals;
 extern_data pm_SaveData pm_gCurrentSaveFile;
 extern_data s32 pm_gBattleState;
 extern_data pm_BattleStatus pm_gBattleStatus;
 extern_data s32 pm_gBattleSubState;
-extern_data pm_Action pm_playerActionsTable[39];
-extern_data s32 pm_popupMenuVar;
+extern_data pm_Action pm_PlayerActionsTable[39];
+extern_data s32 pm_gPopupState;
 extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
-extern_data s16 pm_musicCurrentVolume;
+extern_data s16 pm_MusicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
@@ -1318,53 +1341,59 @@ extern_data s32 pm_gScriptIndexList[128];
 
 /* Functions */
 void osSyncPrintf(const char *fmt, ...);
-s32 pm_fioValidateFileChecksum(void *buffer);
-bool pm_fioFetchSavedFileInfo(void);
-void pm_fioDeserializeState(void);
-void pm_fioReadFlash(s32 slot, void *buffer, u32 size); // writes to buffer in 128-byte blocks
-void pm_fioWriteFlash(s32 slot, void *buffer, u32 size);
-void pm_fioEraseFlash(s32 slot);
-void pm_setCurtainScaleGoal(f32 goal);
-void pm_setCurtainDrawCallback(void *callback);
-void pm_setCurtainFadeGoal(f32 goal);
+void pm_step_game_loop(void);
+void pm_fio_load_globals(void);
+bool pm_fio_save_globals(void);
+s32 pm_fio_validate_globals_checksums(void *buffer);
+bool pm_fio_fetch_saved_file_info(void);
+bool pm_fio_load_game(s32 saveSlot);
+void pm_fio_deserialize_state(void);
+void pm_fio_read_flash(s32 slot, void *buffer, u32 size); // writes to buffer in 128-byte blocks
+void pm_fio_write_flash(s32 slot, void *buffer, u32 size);
+void pm_fio_erase_flash(s32 slot);
+void pm_set_curtain_scale_goal(f32 goal);
+void pm_set_curtain_scale(f32 scale);
+void pm_set_curtain_draw_callback(void *callback);
+void pm_set_curtain_fade_goal(f32 goal);
+void pm_set_curtain_fade(f32 fade);
 void pm_update_cameras(void);
+void pm_update_camera_no_interp(pm_Camera *camera);
 void pm_update_camera_zone_interp(pm_Camera *camera);
-void pm_setGameMode(s32 mode);
+void pm_set_game_mode(s32 mode);
 pm_Npc *pm_get_npc_unsafe(s32 npcID);
 pm_Npc *pm_get_npc_safe(s32 npcID);
-void pm_free_npc(pm_Npc *npc);
 void pm_au_sfx_reset_players(void *soundManager);
 void pm_snd_ambient_stop_all(s32 time);
-void pm_removeEffect(pm_EffectInstance *effect);
+void pm_audio_set_stereo(void);
+void pm_audio_set_mono(void);
+void pm_remove_effect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
+void nuContDataGet(OSContPad *contpad, u32 cont_no);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 u64 osGetTime(void);
 void osSetTime(u64 time);
-OSThread *osGetActiveQueue(void);
+OSThread *__osGetActiveQueue(void);
 void osViSwapBuffer(void *vaddr);
 void osViBlack(u8 active);
 void osViRepeatLine(u8 active);
 void pm_disable_player_input(void);
+void pm_update_player_input(void);
 s32 pm_is_ability_active(s32 arg0);
-void pm_hidePopupMenu(void);
-void pm_destroyPopupMenu(void);
+void pm_hide_popup_menu(void);
+void pm_destroy_popup_menu(void);
+void pm_state_render_frontUI(void);
 void pm_clear_printers(void);
 void pm_set_screen_overlay_alpha(s32 idx, f32 alpha);
-s32 pm_setMapTransitionEffect(s32 transition);
-s32 pm_updateExitMapScreenOverlay(s16 *progress);
-void pm_clearWindows(void);
-void pm_playSfx(s32 sound_id);
-void pm_bgmSetSong(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);
+s32 pm_set_map_transition_effect(s32 transition);
+s32 pm_update_exit_map_screen_overlay(s16 *progress);
+void pm_clear_windows(void);
+void pm_sfx_play_sound(s32 sound_id);
+void pm_bgm_set_song(s32 player_index, s32 song_id, s32 variation, s32 fade_out_time, s16 volume);
 void pm_bgm_pop_battle_song(void);
-pm_ApiStatus pm_useIdleAnimation(pm_Evt *script, s32 isInitialCall);
-pm_ApiStatus pm_gotoMap(pm_Evt *script, s32 isInitialCall);
-void pm_saveGame(void);
-
-void pm_state_render_frontUI(void);
-void pm_step_game_loop(void);
-void pm_update_camera_mode_6(pm_Camera *camera);
-void pm_update_player_input(void);
+pm_ApiStatus pm_UseIdleAnimation(pm_Evt *script, s32 isInitialCall);
+pm_ApiStatus pm_GotoMap(pm_Evt *script, s32 isInitialCall);
+void pm_entity_SaveBlock_save_data(void);
 
 /* Convenience Values */
 #define STORY_PROGRESS pm_gCurrentSaveFile.globalBytes[0]

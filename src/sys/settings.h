@@ -16,6 +16,7 @@
 enum Cheats {
     CHEAT_HP,
     CHEAT_FP,
+    CHEAT_ATTACK,
     CHEAT_COINS,
     CHEAT_STAR_POWER,
     CHEAT_STAR_PIECES,
@@ -68,6 +69,7 @@ struct SettingsData {
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
     u8 battleDebug;
+    u8 quickLaunch;
     u8 watchesVisible;
     struct WatchInfo watchInfo[SETTINGS_WATCHES_MAX];
     u8 nWatches;

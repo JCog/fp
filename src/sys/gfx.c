@@ -170,7 +170,7 @@ void *gfxDataAppend(void *data, size_t size) {
 void gfxFlush(void) {
     flushChars();
     gSPEndDisplayList(gfxDispP++);
-    gSPDisplayList(pm_masterGfxPos++, gfxDisp);
+    gSPDisplayList(pm_gMainGfxPos++, gfxDisp);
     Gfx *disp_w = gfxDispW;
     gfxDispW = gfxDisp;
     gfxDisp = disp_w;

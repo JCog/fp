@@ -125,16 +125,16 @@ void fpUpdateMenu(void) {
     } else if (inputBindPressed(COMMAND_RETURN)) {
         menuReturn(fp.mainMenu);
     } else {
-        u16 padPressed = inputPressed();
-        if (padPressed & BUTTON_D_UP) {
+        pm_Controller padPressed = inputPressed();
+        if (padPressed.dUp) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_UP);
-        } else if (padPressed & BUTTON_D_DOWN) {
+        } else if (padPressed.dDown) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_DOWN);
-        } else if (padPressed & BUTTON_D_LEFT) {
+        } else if (padPressed.dLeft) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_LEFT);
-        } else if (padPressed & BUTTON_D_RIGHT) {
+        } else if (padPressed.dRight) {
             menuNavigate(fp.mainMenu, MENU_NAVIGATE_RIGHT);
-        } else if (padPressed & BUTTON_L) {
+        } else if (padPressed.l) {
             menuActivate(fp.mainMenu);
         }
     }
@@ -298,17 +298,20 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 void fpUpdateCheats(void) {
     pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
     if (CHEAT_ACTIVE(CHEAT_HP)) {
-        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.maxHP;
+        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.curMaxHP;
     }
     if (CHEAT_ACTIVE(CHEAT_FP)) {
         pm_gPlayerStatus.playerData.curFP = pm_gPlayerStatus.playerData.curMaxFP;
+    }
+    if (CHEAT_ACTIVE(CHEAT_ATTACK)) {
+        pm_gBattleStatus.merleeAttackBoost = 127;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
         pm_gPlayerStatus.playerData.coins = 999;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_POWER)) {
-        pm_gPlayerStatus.playerData.starSpiritsFullBarsFilled = pm_gPlayerStatus.playerData.starSpiritsSaved;
-        pm_gPlayerStatus.playerData.starSpiritsPartialBarFilled = 0;
+        pm_gPlayerStatus.playerData.starPowerFullBars = pm_gPlayerStatus.playerData.maxStarPower;
+        pm_gPlayerStatus.playerData.starPowerPartialBars = 0;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_PIECES)) {
         pm_gPlayerStatus.playerData.starPieces = 160;
@@ -334,7 +337,7 @@ void fpUpdateCheats(void) {
     }
     if (CHEAT_ACTIVE(CHEAT_MUTE_MUSIC)) {
         // the game is constantly trying to raise this by 1 every frame, so 0 would just make it quiet instead of muted
-        pm_musicCurrentVolume = -1;
+        pm_MusicCurrentVolume = -1;
     }
     pm_gGameStatus.debugQuizmo = CHEAT_ACTIVE(CHEAT_QUIZMO) != 0;
 }
@@ -347,11 +350,11 @@ void fpUpdateWarps(void) {
 
     if (fp.warp && fp.warpDelay == 0) {
         PRINTF("changing game mode\n");
-        pm_setMapTransitionEffect(0); // normal black fade
-        pm_setGameMode(5);            // start the "change map" game mode
-        pm_mapChangeState = 1;        // skip the fade out
+        pm_set_map_transition_effect(0); // normal black fade
+        pm_set_game_mode(5);             // start the "change map" game mode
+        pm_gMapTransitionState = 1;      // skip the fade out
         pm_gMapTransitionAlpha = 0xFF;
-        pm_updateExitMapScreenOverlay(&pm_gMapTransitionAlpha);
+        pm_update_exit_map_screen_overlay(&pm_gMapTransitionAlpha);
         fp.warp = FALSE;
     }
 }
@@ -426,20 +429,31 @@ void fpUpdate(void) {
     fpUpdateCpuCounter();
     inputUpdate();
 
-    u16 padPressed = inputPressed();
-
-    if (!fp.versionShown) {
-        pm_gGameStatus.bSkipIntro = 1;
-    }
+    pm_Controller padPressed = inputPressed();
 
     if (!fp.settingsLoaded) {
-        if (!(inputPressed() & BUTTON_START) && settingsLoad(fp.profile)) {
+        if (!(padPressed.start) && settingsLoad(fp.profile)) {
             applyMenuSettings();
         }
         fp.settingsLoaded = TRUE;
     }
 
-    fpEmergencySettingsReset(padPressed);
+    fpEmergencySettingsReset(padPressed.buttons);
+
+    if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
+        pm_fio_load_globals();
+        if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
+            // quick launch
+            pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD
+            pm_gOverrideFlags &= ~2; // GLOBAL_OVERRIDES_DISABLE_RENDER_WORLD
+            fp.versionShown = TRUE;
+        } else {
+            // skip logos and intro
+            pm_set_curtain_scale(1.0f);
+            pm_set_curtain_fade(0.0f);
+            pm_set_game_mode(2); // GAME_MODE_TITLE_SCREEN
+        }
+    }
 
     if (fp.menuActive) {
         fpUpdateMenu();
@@ -502,10 +516,6 @@ void fpDraw(void) {
     s32 cellWidth = menuGetCellWidth(fp.mainMenu, TRUE);
     s32 cellHeight = menuGetCellHeight(fp.mainMenu, TRUE);
 
-    if (!fp.versionShown) {
-        fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
-    }
-
     if (settings->inputDisplay) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
@@ -525,6 +535,10 @@ void fpDraw(void) {
         }
 
         menuDraw(fp.mainMenu);
+    }
+
+    if (!fp.versionShown) {
+        fpDrawVersion(font, cellWidth, cellHeight, menuAlpha);
     }
 
     menuDraw(fp.global);
@@ -556,22 +570,22 @@ ENTRY void fpAfterDrawEntry(void) {
     crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-HOOK void fpUpdateCameraMode6(pm_Camera *cam) {
+HOOK void fpUpdateCameraZoneInterpHook(pm_Camera *cam) {
     if (!fp.freeCam) {
-        pm_update_camera_mode_6(cam);
+        pm_update_camera_no_interp(cam);
     }
 }
 
 HOOK void fpUpdateInput(void) {
     pm_update_player_input();
-    pm_Controller *mask = &fp.inputMask;
+    FpControllerMask *mask = &fp.inputMask;
 
-    pm_gPlayerStatus.currentButtons.buttons &= ~mask->buttons;
-    pm_gPlayerStatus.previousButtons.buttons &= ~mask->buttons;
-    pm_gPlayerStatus.heldButtons.buttons &= ~mask->buttons;
+    pm_gPlayerStatus.currentButtons.pad &= ~mask->buttons;
+    pm_gPlayerStatus.previousButtons.pad &= ~mask->buttons;
+    pm_gPlayerStatus.heldButtons.pad &= ~mask->buttons;
 
-    pm_gPlayerStatus.stickAxisX &= ~mask->xCardinal;
-    pm_gPlayerStatus.stickAxisY &= ~mask->yCardinal;
+    pm_gPlayerStatus.stickAxisX &= ~mask->stickX;
+    pm_gPlayerStatus.stickAxisY &= ~mask->stickY;
 }
 
 HOOK s32 fpIsAbilityActive(s32 ability) {

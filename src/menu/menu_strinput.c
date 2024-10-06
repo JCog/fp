@@ -100,7 +100,7 @@ static s32 destroyProc(struct MenuItem *item) {
 
 static s32 charNavigateProc(struct MenuItem *item, enum MenuNavigation nav) {
     s32 n = strchr(charset, item->text[0]) - charset;
-    s32 d = (inputPad() & BUTTON_Z) ? 3 : 1;
+    s32 d = inputPad().z ? 3 : 1;
     if (nav == MENU_NAVIGATE_UP) {
         n += d;
     } else if (nav == MENU_NAVIGATE_DOWN) {
