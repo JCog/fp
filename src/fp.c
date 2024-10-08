@@ -442,6 +442,14 @@ void fpUpdate(void) {
 
     if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
         pm_fio_load_globals();
+        // normally set during GAME_MODE_STARTUP
+        pm_gGameStatus.soundOutputMode = !pm_gSaveGlobals.useMonoSound;
+        if (pm_gSaveGlobals.useMonoSound) {
+            pm_audio_set_mono();
+        } else {
+            pm_audio_set_stereo();
+        }
+
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
             // quick launch
             pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD
