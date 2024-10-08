@@ -1335,6 +1335,7 @@ extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
 extern_data s16 pm_MusicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
+extern_data s32 pm_battle_move_power_bounce_BaseHitChance;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];

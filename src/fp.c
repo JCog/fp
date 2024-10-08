@@ -329,6 +329,9 @@ void fpUpdateCheats(void) {
         pm_gActionCommandStatus.autoSucceed =
             pm_gActionCommandStatus.actionCommandID != 23 || pm_gActionCommandStatus.unk_5D < 14;
     }
+    if (CHEAT_ACTIVE(CHEAT_POWER_BOUNCE)) {
+        pm_battle_move_power_bounce_BaseHitChance = 200;
+    }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
     }

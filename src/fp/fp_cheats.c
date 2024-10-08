@@ -12,6 +12,7 @@ static const char *labels[] = {
     "peril",
     "auto mash",
     "action commands",
+    "power bounce",
     "peekaboo",
     "brighten room",
     "hide hud",
