@@ -3,21 +3,9 @@
 #include "sys/settings.h"
 
 static const char *labels[] = {
-    "hp",
-    "fp",
-    "attack",
-    "coins",
-    "star power",
-    "star pieces",
-    "peril",
-    "auto mash",
-    "action commands",
-    "power bounce",
-    "peekaboo",
-    "brighten room",
-    "hide hud",
-    "mute music",
-    "quizmo spawns",
+    "hp",       "fp",         "attack",          "coins",        "star power", "star pieces",
+    "peril",    "auto mash",  "action commands", "power bounce", "peekaboo",   "brighten room",
+    "hide hud", "mute music", "quizmo spawns",
 };
 
 static s32 cheatProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
