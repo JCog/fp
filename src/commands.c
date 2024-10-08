@@ -28,6 +28,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
+    {"store ability",    COMMAND_PRESS_ONCE, 0, commandStoreAbility      },
 };
 
 void showMenu(void) {
@@ -278,11 +279,24 @@ void commandToggleInpDispProc(void) {
 void commandClippyProc(void) {
     if (pm_gPlayerStatus.enableCollisionOverlapsCheck) {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 0;
-        pm_gPartnerActionStatus.shouldResumeAbility = 0;
+        pm_gPartnerStatus.shouldResumeAbility = 0;
         fpLog("clippy disabled");
     } else {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 1;
-        pm_gPartnerActionStatus.shouldResumeAbility = 1;
+        pm_gPartnerStatus.shouldResumeAbility = 1;
         fpLog("clippy enabled");
+    }
+}
+
+void commandStoreAbility(void) {
+    // useful for getting sushie glitch and warping to entrances over lava with laki
+    if (pm_gGameStatus.keepUsingPartnerOnMapChange) {
+        pm_gPartnerStatus.partnerActionState = 0;
+        pm_gGameStatus.keepUsingPartnerOnMapChange = 0;
+        fpLog("partner ability disabled");
+    } else {
+        pm_gPartnerStatus.partnerActionState = 1;
+        pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
+        fpLog("partner ability stored");
     }
 }

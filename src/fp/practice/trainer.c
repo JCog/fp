@@ -519,7 +519,7 @@ static void updateBlockTrainer(void) {
 static void updateClippyTrainer(void) {
     if (settings->trainerClippyEnabled) {
         if (pm_gGameStatus.pressedButtons[0].cRight && pm_gCurrentEncounter.firstStrikeType != 2) {
-            if (pm_gEncounterState == 2 && pm_gPartnerActionStatus.partnerActionState == 1) {
+            if (pm_gEncounterState == 2 && pm_gPartnerStatus.partnerActionState == 1) {
                 clippyStatus = CLIPPY_EARLY;
             } else if (clippyFramesSinceBattle > 0) {
                 clippyStatus = CLIPPY_LATE;

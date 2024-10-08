@@ -183,7 +183,7 @@ typedef struct pm_GameStatus {
     /* 0x16C */ char unk_16C[12];
 } pm_GameStatus; // size = 0x178
 
-typedef struct pm_PartnerActionStatus {
+typedef struct pm_PartnerStatus {
     /* 0x000 */ s8 partnerActionState;
     /* 0x001 */ s8 shouldResumeAbility;
     /* 0x002 */ s8 partnerAction_unk_2;
@@ -195,7 +195,7 @@ typedef struct pm_PartnerActionStatus {
     /* 0x10 */ s32 heldButtons;
     /* 0x14 */ s8 inputDisabled;
     /* 0x15 */ char unk_15[3];
-} pm_PartnerActionStatus; // size = 0x18
+} pm_PartnerStatus; // size = 0x18
 
 typedef struct pm_UiStatus {
     /* 0x00 */ u32 hpText;
@@ -1329,7 +1329,7 @@ extern_data pm_BattleStatus pm_gBattleStatus;
 extern_data s32 pm_gBattleSubState;
 extern_data pm_Action pm_PlayerActionsTable[39];
 extern_data s32 pm_gPopupState;
-extern_data pm_PartnerActionStatus pm_gPartnerActionStatus;
+extern_data pm_PartnerStatus pm_gPartnerStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
