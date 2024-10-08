@@ -67,8 +67,8 @@ typedef struct {
     FpControllerMask inputMask;
     bool camEnabledBefore;
     pm_Camera savedCam;
-    s8 freeCamMoveSpeed;
-    s8 freeCamPanSpeed;
+    u16 freeCamMoveSpeed;
+    u16 freeCamPanSpeed;
 } FpCtxt;
 
 extern FpCtxt fp;
@@ -82,8 +82,6 @@ s32 fpImportFile(const char *path, void *data);
 void fpSetInputMask(u32 pad, s8 x, s8 y);
 void fpUpdateCam(void);
 void fpSaveSettingsProc(struct MenuItem *item, void *data);
-void setFreeCamMoveSpeed(s8 s);
-void setFreeCamPanSpeed(s8 s);
 
 struct Menu *createWarpsMenu(void);
 struct Menu *createCheatsMenu(void);

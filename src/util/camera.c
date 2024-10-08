@@ -5,24 +5,18 @@
 #include <math.h>
 #include <n64.h>
 
-static f32 joyMspeed = 0.25f;
-static f32 joyRspeed = 0.0007f;
 static const f32 joyMax = 60.f;
-#define PITCH_LIM (M_PI / 2.f - joyRspeed)
 static const f32 folMspeed = 1.f / 3.f;
 static const f32 folRspeed = 1.f / 3.f;
 
-void setFreeCamMoveSpeed(s8 s) {
-    if (s < 0) {
-        joyMspeed = (s + 14) / joyMax;
-    } else {
-        joyMspeed = (s + 1) * 15 / joyMax;
-    }
+static f32 getFreeCamMoveSpeed() {
+    return 0.001f * fp.freeCamMoveSpeed;
+}
+static f32 getFreeCamPanSpeed() {
+    return 0.00001f * fp.freeCamPanSpeed;
 }
 
-void setFreeCamPanSpeed(s8 s) {
-    joyRspeed = 0.0007 + s * 0.00005;
-}
+#define PITCH_LIM (M_PI / 2.f - getFreeCamPanSpeed())
 
 s32 adjustJoystick(s32 v) {
     if (v < 0) {
@@ -54,6 +48,8 @@ static void camManual(void) {
         Vec3f move;
         vec3fPy(&vf, fp.cam.pitch, fp.cam.yaw);
         vec3fPy(&vr, 0.f, fp.cam.yaw - M_PI / 2.f);
+        f32 joyMspeed = getFreeCamMoveSpeed();
+        f32 joyRspeed = getFreeCamPanSpeed();
 
         if (inputPad().z) {
             vec3fScale(&move, &vf, y * joyMspeed);
@@ -185,6 +181,8 @@ static void camRadial(void) {
     if (!fp.lockCam) {
         s32 x = adjustJoystick(inputX());
         s32 y = adjustJoystick(inputY());
+        f32 joyMspeed = getFreeCamMoveSpeed();
+        f32 joyRspeed = getFreeCamPanSpeed();
 
         if (inputPad().z) {
             dist -= y * joyMspeed;

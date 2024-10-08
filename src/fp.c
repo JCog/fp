@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000};
+FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .freeCamMoveSpeed = 250, .freeCamPanSpeed = 70};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
