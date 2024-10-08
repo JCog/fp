@@ -228,19 +228,13 @@ void commandSaveGameProc(void) {
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void commandStartStopTimerProc(void) {
-    timerStartStop();
-}
-
-void commandResetTimerProc(void) {
-    timerReset();
-}
-
-void commandShowHideTimerProc(void) {
-    settings->timerShow = !settings->timerShow;
-}
-
 void commandLoadGameProc(void) {
+    // prevent loading before being in game
+    if (pm_CurGameMode < 4 || pm_CurGameMode >= 12 || pm_gGameStatus.demoState) {
+        fpLog("can't load right now");
+        return;
+    }
+
     pm_SaveData *file = malloc(sizeof(*file));
     pm_fio_fetch_saved_file_info();
     pm_fio_read_flash(pm_LogicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
@@ -253,6 +247,18 @@ void commandLoadGameProc(void) {
         fpLog("no file in slot %d", pm_gGameStatus.saveSlot);
     }
     free(file);
+}
+
+void commandStartStopTimerProc(void) {
+    timerStartStop();
+}
+
+void commandResetTimerProc(void) {
+    timerReset();
+}
+
+void commandShowHideTimerProc(void) {
+    settings->timerShow = !settings->timerShow;
 }
 
 void commandBreakFreeProc(void) {
