@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000};
+FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .freeCamMoveSpeed = 250, .freeCamPanSpeed = 70};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -320,7 +320,7 @@ void fpUpdateCheats(void) {
         pm_gPlayerStatus.playerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
-        if (pm_gGameStatus.isBattle) {
+        if (pm_gGameStatus.isBattle == 1) {
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
@@ -328,6 +328,11 @@ void fpUpdateCheats(void) {
         // prevent tidal wave crash
         pm_gActionCommandStatus.autoSucceed =
             pm_gActionCommandStatus.actionCommandID != 23 || pm_gActionCommandStatus.unk_5D < 14;
+    }
+    if (CHEAT_ACTIVE(CHEAT_POWER_BOUNCE)) {
+        if (pm_gBattleStatus.selectedMoveID == 0x20) {
+            pm_battle_move_power_bounce_BaseHitChance = 200;
+        }
     }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
@@ -442,6 +447,14 @@ void fpUpdate(void) {
 
     if (pm_CurGameMode == 0) { // GAME_MODE_STARTUP
         pm_fio_load_globals();
+        // normally set during GAME_MODE_STARTUP
+        pm_gGameStatus.soundOutputMode = !pm_gSaveGlobals.useMonoSound;
+        if (pm_gSaveGlobals.useMonoSound) {
+            pm_audio_set_mono();
+        } else {
+            pm_audio_set_stereo();
+        }
+
         if (settings->quickLaunch && pm_fio_load_game(pm_gSaveGlobals.lastFileSelected)) {
             // quick launch
             pm_set_game_mode(7);     // GAME_MODE_ENTER_WORLD

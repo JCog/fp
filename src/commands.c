@@ -28,6 +28,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"break free",       COMMAND_PRESS_ONCE, 0, commandBreakFreeProc     },
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
+    {"store ability",    COMMAND_PRESS_ONCE, 0, commandStoreAbility      },
 };
 
 void showMenu(void) {
@@ -228,19 +229,13 @@ void commandSaveGameProc(void) {
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
 }
 
-void commandStartStopTimerProc(void) {
-    timerStartStop();
-}
-
-void commandResetTimerProc(void) {
-    timerReset();
-}
-
-void commandShowHideTimerProc(void) {
-    settings->timerShow = !settings->timerShow;
-}
-
 void commandLoadGameProc(void) {
+    // prevent loading before being in game
+    if (pm_CurGameMode < 4 || pm_CurGameMode >= 12 || pm_gGameStatus.demoState) {
+        fpLog("can't load right now");
+        return;
+    }
+
     pm_SaveData *file = malloc(sizeof(*file));
     pm_fio_fetch_saved_file_info();
     pm_fio_read_flash(pm_LogicalSaveInfo[pm_gGameStatus.saveSlot][0], file, sizeof(*file));
@@ -253,6 +248,18 @@ void commandLoadGameProc(void) {
         fpLog("no file in slot %d", pm_gGameStatus.saveSlot);
     }
     free(file);
+}
+
+void commandStartStopTimerProc(void) {
+    timerStartStop();
+}
+
+void commandResetTimerProc(void) {
+    timerReset();
+}
+
+void commandShowHideTimerProc(void) {
+    settings->timerShow = !settings->timerShow;
 }
 
 void commandBreakFreeProc(void) {
@@ -272,11 +279,24 @@ void commandToggleInpDispProc(void) {
 void commandClippyProc(void) {
     if (pm_gPlayerStatus.enableCollisionOverlapsCheck) {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 0;
-        pm_gPartnerActionStatus.shouldResumeAbility = 0;
+        pm_gPartnerStatus.shouldResumeAbility = 0;
         fpLog("clippy disabled");
     } else {
         pm_gPlayerStatus.enableCollisionOverlapsCheck = 1;
-        pm_gPartnerActionStatus.shouldResumeAbility = 1;
+        pm_gPartnerStatus.shouldResumeAbility = 1;
         fpLog("clippy enabled");
+    }
+}
+
+void commandStoreAbility(void) {
+    // useful for getting sushie glitch and warping to entrances over lava with laki
+    if (pm_gGameStatus.keepUsingPartnerOnMapChange) {
+        pm_gPartnerStatus.partnerActionState = 0;
+        pm_gGameStatus.keepUsingPartnerOnMapChange = 0;
+        fpLog("partner ability disabled");
+    } else {
+        pm_gPartnerStatus.partnerActionState = 1;
+        pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
+        fpLog("partner ability stored");
     }
 }

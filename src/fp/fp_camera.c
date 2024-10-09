@@ -3,6 +3,21 @@
 #include "sys/input.h"
 #include <string.h>
 
+static bool firstUse = TRUE;
+
+static void resetCam(void) {
+    pm_Camera cam = pm_gCameras[pm_gCurrentCameraID];
+    pm_gCameras[pm_gCurrentCameraID].targetPos = pm_gPlayerStatus.position;
+    pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
+    pm_update_cameras();
+    fp.cam.eye = pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
+    fp.cam.obj = pm_gCameras[pm_gCurrentCameraID].lookAt_obj;
+    fp.cam.pitch = pm_gCameras[pm_gCurrentCameraID].currentPitch;
+    fp.cam.yaw = pm_gCameras[pm_gCurrentCameraID].currentYaw;
+    pm_gCameras[pm_gCurrentCameraID] = cam;
+    fp.resetCam = TRUE;
+}
+
 static void setCamInputMask(void) {
     if (fp.freeCam && !fp.lockCam) {
         fpSetInputMask(BUTTON_C_RIGHT | BUTTON_C_LEFT | BUTTON_C_DOWN | BUTTON_C_UP | BUTTON_Z | BUTTON_L, 0xFF, 0xFF);
@@ -13,6 +28,10 @@ static void setCamInputMask(void) {
 
 static s32 enableCamProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_SWITCH_ON) {
+        if (firstUse) {
+            resetCam();
+            firstUse = FALSE;
+        }
         fp.freeCam = TRUE;
         setCamInputMask();
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -40,40 +59,7 @@ static s32 lockCamProc(struct MenuItem *item, enum MenuCallbackReason reason, vo
 }
 
 static void resetCamProc(struct MenuItem *item, void *data) {
-    pm_Camera cam = pm_gCameras[pm_gCurrentCameraID];
-    pm_gCameras[pm_gCurrentCameraID].targetPos = pm_gPlayerStatus.position;
-    pm_gCameras[pm_gCurrentCameraID].updateMode = 3;
-    pm_update_cameras();
-    fp.cam.eye = pm_gCameras[pm_gCurrentCameraID].lookAt_eye;
-    fp.cam.obj = pm_gCameras[pm_gCurrentCameraID].lookAt_obj;
-    fp.cam.pitch = pm_gCameras[pm_gCurrentCameraID].currentPitch;
-    fp.cam.yaw = pm_gCameras[pm_gCurrentCameraID].currentYaw;
-    pm_gCameras[pm_gCurrentCameraID] = cam;
-    fp.resetCam = TRUE;
-}
-
-static s32 camMoveSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED) {
-        fp.freeCamMoveSpeed = menuIntinputGets(item);
-        setFreeCamMoveSpeed(fp.freeCamMoveSpeed);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.freeCamMoveSpeed) {
-            menuIntinputSet(item, fp.freeCamMoveSpeed);
-        }
-    }
-    return 0;
-}
-
-static s32 camPanSpeedProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    if (reason == MENU_CALLBACK_CHANGED) {
-        fp.freeCamPanSpeed = menuIntinputGets(item);
-        setFreeCamPanSpeed(fp.freeCamPanSpeed);
-    } else if (reason == MENU_CALLBACK_THINK) {
-        if (menuIntinputGets(item) != fp.freeCamPanSpeed) {
-            menuIntinputSet(item, fp.freeCamPanSpeed);
-        }
-    }
-    return 0;
+    resetCam();
 }
 
 struct Menu *createCameraMenu(void) {
@@ -103,9 +89,9 @@ struct Menu *createCameraMenu(void) {
     menuAddStatic(&menu, 0, y, "distance max", 0xC0C0C0);
     menuAddIntinput(&menu, menuX, y++, 10, 4, menuHalfwordModProc, &fp.camDistMax);
     menuAddStatic(&menu, 0, y, "move speed", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, -10, 2, camMoveSpeedProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, 10, 3, menuHalfwordModProc, &fp.freeCamMoveSpeed);
     menuAddStatic(&menu, 0, y, "pan speed", 0xC0C0C0);
-    menuAddIntinput(&menu, menuX, y++, -10, 2, camPanSpeedProc, NULL);
+    menuAddIntinput(&menu, menuX, y++, 10, 3, menuHalfwordModProc, &fp.freeCamPanSpeed);
 
     menuItemAddChainLink(menu.selector, enableButton, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(lockButton, resetButton, MENU_NAVIGATE_DOWN);

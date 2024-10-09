@@ -116,6 +116,9 @@ s32 menuOptionGet(struct MenuItem *item) {
 void menuOptionSet(struct MenuItem *item, s32 value) {
     struct ItemData *data = item->data;
     data->value = value;
+    if (value >= (s32)data->options.size) {
+        return;
+    }
     char **option = vector_at(&data->options, data->value);
     item->text = *option;
 }

@@ -22,6 +22,7 @@ enum Commands {
     COMMAND_BREAK_FREE,
     COMMAND_TOGGLE_INPUT_DISPLAY,
     COMMAND_CLIPPY,
+    COMMAND_STORE_ABILITY,
     COMMAND_MAX
 };
 
@@ -57,6 +58,7 @@ void commandShowHideTimerProc(void);
 void commandBreakFreeProc(void);
 void commandToggleInpDispProc(void);
 void commandClippyProc(void);
+void commandStoreAbility(void);
 
 extern struct Command fpCommands[COMMAND_MAX];
 
