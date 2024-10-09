@@ -320,7 +320,7 @@ void fpUpdateCheats(void) {
         pm_gPlayerStatus.playerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
-        if (pm_gGameStatus.isBattle) {
+        if (pm_gGameStatus.isBattle == 1) {
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
@@ -330,7 +330,9 @@ void fpUpdateCheats(void) {
             pm_gActionCommandStatus.actionCommandID != 23 || pm_gActionCommandStatus.unk_5D < 14;
     }
     if (CHEAT_ACTIVE(CHEAT_POWER_BOUNCE)) {
-        pm_battle_move_power_bounce_BaseHitChance = 200;
+        if (pm_gBattleStatus.selectedMoveID == 0x20) {
+            pm_battle_move_power_bounce_BaseHitChance = 200;
+        }
     }
     if (CHEAT_ACTIVE(CHEAT_BRIGHTEN_ROOM)) {
         pm_set_screen_overlay_alpha(1, 0);
