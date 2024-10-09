@@ -2,12 +2,6 @@
 #define TIMER_H
 #include "menu/menu.h"
 
-enum TimerMode {
-    TIMER_CUTSCENE,
-    TIMER_LOADING_ZONE,
-    TIMER_MANUAL,
-};
-
 enum TimerState {
     TIMER_INACTIVE,
     TIMER_WAITING,
@@ -15,17 +9,20 @@ enum TimerState {
     TIMER_STOPPED,
 };
 
+void timerDraw(s64 timerCount, struct GfxFont *font, s32 x, s32 y);
+bool timerEventsEnabled(void);
 void timerUpdate(void);
 void timerStartStop(void);
 void timerReset(void);
 
 void createTimerMenu(struct Menu *menu);
 
-extern enum TimerMode timerMode;
 extern enum TimerState timerState;
 extern s64 timerCount;
 extern s32 timerLagFrames;
-extern u8 timerCutsceneTarget;
-extern u8 timerCutsceneCount;
+extern s64 timerLastEvent;
+extern s16 timerEventCountdown;
+extern u8 timerEventTarget;
+extern u8 timerEventCount;
 
 #endif

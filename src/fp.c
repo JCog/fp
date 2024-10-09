@@ -267,31 +267,25 @@ void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 
     }
 }
 
-void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
-    s32 hundredths = timerCount * 100 / fp.cpuCounterFreq;
-    s32 seconds = hundredths / 100;
-    s32 minutes = seconds / 60;
-    s32 hours = minutes / 60;
-
-    hundredths %= 100;
-    seconds %= 60;
-    minutes %= 60;
-
+void fpDrawTimer(struct GfxFont *font, u8 menuAlpha) {
     s32 x = settings->timerX;
     s32 y = settings->timerY;
+    s32 cH = font->charHeight;
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGBA8888(0xC0, 0xC0, 0xC0, menuAlpha));
 
-    if (hours > 0) {
-        gfxPrintf(font, x, y, "%d:%02d:%02d.%02d", hours, minutes, seconds, hundredths);
-    } else if (minutes > 0) {
-        gfxPrintf(font, x, y, "%d:%02d.%02d", minutes, seconds, hundredths);
-    } else {
-        gfxPrintf(font, x, y, "%d.%02d", seconds, hundredths);
+    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
+        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        timerDraw(timerCount, font, x, y);
+        y += cH;
+        gfxPrintf(font, x, y, "%d", timerLagFrames);
+        y += cH;
+        if (timerEventsEnabled() && timerEventCount != timerEventTarget) {
+            gfxPrintf(font, x, y, "%d/%d", timerEventCount, timerEventTarget);
+            y += cH;
+        }
     }
-
-    gfxPrintf(font, x, y + cellHeight, "%d", timerLagFrames);
-    if (settings->timerMode != TIMER_MANUAL) {
-        gfxPrintf(font, x, y + cellHeight * 2, "%d/%d", timerCutsceneCount, timerCutsceneTarget);
+    if (settings->timerEventDisplay && timerEventCountdown && !fp.menuActive) {
+        timerDraw(timerLastEvent, font, x, y);
     }
 }
 
@@ -533,10 +527,7 @@ void fpDraw(void) {
         fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
     }
 
-    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
-        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
-        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
-    }
+    fpDrawTimer(font, menuAlpha);
 
     if (fp.menuActive) {
         if (settings->menuBackground) {

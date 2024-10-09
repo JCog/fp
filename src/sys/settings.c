@@ -32,15 +32,17 @@ void settingsLoadDefault(void) {
     struct SettingsData *d = &settingsStore.data;
 
     d->cheats = 0;
-    d->timerMode = 0;
     d->menuFontResource = RES_FONT_PRESSSTART2P;
     d->menuDropShadow = 1;
     d->menuBackground = 1;
     d->menuBackgroundAlpha = 0xC0;
     d->inputDisplay = 0;
     d->log = 1;
-    d->timerLogging = 0;
     d->timerShow = 0;
+    d->timerLogging = 0;
+    d->timerEventDisplay = 0;
+    d->timerEventCutscenes = 0;
+    d->timerEventLoadingZones = 0;
     d->battleDebug = 0;
     d->quickLaunch = 0;
     d->watchesVisible = 1;

@@ -42,7 +42,6 @@ struct SettingsData {
     /* order elements by size for space-efficient packing */
     u32 watchAddress[SETTINGS_WATCHES_MAX];
     u32 cheats;
-    enum TimerMode timerMode;
     s16 menuX;
     s16 menuY;
     s16 inputDisplayX;
@@ -65,6 +64,9 @@ struct SettingsData {
     u8 log;
     u8 timerShow;
     u8 timerLogging;
+    u8 timerEventDisplay;
+    u8 timerEventCutscenes;
+    u8 timerEventLoadingZones;
     u8 trainerBowserEnabled;
     u8 trainerLzsEnabled;
     u8 trainerAcEnabled;
