@@ -40,9 +40,9 @@ void settingsLoadDefault(void) {
     d->log = 1;
     d->timerShow = 0;
     d->timerLogging = 0;
-    d->timerEventDisplay = 0;
-    d->timerEventCutscenes = 0;
-    d->timerEventLoadingZones = 0;
+    d->timerPrimaryEvents = 0;
+    d->timerLogSplitTime = 0;
+    d->timerLogTotalTime = 0;
     d->battleDebug = 0;
     d->quickLaunch = 0;
     d->watchesVisible = 1;

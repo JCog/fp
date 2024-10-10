@@ -279,13 +279,20 @@ void fpDrawTimer(struct GfxFont *font, u8 menuAlpha) {
         y += cH;
         gfxPrintf(font, x, y, "%d", timerLagFrames);
         y += cH;
-        if (timerEventsEnabled() && timerEventCount != timerEventTarget) {
+        if (settings->timerPrimaryEvents && timerEventCount != timerEventTarget) {
             gfxPrintf(font, x, y, "%d/%d", timerEventCount, timerEventTarget);
             y += cH;
         }
     }
-    if (settings->timerEventDisplay && timerEventCountdown && !fp.menuActive) {
-        timerDraw(timerLastEvent, font, x, y);
+    if (timerState == TIMER_RUNNING && settings->timerEventDisplay && !fp.menuActive) {
+        if (timerEventSplitCountdown) {
+            timerDraw(timerEventSplitTime, font, x, y);
+            y += cH;
+        }
+        if (timerEventTotalCountdown) {
+            timerDraw(timerEventTotalTime, font, x, y);
+            y += cH;
+        }
     }
 }
 

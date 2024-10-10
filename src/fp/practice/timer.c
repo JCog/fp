@@ -10,15 +10,27 @@
         fpLog(__VA_ARGS__);       \
     }
 
+#define PRIMARY_ACTIVE(bitIndex)       (settings->timerPrimaryEvents & (1 << bitIndex))
+#define SPLIT_LOGGING_ACTIVE(bitIndex) (settings->timerLogSplitTime & (1 << bitIndex))
+#define TOTAL_LOGGING_ACTIVE(bitIndex) (settings->timerLogTotalTime & (1 << bitIndex))
+
+enum TimerEvents {
+    EVENT_CUTSCENE,
+    EVENT_LOADING_ZONE,
+};
+
 enum TimerState timerState = 0;
 s64 timerCount = 0;
 s32 timerLagFrames = 0;
-s64 timerLastEvent = 0;
-s16 timerEventCountdown = 0;
+s64 timerEventSplitTime = 0;
+s64 timerEventTotalTime = 0;
+s16 timerEventSplitCountdown = 0;
+s16 timerEventTotalCountdown = 0;
 u8 timerEventTarget = 1;
 u8 timerEventCount = 0;
 static s64 start = 0;
 static s64 end = 0;
+static s64 lastEventTime = 0;
 static u32 lagStart = 0;
 static u32 lagEnd = 0;
 static u16 frameStart = 0;
@@ -46,10 +58,6 @@ void timerDraw(s64 timerCount, struct GfxFont *font, s32 x, s32 y) {
     }
 }
 
-bool timerEventsEnabled() {
-    return settings->timerEventCutscenes || settings->timerEventLoadingZones;
-}
-
 static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
     struct GfxFont *font = drawParams->font;
@@ -75,13 +83,13 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
             gfxPrintf(font, x + xOffset, y, "inactive");
             timerCount = 0;
             timerLagFrames = 0;
-            timerLastEvent = 0;
+            timerEventTotalTime = 0;
             break;
         case TIMER_WAITING:
             gfxPrintf(font, x + xOffset, y, "waiting to start");
             timerCount = 0;
             timerLagFrames = 0;
-            timerLastEvent = 0;
+            timerEventTotalTime = 0;
             break;
     }
 
@@ -90,12 +98,12 @@ static s32 timerDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParam
     timerDraw(timerCount, font, x + xOffset, y);
     y += chH;
     gfxPrintf(font, x, y, "event");
-    timerDraw(timerLastEvent, font, x + xOffset, y);
+    timerDraw(timerEventTotalTime, font, x + xOffset, y);
     y += chH;
     gfxPrintf(font, x, y, "lag");
     gfxPrintf(font, x + xOffset, y, "%d", timerLagFrames >= 0 ? timerLagFrames : 0);
     y += chH;
-    if (timerEventsEnabled()) {
+    if (settings->timerPrimaryEvents) {
         gfxPrintf(font, x, y, "ev count");
         gfxPrintf(font, x + xOffset, y, "%d/%d", timerEventCount, timerEventTarget);
     }
@@ -111,56 +119,81 @@ static s32 timerPositionProc(struct MenuItem *item, enum MenuCallbackReason reas
     return menuGenericPositionProc(item, reason, &settings->timerX);
 }
 
+static s32 bitFieldHelper(struct MenuItem *item, enum MenuCallbackReason reason, u32 *bitField, s32 index) {
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        *bitField |= (1 << index);
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        *bitField &= ~(1 << index);
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, *bitField & (1 << index));
+    }
+    return 0;
+}
+
+static s32 primaryEventProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    return bitFieldHelper(item, reason, &settings->timerPrimaryEvents, (s32)data);
+}
+
+static s32 logSplitTimeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    return bitFieldHelper(item, reason, &settings->timerLogSplitTime, (s32)data);
+}
+
+static s32 logTotalTimeProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    return bitFieldHelper(item, reason, &settings->timerLogTotalTime, (s32)data);
+}
+
+static bool updateSingleEvent(enum TimerEvents event, const char *logMsg, bool *waitVar, bool waitStartCond,
+                              bool waitEndCond, bool eventCond) {
+    bool newEvent = FALSE;
+    if (PRIMARY_ACTIVE(event) && timerState == TIMER_WAITING) {
+        if (*waitVar) {
+            if (waitEndCond) {
+                *waitVar = FALSE;
+                newEvent = TRUE;
+            }
+        } else if (waitStartCond) {
+            *waitVar = TRUE;
+        }
+    } else {
+        if (eventCond && timerState == TIMER_RUNNING) {
+            if (PRIMARY_ACTIVE(event)) {
+                newEvent = TRUE;
+                TIMER_LOG(logMsg);
+            }
+            if (SPLIT_LOGGING_ACTIVE(event)) {
+                timerEventSplitTime = fp.cpuCounter - lastEventTime;
+                timerEventSplitCountdown = 30;
+            }
+            if (TOTAL_LOGGING_ACTIVE(event)) {
+                timerEventTotalTime = fp.cpuCounter - start;
+                timerEventTotalCountdown = 30;
+            }
+        }
+    }
+    return newEvent;
+}
+
 // returns 0 if no events triggered, 1 if at least 1 was, 2 if no events enabled
 static s8 updateEvents() {
-    if (!timerEventsEnabled()) {
+    if (!settings->timerPrimaryEvents) {
         return 2;
     }
     bool inputEnabled = pm_gPlayerStatus.inputEnabledCounter == 0;
     bool mapChanged = pm_gGameStatus.mapID != prevMapID || pm_gGameStatus.areaID != prevAreaID;
-    bool newCutscene = FALSE;
-    bool newMap = FALSE;
-    if (settings->timerEventCutscenes) {
-        if (timerState == TIMER_WAITING) {
-            if (endCutsceneWaiting) {
-                if (inputEnabled) {
-                    endCutsceneWaiting = FALSE;
-                    newCutscene = TRUE;
-                }
-            } else if (!inputEnabled) {
-                endCutsceneWaiting = TRUE;
-            }
-        } else {
-            if (!inputEnabled && prevInputEnabled) {
-                newCutscene = TRUE;
-                TIMER_LOG("cutscene");
-            }
-        }
-    }
-    if (settings->timerEventLoadingZones) {
-        if (timerState == TIMER_WAITING) {
-            if (newMapWaiting) {
-                if (inputEnabled) {
-                    newMapWaiting = FALSE;
-                    newMap = TRUE;
-                }
-            } else if (mapChanged) {
-                newMapWaiting = TRUE;
-            }
-        } else {
-            if (mapChanged) {
-                newMap = TRUE;
-                TIMER_LOG("loading zone");
-            }
-        }
-    }
+    bool newCutscene = updateSingleEvent(EVENT_CUTSCENE, "cutscene", &endCutsceneWaiting, !inputEnabled, inputEnabled,
+                                         !inputEnabled && prevInputEnabled);
+    bool newMap =
+        updateSingleEvent(EVENT_LOADING_ZONE, "loading zone", &newMapWaiting, mapChanged, inputEnabled, mapChanged);
 
     return newMap || newCutscene;
 }
 
 void timerUpdate(void) {
-    if (timerEventCountdown) {
-        timerEventCountdown--;
+    if (timerEventSplitCountdown) {
+        timerEventSplitCountdown--;
+    }
+    if (timerEventTotalCountdown) {
+        timerEventTotalCountdown--;
     }
     switch (timerState) {
         case TIMER_WAITING:
@@ -169,6 +202,7 @@ void timerUpdate(void) {
             }
             timerState = TIMER_RUNNING;
             start = fp.cpuCounter;
+            lastEventTime = start;
             lagStart = nuScRetraceCounter;
             frameStart = pm_gGameStatus.frameCounter;
             TIMER_LOG("timer started");
@@ -176,15 +210,16 @@ void timerUpdate(void) {
         case TIMER_RUNNING:
             if (updateEvents() == 1) {
                 timerEventCount++;
-                timerLastEvent = fp.cpuCounter - start;
-                timerEventCountdown = 30;
+                lastEventTime = fp.cpuCounter;
             }
             if (timerEventCount == timerEventTarget) {
                 timerState = TIMER_STOPPED;
                 end = fp.cpuCounter;
                 lagEnd = nuScRetraceCounter;
                 frameEnd = pm_gGameStatus.frameCounter;
-                timerEventCountdown = 0;
+                timerEventSplitCountdown = 0;
+                timerEventTotalCountdown = 0;
+                lastEventTime = 0;
                 fpLog("timer stopped");
             }
             timerCount = fp.cpuCounter - start;
@@ -205,7 +240,7 @@ void timerUpdate(void) {
 void timerStartStop(void) {
     if (timerState == TIMER_INACTIVE) {
         timerState = TIMER_WAITING;
-        if (timerEventsEnabled()) {
+        if (settings->timerPrimaryEvents) {
             fpLog("timer set to start");
         }
     } else if (timerState == TIMER_RUNNING) {
@@ -213,7 +248,7 @@ void timerStartStop(void) {
     } else if (timerState == TIMER_STOPPED) {
         timerState = TIMER_WAITING;
         timerEventCount = 0;
-        if (timerEventsEnabled()) {
+        if (settings->timerPrimaryEvents) {
             fpLog("timer set to start");
         }
     }
@@ -223,6 +258,13 @@ void timerReset(void) {
     timerState = TIMER_INACTIVE;
     timerEventCount = 0;
     fpLog("timer reset");
+}
+
+static void createEntryMenuLine(struct Menu *menu, s32 y, const char *text, enum TimerEvents event) {
+    menuAddStatic(menu, 0, y, text, 0xC0C0C0);
+    menuAddCheckbox(menu, 14, y, primaryEventProc, (void *)event);
+    menuAddCheckbox(menu, 22, y, logSplitTimeProc, (void *)event);
+    menuAddCheckbox(menu, 28, y, logTotalTimeProc, (void *)event);
 }
 
 void createTimerMenu(struct Menu *menu) {
@@ -263,8 +305,7 @@ void createTimerMenu(struct Menu *menu) {
     xOffset = 14;
     y = 0;
     menuEvents.selector = menuAddSubmenu(&menuEvents, 0, y++, NULL, "return");
-    menuAddStatic(&menuEvents, 0, y, "cutscenes", 0xC0C0C0);
-    menuAddCheckbox(&menuEvents, xOffset, y++, menuByteCheckboxProc, &settings->timerEventCutscenes);
-    menuAddStatic(&menuEvents, 0, y, "loading zones", 0xC0C0C0);
-    menuAddCheckbox(&menuEvents, xOffset, y++, menuByteCheckboxProc, &settings->timerEventLoadingZones);
+    menuAddStatic(&menuEvents, xOffset, y++, "primary split total", 0xC0C0C0);
+    createEntryMenuLine(&menuEvents, y++, "cutscenes", EVENT_CUTSCENE);
+    createEntryMenuLine(&menuEvents, y++, "loading zones", EVENT_LOADING_ZONE);
 }
