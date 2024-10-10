@@ -16,7 +16,7 @@ jobs:
       run: |
         sudo sh -c '(curl https://practicerom.com/public/packages/debian/pgp.pub || wget -O - https://practicerom.com/public/packages/debian/pgp.pub) | apt-key add - && echo deb https://practicerom.com/public/packages/debian ./staging main >/etc/apt/sources.list.d/practicerom.list && apt update'
         sudo apt install practicerom-dev ninja-build
-        pip install -r requirements.txt
+        pip install --break-system-packages -r requirements.txt
     - name: Test build
       run: |
         python3 configure.py
