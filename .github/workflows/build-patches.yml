@@ -15,7 +15,7 @@ jobs:
           echo deb https://practicerom.com/public/packages/debian ./staging main | sudo tee /etc/apt/sources.list.d/practicerom.list
           sudo apt-get update
           sudo apt-get install practicerom-dev xdelta3 ninja-build
-          pip install -r requirements.txt
+          pip install --break-system-packages -r requirements.txt
       - name: Download ROMs
         run: |
           mkdir rom
