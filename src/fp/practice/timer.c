@@ -17,6 +17,8 @@
 enum TimerEvents {
     EVENT_CUTSCENE,
     EVENT_LOADING_ZONE,
+    EVENT_BATTLE_START,
+    EVENT_BATTLE_END,
 };
 
 enum TimerState timerState = 0;
@@ -38,6 +40,7 @@ static u16 frameEnd = 0;
 static bool prevInputEnabled = FALSE;
 static u16 prevAreaID = 0;
 static u16 prevMapID = 0;
+static s8 prevContext = 0;
 static bool newMapWaiting = FALSE;
 static bool endCutsceneWaiting = FALSE;
 
@@ -142,11 +145,16 @@ static s32 logTotalTimeProc(struct MenuItem *item, enum MenuCallbackReason reaso
     return bitFieldHelper(item, reason, &settings->timerLogTotalTime, (s32)data);
 }
 
+// waitVar = NULL, waitStartCond = FALSE, waitEndCond = FALSE to skip waiting
 static bool updateSingleEvent(enum TimerEvents event, const char *logMsg, bool *waitVar, bool waitStartCond,
                               bool waitEndCond, bool eventCond) {
     bool newEvent = FALSE;
     if (PRIMARY_ACTIVE(event) && timerState == TIMER_WAITING) {
-        if (*waitVar) {
+        if (waitVar == NULL) {
+            if (eventCond) {
+                newEvent = TRUE;
+            }
+        } else if (*waitVar) {
             if (waitEndCond) {
                 *waitVar = FALSE;
                 newEvent = TRUE;
@@ -180,12 +188,17 @@ static s8 updateEvents() {
     }
     bool inputEnabled = pm_gPlayerStatus.inputEnabledCounter == 0;
     bool mapChanged = pm_gGameStatus.mapID != prevMapID || pm_gGameStatus.areaID != prevAreaID;
+    bool battleStarted = pm_gGameStatus.context == 1 && prevContext == 0;
+    bool battleEnded = pm_gGameStatus.context == 0 && prevContext == 1;
+
     bool newCutscene = updateSingleEvent(EVENT_CUTSCENE, "cutscene", &endCutsceneWaiting, !inputEnabled, inputEnabled,
                                          !inputEnabled && prevInputEnabled);
     bool newMap =
         updateSingleEvent(EVENT_LOADING_ZONE, "loading zone", &newMapWaiting, mapChanged, inputEnabled, mapChanged);
+    bool newBattleStart = updateSingleEvent(EVENT_BATTLE_START, "battle start", NULL, FALSE, FALSE, battleStarted);
+    bool newBattleEnd = updateSingleEvent(EVENT_BATTLE_END, "battle end", NULL, FALSE, FALSE, battleEnded);
 
-    return newMap || newCutscene;
+    return newCutscene || newMap || newBattleStart || newBattleEnd;
 }
 
 void timerUpdate(void) {
@@ -235,6 +248,7 @@ void timerUpdate(void) {
     prevInputEnabled = pm_gPlayerStatus.inputEnabledCounter == 0;
     prevAreaID = pm_gGameStatus.areaID;
     prevMapID = pm_gGameStatus.mapID;
+    prevContext = pm_gGameStatus.context;
 }
 
 void timerStartStop(void) {
@@ -308,4 +322,6 @@ void createTimerMenu(struct Menu *menu) {
     menuAddStatic(&menuEvents, xOffset, y++, "primary split total", 0xC0C0C0);
     createEntryMenuLine(&menuEvents, y++, "cutscenes", EVENT_CUTSCENE);
     createEntryMenuLine(&menuEvents, y++, "loading zones", EVENT_LOADING_ZONE);
+    createEntryMenuLine(&menuEvents, y++, "battle start", EVENT_BATTLE_START);
+    createEntryMenuLine(&menuEvents, y++, "battle end", EVENT_BATTLE_END);
 }
