@@ -321,7 +321,7 @@ void fpUpdateCheats(void) {
         pm_gPlayerStatus.playerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
-        if (pm_gGameStatus.isBattle == 1) {
+        if (pm_gGameStatus.context == 1) { // CONTEXT_BATTLE
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }

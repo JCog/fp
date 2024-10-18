@@ -290,7 +290,7 @@ static void aceOotInstrProc(struct MenuItem *item, void *data) {
 }
 
 static void updateBowserBlockTrainer(void) {
-    if (pm_gGameStatus.isBattle) {
+    if (pm_gGameStatus.context == 1) { // CONTEXT_BATTLE
         pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
         if (enemy0) {
             bool isBowser = FALSE;
@@ -457,7 +457,7 @@ static void blockCheckSuccessOrEarly(void) {
 }
 
 static void updateBlockTrainer(void) {
-    if (settings->trainerAcEnabled && pm_gGameStatus.isBattle) {
+    if (settings->trainerAcEnabled && pm_gGameStatus.context == 1) { // CONTEXT_BATTLE
         // blocks
         switch (pm_gBattleStatus.blockResult) {
             case BLOCK_EARLY:

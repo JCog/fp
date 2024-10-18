@@ -111,7 +111,7 @@ typedef struct pm_GameStatus {
     /* 0x06A */ s8 demoStickX;
     /* 0x06B */ s8 demoStickY;
     /* 0x06C */ s32 mainScriptID;
-    /* 0x070 */ s8 isBattle;
+    /* 0x070 */ s8 context;
     /* 0x071 */ s8 demoState;         /* (0 = not demo, 1 = map demo, 2 = demo map changing) */
     /* 0x072 */ s8 nextDemoScene;     /* which part of the demo to play next */
     /* 0x073 */ u8 controllerPlugged; /*needs to be 1 otherwise "no controller" */

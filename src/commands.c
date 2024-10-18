@@ -85,7 +85,8 @@ bool fpWarp(enum Areas area, u16 map, u16 entrance) {
     pm_gGameStatus.entryID = entrance;
 
     PRINTF("***** WARP TRIGGERED *****\n");
-    if (pm_gGameStatus.isBattle || pm_gPopupState == 1) {
+    // TODO: look into removing this check entirely
+    if (pm_gGameStatus.context || pm_gPopupState == 1) {
         // prevent crashes from warping when in battle menus or with partner/item menu open
         pm_clear_windows();
     }
