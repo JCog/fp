@@ -20,12 +20,16 @@ parser.add_argument("--ndebug", action="store_true", help="Disables debug loggin
 
 args = parser.parse_args()
 
-VERSIONS = ["us", "jp"]
+if run("type mips64-ultra-elf-gcc >/dev/null 2>&1; echo $?").rstrip() == "0":
+    MIPS = "mips64-ultra-elf"
+else:
+    MIPS = "mips64"
 
-CC = "mips64-gcc"
-LD = "mips64-g++"
-AS = "mips64-gcc -x assembler-with-cpp"
-OBJCOPY = "mips64-objcopy"
+VERSIONS = ["us", "jp"]
+CC = f"{MIPS}-gcc"
+LD = f"{MIPS}-g++"
+AS = f"{MIPS}-gcc -x assembler-with-cpp"
+OBJCOPY = f"{MIPS}-objcopy"
 GRC = "grc"
 GENHOOKS = "./genhooks"
 SRCDIR = "src"
@@ -89,13 +93,14 @@ n.rule(
     description="LD $out",
 )
 
-n.rule("grc", command="$grc $in -d $resdesc -o $out", description="GRC $in")
+# grc directly looks for an AS environment variable to check which mips command to use
+n.rule("grc", command=f"export AS=\"{MIPS}-as\"; $grc $in -d $resdesc -o $out", description="GRC $in")
 
 n.rule("as", command=f"$as {CPPFLAGS} $ldflags $in -o $out", description="AS $in")
 
 n.rule("objcopy", command="$objcopy -S -O binary $in $out", description="OBJCOPY $in -> $out")
 
-n.rule("genhooks", command="$genhooks $in > $out", description="GENHOOKS $in")
+n.rule("genhooks", command=f"$genhooks $in {MIPS} > $out", description="GENHOOKS $in")
 
 n.rule("sys_cc", command="gcc -O2 $in -o $out", description="GCC $in")
 
