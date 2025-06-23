@@ -6,8 +6,13 @@ if [ -z "$elf" ]; then
 	exit
 fi
 
+mips="$2"
+if [ -z "$mips" ]; then
+  mips="mips64"
+fi
+
 symtbl="$(mktemp)"
-mips64-nm "$elf" | awk '(/^[0-9A-Za-z_ ]*$/) {printf "sym_%s=0x%s\n",$3,substr($1,length($1)-7)}' >"$symtbl"
+$mips-nm "$elf" | awk '(/^[0-9A-Za-z_ ]*$/) {printf "sym_%s=0x%s\n",$3,substr($1,length($1)-7)}' >"$symtbl"
 . "$symtbl"
 rm -f "$symtbl"
 
@@ -24,8 +29,8 @@ genhook()
 {
     addr="$(printf "%d" "$1")"
     tmp="$(mktemp)"
-    echo ".set noreorder; .set noat; $2" | mips64-as - -o "$tmp"
-    mips64-readelf -x .text "$tmp" | grep "0x[0-9A-Fa-f]\{8\}" | grep -o " [0-9A-Fa-f]\{8\}" |
+    echo ".set noreorder; .set noat; $2" | $mips-as - -o "$tmp"
+    $mips-readelf -x .text "$tmp" | grep "0x[0-9A-Fa-f]\{8\}" | grep -o " [0-9A-Fa-f]\{8\}" |
     while read -r line; do
         gsc16 "$addr" "0x`echo "$line" | sed -e "s/\(....\)..../\1/"`"
         addr="$(expr "$addr" + 2)"
