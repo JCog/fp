@@ -1,6 +1,7 @@
 #include "fp.h"
 #include "commands.h"
 #include "common.h"
+#include "fp/debug/flags.h"
 #include "fp/practice/timer.h"
 #include "fp/practice/trainer.h"
 #include "fp/warps/bosses.h"
@@ -508,6 +509,10 @@ void fpUpdate(void) {
     }
     fpCamUpdate();
 
+    if (settings->flagLogging) {
+        updateFlagRecords();
+    }
+
     while (fp.menuActive && menuThink(fp.mainMenu)) {
         // wait
     }
@@ -608,7 +613,7 @@ HOOK s32 fpIsAbilityActive(s32 ability) {
     return pm_is_ability_active(ability);
 }
 
-HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) {
+HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) { // NOLINT
     if (npcId == BOSSES_DUMMY_ID) {
         bossesDummyNpc.pos = pm_gPlayerStatus.position;
         return &bossesDummyNpc;

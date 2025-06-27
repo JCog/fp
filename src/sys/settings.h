@@ -63,6 +63,7 @@ struct SettingsData {
     s8 menuBackgroundAlpha;
     u8 inputDisplay;
     u8 log;
+    u8 flagLogging;
     u8 timerShow;
     u8 timerLogging;
     u8 trainerBowserEnabled;

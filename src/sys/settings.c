@@ -39,6 +39,7 @@ void settingsLoadDefault(void) {
     d->menuBackgroundAlpha = 0xC0;
     d->inputDisplay = 0;
     d->log = 1;
+    d->flagLogging = 0;
     d->timerLogging = 0;
     d->timerShow = 0;
     d->battleDebug = 0;
