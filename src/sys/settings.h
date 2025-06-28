@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "common.h"
 #include "fp/practice/timer.h"
+#include "fp/practice/trainer.h"
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
@@ -43,6 +44,7 @@ struct SettingsData {
     u32 watchAddress[SETTINGS_WATCHES_MAX];
     u32 cheats;
     enum TimerMode timerMode;
+    enum PinnedTrainer pinnedTrainer;
     s16 menuX;
     s16 menuY;
     s16 inputDisplayX;
@@ -51,6 +53,8 @@ struct SettingsData {
     s16 logY;
     s16 timerX;
     s16 timerY;
+    s16 trainerX;
+    s16 trainerY;
     s16 watchX[SETTINGS_WATCHES_MAX];
     s16 watchY[SETTINGS_WATCHES_MAX];
     u16 binds[SETTINGS_BIND_MAX];
@@ -70,6 +74,7 @@ struct SettingsData {
     u8 trainerLzsEnabled;
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
+    u8 trainerDisplayPinned;
     u8 battleDebug;
     u8 quickLaunch;
     u8 watchesVisible;

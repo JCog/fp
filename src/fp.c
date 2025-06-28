@@ -534,15 +534,6 @@ void fpDraw(void) {
     s32 cellWidth = menuGetCellWidth(fp.mainMenu, TRUE);
     s32 cellHeight = menuGetCellHeight(fp.mainMenu, TRUE);
 
-    if (settings->inputDisplay) {
-        fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
-    }
-
-    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
-        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
-        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
-    }
-
     if (fp.menuActive) {
         if (settings->menuBackground) {
             gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(0x000000, settings->menuBackgroundAlpha));
@@ -553,6 +544,19 @@ void fpDraw(void) {
         }
 
         menuDraw(fp.mainMenu);
+    }
+
+    if (settings->inputDisplay) {
+        fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
+    }
+
+    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
+        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
+    }
+
+    if (fp.trainerMoving || (settings->trainerDisplayPinned && !fp.menuActive)) {
+        trainerDrawPinned(settings->trainerX, settings->trainerY, font, cellWidth, cellHeight, 0xC0C0C0, menuAlpha);
     }
 
     if (!fp.versionShown) {
