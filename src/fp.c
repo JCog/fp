@@ -621,6 +621,15 @@ HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) { // NOLINT
     return pm_get_npc_unsafe(npcId);
 }
 
+HOOK s32 fpIgnoreWalls(s32 mode, f32 startX, f32 startY, f32 startZ, f32 dirX, f32 dirY, f32 dirZ, f32 *hitX, f32 *hitY,
+                       f32 *hitZ, f32 *hitDepth, f32 *hitNx, f32 *hitNy, f32 *hitNz) {
+    if (fp.ignoreWalls) {
+        return -1;
+    }
+    return pm_player_raycast_general(mode, startX, startY, startZ, dirX, dirY, dirZ, hitX, hitY, hitZ, hitDepth, hitNx,
+                                     hitNy, hitNz);
+}
+
 #include <grc.c>
 #include <list/list.c>
 #include <set/set.c>

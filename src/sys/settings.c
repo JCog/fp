@@ -77,6 +77,7 @@ void settingsLoadDefault(void) {
     d->binds[COMMAND_TOGGLE_INPUT_DISPLAY] = bindMake(0);
     d->binds[COMMAND_CLIPPY] = bindMake(0);
     d->binds[COMMAND_STORE_ABILITY] = bindMake(0);
+    d->binds[COMMAND_IGNORE_WALLS] = bindMake(0);
     d->cheatEnemyContact = 0;
     d->controlStickRange = 90;
     d->controlStick = 0;

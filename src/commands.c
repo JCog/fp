@@ -29,6 +29,7 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
     {"store ability",    COMMAND_PRESS_ONCE, 0, commandStoreAbility      },
+    {"ignore walls",     COMMAND_PRESS_ONCE, 0, commandIgnoreWalls       },
 };
 
 void showMenu(void) {
@@ -298,5 +299,15 @@ void commandStoreAbility(void) {
         pm_gPartnerStatus.partnerActionState = 1;
         pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
         fpLog("partner ability stored");
+    }
+}
+
+void commandIgnoreWalls(void) {
+    if (fp.ignoreWalls) {
+        fp.ignoreWalls = FALSE;
+        fpLog("walls enabled");
+    } else {
+        fp.ignoreWalls = TRUE;
+        fpLog("walls disabled");
     }
 }
