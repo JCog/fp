@@ -28,6 +28,15 @@ static s32 controlStickRangeProc(struct MenuItem *item, enum MenuCallbackReason 
     return 0;
 }
 
+static s32 trainerPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.trainerMoving = TRUE;
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.trainerMoving = FALSE;
+    }
+    return menuGenericPositionProc(item, reason, &settings->trainerX);
+}
+
 static void profileDecProc(struct MenuItem *item, void *data) {
     fp.profile += SETTINGS_PROFILE_MAX - 1;
     fp.profile %= SETTINGS_PROFILE_MAX;
@@ -184,6 +193,10 @@ struct Menu *createSettingsMenu(void) {
     menuAddStatic(&menuDisplay, 0, y, "logging", 0xC0C0C0);
     menuAddCheckbox(&menuDisplay, menuX, y, menuByteCheckboxProc, &settings->log);
     menuAddPositioning(&menuDisplay, menuX + 2, y++, logPositionProc, NULL);
+    menuAddStatic(&menuDisplay, 0, y, "flag logging", 0xC0C0C0);
+    menuAddCheckbox(&menuDisplay, menuX, y++, menuByteCheckboxProc, &settings->flagLogging);
+    menuAddStatic(&menuDisplay, 0, y, "pinned trainer", 0xC0C0C0);
+    menuAddPositioning(&menuDisplay, menuX, y++, trainerPositionProc, &settings->trainerX);
     y++;
     menuAddStatic(&menuDisplay, 0, y, "input display", 0xC0C0C0);
     menuAddCheckbox(&menuDisplay, menuX, y, menuByteCheckboxProc, &settings->inputDisplay);

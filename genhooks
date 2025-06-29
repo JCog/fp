@@ -47,6 +47,11 @@ genhook "$sym_flush_backups_hook_1" "nop;" # Remove calls to update backup save 
 genhook "$sym_flush_backups_hook_2" "nop;"
 genhook "$sym_update_camera_zone_interp_hook" "jal $sym_fpUpdateCameraZoneInterpHook;"
 genhook "$sym_get_npc_unsafe_hook" "jal $sym_fpGetNpcUnsafe;"
+genhook "$sym_no_walls_hook_1" "jal $sym_fpIgnoreWalls;"
+genhook "$sym_no_walls_hook_2" "jal $sym_fpIgnoreWalls;"
+genhook "$sym_no_walls_hook_3" "jal $sym_fpIgnoreWalls;"
+genhook "$sym_no_walls_hook_4" "jal $sym_fpIgnoreWalls;"
+genhook "$sym_no_walls_hook_5" "jal $sym_fpIgnoreWalls;"
 genhook "$sym_update_player_input_rom_hook" "jal $sym_fpUpdateInput;"
 genhook "$sym_peekaboo_hook" "jal $sym_fpIsAbilityActive;"
 genhook "$sym_fire_flower_hook" "nop;" # Fix wii vc fire flower crash

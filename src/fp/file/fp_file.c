@@ -42,11 +42,11 @@ static s32 storyProgressDrawProc(struct MenuItem *item, struct MenuDrawParams *d
 
     char buffer[24];
     if (chapter == 0) {
-        snprintf(buffer, sizeof(buffer), "pro. (%d/%d) -", chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "pro. (%d/%d)", chapterProgress, chapterMax);
     } else if (chapter > 8) {
-        snprintf(buffer, sizeof(buffer), "invalid     -");
+        snprintf(buffer, sizeof(buffer), "invalid");
     } else {
-        snprintf(buffer, sizeof(buffer), "ch%d (%d/%d) -", chapter, chapterProgress, chapterMax);
+        snprintf(buffer, sizeof(buffer), "ch%d (%d/%d)", chapter, chapterProgress, chapterMax);
     }
     gfxPrintf(font, x, y, buffer);
     return 1;
@@ -228,9 +228,9 @@ struct Menu *createFileMenu(void) {
     menuItemAddChainLink(importButton, minusButton, MENU_NAVIGATE_DOWN);
     y++;
 
-    menuAddStatic(&menu, 0, y++, "story progress", 0xC0C0C0);
-    menuAddStaticCustom(&menu, 0, y, storyProgressDrawProc, NULL, 0xC0C0C0);
-    struct MenuItem *progressInput = menuAddIntinput(&menu, 14, y++, 16, 2, menuByteModProc, &STORY_PROGRESS);
+    menuAddStatic(&menu, 0, y, "story progress", 0xC0C0C0);
+    struct MenuItem *progressInput = menuAddIntinput(&menu, 15, y++, 16, 2, menuByteModProc, &STORY_PROGRESS);
+    menuAddStaticCustom(&menu, 0, y++, storyProgressDrawProc, NULL, 0xC0C0C0);
     menuItemAddChainLink(minusButton, progressInput, MENU_NAVIGATE_DOWN);
     menuItemAddChainLink(plusButton, progressInput, MENU_NAVIGATE_DOWN);
     y++;

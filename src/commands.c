@@ -29,6 +29,8 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"toggle in. disp.", COMMAND_PRESS_ONCE, 0, commandToggleInpDispProc },
     {"clippy",           COMMAND_PRESS_ONCE, 0, commandClippyProc        },
     {"store ability",    COMMAND_PRESS_ONCE, 0, commandStoreAbility      },
+    {"ignore walls",     COMMAND_PRESS_ONCE, 0, commandIgnoreWalls       },
+    {"floor clip",       COMMAND_PRESS_ONCE, 0, commandFloorClip         },
 };
 
 void showMenu(void) {
@@ -173,11 +175,12 @@ void commandLoadPosProc(void) {
     pm_gPlayerStatus.targetYaw = fp.savedMovementAngle;
 
     if (pm_gPlayerStatus.actionState & ACTION_STATE_RIDE) {
-        pm_Npc *partner = pm_get_npc_safe(-4);
+        pm_Npc *partner = pm_get_npc_safe(-4); // NPC_PARTNER
         if (partner) {
             partner->pos.x = fp.savedPos.x;
             partner->pos.y = fp.savedPos.y;
             partner->pos.z = fp.savedPos.z;
+            partner->moveToPos.y = fp.savedPos.y;
             partner->yaw = fp.savedMovementAngle;
         }
     }
@@ -298,5 +301,26 @@ void commandStoreAbility(void) {
         pm_gPartnerStatus.partnerActionState = 1;
         pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
         fpLog("partner ability stored");
+    }
+}
+
+void commandIgnoreWalls(void) {
+    if (fp.ignoreWalls) {
+        fp.ignoreWalls = FALSE;
+        fpLog("walls enabled");
+    } else {
+        fp.ignoreWalls = TRUE;
+        fpLog("walls disabled");
+    }
+}
+
+void commandFloorClip(void) {
+    pm_gPlayerStatus.position.y -= 20;
+    if (pm_gPlayerStatus.actionState & ACTION_STATE_RIDE) {
+        pm_Npc *partner = pm_get_npc_safe(-4); // NPC_PARTNER
+        if (partner) {
+            partner->pos.y -= 20;
+            partner->moveToPos.y -= 20;
+        }
     }
 }
