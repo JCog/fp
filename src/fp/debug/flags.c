@@ -1,5 +1,6 @@
 #include "flags.h"
 #include "common.h"
+#include "fp.h"
 #include "menu/menu.h"
 #include "sys/gfx.h"
 #include "sys/resource.h"
@@ -62,6 +63,9 @@ static void addEvent(s32 recordIndex, s32 flagIndex, bool value) {
     e->value = value;
     snprintf(e->description, sizeof(e->description), "%s[0x%0*lx] := %i", r->name, r->indexLength % 10, flagIndex,
              value);
+    if (settings->flagLogging) {
+        fpLog(e->description);
+    }
 }
 
 static u32 getFlagWord(void *data, size_t wordSize, s32 index) {
@@ -103,22 +107,9 @@ static void modifyFlag(void *data, size_t wordSize, s32 flagIndex, bool value) {
 }
 
 static s32 logThinkProc(struct MenuItem *item) {
-    for (s32 i = 0; i < records.size; ++i) {
-        struct FlagRecord *r = vector_at(&records, i);
-        for (s32 j = 0; j < r->length; ++j) {
-            u32 wd = getFlagWord(r->data, r->wordSize, j);
-            u32 wc = getFlagWord(r->comp, r->wordSize, j);
-            u32 d = wd ^ wc;
-            if (d != 0) {
-                for (s32 k = 0; k < r->wordSize * 8; ++k) {
-                    if ((d >> k) & 1) {
-                        addEvent(i, r->wordSize * 8 * j + k, (wd >> k) & 1);
-                    }
-                }
-            }
-        }
+    if (!settings->flagLogging) {
+        updateFlagRecords();
     }
-    updateFlagRecords();
     return 0;
 }
 
@@ -271,6 +262,21 @@ void flagMenuCreate(struct Menu *menu) {
 }
 
 void updateFlagRecords(void) {
+    for (s32 i = 0; i < records.size; ++i) {
+        struct FlagRecord *r = vector_at(&records, i);
+        for (s32 j = 0; j < r->length; ++j) {
+            u32 wd = getFlagWord(r->data, r->wordSize, j);
+            u32 wc = getFlagWord(r->comp, r->wordSize, j);
+            u32 d = wd ^ wc;
+            if (d != 0) {
+                for (s32 k = 0; k < r->wordSize * 8; ++k) {
+                    if ((d >> k) & 1) {
+                        addEvent(i, r->wordSize * 8 * j + k, (wd >> k) & 1);
+                    }
+                }
+            }
+        }
+    }
     for (s32 i = 0; i < records.size; ++i) {
         struct FlagRecord *r = vector_at(&records, i);
         memcpy(r->comp, r->data, r->wordSize * r->length);

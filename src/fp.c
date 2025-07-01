@@ -1,6 +1,7 @@
 #include "fp.h"
 #include "commands.h"
 #include "common.h"
+#include "fp/debug/flags.h"
 #include "fp/practice/timer.h"
 #include "fp/practice/trainer.h"
 #include "fp/warps/bosses.h"
@@ -508,6 +509,10 @@ void fpUpdate(void) {
     }
     fpCamUpdate();
 
+    if (settings->flagLogging) {
+        updateFlagRecords();
+    }
+
     while (fp.menuActive && menuThink(fp.mainMenu)) {
         // wait
     }
@@ -529,15 +534,6 @@ void fpDraw(void) {
     s32 cellWidth = menuGetCellWidth(fp.mainMenu, TRUE);
     s32 cellHeight = menuGetCellHeight(fp.mainMenu, TRUE);
 
-    if (settings->inputDisplay) {
-        fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
-    }
-
-    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
-        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
-        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
-    }
-
     if (fp.menuActive) {
         if (settings->menuBackground) {
             gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(0x000000, settings->menuBackgroundAlpha));
@@ -548,6 +544,19 @@ void fpDraw(void) {
         }
 
         menuDraw(fp.mainMenu);
+    }
+
+    if (settings->inputDisplay) {
+        fpDrawInputDisplay(font, cellWidth, cellHeight, menuAlpha);
+    }
+
+    if (fp.timerMoving || (timerState == TIMER_STOPPED && !fp.menuActive) ||
+        (settings->timerShow && !fp.menuActive && timerState != TIMER_INACTIVE)) {
+        fpDrawTimer(font, cellWidth, cellHeight, menuAlpha);
+    }
+
+    if (fp.trainerMoving || (settings->trainerDisplayPinned && !fp.menuActive)) {
+        trainerDrawPinned(settings->trainerX, settings->trainerY, font, cellWidth, cellHeight, 0xC0C0C0, menuAlpha);
     }
 
     if (!fp.versionShown) {
@@ -608,12 +617,21 @@ HOOK s32 fpIsAbilityActive(s32 ability) {
     return pm_is_ability_active(ability);
 }
 
-HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) {
+HOOK pm_Npc *fpGetNpcUnsafe(s16 npcId) { // NOLINT
     if (npcId == BOSSES_DUMMY_ID) {
         bossesDummyNpc.pos = pm_gPlayerStatus.position;
         return &bossesDummyNpc;
     }
     return pm_get_npc_unsafe(npcId);
+}
+
+HOOK s32 fpIgnoreWalls(s32 mode, f32 startX, f32 startY, f32 startZ, f32 dirX, f32 dirY, f32 dirZ, f32 *hitX, f32 *hitY,
+                       f32 *hitZ, f32 *hitDepth, f32 *hitNx, f32 *hitNy, f32 *hitNz) {
+    if (fp.ignoreWalls) {
+        return -1;
+    }
+    return pm_player_raycast_general(mode, startX, startY, startZ, dirX, dirY, dirZ, hitX, hitY, hitZ, hitDepth, hitNx,
+                                     hitNy, hitNz);
 }
 
 #include <grc.c>

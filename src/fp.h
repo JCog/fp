@@ -41,6 +41,7 @@ typedef struct {
     s64 cpuCounter;
     s32 cpuCounterFreq;
     bool timerMoving;
+    bool trainerMoving;
     bool menuActive;
     struct LogEntry log[SETTINGS_LOG_MAX];
     Vec3f savedPos;
@@ -69,6 +70,7 @@ typedef struct {
     pm_Camera savedCam;
     u16 freeCamMoveSpeed;
     u16 freeCamPanSpeed;
+    bool ignoreWalls;
 } FpCtxt;
 
 extern FpCtxt fp;

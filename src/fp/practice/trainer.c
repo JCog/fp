@@ -135,13 +135,38 @@ asm(".set noreorder;"
     "JR $ra;"
     "SW $t1, 0x0000 ($t0);");
 
-static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
-    struct GfxFont *font = drawParams->font;
-    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
-    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
-    s32 x = drawParams->x;
-    s32 y = drawParams->y;
+static void unpinProc(struct MenuItem *item, void *data) {
+    settings->trainerDisplayPinned = FALSE;
+}
+
+static s32 pinnedTrainerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    enum PinnedTrainer p = (u32)data;
+    if (reason == MENU_CALLBACK_SWITCH_ON) {
+        settings->pinnedTrainer = p;
+        settings->trainerDisplayPinned = TRUE;
+    } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
+        settings->trainerDisplayPinned = FALSE;
+    } else if (reason == MENU_CALLBACK_THINK) {
+        menuCheckboxSet(item, settings->trainerDisplayPinned && settings->pinnedTrainer == p);
+    }
+    return 0;
+}
+
+static void lzsDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
+    s32 menuY = 0;
+    gfxPrintf(font, x, y + chHeight * menuY++, "current lzs jumps: %d", lzsCurrentJumps);
+    gfxPrintf(font, x, y + chHeight * menuY++, "record lzs jumps:  %d", lzsRecordJumps);
+}
+
+static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    lzsDraw(drawParams->x, drawParams->y, drawParams->font, menuGetCellWidth(item->owner, TRUE),
+            menuGetCellHeight(item->owner, TRUE), drawParams->color, drawParams->alpha);
+    return 1;
+}
+
+static void issDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
 
     s32 xPos = ceil(pm_gPlayerStatus.position.x);
     s32 zPos = ceil(pm_gPlayerStatus.position.z);
@@ -178,7 +203,7 @@ static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
         gfxModeSet(GFX_MODE_COLOR, colorWhite);
     }
     gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY++, "%.2f", pm_gPlayerStatus.currentYaw);
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     gfxPrintf(font, x, y + chHeight * menuY, "pos:");
     if (goodPos) {
         gfxModeSet(GFX_MODE_COLOR, colorGreen);
@@ -190,17 +215,16 @@ static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
         gfxModeSet(GFX_MODE_COLOR, colorRed);
         gfxPrintf(font, x + chWidth * 7, y + chHeight * menuY, "bad");
     }
+}
+
+static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    issDraw(drawParams->x, drawParams->y, drawParams->font, menuGetCellWidth(item->owner, TRUE),
+            menuGetCellHeight(item->owner, TRUE), drawParams->color, drawParams->alpha);
     return 1;
 }
 
-static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
-    struct GfxFont *font = drawParams->font;
-    s32 chHeight = menuGetCellHeight(item->owner, TRUE);
-    s32 chWidth = menuGetCellWidth(item->owner, TRUE);
-    s32 x = drawParams->x;
-    s32 y = drawParams->y;
-
+static void aceDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     s32 effectCount = 0;
     s32 i;
     for (i = 0; i < 96; i++) {
@@ -235,7 +259,7 @@ static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
     gfxPrintf(font, x + chWidth * 14, y + chHeight * 2, "%d", fp.aceFrameWindow);
 
     if (fp.aceLastTimer != 0) {
-        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(drawParams->color, drawParams->alpha));
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 7, "last attempt status:");
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 8, "timer:");
         gfxPrintf(font, x + chWidth * 0, y + chHeight * 9, "flags:");
@@ -273,6 +297,11 @@ static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
             gfxPrintf(font, x + chWidth * 0, y + chHeight * 11, "failure");
         }
     }
+}
+
+static s32 aceDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
+    aceDraw(drawParams->x, drawParams->y, drawParams->font, menuGetCellWidth(item->owner, TRUE),
+            menuGetCellHeight(item->owner, TRUE), drawParams->color, drawParams->alpha);
     return 1;
 }
 
@@ -548,6 +577,14 @@ void trainerUpdate(void) {
     updateClippyTrainer();
 }
 
+void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    switch (settings->pinnedTrainer) {
+        case TRAINER_LZS: lzsDraw(x, y, font, chWidth, chHeight, color, alpha); break;
+        case TRAINER_ISS: issDraw(x, y, font, chWidth, chHeight, color, alpha); break;
+        case TRAINER_ACE: aceDraw(x, y, font, chWidth, chHeight, color, alpha); break;
+    }
+}
+
 void createTrainerMenu(struct Menu *menu) {
     static struct Menu lzsMenu;
     static struct Menu issMenu;
@@ -598,25 +635,39 @@ void createTrainerMenu(struct Menu *menu) {
     lastOption = menuAddSubmenuIcon(menu, xOffset, y++, &aceMenu, wrench, 0, 0, 1.0f);
 #endif
     y++;
-    struct MenuItem *saveButton = menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
+    struct MenuItem *unpinButton = menuAddButton(menu, 0, y++, "unpin trainer", unpinProc, NULL);
+    menuAddButton(menu, 0, y++, "save settings", fpSaveSettingsProc, NULL);
 
     menuItemAddChainLink(menu->selector, firstOption, MENU_NAVIGATE_DOWN);
-    menuItemAddChainLink(saveButton, lastOption, MENU_NAVIGATE_UP);
+    menuItemAddChainLink(unpinButton, lastOption, MENU_NAVIGATE_UP);
 
     /*build lzs jump menu*/
-    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, 0, NULL, "return");
-    menuAddStatic(&lzsMenu, 0, 1, "current lzs jumps: ", 0xC0C0C0);
-    menuAddWatch(&lzsMenu, 20, 1, (u32)&lzsCurrentJumps, WATCH_TYPE_U16);
-    menuAddStatic(&lzsMenu, 0, 2, "record lzs jumps: ", 0xC0C0C0);
-    menuAddWatch(&lzsMenu, 20, 2, (u32)&lzsRecordJumps, WATCH_TYPE_U16);
+    y = 0;
+    lzsMenu.selector = menuAddSubmenu(&lzsMenu, 0, y++, NULL, "return");
+    menuAddStatic(&lzsMenu, 0, y, "pin", 0xC0C0C0);
+    menuAddCheckbox(&lzsMenu, 4, y++, pinnedTrainerProc, (void *)TRAINER_LZS);
+    y++;
+    menuAddStaticCustom(&lzsMenu, 0, y++, lzsDrawProc, NULL, 0xC0C0C0);
 
     /*build iss menu*/
-    issMenu.selector = menuAddSubmenu(&issMenu, 0, 0, NULL, "return");
-    menuAddStaticCustom(&issMenu, 0, 1, issDrawProc, NULL, 0xC0C0C0);
+    y = 0;
+    issMenu.selector = menuAddSubmenu(&issMenu, 0, y++, NULL, "return");
+    menuAddStatic(&issMenu, 0, y, "pin", 0xC0C0C0);
+    menuAddCheckbox(&issMenu, 4, y++, pinnedTrainerProc, (void *)TRAINER_ISS);
+    y++;
+    menuAddStaticCustom(&issMenu, 0, y++, issDrawProc, NULL, 0xC0C0C0);
 
     /*build ace menu*/
-    aceMenu.selector = menuAddSubmenu(&aceMenu, 0, 0, NULL, "return");
-    menuAddStaticCustom(&aceMenu, 0, 1, aceDrawProc, NULL, 0xC0C0C0);
-    menuAddButton(&aceMenu, 0, 5, "practice payload", acePracticePayloadProc, NULL);
-    menuAddButton(&aceMenu, 0, 6, "oot instruction", aceOotInstrProc, NULL);
+    y = 0;
+    aceMenu.selector = menuAddSubmenu(&aceMenu, 0, y++, NULL, "return");
+    menuAddStatic(&aceMenu, 0, y, "pin", 0xC0C0C0);
+    struct MenuItem *pinCheckbox = menuAddCheckbox(&aceMenu, 4, y++, pinnedTrainerProc, (void *)TRAINER_ACE);
+    y++;
+    menuAddStaticCustom(&aceMenu, 0, y, aceDrawProc, NULL, 0xC0C0C0);
+    y += 4;
+    struct MenuItem *payloadOption = menuAddButton(&aceMenu, 0, y++, "practice payload", acePracticePayloadProc, NULL);
+    menuAddButton(&aceMenu, 0, y++, "oot instruction", aceOotInstrProc, NULL);
+
+    menuItemAddChainLink(aceMenu.selector, pinCheckbox, MENU_NAVIGATE_DOWN);
+    menuItemAddChainLink(payloadOption, pinCheckbox, MENU_NAVIGATE_UP);
 }
