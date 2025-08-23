@@ -12,7 +12,7 @@ jobs:
       - name: Install prerequisite packages
         run: |
           sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/PracticeROM/packages/HEAD/scripts/install-debian_amd64.sh)"
-          sudo apt-get install practicerom-dev xdelta3 ninja-build
+          sudo apt-get install -y practicerom-dev xdelta3 ninja-build
           pip install --break-system-packages -r requirements.txt
       - name: Download ROMs
         run: |

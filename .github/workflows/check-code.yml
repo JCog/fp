@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/PracticeROM/packages/HEAD/scripts/install-debian_amd64.sh)"
-        sudo apt-get install practicerom-dev ninja-build
+        sudo apt-get install -y practicerom-dev ninja-build
         pip install --break-system-packages -r requirements.txt
     - name: Test build
       run: |
