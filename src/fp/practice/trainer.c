@@ -1,6 +1,7 @@
 #include "trainer.h"
 #include "fp.h"
 #include "menu/menu.h"
+#include "sys/input.h"
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include <math.h>
@@ -570,11 +571,110 @@ static void updateClippyTrainer(void) {
     }
 }
 
+static void updateQuickJumpTrainer(void) {
+    static s8 jumpFrame;
+    static u8 crouchFrame;
+    static u8 frame;
+    static bool waitForNextTurn;
+    static u8 frameWindow;
+
+    if (settings->trainerQuickJumpsEnabled && pm_gGameStatus.isBattle && pm_gBattleStatus.playerActor) {
+        if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10004) {
+            waitForNextTurn = FALSE;
+            jumpFrame = -1;
+            crouchFrame = 0;
+            frame = 0;
+            frameWindow = 0;
+            return;
+        }
+
+        if (waitForNextTurn) {
+            return;
+        }
+
+        if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10005 && frame <= 13) {
+            if (frameWindow == 0) {
+                if (pm_gBattleStatus.playerActor->state.moveTime < 13) {
+                    frameWindow = 5;
+                } else {
+                    frameWindow = pm_gBattleStatus.playerActor->state.moveTime - 9;
+                }
+            }
+            if (inputPressed().a && jumpFrame == -1) {
+                jumpFrame = frame;
+            }
+            frame++;
+        } else if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10008) {
+            waitForNextTurn = TRUE;
+        } else if (frame > 0) {
+            if (jumpFrame != -1) {
+                u8 framesSinceJump = frame - jumpFrame;
+                if (framesSinceJump == 1) {
+                    fpLog("jumped frame 1 out of %d", frameWindow);
+                } else {
+                    fpLog("jumped %d frame%s early", framesSinceJump - 1, framesSinceJump - 1 == 1 ? "" : "s");
+                }
+                waitForNextTurn = TRUE;
+                return;
+            }
+
+            if (crouchFrame == 0) {
+                crouchFrame = frame;
+            }
+
+            if (inputPressed().a) {
+                u8 framesAfterCrouch = frame - crouchFrame + 2;
+                if (framesAfterCrouch <= frameWindow) {
+                    fpLog("jumped frame %d out of %d", framesAfterCrouch, frameWindow);
+                } else {
+                    fpLog("jumped %d frame%s late", framesAfterCrouch - frameWindow,
+                          framesAfterCrouch - frameWindow == 1 ? "" : "s");
+                }
+                waitForNextTurn = TRUE;
+            }
+
+            frame++;
+        }
+    }
+}
+
+static void updateHammerCancelTrainer(void) {
+    static bool canCancel;
+
+    if (settings->trainerHammerCancelsEnabled) {
+        if (pm_HammerHit.timer == 3) {
+            canCancel = TRUE;
+        }
+
+        if (pm_HammerHit.timer > 10) {
+            canCancel = FALSE;
+        }
+
+        if (inputPressed().b && canCancel) {
+            canCancel = FALSE;
+
+            if (pm_gPlayerStatus.flags & PS_FLAG_ENTERING_BATTLE) {
+                return;
+            }
+
+            if (pm_HammerHit.timer < 7) {
+                fpLog("hammered %d frame%s early", 7 - pm_HammerHit.timer, 7 - pm_HammerHit.timer == 1 ? "" : "s");
+            } else if (pm_HammerHit.timer > 7) {
+                fpLog("hammered %d frame%s late", pm_HammerHit.timer - 7, pm_HammerHit.timer - 7 == 1 ? "" : "s");
+            } else {
+                fpLog("hammered correct frame");
+            }
+        }
+    }
+}
+
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
     updateBlockTrainer();
     updateClippyTrainer();
+    updateQuickJumpTrainer();
+    updateHammerCancelTrainer();
 }
 
 void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
@@ -623,6 +723,12 @@ void createTrainerMenu(struct Menu *menu) {
 
     menuAddStatic(menu, 0, y, "action commands", 0xC0C0C0);
     menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerAcEnabled);
+
+    menuAddStatic(menu, 0, y, "quick jumps", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerQuickJumpsEnabled);
+
+    menuAddStatic(menu, 0, y, "hammer cancels", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerHammerCancelsEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
     struct MenuItem *lastOption =

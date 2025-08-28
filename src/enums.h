@@ -826,4 +826,59 @@ enum EvtOps {
     /* 0x5E */ EVT_OP_94,
 };
 
+enum PlayerStatusFlags {
+    PS_FLAG_AIRBORNE = 0x0000000E,
+    PS_FLAG_HAS_REFLECTION = 0x00000001,
+    PS_FLAG_JUMPING = 0x00000002,
+    PS_FLAG_FALLING = 0x00000004,
+    PS_FLAG_FLYING = 0x00000008,
+    PS_FLAG_SLIDING = 0x00000010,
+    /* Paused either via the start menu, or through another menu that causes a pause (like the item menu) */
+    PS_FLAG_PAUSED = 0x00000020,
+    PS_FLAG_NO_CHANGE_PARTNER = 0x00000040,
+    PS_FLAG_NO_PARTNER_USAGE = 0x00000080,
+    /* Prevents opening menus that would require a game-time pause (start menu, item menu, etc) */
+    PS_FLAG_PAUSE_DISABLED = 0x00000100,
+    /* Doing either a spin jump or a tornado jump */
+    PS_FLAG_SPECIAL_JUMP = 0x00000200,
+    /* Landing from either a spin jump or a tornado jump */
+    PS_FLAG_SPECIAL_LAND = 0x00000400,
+    /* Burning from touching a fire hazard of some kind */
+    PS_FLAG_HIT_FIRE = 0x00000800,
+    PS_FLAG_NO_STATIC_COLLISION = 0x00001000,
+    PS_FLAG_INPUT_DISABLED = 0x00002000,
+    /* Indicates that Mario's lateral movement is currently commandeered by a cutscene or script */
+    PS_FLAG_CUTSCENE_MOVEMENT = 0x00004000,
+    /* Either outta sight with Bow, or temporarily damage boosted - makes Mario ignore fire bars */
+    PS_FLAG_HAZARD_INVINCIBILITY = 0x00008000,
+    /* Spinning either through pressing Z or the tornado jump - causes a ghost trail to render */
+    PS_FLAG_SPINNING = 0x00020000,
+    /* Slows Mario's physics and animations to half speed - responsible for the dramatic slowdown when starting an
+       encounter by jumping on an enemy. Also stops Mario from successfully completing a hammer. */
+    PS_FLAG_ENTERING_BATTLE = 0x00040000,
+    /* Occurs after hitting a heart block - temporarily prevents encounters from starting */
+    PS_FLAG_ARMS_RAISED = 0x00080000,
+    /* Stops Mario's sprite yaw from being adjusted, usually so a cutscene can do it instead. */
+    PS_FLAG_ROTATION_LOCKED = 0x00100000,
+    /* Forces Mario's sprite to either face exactly left or right, without transitioning. */
+    PS_FLAG_NO_FLIPPING = 0x00200000,
+    /* Prevents Mario from moving laterally */
+    PS_FLAG_MOVEMENT_LOCKED = 0x00400000, // TODO misnamed
+    /* Stops Mario from air steering or using a special jump during a scripted fall */
+    PS_FLAG_SCRIPTED_FALL = 0x00800000,
+    /* Not fully sure about this one, but appears to mark the frame that the check for what to hammer occurs */
+    PS_FLAG_HAMMER_CHECK = 0x01000000,
+    PS_FLAG_HAS_CONVERSATION_NPC = 0x02000000,
+    PS_FLAG_CAMERA_DOESNT_FOLLOW = 0x04000000,
+    /* Mario just interacted with something (usually cleared on the same frame) */
+    PS_FLAG_INTERACTED = 0x08000000,
+    /* Makes Mario face forwards, used when talking to NPCs, or when on Lakilester */
+    PS_FLAG_FACE_FORWARD = 0x10000000,
+    /* Freezes physics and animations - is usually reset at the start of a frame so often does nothing */
+    PS_FLAG_TIME_STOPPED = 0x20000000,
+    /* Indicates that Mario needs his sprite redrawn */
+    PS_FLAG_SPRITE_REDRAW = 0x40000000,
+    PS_FLAG_ACTION_STATE_CHANGED = 0x80000000,
+};
+
 #endif
