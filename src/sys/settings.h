@@ -75,6 +75,7 @@ struct SettingsData {
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
     u8 trainerQuickJumpsEnabled;
+    u8 trainerHammerCancelsEnabled;
     u8 trainerDisplayPinned;
     u8 battleDebug;
     u8 quickLaunch;

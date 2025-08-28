@@ -638,12 +638,43 @@ static void updateQuickJumpTrainer(void) {
     }
 }
 
+static void updateHammerCancelTrainer(void) {
+    static bool canCancel;
+
+    if (settings->trainerHammerCancelsEnabled) {
+        if (pm_HammerHit.timer == 3) {
+            canCancel = TRUE;
+        }
+
+        if (pm_HammerHit.timer > 10) {
+            canCancel = FALSE;
+        }
+
+        if (inputPressed().b && canCancel) {
+            canCancel = FALSE;
+
+            if (pm_gPlayerStatus.flags & PS_FLAG_ENTERING_BATTLE) {
+                return;
+            }
+
+            if (pm_HammerHit.timer < 7) {
+                fpLog("hammered %d frame%s early", 7 - pm_HammerHit.timer, 7 - pm_HammerHit.timer == 1 ? "" : "s");
+            } else if (pm_HammerHit.timer > 7) {
+                fpLog("hammered %d frame%s late", pm_HammerHit.timer - 7, pm_HammerHit.timer - 7 == 1 ? "" : "s");
+            } else {
+                fpLog("hammered correct frame");
+            }
+        }
+    }
+}
+
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
     updateBlockTrainer();
     updateClippyTrainer();
     updateQuickJumpTrainer();
+    updateHammerCancelTrainer();
 }
 
 void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
@@ -695,6 +726,9 @@ void createTrainerMenu(struct Menu *menu) {
 
     menuAddStatic(menu, 0, y, "quick jumps", 0xC0C0C0);
     menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerQuickJumpsEnabled);
+
+    menuAddStatic(menu, 0, y, "hammer cancels", 0xC0C0C0);
+    menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerHammerCancelsEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
     struct MenuItem *lastOption =

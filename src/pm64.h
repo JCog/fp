@@ -1336,6 +1336,15 @@ typedef struct pm_Action {
     /* 0x0C */ s8 flag;
 } pm_Action; // size = 0x10
 
+typedef struct pm_HammerHitData {
+    /* 0x00 */ Vec3f hitPos;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ s32 hitID;
+    /* 0x14 */ s32 unk_14;
+    /* 0x18 */ s32 timer;
+    /* 0x1C */ s32 unk_1C;
+} pm_HammerHitData;
+
 typedef void *(*PrintCallback)(void *, const char *, u32);
 typedef pm_Evt *pm_ScriptList[128];
 
@@ -1376,6 +1385,7 @@ extern_data pm_HudElementSize pm_gHudElementSizes[26];
 extern_data s16 pm_MusicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
 extern_data s32 pm_battle_move_power_bounce_BaseHitChance;
+extern_data pm_HammerHitData pm_HammerHit;
 extern_data s32 pm_gNumScripts;
 extern_data pm_ScriptList *pm_gCurrentScriptListPtr;
 extern_data s32 pm_gScriptIndexList[128];
