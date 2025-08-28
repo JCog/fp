@@ -7,7 +7,7 @@
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
-#define SETTINGS_VERSION        7
+#define SETTINGS_VERSION        8
 #define SETTINGS_FIO_PAGE       7
 
 #define SETTINGS_WATCHES_MAX    18
@@ -74,6 +74,7 @@ struct SettingsData {
     u8 trainerLzsEnabled;
     u8 trainerAcEnabled;
     u8 trainerClippyEnabled;
+    u8 trainerQuickJumpsEnabled;
     u8 trainerDisplayPinned;
     u8 battleDebug;
     u8 quickLaunch;
