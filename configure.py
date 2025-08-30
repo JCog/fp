@@ -152,7 +152,7 @@ for ver in VERSIONS:
         variables={"libs": f"-lpm-{ver}", "map": f"{BUILDDIR}/fp-{ver}.map"},
     )
 
-    n.build(f"{HOOKSDIR}/{ver}/{HOOKS}", rule="genhooks", inputs=ELF)
+    n.build(f"{HOOKSDIR}/{ver}/{HOOKS}", rule="genhooks", inputs=ELF, implicit="genhooks")
 
     n.build(BIN, rule="objcopy", inputs=ELF, implicit=f"{HOOKSDIR}/{ver}/{HOOKS}")
 
