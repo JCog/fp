@@ -34,6 +34,7 @@ pm_gHudElementSizes                         = 0x8015406C;
 pm_MusicCurrentVolume                       = 0x8015EA66;
 pm_gActionCommandStatus                     = 0x8029FED0;
 pm_battle_move_power_bounce_BaseHitChance   = 0x802A2730;
+pm_HammerHit                                = 0x802B6E90;
 pm_gNumScripts                              = 0x802DA488;
 pm_gCurrentScriptListPtr                    = 0x802DA890;
 pm_gScriptIndexList                         = 0x802DA898;
