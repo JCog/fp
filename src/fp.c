@@ -299,26 +299,26 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 void fpUpdateCheats(void) {
     pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
     if (CHEAT_ACTIVE(CHEAT_HP)) {
-        pm_gPlayerStatus.playerData.curHP = pm_gPlayerStatus.playerData.curMaxHP;
+        pm_gPlayerData.curHP = pm_gPlayerData.curMaxHP;
     }
     if (CHEAT_ACTIVE(CHEAT_FP)) {
-        pm_gPlayerStatus.playerData.curFP = pm_gPlayerStatus.playerData.curMaxFP;
+        pm_gPlayerData.curFP = pm_gPlayerData.curMaxFP;
     }
     if (CHEAT_ACTIVE(CHEAT_ATTACK)) {
         pm_gBattleStatus.merleeAttackBoost = 127;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
-        pm_gPlayerStatus.playerData.coins = 999;
+        pm_gPlayerData.coins = 999;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_POWER)) {
-        pm_gPlayerStatus.playerData.starPowerFullBars = pm_gPlayerStatus.playerData.maxStarPower;
-        pm_gPlayerStatus.playerData.starPowerPartialBars = 0;
+        pm_gPlayerData.starPowerFullBars = pm_gPlayerData.maxStarPower;
+        pm_gPlayerData.starPowerPartialBars = 0;
     }
     if (CHEAT_ACTIVE(CHEAT_STAR_PIECES)) {
-        pm_gPlayerStatus.playerData.starPieces = 160;
+        pm_gPlayerData.starPieces = 160;
     }
     if (CHEAT_ACTIVE(CHEAT_PERIL)) {
-        pm_gPlayerStatus.playerData.curHP = 1;
+        pm_gPlayerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
         if (pm_gGameStatus.isBattle == 1) {

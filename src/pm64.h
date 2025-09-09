@@ -432,19 +432,28 @@ typedef struct pm_PlayerStatus {
     /* 0x168 */ s32 stickAxisXBuffer[10];
     /* 0x190 */ s32 stickAxisYBuffer[10];
     /* 0x1B8 */ s32 inputBufPos;
-    /* 0x1BC */ char unk_0x1BC[0xCC];
-    /* 0x288 */ u8 spinCooldownTimer; /*4 frames at the end of spin*/
-    /* 0x289 */ char unk_0x289[0x02];
-    /* 0x28B */ u8 spinTimer;
-    /* 0x28C */ char unk_0x28C[0x20];
-    /* 0x2AC */ f32 spinSpeed;
-    /* 0x2B0 */ char unk_0x2B0[0x04];
-    /* 0x2B4 */ char unk_0x2B4[0x01];
-    /* 0x2B5 */ u8 spinDuration;
-    /* 0x2B6 */ char unk_0x228[0x02];
-    /* 0x2B8 */ char unk_0x2B8[0x10];
-    /* 0x2C8 */ pm_PlayerData playerData;
-} pm_PlayerStatus; // size = 0x6F0
+    /* 0x1BC */ char unk_0x1BC[196];
+    /* 0x280 */ s8 poundImpactDelay; // governs period of immobility after landing a ground pound
+    /* 0x281 */ char unk_281[7];
+} pm_PlayerStatus; // size = 0x288
+
+typedef struct pm_PlayerSpinState {
+    /* 0x00 */ s8 stopSoundTimer;
+    /* 0x01 */ s8 hasBufferedSpin;
+    /* 0x02 */ s8 hitWallTime; // incremented while blocked by a wall
+    /* 0x03 */ s8 spinCountdown;
+    /* 0x04 */ s32 prevActionState;
+    /* 0x08 */ Vec2i bufferedStickAxis;
+    /* 0x10 */ f32 spinDirectionMagnitude;
+    /* 0x14 */ Vec2f spinDirection;
+    /* 0x1C */ f32 inputMagnitude;
+    /* 0x20 */ f32 spinRate;
+    /* 0x24 */ f32 speedScale;
+    /* 0x28 */ f32 frictionScale;
+    /* 0x2C */ s16 initialSpinTime;
+    /* 0x2E */ s16 fullSpeedSpinTime;
+    /* 0x30 */ s32 spinSoundID;
+} pm_PlayerSpinState; // size = 0x34
 
 typedef struct pm_SaveMetadata {
     /* 0x00 */ s32 timePlayed;
@@ -1381,6 +1390,8 @@ extern_data s32 pm_gPopupState;
 extern_data pm_PartnerStatus pm_gPartnerStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
+extern_data pm_PlayerSpinState pm_gPlayerSpinState;
+extern_data pm_PlayerData pm_gPlayerData;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
 extern_data s16 pm_MusicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
