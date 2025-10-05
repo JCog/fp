@@ -270,7 +270,7 @@ struct AreaInfo areaDryDryRuins = {
         {"super hammer", 0x1},
         {"super block", 0x3},
         {"stone pedestals", 0x4},
-        {"sand swtich 3", 0x4},
+        {"sand switch 3", 0x4},
         {"lunar stone", 0x1},
         {"diamond stone", 0x1},
         {"tutankoopa", 0x1},
