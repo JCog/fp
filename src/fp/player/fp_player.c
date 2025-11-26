@@ -282,8 +282,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 starPieceX = 10;
     s32 starPieceY = 4;
     menuAddStaticIcon(menu, starPieceX, starPieceY, texStarPiece, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, menuByteModProc,
-                           &pm_gPlayerData.starPieces);
+    item = menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, menuByteModProc, &pm_gPlayerData.starPieces);
     item->tooltip = strStarPieces;
 
     s32 levelX = 17;
@@ -295,15 +294,13 @@ static void createStatsMenu(struct Menu *menu) {
     s32 starPointX = 17;
     s32 starPointY = 4;
     menuAddStaticIcon(menu, starPointX, starPointY, texStarPoint, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, menuByteModProc,
-                           &pm_gPlayerData.starPoints);
+    item = menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, menuByteModProc, &pm_gPlayerData.starPoints);
     item->tooltip = strStarPoints;
 
     s32 actionCommandX = 23;
     s32 actionCommandY = 2;
-    item =
-        menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1, 0xFFFFFF,
-                      0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerData.hasActionCommands);
+    item = menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1,
+                         0xFFFFFF, 0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerData.hasActionCommands);
     item->tooltip = strActionCommands;
 }
 
@@ -352,15 +349,13 @@ static void createPartyMenu(struct Menu *menu) {
         partners[i]->tooltip = strPartnerNames[i];
 
         // super tex
-        superRanks[i] =
-            menuAddSwitch(menu, partnerX + 2, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF, scale, FALSE,
-                          superRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
+        superRanks[i] = menuAddSwitch(menu, partnerX + 2, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF,
+                                      scale, FALSE, superRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
         superRanks[i]->tooltip = strSuperRank;
 
         // ultra tex
-        ultraRanks[i] =
-            menuAddSwitch(menu, partnerX + 3, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF, scale, FALSE,
-                          ultraRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
+        ultraRanks[i] = menuAddSwitch(menu, partnerX + 3, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF,
+                                      scale, FALSE, ultraRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
         ultraRanks[i]->tooltip = strUltraRank;
     }
     menuItemAddChainLink(activeItem, partners[0], MENU_NAVIGATE_DOWN);

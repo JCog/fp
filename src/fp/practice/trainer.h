@@ -4,6 +4,7 @@
 
 enum PinnedTrainer {
     TRAINER_LZS,
+    TRAINER_SPIN,
     TRAINER_ISS,
     TRAINER_ACE,
 };

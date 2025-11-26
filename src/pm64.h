@@ -403,9 +403,9 @@ typedef struct pm_PlayerStatus {
     /* 0x0AC */ char unk_0xAC[4];
     /* 0x0B0 */ s16 colliderHeight;
     /* 0x0B2 */ s16 colliderDiameter;
-    /* 0x0B4 */ u8 actionState;
-    /* 0x0B5 */ u8 prevActionState;
-    /* 0x0B6 */ s8 fallState; /*also used as sleep state in Peach idle action*/
+    /* 0x0B4 */ s8 actionState;
+    /* 0x0B5 */ s8 prevActionState;
+    /* 0x0B6 */ s8 actionSubstate;
     /* 0x0B7 */ char unk_B7;
     /* 0x0B8 */ u32 anim;
     /* 0x0BC */ u16 unk_BC;
@@ -1443,7 +1443,7 @@ s32 pm_player_raycast_general(s32 mode, f32 startX, f32 startY, f32 startZ, f32 
                               f32 *hitY, f32 *hitZ, f32 *hitDepth, f32 *hitNx, f32 *hitNy, f32 *hitNz);
 void pm_disable_player_input(void);
 void pm_update_player_input(void);
-s32 pm_is_ability_active(s32 arg0);
+s32 pm_is_ability_active(enum Abilities ability);
 void pm_hide_popup_menu(void);
 void pm_destroy_popup_menu(void);
 void pm_state_render_frontUI(void);

@@ -1,6 +1,65 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum Abilities {
+    ABILITY_DODGE_MASTER = 0x00000000,
+    ABILITY_UNUSED = 0x00000001,
+    ABILITY_SPIKE_SHIELD = 0x00000002,
+    ABILITY_FIRST_ATTACK = 0x00000003,
+    ABILITY_HP_PLUS = 0x00000004,
+    ABILITY_DOUBLE_DIP = 0x00000005,
+    ABILITY_MYSTERY_SCROLL = 0x00000006,
+    ABILITY_FIRE_SHIELD = 0x00000007,
+    ABILITY_PRETTY_LUCKY = 0x00000008,
+    ABILITY_HP_DRAIN = 0x00000009,
+    ABILITY_ALL_OR_NOTHING = 0x0000000A,
+    ABILITY_SLOW_GO = 0x0000000B,
+    ABILITY_FP_PLUS = 0x0000000C,
+    ABILITY_ICE_POWER = 0x0000000D,
+    ABILITY_FEELING_FINE = 0x0000000E,
+    ABILITY_ATTACK_FX = 0x0000000F,
+    ABILITY_MONEY_MONEY = 0x00000010,
+    ABILITY_CHILL_OUT = 0x00000011,
+    ABILITY_HAPPY_HEART = 0x00000012,
+    ABILITY_ZAP_TAP = 0x00000013,
+    ABILITY_MEGA_RUSH = 0x00000014,
+    ABILITY_BERSERKER = 0x00000015,
+    ABILITY_RIGHT_ON = 0x00000016,
+    ABILITY_RUNAWAY_PAY = 0x00000017,
+    ABILITY_FLOWER_SAVER = 0x00000018,
+    ABILITY_PAY_OFF = 0x00000019,
+    ABILITY_QUICK_CHANGE = 0x0000001A,
+    ABILITY_DEFEND_PLUS = 0x0000001B,
+    ABILITY_POWER_PLUS = 0x0000001C,
+    ABILITY_REFUND = 0x0000001D,
+    ABILITY_POWER_RUSH = 0x0000001E,
+    ABILITY_CRAZY_HEART = 0x0000001F,
+    ABILITY_LAST_STAND = 0x00000020,
+    ABILITY_CLOSE_CALL = 0x00000021,
+    ABILITY_P_UP_D_DOWN = 0x00000022,
+    ABILITY_LUCKY_DAY = 0x00000023,
+    ABILITY_MEGA_HP_DRAIN = 0x00000024,
+    ABILITY_P_DOWN_D_UP = 0x00000025,
+    ABILITY_FLOWER_FANATIC = 0x00000026,
+    ABILITY_SPEEDY_SPIN = 0x00000027,
+    ABILITY_SPIN_ATTACK = 0x00000028,
+    ABILITY_I_SPY = 0x00000029,
+    ABILITY_BUMP_ATTACK = 0x0000002A,
+    ABILITY_HEART_FINDER = 0x0000002B,
+    ABILITY_FLOWER_FINDER = 0x0000002C,
+    ABILITY_DIZZY_ATTACK = 0x0000002D,
+    ABILITY_FINAL_GOOMPA = 0x0000002E,
+    ABILITY_FINAL_BOBOMB = 0x0000002F,
+    ABILITY_DEEP_FOCUS = 0x00000030,
+    ABILITY_SUPER_FOCUS = 0x00000031,
+    ABILITY_KAIDEN = 0x00000032,
+    ABILITY_DAMAGE_DODGE = 0x00000033,
+    ABILITY_HAPPY_FLOWER = 0x00000034,
+    ABILITY_GROUP_FOCUS = 0x00000035,
+    ABILITY_PEEKABOO = 0x00000036,
+    ABILITY_HEALTHY_HEALTHY = 0x00000037,
+};
+
 enum ActionStates {
     ACTION_STATE_IDLE,
     ACTION_STATE_WALK,
@@ -879,6 +938,53 @@ enum PlayerStatusFlags {
     /* Indicates that Mario needs his sprite redrawn */
     PS_FLAG_SPRITE_REDRAW = 0x40000000,
     PS_FLAG_ACTION_STATE_CHANGED = 0x80000000,
+};
+
+enum PlayerStatusAnimFlags {
+    /* Whether Mario is in the process of using Watt (but isn't necessarily holding them yet) */
+    PA_FLAG_USING_WATT = 0x00000001,
+    /* Whether Watt is actually in Mario's hands at the moment */
+    PA_FLAG_WATT_IN_HANDS = 0x00000002,
+    PA_FLAG_INTERRUPT_USE_PARTNER =
+        0x00000004, ///< forces actions with bow, parakarry, watt, and lakilester to end (sushie not tested)
+    PA_FLAG_FORCE_USE_PARTNER = 0x00000008,         ///< triggers partner use when set
+    PA_FLAG_INTERACT_PROMPT_AVAILABLE = 0x00000010, ///< ! prompt
+    PA_FLAG_SPEECH_PROMPT_AVAILABLE = 0x00000020,   ///< (...) prompt
+    PA_FLAG_PULSE_STONE_VISIBLE = 0x00000040,       ///< The pulse stone icon is being shown
+    PA_FLAG_USING_PULSE_STONE = 0x00000080,
+    PA_FLAG_ISPY_VISIBLE = 0x00000100, ///< The I Spy icon is being shown
+    PA_FLAG_RAISED_ARMS = 0x00000200,  ///< Sets action state to ACTION_STATE_RAISE_ARMS on idle
+    PA_FLAG_SHIVERING = 0x00000400,
+    PA_FLAG_OPENED_HIDDEN_PANEL = 0x00000800,
+    PA_FLAG_USING_PEACH_PHYSICS = 0x00001000,
+    PA_FLAG_INVISIBLE = 0x00002000,
+    PA_FLAG_8BIT_MARIO = 0x00004000,
+    PA_FLAG_NPC_COLLIDED = 0x00008000,
+    PA_FLAG_SPINNING = 0x00010000,
+    /* Began an encounter by spinning into an enemy with the Dizzy Attack badge on */
+    PA_FLAG_DIZZY_ATTACK_ENCOUNTER = 0x00020000,
+    PA_FLAG_INTERRUPT_SPIN = 0x00040000,
+    /* When Mario is in a transition to a new map, either through a loading zone or pipe */
+    PA_FLAG_CHANGING_MAP = 0x00100000,
+    /* Occurs after PA_FLAG_FORCE_USE_PARTNER. Some partners - namely Bow and Lakilester, unset this immediately.
+       Not sure why - seems like it might contribute to being unable to *stop* using your partner during a cutscene. */
+    PA_FLAG_PARTNER_USAGE_FORCED = 0x00200000,
+    PA_FLAG_RIDING_PARTNER = 0x00400000,
+    PA_FLAG_ABORT_PUSHING_BLOCK = 0x00800000,
+    /* Changes how Mario is rendered. Seems to be intended to make Mario's depth render properly when using Bow behind a
+     * switch (two translucent objects on top of eachother), but it doesn't actually work. */
+    PA_FLAG_MAP_HAS_SWITCH = 0x01000000,
+    /* Usually, if Mario falls for too long, he eventually gets reset to his last safe position. This prevents that.
+     * Used by some scripts. */
+    PA_FLAG_NO_OOB_RESPAWN = 0x10000000,
+    /* This allows dismounting from Lakilester, even if in a precarious situation (like over spikes, lava, or water). */
+    PA_FLAG_DISMOUNTING_ALLOWED = 0x20000000,
+    /* This flag is set when partner usage was interrupted by a script, and it prevents menu sounds (like the error
+     * sound) from playing for script-initiated player actions */
+    PA_FLAG_FORCED_PARTNER_ABILITY_END = 0x40000000,
+    /* This one's really weird. Seems to have something to do with the direction Mario is facing, but I'm not sure what
+     * it's actually supposed to be achieving. */
+    PA_FLAG_80000000 = 0x80000000,
 };
 
 #endif
