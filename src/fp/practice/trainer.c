@@ -294,6 +294,45 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
         gfxModeSet(GFX_MODE_COLOR, colorRed);
     }
     gfxPrintf(font, menuXOffset, y + chHeight * menuY++, "%d", spinDelayLast);
+
+    // draw bar
+    u32 colorBackground = GPACK_RGB24A8(0x000000, alpha);
+    u32 colorEmpty = GPACK_RGB24A8(0x000095, alpha);
+    u32 colorFull = GPACK_RGB24A8(0x00E486, alpha);
+    u8 barMult = 3;
+    s8 spinFrame = 25 - pm_gPlayerSpinState.spinCountdown;
+    u16 barWidth = 25;
+    u16 barGoal = 18;
+    if (pm_is_ability_active(ABILITY_SPEEDY_SPIN)) {
+        spinFrame = 30 - pm_gPlayerSpinState.spinCountdown;
+        barWidth = 30;
+        barGoal = 22;
+    }
+    barWidth *= barMult;
+    barGoal *= barMult;
+    u16 barX = SCREEN_WIDTH / 2 - barWidth / 2;
+    u16 barGoalX = barX + barGoal;
+    u16 barFullX = barX + spinFrame * barMult;
+    u16 barYTop = SCREEN_HEIGHT - 75;
+    u16 barYBottom = barYTop + 10;
+
+    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+    // background
+    gfxModeSet(GFX_MODE_COLOR, colorBackground);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 1), qs102(barYTop - 1), qs102(barX + barWidth + 1),
+                                     qs102(barYBottom + 1), 0, 0, 0, 0, 0));
+    // empty bar
+    gfxModeSet(GFX_MODE_COLOR, colorEmpty);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(barYTop), qs102(barX + barWidth), qs102(barYBottom), 0, 0, 0, 0,
+                                     0));
+    // full bar
+    gfxModeSet(GFX_MODE_COLOR, colorFull);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(barYTop), qs102(barFullX), qs102(barYBottom), 0, 0, 0, 0, 0));
+    // goal marker
+    gfxModeSet(GFX_MODE_COLOR, colorYellow);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barGoalX - 1), qs102(barYTop), qs102(barGoalX + 1), qs102(barYBottom), 0, 0,
+                                     0, 0, 0));
+    gfxModePop(GFX_MODE_COMBINE);
 }
 
 static s32 spinDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
