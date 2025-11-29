@@ -224,6 +224,13 @@ static void *rcPmiconClock(void) {
     return gfxTextureLoad(&td, NULL);
 }
 
+static void *rcPmiconZButton(void) {
+    struct GfxTexdesc td = {
+        G_IM_FMT_CI, G_IM_SIZ_4b, 0, 16, 16, 1, 1, ICONS_Z_BUTTON_ROM_START, VSIZE(16, 16, G_IM_SIZ_4b, 1, 1), 1,
+    };
+    return gfxTextureLoad(&td, NULL);
+}
+
 static void *rcIconCheck(void) {
     return resourceLoadGrcTexture("check_icons");
 }
@@ -277,11 +284,11 @@ static void rdFontGeneric(void *data) {
 
 /* resource management tables */
 static void *(*resCtor[RES_MAX])(void) = {
-    rcFontFipps,         rcFontNotalot35, rcFontOrigamimommy,  rcFontPcsenior,        rcFontPixelintv,
-    rcFontPressstart2p,  rcFontSmwtextnc, rcFontWerdnasreturn, rcFontPixelzim,        rcPmiconPartner,
-    rcPmiconStarSpirits, rcPmiconBp,      rcPmiconClock,       rcIconCheck,           rcIconButtons,
-    rcIconPause,         rcIconMacro,     rcIconMovie,         rcIconArrow,           rcIconFile,
-    rcIconSave,          rcIconOsk,       rcTextureCrosshair,  rcTextureControlStick,
+    rcFontFipps,         rcFontNotalot35, rcFontOrigamimommy,  rcFontPcsenior,     rcFontPixelintv,
+    rcFontPressstart2p,  rcFontSmwtextnc, rcFontWerdnasreturn, rcFontPixelzim,     rcPmiconPartner,
+    rcPmiconStarSpirits, rcPmiconBp,      rcPmiconClock,       rcPmiconZButton,    rcIconCheck,
+    rcIconButtons,       rcIconPause,     rcIconMacro,         rcIconMovie,        rcIconArrow,
+    rcIconFile,          rcIconSave,      rcIconOsk,           rcTextureCrosshair, rcTextureControlStick,
 };
 
 static void (*resDtor[RES_MAX])() = {
