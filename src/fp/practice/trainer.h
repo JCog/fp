@@ -9,6 +9,7 @@ enum PinnedTrainer {
     TRAINER_ACE,
 };
 
+void trainerDrawSpinBar(s32 x, s32 y, struct GfxFont *font, u32 color, u8 alpha);
 void trainerUpdate(void);
 void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha);
 void createTrainerMenu(struct Menu *menu);

@@ -60,6 +60,8 @@ void settingsLoadDefault(void) {
     d->timerY = 68;
     d->trainerX = 16;
     d->trainerY = 68;
+    d->trainerSpinX = SCREEN_WIDTH / 2;
+    d->trainerSpinY = SCREEN_HEIGHT - 65;
     d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);

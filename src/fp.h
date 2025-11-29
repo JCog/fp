@@ -42,6 +42,7 @@ typedef struct {
     s32 cpuCounterFreq;
     bool timerMoving;
     bool trainerMoving;
+    bool spinTrainerMoving;
     bool menuActive;
     struct LogEntry log[SETTINGS_LOG_MAX];
     Vec3f savedPos;

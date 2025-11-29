@@ -181,58 +181,16 @@ static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
     return 1;
 }
 
+static s32 spinVisualPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.spinTrainerMoving = TRUE;
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.spinTrainerMoving = FALSE;
+    }
+    return menuGenericPositionProc(item, reason, &settings->trainerSpinX);
+}
+
 static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
-    enum ActionStates actionState = pm_gPlayerStatus.actionState;
-    pm_PlayerSpinState *spinState = &pm_gPlayerSpinState;
-    bool isSpeedy = pm_is_ability_active(ABILITY_SPEEDY_SPIN);
-
-    // end timing and jump length
-    if (spinPrevActionState == ACTION_STATE_SPIN) {
-        if (actionState == ACTION_STATE_JUMP || actionState == ACTION_STATE_HAMMER) {
-            spinCanceled = FALSE;
-            s8 perfectEndTiming = 7;
-            if (isSpeedy) {
-                perfectEndTiming = 8;
-            }
-            spinEndTiming = spinState->spinCountdown - perfectEndTiming;
-
-            if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
-                spinIsJumping = TRUE;
-                spinJumpStart = pm_gGameStatus.frameCounter;
-            }
-        } else if (actionState != ACTION_STATE_SPIN) {
-            spinCanceled = TRUE;
-        }
-    } else if (spinIsJumping && (!pm_gGameStatus.currentButtons[0].a || actionState != ACTION_STATE_JUMP)) {
-        spinIsJumping = FALSE;
-        spinJumpLast = pm_gGameStatus.frameCounter - spinJumpStart;
-    }
-
-    // delay between spins
-    bool canSpin = !(pm_gPlayerStatus.flags & (PS_FLAG_NO_STATIC_COLLISION | PS_FLAG_CUTSCENE_MOVEMENT |
-                                               PS_FLAG_INPUT_DISABLED | PS_FLAG_PAUSED) ||
-                     pm_gPlayerStatus.animFlags & (PA_FLAG_USING_WATT | PA_FLAG_SPINNING)) &&
-                   actionState < ACTION_STATE_JUMP;
-    if (canSpin && !spinPrevCanSpin) {
-        spinDelayStart = pm_gGameStatus.frameCounter;
-        if (!(actionState == ACTION_STATE_RUN && pm_gPlayerStatus.prevActionState == ACTION_STATE_WALK &&
-              spinPrevActionState == ACTION_STATE_IDLE)) {
-            // note that there are a lot of rare edge cases here that just aren't worth handling
-            spinDelayStart += 1;
-        }
-    }
-    if (actionState == ACTION_STATE_SPIN && spinState->initialSpinTime - spinState->spinCountdown == 1) {
-        // start of new spin
-        if (!spinPrevCanSpin) {
-            spinDelayLast = 0;
-        } else {
-            spinDelayLast = pm_gGameStatus.frameCounter - spinDelayStart;
-        }
-    }
-    spinPrevActionState = actionState;
-    spinPrevCanSpin = canSpin;
-
-    // begin drawing
     u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
     u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
     u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
@@ -246,7 +204,7 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
     s8 spinFrame = 25 - pm_gPlayerSpinState.spinCountdown;
     u16 barWidth = 25;
     u16 barGoal = 18;
-    if (isSpeedy) {
+    if (pm_is_ability_active(ABILITY_SPEEDY_SPIN)) {
         spinFrame = 30 - pm_gPlayerSpinState.spinCountdown;
         barWidth = 30;
         barGoal = 22;
@@ -264,29 +222,6 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
     s32 jumpTextX = jumpIconX + 17;
     s32 delayIconX = x + 2;
     s32 delayTextX = delayIconX + 17;
-
-    // draw background
-    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
-    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 4), qs102(y - 4), qs102(barX + barWidth + 4), qs102(y + 30), 0, 0, 0,
-                                     0, 0));
-
-    // draw bar
-    // background
-    gfxModeSet(GFX_MODE_COLOR, colorBackground);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 1), qs102(y - 1), qs102(barX + barWidth + 1), qs102(barYBottom + 1),
-                                     0, 0, 0, 0, 0));
-    // empty bar
-    gfxModeSet(GFX_MODE_COLOR, colorEmpty);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barX + barWidth), qs102(barYBottom), 0, 0, 0, 0, 0));
-    // full bar
-    gfxModeSet(GFX_MODE_COLOR, colorFull);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barFullX), qs102(barYBottom), 0, 0, 0, 0, 0));
-    // goal marker
-    gfxModeSet(GFX_MODE_COLOR, colorYellow);
-    gfxDisp(
-        gsSPScisTextureRectangle(qs102(barGoalX - 1), qs102(y), qs102(barGoalX + 1), qs102(barYBottom), 0, 0, 0, 0, 0));
-    gfxModePop(GFX_MODE_COMBINE);
 
     gfxModeSet(GFX_MODE_COLOR, colorWhite);
     gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
@@ -640,6 +575,58 @@ static void updateLzsTrainer(void) {
     }
 }
 
+static void updateSpinTrainer(void) {
+    enum ActionStates actionState = pm_gPlayerStatus.actionState;
+    pm_PlayerSpinState *spinState = &pm_gPlayerSpinState;
+    bool isSpeedy = pm_is_ability_active(ABILITY_SPEEDY_SPIN);
+
+    // end timing and jump length
+    if (spinPrevActionState == ACTION_STATE_SPIN) {
+        if (actionState == ACTION_STATE_JUMP || actionState == ACTION_STATE_HAMMER) {
+            spinCanceled = FALSE;
+            s8 perfectEndTiming = 7;
+            if (isSpeedy) {
+                perfectEndTiming = 8;
+            }
+            spinEndTiming = spinState->spinCountdown - perfectEndTiming;
+
+            if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
+                spinIsJumping = TRUE;
+                spinJumpStart = pm_gGameStatus.frameCounter;
+            }
+        } else if (actionState != ACTION_STATE_SPIN) {
+            spinCanceled = TRUE;
+        }
+    } else if (spinIsJumping && (!pm_gGameStatus.currentButtons[0].a || actionState != ACTION_STATE_JUMP)) {
+        spinIsJumping = FALSE;
+        spinJumpLast = pm_gGameStatus.frameCounter - spinJumpStart;
+    }
+
+    // delay between spins
+    bool canSpin = !(pm_gPlayerStatus.flags & (PS_FLAG_NO_STATIC_COLLISION | PS_FLAG_CUTSCENE_MOVEMENT |
+                                               PS_FLAG_INPUT_DISABLED | PS_FLAG_PAUSED) ||
+                     pm_gPlayerStatus.animFlags & (PA_FLAG_USING_WATT | PA_FLAG_SPINNING)) &&
+                   actionState < ACTION_STATE_JUMP;
+    if (canSpin && !spinPrevCanSpin) {
+        spinDelayStart = pm_gGameStatus.frameCounter;
+        if (!(actionState == ACTION_STATE_RUN && pm_gPlayerStatus.prevActionState == ACTION_STATE_WALK &&
+              spinPrevActionState == ACTION_STATE_IDLE)) {
+            // note that there are a lot of rare edge cases here that just aren't worth handling
+            spinDelayStart += 1;
+        }
+    }
+    if (actionState == ACTION_STATE_SPIN && spinState->initialSpinTime - spinState->spinCountdown == 1) {
+        // start of new spin
+        if (!spinPrevCanSpin) {
+            spinDelayLast = 0;
+        } else {
+            spinDelayLast = pm_gGameStatus.frameCounter - spinDelayStart;
+        }
+    }
+    spinPrevActionState = actionState;
+    spinPrevCanSpin = canSpin;
+}
+
 static void blockCheckSuccessOrEarly(void) {
     const u32 mashWindow = 10;
     u32 blockWindow = 3;
@@ -857,9 +844,105 @@ static void updateHammerCancelTrainer(void) {
     }
 }
 
+void trainerDrawSpinBar(s32 x, s32 y, struct GfxFont *font, u32 color, u8 alpha) {
+    PRINTF("%d, %d, %d, %d\n", x, y, settings->trainerSpinX, settings->trainerSpinY);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
+    u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
+    u32 colorYellow = GPACK_RGB24A8(0xFFFF00, 0xFF);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
+    u32 colorBackground = GPACK_RGB24A8(0x000000, alpha);
+    u32 colorEmpty = GPACK_RGB24A8(0x000095, alpha);
+    u32 colorFull = GPACK_RGB24A8(0x00E486, alpha);
+
+    u8 barMult = 3;
+    s8 spinFrame = 25 - pm_gPlayerSpinState.spinCountdown;
+    u16 barWidth = 25;
+    u16 barGoal = 18;
+    if (pm_is_ability_active(ABILITY_SPEEDY_SPIN)) {
+        spinFrame = 30 - pm_gPlayerSpinState.spinCountdown;
+        barWidth = 30;
+        barGoal = 22;
+    }
+    barWidth *= barMult;
+    barGoal *= barMult;
+    u16 barX = x - barWidth / 2;
+    u16 barGoalX = barX + barGoal;
+    u16 barFullX = barX + spinFrame * barMult;
+    u16 barYBottom = y + 10;
+
+    s32 iconY = y + 12;
+    s32 textY = iconY + 11;
+    s32 jumpIconX = x - 30;
+    s32 jumpTextX = jumpIconX + 17;
+    s32 delayIconX = x + 2;
+    s32 delayTextX = delayIconX + 17;
+
+    // draw background
+    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
+    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 4), qs102(y - 4), qs102(barX + barWidth + 4), qs102(y + 30), 0, 0, 0,
+                                     0, 0));
+
+    // draw bar
+    // background
+    gfxModeSet(GFX_MODE_COLOR, colorBackground);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 1), qs102(y - 1), qs102(barX + barWidth + 1), qs102(barYBottom + 1),
+                                     0, 0, 0, 0, 0));
+    // empty bar
+    gfxModeSet(GFX_MODE_COLOR, colorEmpty);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barX + barWidth), qs102(barYBottom), 0, 0, 0, 0, 0));
+    // full bar
+    gfxModeSet(GFX_MODE_COLOR, colorFull);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barFullX), qs102(barYBottom), 0, 0, 0, 0, 0));
+    // goal marker
+    gfxModeSet(GFX_MODE_COLOR, colorYellow);
+    gfxDisp(
+        gsSPScisTextureRectangle(qs102(barGoalX - 1), qs102(y), qs102(barGoalX + 1), qs102(barYBottom), 0, 0, 0, 0, 0));
+    gfxModePop(GFX_MODE_COMBINE);
+
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
+    gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+    struct GfxSprite jumpSprite = {spinJumpTex, 0, 0, jumpIconX, iconY, 0.5f, 0.5f};
+    struct GfxSprite delaySprite = {spinDelayTex, 0, 0, delayIconX, iconY, 1.f, 1.f};
+    gfxSpriteDraw(&jumpSprite);
+    gfxSpriteDraw(&delaySprite);
+    gfxModePop(GFX_MODE_DROPSHADOW);
+
+    // jump frames
+    if (spinCanceled) {
+        gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
+        gfxPrintf(font, jumpTextX, textY, "-");
+    } else {
+        if (spinJumpLast == 1) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        } else if (spinJumpLast == 2) {
+            gfxModeSet(GFX_MODE_COLOR, colorYellow);
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+        }
+        gfxPrintf(font, jumpTextX, textY, "%d", spinJumpLast);
+    }
+
+    // start delay
+    if (spinDelayLast == 0) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+    } else if (spinDelayLast == 1) {
+        gfxModeSet(GFX_MODE_COLOR, colorYellow);
+    } else {
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
+    }
+    if (spinDelayLast < 100) {
+        gfxPrintf(font, delayTextX, textY, "%d", spinDelayLast);
+    } else {
+        gfxPrintf(font, delayTextX, textY, "99");
+    }
+}
+
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
+    updateSpinTrainer();
     updateBlockTrainer();
     updateClippyTrainer();
     updateQuickJumpTrainer();
@@ -869,7 +952,7 @@ void trainerUpdate(void) {
 void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
     switch (settings->pinnedTrainer) {
         case TRAINER_LZS: lzsDraw(x, y, font, chWidth, chHeight, color, alpha); break;
-        case TRAINER_SPIN: spinDraw(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 65, font, chWidth, chHeight, color, alpha); break;
+        case TRAINER_SPIN: spinDraw(x, y, font, chWidth, chHeight, color, alpha); break;
         case TRAINER_ISS: issDraw(x, y, font, chWidth, chHeight, color, alpha); break;
         case TRAINER_ACE: aceDraw(x, y, font, chWidth, chHeight, color, alpha); break;
     }
@@ -951,13 +1034,18 @@ void createTrainerMenu(struct Menu *menu) {
 
     /*build spin menu*/
     y = 0;
-    spinMenu.selector = menuAddSubmenu(&spinMenu, 0, y++, NULL, "return");
-    menuAddStatic(&spinMenu, 0, y, "pin", 0xC0C0C0);
-    menuAddCheckbox(&spinMenu, 4, y++, pinnedTrainerProc, (void *)TRAINER_SPIN);
-    y++;
-    menuAddStaticCustom(&spinMenu, 0, y++, spinDrawProc, NULL, 0xC0C0C0);
+    xOffset = 7;
     spinJumpTex = resourceLoadPmiconGlobal(ICON_MENU_BOOTS_1, 1);
     spinDelayTex = resourceGet(RES_PMICON_CLOCK);
+    spinMenu.selector = menuAddSubmenu(&spinMenu, 0, y++, NULL, "return");
+    menuAddStatic(&spinMenu, 0, y, "pin", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y++, pinnedTrainerProc, (void *)TRAINER_SPIN);
+    menuAddStatic(&spinMenu, 0, y, "visual", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y, menuByteCheckboxProc, &settings->trainerSpinBarEnabled);
+    menuAddPositioning(&spinMenu, xOffset + 2, y++, spinVisualPositionProc, NULL);
+    
+    y++;
+    menuAddStaticCustom(&spinMenu, 0, y++, spinDrawProc, NULL, 0xC0C0C0);
 
     /*build iss menu*/
     y = 0;

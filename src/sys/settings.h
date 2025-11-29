@@ -7,7 +7,7 @@
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
-#define SETTINGS_VERSION        8
+#define SETTINGS_VERSION        9
 #define SETTINGS_FIO_PAGE       7
 
 #define SETTINGS_WATCHES_MAX    18
@@ -55,6 +55,8 @@ struct SettingsData {
     s16 timerY;
     s16 trainerX;
     s16 trainerY;
+    s16 trainerSpinX;
+    s16 trainerSpinY;
     s16 watchX[SETTINGS_WATCHES_MAX];
     s16 watchY[SETTINGS_WATCHES_MAX];
     u16 binds[SETTINGS_BIND_MAX];
@@ -76,6 +78,7 @@ struct SettingsData {
     u8 trainerClippyEnabled;
     u8 trainerQuickJumpsEnabled;
     u8 trainerHammerCancelsEnabled;
+    u8 trainerSpinBarEnabled;
     u8 trainerDisplayPinned;
     u8 battleDebug;
     u8 quickLaunch;
