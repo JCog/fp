@@ -559,7 +559,7 @@ void fpDraw(void) {
         trainerDrawPinned(settings->trainerX, settings->trainerY, font, cellWidth, cellHeight, 0xC0C0C0, menuAlpha);
     }
 
-    if (fp.spinTrainerMoving || (settings->trainerSpinBarEnabled && !fp.menuActive)) {
+    if (fp.spinTrainerMoving || (settings->trainerSpinBarEnabled && !fp.menuActive && pm_gGameStatus.isBattle == 0)) {
         trainerDrawSpinBar(settings->trainerSpinX, settings->trainerSpinY, font, 0xC0C0C0, menuAlpha);
     }
 
