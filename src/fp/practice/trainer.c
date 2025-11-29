@@ -604,6 +604,7 @@ static void updateSpinTrainer(void) {
             }
         } else if (actionState != ACTION_STATE_SPIN) {
             spinCanceled = TRUE;
+            spinBufferLast = spinBufferAttempt;
         }
     } else if (spinIsJumping && (!pm_gGameStatus.currentButtons[0].a || actionState != ACTION_STATE_JUMP)) {
         spinIsJumping = FALSE;
