@@ -79,6 +79,10 @@ struct SettingsData {
     u8 trainerQuickJumpsEnabled;
     u8 trainerHammerCancelsEnabled;
     u8 trainerSpinBarEnabled;
+    u8 trainerSpinJumpTiming;
+    u8 trainerSpinJumpLength;
+    u8 trainerSpinStartDelay;
+    u8 trainerSpinZBuffer;
     u8 trainerDisplayPinned;
     u8 battleDebug;
     u8 quickLaunch;

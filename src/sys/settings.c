@@ -49,6 +49,11 @@ void settingsLoadDefault(void) {
     d->trainerBowserEnabled = 0;
     d->trainerClippyEnabled = 0;
     d->trainerLzsEnabled = 0;
+    d->trainerSpinBarEnabled = 0;
+    d->trainerSpinJumpTiming = 1;
+    d->trainerSpinJumpLength = 1;
+    d->trainerSpinStartDelay = 1;
+    d->trainerSpinZBuffer = 1;
     d->trainerDisplayPinned = 0;
     d->menuX = 16;
     d->menuY = 60;
