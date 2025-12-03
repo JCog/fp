@@ -421,7 +421,6 @@ static void aceDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeigh
     u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
     u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
 
-    
     if (!fp.menuActive) {
         gfxTextBackgroundDraw(x, y, 17, 3, chWidth, chHeight, colorBlackT);
     }

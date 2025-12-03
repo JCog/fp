@@ -74,6 +74,7 @@ void fpInit(void) {
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, &watches, "watches");
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createDebugMenu(), "debug");
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createSettingsMenu(), "settings");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createAboutMenu(), "about");
 
     // populate watches menu
     watches.selector = menuAddSubmenu(&watches, 0, 0, NULL, "return");

@@ -91,9 +91,10 @@ struct Menu *createCheatsMenu(void);
 struct Menu *createPlayerMenu(void);
 struct Menu *createFileMenu(void);
 struct Menu *createPracticeMenu(void);
+struct Menu *createCameraMenu(void);
 struct Menu *createDebugMenu(void);
 struct Menu *createSettingsMenu(void);
-struct Menu *createCameraMenu(void);
+struct Menu *createAboutMenu(void);
 
 #define CHEAT_ACTIVE(cheat) (settings->cheats & (1 << cheat))
 
