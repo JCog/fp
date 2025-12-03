@@ -241,8 +241,8 @@ struct Menu *createFileMenu(void) {
     y++;
 
     menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
-    struct MenuItem *quizmoInput =
-        menuAddIntinput(&menu, menuX, y++, 10, 2, menuByteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
+    struct MenuItem *quizmoInput = menuAddIntinput(&menu, menuX, y++, 10, 2, menuByteModProc,
+                                                   &pm_gCurrentSaveFile.globalBytes[GB_CompletedQuizzes]);
     menuItemAddChainLink(quizmoInput, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,
