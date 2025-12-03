@@ -228,6 +228,10 @@ void commandImportSaveProc(void) {
 
 void commandSaveGameProc(void) {
     pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH] = pm_gGameStatus.peachFlags & 1;
+    pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER] =
+        pm_gPartnerStatus.partnerActionState &&
+        (pm_gPlayerData.currentPartner == PARTNER_WATT || pm_gPlayerData.currentPartner == PARTNER_SUSHIE ||
+         pm_gPlayerData.currentPartner == PARTNER_LAKILESTER);
     pm_entity_SaveBlock_save_data();
     pm_sfx_play_sound(0x10);
     fpLog("saved to slot %d", pm_gGameStatus.saveSlot);
@@ -246,7 +250,11 @@ void commandLoadGameProc(void) {
     if (pm_fio_validate_globals_checksums(file)) {
         pm_gCurrentSaveFile = *file;
         pm_fio_deserialize_state();
-        pm_gGameStatus.peachFlags = (pm_gGameStatus.peachFlags & ~1) | pm_gCurrentSaveFile.globalBytes[0x1B4];
+        pm_gGameStatus.peachFlags = (pm_gGameStatus.peachFlags & ~1) | pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH];
+        if (pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER]) {
+            pm_gPartnerStatus.partnerActionState = 1;
+            pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
+        }
         fpWarp(file->areaID, file->mapID, file->entryID);
         fpLog("loaded from slot %d", pm_gGameStatus.saveSlot);
     } else {

@@ -121,6 +121,10 @@ s32 fpImportFile(const char *path, void *data) {
                         pm_gCurrentSaveFile = *file;
                         pm_fio_deserialize_state();
                         pm_gGameStatus.peachFlags |= pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH];
+                        if (pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER]) {
+                            pm_gPartnerStatus.partnerActionState = 1;
+                            pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
+                        }
                         fpWarp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fpLog("save file corrupt");

@@ -13,7 +13,8 @@
 
 #define ICON_PALETTE_SIZE 32
 
-#define GB_MARIO_PEACH 0x1B4 // GB_Unused_1B4
+#define GB_MARIO_PEACH    0x1B4 // GB_Unused_1B4
+#define GB_USING_PARTNER  0x1B5 // GB_Unused_1B5
 
 #if PM64_VERSION == US
 #define SCRIPTS_GLOBAL_START         0x801049B0
