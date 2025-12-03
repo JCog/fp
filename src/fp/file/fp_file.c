@@ -120,6 +120,7 @@ s32 fpImportFile(const char *path, void *data) {
                     if (pm_fio_validate_globals_checksums(file)) {
                         pm_gCurrentSaveFile = *file;
                         pm_fio_deserialize_state();
+                        pm_gGameStatus.peachFlags |= pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH];
                         fpWarp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fpLog("save file corrupt");
