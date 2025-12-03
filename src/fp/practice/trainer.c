@@ -181,10 +181,15 @@ static s32 trainerPositionProc(struct MenuItem *item, enum MenuCallbackReason re
 }
 
 static void lzsDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    if (!fp.menuActive) {
+        u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
+        gfxTextBackgroundDraw(x, y, 12, 2, chWidth, chHeight, colorBlackT);
+    }
+
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     s32 menuY = 0;
-    gfxPrintf(font, x, y + chHeight * menuY++, "current lzs jumps: %d", lzsCurrentJumps);
-    gfxPrintf(font, x, y + chHeight * menuY++, "record lzs jumps:  %d", lzsRecordJumps);
+    gfxPrintf(font, x, y + chHeight * menuY++, "current: %d", lzsCurrentJumps);
+    gfxPrintf(font, x, y + chHeight * menuY++, "record:  %d", lzsRecordJumps);
 }
 
 static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams) {
@@ -217,6 +222,7 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
     // black background
     s32 bgY = y - 11;
     s32 bgHeight = 0;
+    s32 bgWidth = 88;
     u8 count = 0;
     if (settings->trainerSpinJumpTiming) {
         count++;
@@ -240,10 +246,7 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
     if (bgHeight > 0) {
         bgHeight += 3;
     }
-    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
-    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
-    gfxDisp(gsSPScisTextureRectangle(qs102(x - 2), qs102(bgY), qs102(x + 86), qs102(bgY + bgHeight), 0, 0, 0, 0, 0));
-    gfxModePop(GFX_MODE_COMBINE);
+    gfxRectangleDraw(x - 2, bgY, bgWidth, bgHeight, colorBlackT);
 
     s32 textX = x + 17;
     s32 textY = y;
@@ -345,8 +348,6 @@ static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeig
 }
 
 static void issDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
-
     s32 xPos = ceil(pm_gPlayerStatus.position.x);
     s32 zPos = ceil(pm_gPlayerStatus.position.z);
     bool goodPos = FALSE;
@@ -371,8 +372,12 @@ static void issDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeigh
     u32 colorYellow = GPACK_RGB24A8(0xFFFF00, 0xFF);
     u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
     u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
-    s32 menuY = 0;
+    u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
 
+    gfxTextBackgroundDraw(x, y, 19, 4, chWidth, chHeight, colorBlackT);
+
+    s32 menuY = 0;
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     gfxPrintf(font, x, y + chHeight * menuY++, "x:     %.4f", pm_gPlayerStatus.position.x);
     gfxPrintf(font, x, y + chHeight * menuY++, "z:     %.4f", pm_gPlayerStatus.position.z);
     gfxPrintf(font, x, y + chHeight * menuY, "angle:");
@@ -403,7 +408,6 @@ static s32 issDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
 }
 
 static void aceDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
-    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     s32 effectCount = 0;
     s32 i;
     for (i = 0; i < 96; i++) {
@@ -415,7 +419,14 @@ static void aceDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeigh
     u32 colorGreen = GPACK_RGB24A8(0x00FF00, 0xFF);
     u32 colorRed = GPACK_RGB24A8(0xFF0000, 0xFF);
     u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, 0xFF);
+    u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
 
+    
+    if (!fp.menuActive) {
+        gfxTextBackgroundDraw(x, y, 17, 3, chWidth, chHeight, colorBlackT);
+    }
+
+    gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 0, "effects:");
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 1, "flags:");
     gfxPrintf(font, x + chWidth * 0, y + chHeight * 2, "frame window:");
@@ -930,10 +941,12 @@ void trainerDrawSpinBar(s32 x, s32 y, struct GfxFont *font, u32 color, u8 alpha)
     }
     barWidth *= barMult;
     barGoal *= barMult;
+    u16 bgHeight = 34;
+    u16 markerWidth = 2;
     u16 barX = x - barWidth / 2;
     u16 barGoalX = barX + barGoal;
-    u16 barFullX = barX + spinFrame * barMult;
-    u16 barYBottom = y + 10;
+    u16 barFullWidth = spinFrame * barMult;
+    u16 barHeight = 10;
 
     s32 iconY = y + 12;
     s32 textY = iconY + 11;
@@ -942,28 +955,11 @@ void trainerDrawSpinBar(s32 x, s32 y, struct GfxFont *font, u32 color, u8 alpha)
     s32 delayIconX = x + 2;
     s32 delayTextX = delayIconX + 17;
 
-    // draw background
-    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
-    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 4), qs102(y - 4), qs102(barX + barWidth + 4), qs102(y + 30), 0, 0, 0,
-                                     0, 0));
-
-    // draw bar
-    // background
-    gfxModeSet(GFX_MODE_COLOR, colorBackground);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 1), qs102(y - 1), qs102(barX + barWidth + 1), qs102(barYBottom + 1),
-                                     0, 0, 0, 0, 0));
-    // empty bar
-    gfxModeSet(GFX_MODE_COLOR, colorEmpty);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barX + barWidth), qs102(barYBottom), 0, 0, 0, 0, 0));
-    // full bar
-    gfxModeSet(GFX_MODE_COLOR, colorFull);
-    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barFullX), qs102(barYBottom), 0, 0, 0, 0, 0));
-    // goal marker
-    gfxModeSet(GFX_MODE_COLOR, colorYellow);
-    gfxDisp(
-        gsSPScisTextureRectangle(qs102(barGoalX - 1), qs102(y), qs102(barGoalX + 1), qs102(barYBottom), 0, 0, 0, 0, 0));
-    gfxModePop(GFX_MODE_COMBINE);
+    gfxRectangleDraw(barX - 4, y - 4, barWidth + 8, bgHeight, colorBlackT);          // background
+    gfxRectangleDraw(barX - 1, y - 1, barWidth + 2, barHeight + 2, colorBackground); // bar
+    gfxRectangleDraw(barX, y, barWidth, barHeight, colorEmpty);                      // empty bar
+    gfxRectangleDraw(barX, y, barFullWidth, barHeight, colorFull);                   // full bar
+    gfxRectangleDraw(barGoalX - 1, y, markerWidth, barHeight, colorYellow);          // goal marker
 
     gfxModeSet(GFX_MODE_COLOR, colorWhite);
     gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
