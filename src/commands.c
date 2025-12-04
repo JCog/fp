@@ -251,7 +251,7 @@ void commandLoadGameProc(void) {
         pm_gCurrentSaveFile = *file;
         pm_fio_deserialize_state();
         pm_gGameStatus.peachFlags = (pm_gGameStatus.peachFlags & ~1) | pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH];
-        if (pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER]) {
+        if (pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER] && !(pm_gGameStatus.peachFlags & 1)) {
             pm_gPartnerStatus.partnerActionState = 1;
             pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
         }
