@@ -16,4 +16,7 @@
 
 #define SQ(x)             ((x) * (x))
 
+#define STRINGIFY(S)      STRINGIFY_H(S)
+#define STRINGIFY_H(S)    #S
+
 #endif // MACROS_H

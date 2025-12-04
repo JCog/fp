@@ -173,8 +173,6 @@ void fpEmergencySettingsReset(u16 padPressed) {
     }
 }
 
-#define STRINGIFY(S)  STRINGIFY_(S)
-#define STRINGIFY_(S) #S
 void fpDrawVersion(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
     static struct GfxTexture *fpIconTex;
     if (pm_gGameStatus.introState == 5) {
