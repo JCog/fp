@@ -303,7 +303,7 @@ void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_FP)) {
         pm_gPlayerData.curFP = pm_gPlayerData.curMaxFP;
     }
-    if (CHEAT_ACTIVE(CHEAT_ATTACK)) {
+    if (CHEAT_ACTIVE(CHEAT_POWER)) {
         pm_gBattleStatus.merleeAttackBoost = 127;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {
