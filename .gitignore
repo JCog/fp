@@ -9,4 +9,5 @@ venv/
 *.bin
 .ninja_*
 build.ninja
+CMakeLists.txt
 romc

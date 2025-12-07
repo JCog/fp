@@ -49,6 +49,11 @@ void settingsLoadDefault(void) {
     d->trainerBowserEnabled = 0;
     d->trainerClippyEnabled = 0;
     d->trainerLzsEnabled = 0;
+    d->trainerSpinBarEnabled = 0;
+    d->trainerSpinJumpTiming = 1;
+    d->trainerSpinJumpLength = 1;
+    d->trainerSpinStartDelay = 1;
+    d->trainerSpinZBuffer = 1;
     d->trainerDisplayPinned = 0;
     d->menuX = 16;
     d->menuY = 60;
@@ -60,6 +65,8 @@ void settingsLoadDefault(void) {
     d->timerY = 68;
     d->trainerX = 16;
     d->trainerY = 68;
+    d->trainerSpinX = SCREEN_WIDTH / 2;
+    d->trainerSpinY = SCREEN_HEIGHT - 65;
     d->binds[COMMAND_MENU] = bindMake(2, BUTTON_R, BUTTON_D_UP);
     d->binds[COMMAND_RETURN] = bindMake(2, BUTTON_R, BUTTON_D_LEFT);
     d->binds[COMMAND_LEVITATE] = bindMake(1, BUTTON_D_UP);

@@ -28,11 +28,11 @@ static s16 getEmptyIcon(enum ItemType type) {
 
 static s16 *getItemSlot(enum ItemType type, s16 itemIndex) {
     switch (type) {
-        case ITEM_TYPE_NORMAL: return &pm_gPlayerStatus.playerData.invItems[itemIndex];
-        case ITEM_TYPE_KEY: return &pm_gPlayerStatus.playerData.keyItems[itemIndex];
-        case ITEM_TYPE_STORED: return &pm_gPlayerStatus.playerData.storedItems[itemIndex];
+        case ITEM_TYPE_NORMAL: return &pm_gPlayerData.invItems[itemIndex];
+        case ITEM_TYPE_KEY: return &pm_gPlayerData.keyItems[itemIndex];
+        case ITEM_TYPE_STORED: return &pm_gPlayerData.storedItems[itemIndex];
         case ITEM_TYPE_BADGE:
-        default: return &pm_gPlayerStatus.playerData.badges[itemIndex];
+        default: return &pm_gPlayerData.badges[itemIndex];
     }
 }
 

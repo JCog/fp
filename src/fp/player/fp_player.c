@@ -50,8 +50,8 @@ static struct GfxTexture **getItemTextureList(void) {
 }
 
 static s32 maxHpProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s8 *curMaxHP = &pm_gPlayerStatus.playerData.curMaxHP;
-    s8 *hardMaxHP = &pm_gPlayerStatus.playerData.hardMaxHP;
+    s8 *curMaxHP = &pm_gPlayerData.curMaxHP;
+    s8 *hardMaxHP = &pm_gPlayerData.hardMaxHP;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menuIntinputGet(item) != *curMaxHP) {
             menuIntinputSet(item, *curMaxHP);
@@ -69,8 +69,8 @@ static s32 maxHpProc(struct MenuItem *item, enum MenuCallbackReason reason, void
 }
 
 static s32 maxFpProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s8 *curMaxFP = &pm_gPlayerStatus.playerData.curMaxFP;
-    s8 *hardMaxFP = &pm_gPlayerStatus.playerData.hardMaxFP;
+    s8 *curMaxFP = &pm_gPlayerData.curMaxFP;
+    s8 *hardMaxFP = &pm_gPlayerData.hardMaxFP;
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
         if (menuIntinputGet(item) != *curMaxFP) {
             menuIntinputSet(item, *curMaxFP);
@@ -89,16 +89,16 @@ static s32 maxFpProc(struct MenuItem *item, enum MenuCallbackReason reason, void
 
 static s32 currentPartnerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     if (reason == MENU_CALLBACK_THINK_INACTIVE) {
-        menuOptionSet(item, partnerOrder[pm_gPlayerStatus.playerData.currentPartner]);
+        menuOptionSet(item, partnerOrder[pm_gPlayerData.currentPartner]);
     } else if (reason == MENU_CALLBACK_DEACTIVATE) {
-        pm_gPlayerStatus.playerData.currentPartner = partnerOrder[menuOptionGet(item)];
+        pm_gPlayerData.currentPartner = partnerOrder[menuOptionGet(item)];
     }
     return 0;
 }
 
 static s32 bootsProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u32 trackedLevel = (u32)data;
-    s8 *bootsUpgrade = &pm_gPlayerStatus.playerData.bootsLevel;
+    s8 *bootsUpgrade = &pm_gPlayerData.bootsLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *bootsUpgrade = trackedLevel;
     } else if (reason == MENU_CALLBACK_THINK) {
@@ -109,7 +109,7 @@ static s32 bootsProc(struct MenuItem *item, enum MenuCallbackReason reason, void
 
 static s32 hammerProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
     u32 trackedLevel = (u32)data;
-    s8 *hammerUpgrade = &pm_gPlayerStatus.playerData.hammerLevel;
+    s8 *hammerUpgrade = &pm_gPlayerData.hammerLevel;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *hammerUpgrade = trackedLevel;
     } else if (reason == MENU_CALLBACK_SWITCH_OFF) {
@@ -149,8 +149,8 @@ static s32 ultraRankProc(struct MenuItem *item, enum MenuCallbackReason reason, 
 }
 
 static s32 starSpiritSwitchProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
-    s8 *ssSaved = &pm_gPlayerStatus.playerData.maxStarPower;
-    s16 *starPower = &pm_gPlayerStatus.playerData.starPower;
+    s8 *ssSaved = &pm_gPlayerData.maxStarPower;
+    s16 *starPower = &pm_gPlayerData.starPower;
     s32 ssIndex = (u32)data;
     if (reason == MENU_CALLBACK_SWITCH_ON) {
         *ssSaved = ssIndex;
@@ -252,7 +252,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 hpX = 1;
     s32 hpY = 2;
     menuAddStaticIcon(menu, hpX, hpY, texHeart, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, hpX + 2, hpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.curHP);
+    item = menuAddIntinput(menu, hpX + 2, hpY, 10, 2, menuByteModProc, &pm_gPlayerData.curHP);
     item->tooltip = strHp;
     menuAddStatic(menu, hpX + 4, hpY, "/", 0xC0C0C0);
     item = menuAddIntinput(menu, hpX + 5, hpY, 10, 2, maxHpProc, NULL);
@@ -261,7 +261,7 @@ static void createStatsMenu(struct Menu *menu) {
     s32 fpX = 1;
     s32 fpY = 4;
     menuAddStaticIcon(menu, fpX, fpY, texFlower, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, fpX + 2, fpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.curFP);
+    item = menuAddIntinput(menu, fpX + 2, fpY, 10, 2, menuByteModProc, &pm_gPlayerData.curFP);
     item->tooltip = strFp;
     menuAddStatic(menu, fpX + 4, fpY, "/", 0xC0C0C0);
     item = menuAddIntinput(menu, fpX + 5, fpY, 10, 2, maxFpProc, NULL);
@@ -270,40 +270,37 @@ static void createStatsMenu(struct Menu *menu) {
     s32 bpX = 1;
     s32 bpY = 6;
     menuAddStaticIcon(menu, bpX, bpY, texBpIcon, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, bpX + 2, bpY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.maxBP);
+    item = menuAddIntinput(menu, bpX + 2, bpY, 10, 2, menuByteModProc, &pm_gPlayerData.maxBP);
     item->tooltip = strBp;
 
     s32 coinX = 10;
     s32 coinY = 2;
     menuAddStaticIcon(menu, coinX, coinY, texCoin, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, coinX + 2, coinY, 10, 3, menuHalfwordModProc, &pm_gPlayerStatus.playerData.coins);
+    item = menuAddIntinput(menu, coinX + 2, coinY, 10, 3, menuHalfwordModProc, &pm_gPlayerData.coins);
     item->tooltip = strCoins;
 
     s32 starPieceX = 10;
     s32 starPieceY = 4;
     menuAddStaticIcon(menu, starPieceX, starPieceY, texStarPiece, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, menuByteModProc,
-                           &pm_gPlayerStatus.playerData.starPieces);
+    item = menuAddIntinput(menu, starPieceX + 2, starPieceY, 10, 3, menuByteModProc, &pm_gPlayerData.starPieces);
     item->tooltip = strStarPieces;
 
     s32 levelX = 17;
     s32 levelY = 2;
     menuAddStaticIcon(menu, levelX, levelY, texMarioHead, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, levelX + 2, levelY, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.level);
+    item = menuAddIntinput(menu, levelX + 2, levelY, 10, 2, menuByteModProc, &pm_gPlayerData.level);
     item->tooltip = strLevel;
 
     s32 starPointX = 17;
     s32 starPointY = 4;
     menuAddStaticIcon(menu, starPointX, starPointY, texStarPoint, 0, 0xFFFFFF, 1.0f);
-    item = menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, menuByteModProc,
-                           &pm_gPlayerStatus.playerData.starPoints);
+    item = menuAddIntinput(menu, starPointX + 2, starPointY, 10, 2, menuByteModProc, &pm_gPlayerData.starPoints);
     item->tooltip = strStarPoints;
 
     s32 actionCommandX = 23;
     s32 actionCommandY = 2;
-    item =
-        menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1, 0xFFFFFF,
-                      0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerStatus.playerData.hasActionCommands);
+    item = menuAddSwitch(menu, actionCommandX, actionCommandY, texLuckyStar, 0, 0, 0xFFFFFF, texLuckyStar, 0, 1,
+                         0xFFFFFF, 0.7f, FALSE, menuByteSwitchToggleProc, &pm_gPlayerData.hasActionCommands);
     item->tooltip = strActionCommands;
 }
 
@@ -348,19 +345,17 @@ static void createPartyMenu(struct Menu *menu) {
 
         partners[i] = menuAddSwitch(menu, partnerX, partnerY, texPartner, i + 1, 0, 0xFFFFFF, texPartner, i + 1, 1,
                                     0xFFFFFF, scale, FALSE, menuByteSwitchToggleProc,
-                                    &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]].enabled);
+                                    &pm_gPlayerData.partners[partnerOrder[i + 1]].enabled);
         partners[i]->tooltip = strPartnerNames[i];
 
         // super tex
-        superRanks[i] =
-            menuAddSwitch(menu, partnerX + 2, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF, scale, FALSE,
-                          superRankProc, &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]]);
+        superRanks[i] = menuAddSwitch(menu, partnerX + 2, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF,
+                                      scale, FALSE, superRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
         superRanks[i]->tooltip = strSuperRank;
 
         // ultra tex
-        ultraRanks[i] =
-            menuAddSwitch(menu, partnerX + 3, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF, scale, FALSE,
-                          ultraRankProc, &pm_gPlayerStatus.playerData.partners[partnerOrder[i + 1]]);
+        ultraRanks[i] = menuAddSwitch(menu, partnerX + 3, partnerY, texRank, 0, 0, 0xFFFFFF, texRank, 0, 1, 0xFFFFFF,
+                                      scale, FALSE, ultraRankProc, &pm_gPlayerData.partners[partnerOrder[i + 1]]);
         ultraRanks[i]->tooltip = strUltraRank;
     }
     menuItemAddChainLink(activeItem, partners[0], MENU_NAVIGATE_DOWN);
@@ -399,7 +394,7 @@ static void createStarSpiritMenu(struct Menu *menu) {
     s8 beamPalettes[] = {1, 0, 0};
     u32 beamColors[] = {0xFFFFFF, 0xFFFFFF, 0xFFFFFF};
     struct MenuItem *item = menuAddCycle(menu, ssX, ssY, 3, beamTextures, beamTiles, beamPalettes, beamColors, scale,
-                                         FALSE, menuByteCycleProc, &pm_gPlayerStatus.playerData.starBeamLevel);
+                                         FALSE, menuByteCycleProc, &pm_gPlayerData.starBeamLevel);
     item->tooltip = strStarPeachBeam;
     menuItemCreateChain(starSpirits, 8, MENU_NAVIGATE_RIGHT, FALSE, FALSE);
     menuItemCreateChain(starSpirits, 8, MENU_NAVIGATE_LEFT, FALSE, TRUE);
@@ -438,13 +433,13 @@ static void createMerleeMenu(struct Menu *menu) {
                   "+3 DEF\0"
                   "EXP x2\0"
                   "Coins x2\0",
-                  menuByteOptionmodProc, &pm_gPlayerStatus.playerData.merleeSpellType);
+                  menuByteOptionmodProc, &pm_gPlayerData.merleeSpellType);
 
     menuAddStatic(menu, 0, yValue, "casts remaining", 0xC0C0C0);
-    menuAddIntinput(menu, 16, yValue++, 10, 2, menuByteModProc, &pm_gPlayerStatus.playerData.merleeCastsRemaining);
+    menuAddIntinput(menu, 16, yValue++, 10, 2, menuByteModProc, &pm_gPlayerData.merleeCastsRemaining);
 
     menuAddStatic(menu, 0, yValue, "turns remaining", 0xC0C0C0);
-    menuAddIntinput(menu, 16, yValue++, 10, 3, menuHalfwordModProc, &pm_gPlayerStatus.playerData.merleeTurnCount);
+    menuAddIntinput(menu, 16, yValue++, 10, 3, menuHalfwordModProc, &pm_gPlayerData.merleeTurnCount);
 }
 
 struct Menu *createPlayerMenu(void) {

@@ -46,6 +46,16 @@ typedef struct {
     /* 0x04 */ s16 z;
 } Vec3s; // size = 0x06
 
+typedef struct Vec2i {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+} Vec2i; // size = 0x08
+
+typedef struct Vec2f {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+} Vec2f; // size = 0x08
+
 typedef f32 Matrix4f[4][4]; // size = 0x40
 
 typedef struct Matrix4s {

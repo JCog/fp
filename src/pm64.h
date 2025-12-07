@@ -15,16 +15,20 @@
 
 #if PM64_VERSION == US
 #define SCRIPTS_GLOBAL_START         0x801049B0
-#define ICONS_ITEMS_ROM_START        0x1CC310
-#define ICONS_PARTNERS_ROM_START     0x97890
 #define ICONS_STAR_SPIRITS_ROM_START 0x963B0
+#define ICONS_PARTNERS_ROM_START     0x97890
 #define ICONS_BP_ROM_START           0x134520
+#define ICONS_CLOCK_ROM_START        0x134660
+#define ICONS_Z_BUTTON_ROM_START     0x1B8A60
+#define ICONS_ITEMS_ROM_START        0x1CC310
 #else
 #define SCRIPTS_GLOBAL_START         0x80104b40
-#define ICONS_ITEMS_ROM_START        0x1D4720
-#define ICONS_PARTNERS_ROM_START     0x97A20
 #define ICONS_STAR_SPIRITS_ROM_START 0x96540
+#define ICONS_PARTNERS_ROM_START     0x97A20
 #define ICONS_BP_ROM_START           0x13C820
+#define ICONS_CLOCK_ROM_START        0x13C960
+#define ICONS_Z_BUTTON_ROM_START     0x1C0E70
+#define ICONS_ITEMS_ROM_START        0x1D4720
 #endif
 
 #define SCRIPT_BOWSER_HALLWAY_TAKE_TURN 0x80222B48
@@ -403,9 +407,9 @@ typedef struct pm_PlayerStatus {
     /* 0x0AC */ char unk_0xAC[4];
     /* 0x0B0 */ s16 colliderHeight;
     /* 0x0B2 */ s16 colliderDiameter;
-    /* 0x0B4 */ u8 actionState;
-    /* 0x0B5 */ u8 prevActionState;
-    /* 0x0B6 */ s8 fallState; /*also used as sleep state in Peach idle action*/
+    /* 0x0B4 */ s8 actionState;
+    /* 0x0B5 */ s8 prevActionState;
+    /* 0x0B6 */ s8 actionSubstate;
     /* 0x0B7 */ char unk_B7;
     /* 0x0B8 */ u32 anim;
     /* 0x0BC */ u16 unk_BC;
@@ -432,19 +436,28 @@ typedef struct pm_PlayerStatus {
     /* 0x168 */ s32 stickAxisXBuffer[10];
     /* 0x190 */ s32 stickAxisYBuffer[10];
     /* 0x1B8 */ s32 inputBufPos;
-    /* 0x1BC */ char unk_0x1BC[0xCC];
-    /* 0x288 */ u8 spinCooldownTimer; /*4 frames at the end of spin*/
-    /* 0x289 */ char unk_0x289[0x02];
-    /* 0x28B */ u8 spinTimer;
-    /* 0x28C */ char unk_0x28C[0x20];
-    /* 0x2AC */ f32 spinSpeed;
-    /* 0x2B0 */ char unk_0x2B0[0x04];
-    /* 0x2B4 */ char unk_0x2B4[0x01];
-    /* 0x2B5 */ u8 spinDuration;
-    /* 0x2B6 */ char unk_0x228[0x02];
-    /* 0x2B8 */ char unk_0x2B8[0x10];
-    /* 0x2C8 */ pm_PlayerData playerData;
-} pm_PlayerStatus; // size = 0x6F0
+    /* 0x1BC */ char unk_0x1BC[196];
+    /* 0x280 */ s8 poundImpactDelay; // governs period of immobility after landing a ground pound
+    /* 0x281 */ char unk_281[7];
+} pm_PlayerStatus; // size = 0x288
+
+typedef struct pm_PlayerSpinState {
+    /* 0x00 */ s8 stopSoundTimer;
+    /* 0x01 */ s8 hasBufferedSpin;
+    /* 0x02 */ s8 hitWallTime; // incremented while blocked by a wall
+    /* 0x03 */ s8 spinCountdown;
+    /* 0x04 */ s32 prevActionState;
+    /* 0x08 */ Vec2i bufferedStickAxis;
+    /* 0x10 */ f32 spinDirectionMagnitude;
+    /* 0x14 */ Vec2f spinDirection;
+    /* 0x1C */ f32 inputMagnitude;
+    /* 0x20 */ f32 spinRate;
+    /* 0x24 */ f32 speedScale;
+    /* 0x28 */ f32 frictionScale;
+    /* 0x2C */ s16 initialSpinTime;
+    /* 0x2E */ s16 fullSpeedSpinTime;
+    /* 0x30 */ s32 spinSoundID;
+} pm_PlayerSpinState; // size = 0x34
 
 typedef struct pm_SaveMetadata {
     /* 0x00 */ s32 timePlayed;
@@ -1381,6 +1394,8 @@ extern_data s32 pm_gPopupState;
 extern_data pm_PartnerStatus pm_gPartnerStatus;
 extern_data pm_UiStatus pm_gUiStatus;
 extern_data pm_PlayerStatus pm_gPlayerStatus;
+extern_data pm_PlayerSpinState pm_gPlayerSpinState;
+extern_data pm_PlayerData pm_gPlayerData;
 extern_data pm_HudElementSize pm_gHudElementSizes[26];
 extern_data s16 pm_MusicCurrentVolume;
 extern_data pm_ActionCommandStatus pm_gActionCommandStatus;
@@ -1432,7 +1447,7 @@ s32 pm_player_raycast_general(s32 mode, f32 startX, f32 startY, f32 startZ, f32 
                               f32 *hitY, f32 *hitZ, f32 *hitDepth, f32 *hitNx, f32 *hitNy, f32 *hitNz);
 void pm_disable_player_input(void);
 void pm_update_player_input(void);
-s32 pm_is_ability_active(s32 arg0);
+s32 pm_is_ability_active(enum Abilities ability);
 void pm_hide_popup_menu(void);
 void pm_destroy_popup_menu(void);
 void pm_state_render_frontUI(void);

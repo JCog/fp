@@ -5,6 +5,7 @@
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include <math.h>
+#include <stdlib.h>
 
 enum BowserVariant {
     BOWSER_VARIANT_HALLWAY = 0xC1,
@@ -75,6 +76,23 @@ static u16 acLastValidFrame = 0;
 // clippy trainer vars
 static u16 clippyFramesSinceBattle = 0;
 static u8 clippyStatus = 0;
+
+// spin trainer vars
+static enum ActionStates spinPrevActionState = ACTION_STATE_IDLE;
+static bool spinPrevCanSpin = FALSE;
+static s8 spinCanceled = FALSE;
+static s8 spinEndTiming = 0;
+static bool spinIsJumping = FALSE;
+static u16 spinJumpStart = 0;
+static s16 spinJumpLast = 1;
+static u16 spinDelayStart = 0;
+static u16 spinDelayLast = 0;
+static s8 spinBufferAttempt = 0;
+static s8 spinBufferLast = 0;
+static struct GfxTexture *spinAButtonTex = NULL;
+static struct GfxTexture *spinBootTex = NULL;
+static struct GfxTexture *spinClockTex = NULL;
+static struct GfxTexture *spinZButtonTex = NULL;
 
 extern void setACEHook(void);
 
@@ -153,6 +171,15 @@ static s32 pinnedTrainerProc(struct MenuItem *item, enum MenuCallbackReason reas
     return 0;
 }
 
+static s32 trainerPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.trainerMoving = TRUE;
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.trainerMoving = FALSE;
+    }
+    return menuGenericPositionProc(item, reason, &settings->trainerX);
+}
+
 static void lzsDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
     gfxModeSet(GFX_MODE_COLOR, GPACK_RGB24A8(color, alpha));
     s32 menuY = 0;
@@ -164,6 +191,157 @@ static s32 lzsDrawProc(struct MenuItem *item, struct MenuDrawParams *drawParams)
     lzsDraw(drawParams->x, drawParams->y, drawParams->font, menuGetCellWidth(item->owner, TRUE),
             menuGetCellHeight(item->owner, TRUE), drawParams->color, drawParams->alpha);
     return 1;
+}
+
+static s32 spinVisualPositionProc(struct MenuItem *item, enum MenuCallbackReason reason, void *data) {
+    if (reason == MENU_CALLBACK_ACTIVATE) {
+        fp.spinTrainerMoving = TRUE;
+    } else if (reason == MENU_CALLBACK_DEACTIVATE) {
+        fp.spinTrainerMoving = FALSE;
+    }
+    return menuGenericPositionProc(item, reason, &settings->trainerSpinX);
+}
+
+static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
+    if (pm_gGameStatus.isBattle != 0) {
+        return;
+    }
+
+    u32 colorInput = GPACK_RGB24A8(color, alpha);
+    u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, alpha);
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, alpha);
+    u32 colorYellow = GPACK_RGB24A8(0xFFFF00, alpha);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, alpha);
+
+    // black background
+    s32 bgY = y - 11;
+    s32 bgHeight = 0;
+    u8 count = 0;
+    if (settings->trainerSpinJumpTiming) {
+        count++;
+        bgHeight += 14;
+    }
+    if (settings->trainerSpinJumpLength) {
+        count++;
+        bgHeight += 14;
+    }
+    if (settings->trainerSpinStartDelay) {
+        if (count == 0) {
+            bgY -= 1;
+            bgHeight += 15;
+        } else {
+            bgHeight += 14;
+        }
+    }
+    if (settings->trainerSpinZBuffer) {
+        bgHeight += 16;
+    }
+    if (bgHeight > 0) {
+        bgHeight += 3;
+    }
+    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
+    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+    gfxDisp(gsSPScisTextureRectangle(qs102(x - 2), qs102(bgY), qs102(x + 86), qs102(bgY + bgHeight), 0, 0, 0, 0, 0));
+    gfxModePop(GFX_MODE_COMBINE);
+
+    s32 textX = x + 17;
+    s32 textY = y;
+    s32 iconY = y;
+    // jump (and hammer) timing
+    if (settings->trainerSpinJumpTiming) {
+        iconY = textY - 9;
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
+        gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+        struct GfxSprite aButtonSprite = {spinAButtonTex, 0, 0, x, iconY, 0.3f, 0.3f};
+        gfxSpriteDraw(&aButtonSprite);
+        gfxModePop(GFX_MODE_DROPSHADOW);
+        if (spinCanceled) {
+            gfxModeSet(GFX_MODE_COLOR, colorInput);
+            gfxPrintf(font, textX, textY, "-");
+        } else if (spinEndTiming == 0) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            gfxPrintf(font, textX, textY, "good");
+        } else if (spinEndTiming > 0) {
+            if (spinEndTiming == 1) {
+                gfxModeSet(GFX_MODE_COLOR, colorYellow);
+            } else {
+                gfxModeSet(GFX_MODE_COLOR, colorRed);
+            }
+            gfxPrintf(font, textX, textY, "%d early", spinEndTiming);
+        } else if (spinEndTiming < 0) {
+            if (spinEndTiming == -1) {
+                gfxModeSet(GFX_MODE_COLOR, colorYellow);
+            } else {
+                gfxModeSet(GFX_MODE_COLOR, colorRed);
+            }
+            gfxPrintf(font, textX, textY, "%d late", abs(spinEndTiming));
+        }
+        textY += 14;
+    }
+
+    // jump length
+    if (settings->trainerSpinJumpLength) {
+        iconY = textY - 11;
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
+        gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+        struct GfxSprite bootSprite = {spinBootTex, 0, 0, x, iconY, 0.5f, 0.5f};
+        gfxSpriteDraw(&bootSprite);
+        gfxModePop(GFX_MODE_DROPSHADOW);
+        if (spinCanceled) {
+            gfxModeSet(GFX_MODE_COLOR, colorInput);
+            gfxPrintf(font, textX, textY, "-");
+        } else {
+            if (spinJumpLast == 1) {
+                gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            } else if (spinJumpLast == 2) {
+                gfxModeSet(GFX_MODE_COLOR, colorYellow);
+            } else {
+                gfxModeSet(GFX_MODE_COLOR, colorRed);
+            }
+            gfxPrintf(font, textX, textY, "%d", spinJumpLast);
+        }
+        textY += 14;
+    }
+
+    // start delay
+    if (settings->trainerSpinStartDelay) {
+        iconY = textY - 11;
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
+        gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+        struct GfxSprite clockSprite = {spinClockTex, 0, 0, x, iconY, 1.f, 1.f};
+        gfxSpriteDraw(&clockSprite);
+        gfxModePop(GFX_MODE_DROPSHADOW);
+        if (spinDelayLast == 0) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        } else if (spinDelayLast == 1) {
+            gfxModeSet(GFX_MODE_COLOR, colorYellow);
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+        }
+        gfxPrintf(font, textX, textY, "%d", spinDelayLast);
+        textY += 14;
+    }
+
+    // z buffer offset
+    if (settings->trainerSpinZBuffer) {
+        iconY = textY - 9;
+        gfxModeSet(GFX_MODE_COLOR, colorWhite);
+        gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+        struct GfxSprite zButtonSprite = {spinZButtonTex, 0, 0, x + 2, iconY, 1.f, 1.f};
+        gfxSpriteDraw(&zButtonSprite);
+        gfxModePop(GFX_MODE_DROPSHADOW);
+        if (spinBufferLast == -1) {
+            gfxModeSet(GFX_MODE_COLOR, colorInput);
+            gfxPrintf(font, textX, textY, "-");
+        } else if (spinBufferLast < 10) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+            gfxPrintf(font, textX, textY, "good");
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+            gfxPrintf(font, textX, textY, "%d early", spinBufferLast - 9);
+        }
+    }
 }
 
 static void issDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
@@ -451,6 +629,68 @@ static void updateLzsTrainer(void) {
     }
 }
 
+static void updateSpinTrainer(void) {
+    if (!(pm_gGameStatus.isBattle != 1 &&
+          (settings->trainerSpinBarEnabled || settings->pinnedTrainer == TRAINER_SPIN))) {
+        return;
+    }
+
+    enum ActionStates actionState = pm_gPlayerStatus.actionState;
+    pm_PlayerSpinState *spinState = &pm_gPlayerSpinState;
+
+    // end timing and jump length
+    if (spinPrevActionState == ACTION_STATE_SPIN) {
+        if (actionState == ACTION_STATE_JUMP || actionState == ACTION_STATE_HAMMER) {
+            spinCanceled = FALSE;
+            spinBufferLast = spinBufferAttempt;
+            s8 perfectEndTiming = 7;
+            if (pm_is_ability_active(ABILITY_SPEEDY_SPIN)) {
+                perfectEndTiming = 8;
+            }
+            spinEndTiming = spinState->spinCountdown - perfectEndTiming;
+
+            if (pm_gPlayerStatus.actionState == ACTION_STATE_JUMP) {
+                spinIsJumping = TRUE;
+                spinJumpStart = pm_gGameStatus.frameCounter;
+            }
+        } else if (actionState != ACTION_STATE_SPIN) {
+            spinCanceled = TRUE;
+            spinBufferLast = spinBufferAttempt;
+        }
+    } else if (spinIsJumping && (!pm_gGameStatus.currentButtons[0].a || actionState != ACTION_STATE_JUMP)) {
+        spinIsJumping = FALSE;
+        spinJumpLast = pm_gGameStatus.frameCounter - spinJumpStart;
+    }
+
+    // delay between spins
+    bool canSpin = !(pm_gPlayerStatus.flags & (PS_FLAG_NO_STATIC_COLLISION | PS_FLAG_CUTSCENE_MOVEMENT |
+                                               PS_FLAG_INPUT_DISABLED | PS_FLAG_PAUSED) ||
+                     pm_gPlayerStatus.animFlags & (PA_FLAG_USING_WATT | PA_FLAG_SPINNING)) &&
+                   actionState < ACTION_STATE_JUMP;
+    if (canSpin && !spinPrevCanSpin) {
+        spinDelayStart = pm_gGameStatus.frameCounter;
+        if (!(actionState == ACTION_STATE_RUN && pm_gPlayerStatus.prevActionState == ACTION_STATE_WALK &&
+              spinPrevActionState == ACTION_STATE_IDLE)) {
+            // note that there are a lot of rare edge cases here that just aren't worth handling
+            spinDelayStart += 1;
+        }
+    }
+    if (actionState == ACTION_STATE_SPIN && spinState->initialSpinTime - spinState->spinCountdown == 1) {
+        // start of new spin
+        if (!spinPrevCanSpin) {
+            spinDelayLast = 0;
+        } else {
+            spinDelayLast = pm_gGameStatus.frameCounter - spinDelayStart;
+        }
+        spinBufferAttempt = -1;
+    } else if (actionState == ACTION_STATE_SPIN && pm_gGameStatus.pressedButtons[0].z) {
+        spinBufferAttempt = spinState->spinCountdown;
+    }
+
+    spinPrevActionState = actionState;
+    spinPrevCanSpin = canSpin;
+}
+
 static void blockCheckSuccessOrEarly(void) {
     const u32 mashWindow = 10;
     u32 blockWindow = 3;
@@ -520,7 +760,7 @@ static void updateBlockTrainer(void) {
         }
 
         // Either goombario or mario attacking
-        if ((pm_gBattleSubState == 3 && pm_gPlayerStatus.playerData.currentPartner == PARTNER_GOOMBARIO) ||
+        if ((pm_gBattleSubState == 3 && pm_gPlayerData.currentPartner == PARTNER_GOOMBARIO) ||
             pm_gBattleSubState == 4) {
             if (pm_gActionCommandStatus.state == 10 && pm_gGameStatus.pressedButtons[0].a) {
                 acLastAPress = pm_gGameStatus.frameCounter;
@@ -668,9 +908,105 @@ static void updateHammerCancelTrainer(void) {
     }
 }
 
+void trainerDrawSpinBar(s32 x, s32 y, struct GfxFont *font, u32 color, u8 alpha) {
+    u32 colorInput = GPACK_RGB24A8(color, alpha);
+    u32 colorWhite = GPACK_RGB24A8(0xFFFFFF, alpha);
+    u32 colorBlackT = GPACK_RGB24A8(0x000000, 0x60);
+    u32 colorGreen = GPACK_RGB24A8(0x00FF00, alpha);
+    u32 colorYellow = GPACK_RGB24A8(0xFFFF00, alpha);
+    u32 colorRed = GPACK_RGB24A8(0xFF0000, alpha);
+    u32 colorBackground = GPACK_RGB24A8(0x000000, alpha);
+    u32 colorEmpty = GPACK_RGB24A8(0x000095, alpha);
+    u32 colorFull = GPACK_RGB24A8(0x00E486, alpha);
+
+    u8 barMult = 3;
+    s8 spinFrame = 25 - pm_gPlayerSpinState.spinCountdown;
+    u16 barWidth = 25;
+    u16 barGoal = 18;
+    if (pm_is_ability_active(ABILITY_SPEEDY_SPIN)) {
+        spinFrame = 30 - pm_gPlayerSpinState.spinCountdown;
+        barWidth = 30;
+        barGoal = 22;
+    }
+    barWidth *= barMult;
+    barGoal *= barMult;
+    u16 barX = x - barWidth / 2;
+    u16 barGoalX = barX + barGoal;
+    u16 barFullX = barX + spinFrame * barMult;
+    u16 barYBottom = y + 10;
+
+    s32 iconY = y + 12;
+    s32 textY = iconY + 11;
+    s32 jumpIconX = x - 30;
+    s32 jumpTextX = jumpIconX + 17;
+    s32 delayIconX = x + 2;
+    s32 delayTextX = delayIconX + 17;
+
+    // draw background
+    gfxModeSet(GFX_MODE_COLOR, colorBlackT);
+    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 4), qs102(y - 4), qs102(barX + barWidth + 4), qs102(y + 30), 0, 0, 0,
+                                     0, 0));
+
+    // draw bar
+    // background
+    gfxModeSet(GFX_MODE_COLOR, colorBackground);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX - 1), qs102(y - 1), qs102(barX + barWidth + 1), qs102(barYBottom + 1),
+                                     0, 0, 0, 0, 0));
+    // empty bar
+    gfxModeSet(GFX_MODE_COLOR, colorEmpty);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barX + barWidth), qs102(barYBottom), 0, 0, 0, 0, 0));
+    // full bar
+    gfxModeSet(GFX_MODE_COLOR, colorFull);
+    gfxDisp(gsSPScisTextureRectangle(qs102(barX), qs102(y), qs102(barFullX), qs102(barYBottom), 0, 0, 0, 0, 0));
+    // goal marker
+    gfxModeSet(GFX_MODE_COLOR, colorYellow);
+    gfxDisp(
+        gsSPScisTextureRectangle(qs102(barGoalX - 1), qs102(y), qs102(barGoalX + 1), qs102(barYBottom), 0, 0, 0, 0, 0));
+    gfxModePop(GFX_MODE_COMBINE);
+
+    gfxModeSet(GFX_MODE_COLOR, colorWhite);
+    gfxModeReplace(GFX_MODE_DROPSHADOW, 0);
+    struct GfxSprite bootSprite = {spinBootTex, 0, 0, jumpIconX, iconY, 0.5f, 0.5f};
+    struct GfxSprite clockSprite = {spinClockTex, 0, 0, delayIconX, iconY, 1.f, 1.f};
+    gfxSpriteDraw(&bootSprite);
+    gfxSpriteDraw(&clockSprite);
+    gfxModePop(GFX_MODE_DROPSHADOW);
+
+    // jump length
+    if (spinCanceled) {
+        gfxModeSet(GFX_MODE_COLOR, colorInput);
+        gfxPrintf(font, jumpTextX, textY, "-");
+    } else {
+        if (spinJumpLast == 1) {
+            gfxModeSet(GFX_MODE_COLOR, colorGreen);
+        } else if (spinJumpLast == 2) {
+            gfxModeSet(GFX_MODE_COLOR, colorYellow);
+        } else {
+            gfxModeSet(GFX_MODE_COLOR, colorRed);
+        }
+        gfxPrintf(font, jumpTextX, textY, "%d", spinJumpLast);
+    }
+
+    // start delay
+    if (spinDelayLast == 0) {
+        gfxModeSet(GFX_MODE_COLOR, colorGreen);
+    } else if (spinDelayLast == 1) {
+        gfxModeSet(GFX_MODE_COLOR, colorYellow);
+    } else {
+        gfxModeSet(GFX_MODE_COLOR, colorRed);
+    }
+    if (spinDelayLast < 100) {
+        gfxPrintf(font, delayTextX, textY, "%d", spinDelayLast);
+    } else {
+        gfxPrintf(font, delayTextX, textY, "99");
+    }
+}
+
 void trainerUpdate(void) {
     updateBowserBlockTrainer();
     updateLzsTrainer();
+    updateSpinTrainer();
     updateBlockTrainer();
     updateClippyTrainer();
     updateQuickJumpTrainer();
@@ -680,6 +1016,7 @@ void trainerUpdate(void) {
 void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
     switch (settings->pinnedTrainer) {
         case TRAINER_LZS: lzsDraw(x, y, font, chWidth, chHeight, color, alpha); break;
+        case TRAINER_SPIN: spinDraw(x, y, font, chWidth, chHeight, color, alpha); break;
         case TRAINER_ISS: issDraw(x, y, font, chWidth, chHeight, color, alpha); break;
         case TRAINER_ACE: aceDraw(x, y, font, chWidth, chHeight, color, alpha); break;
     }
@@ -687,12 +1024,14 @@ void trainerDrawPinned(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHe
 
 void createTrainerMenu(struct Menu *menu) {
     static struct Menu lzsMenu;
+    static struct Menu spinMenu;
     static struct Menu issMenu;
     static struct Menu aceMenu;
 
     /* initialize menu */
     menuInit(menu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&lzsMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
+    menuInit(&spinMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&issMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
     menuInit(&aceMenu, MENU_NOVALUE, MENU_NOVALUE, MENU_NOVALUE);
 
@@ -731,8 +1070,10 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerHammerCancelsEnabled);
 
     menuAddStatic(menu, 0, y, "clippy", 0xC0C0C0);
-    struct MenuItem *lastOption =
-        menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerClippyEnabled);
+    menuAddCheckbox(menu, xOffset, y++, menuByteCheckboxProc, &settings->trainerClippyEnabled);
+
+    menuAddStatic(menu, 0, y, "spin", 0xC0C0C0);
+    struct MenuItem *lastOption = menuAddSubmenuIcon(menu, xOffset, y++, &spinMenu, wrench, 0, 0, 1.0f);
 #if PM64_VERSION == JP
     menuAddStatic(menu, 0, y, "ice staircase skip", 0xC0C0C0);
     menuAddSubmenuIcon(menu, xOffset, y++, &issMenu, wrench, 0, 0, 1.0f);
@@ -754,6 +1095,29 @@ void createTrainerMenu(struct Menu *menu) {
     menuAddCheckbox(&lzsMenu, 4, y++, pinnedTrainerProc, (void *)TRAINER_LZS);
     y++;
     menuAddStaticCustom(&lzsMenu, 0, y++, lzsDrawProc, NULL, 0xC0C0C0);
+
+    /*build spin menu*/
+    y = 0;
+    xOffset = 15;
+    spinAButtonTex = resourceLoadPmiconGlobal(ICON_A_BUTTON, 1);
+    spinBootTex = resourceLoadPmiconGlobal(ICON_MENU_BOOTS_1, 1);
+    spinClockTex = resourceGet(RES_PMICON_CLOCK);
+    spinZButtonTex = resourceGet(RES_PMICON_Z_BUTTON);
+    spinMenu.selector = menuAddSubmenu(&spinMenu, 0, y++, NULL, "return");
+    menuAddStatic(&spinMenu, 0, y, "timing bar", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y, menuByteCheckboxProc, &settings->trainerSpinBarEnabled);
+    menuAddPositioning(&spinMenu, xOffset + 2, y++, spinVisualPositionProc, NULL);
+    menuAddStatic(&spinMenu, 0, y, "detailed stats", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y, pinnedTrainerProc, (void *)TRAINER_SPIN);
+    menuAddPositioning(&spinMenu, xOffset + 2, y++, trainerPositionProc, NULL);
+    menuAddStatic(&spinMenu, 1, y, "jump timing", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y++, menuByteCheckboxProc, &settings->trainerSpinJumpTiming);
+    menuAddStatic(&spinMenu, 1, y, "jump length", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y++, menuByteCheckboxProc, &settings->trainerSpinJumpLength);
+    menuAddStatic(&spinMenu, 1, y, "start delay", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y++, menuByteCheckboxProc, &settings->trainerSpinStartDelay);
+    menuAddStatic(&spinMenu, 1, y, "z buffer", 0xC0C0C0);
+    menuAddCheckbox(&spinMenu, xOffset, y++, menuByteCheckboxProc, &settings->trainerSpinZBuffer);
 
     /*build iss menu*/
     y = 0;
