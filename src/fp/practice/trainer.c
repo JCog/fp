@@ -5,7 +5,6 @@
 #include "sys/resource.h"
 #include "sys/settings.h"
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 enum BowserVariant {
