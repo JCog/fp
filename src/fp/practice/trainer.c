@@ -208,7 +208,7 @@ static s32 spinVisualPositionProc(struct MenuItem *item, enum MenuCallbackReason
 }
 
 static void spinDraw(s32 x, s32 y, struct GfxFont *font, s32 chWidth, s32 chHeight, u32 color, u8 alpha) {
-    if (pm_gGameStatus.isBattle != 0) {
+    if (pm_gGameStatus.context != CONTEXT_WORLD) {
         return;
     }
 
@@ -508,7 +508,7 @@ static void aceOotInstrProc(struct MenuItem *item, void *data) {
 }
 
 static void updateBowserBlockTrainer(void) {
-    if (pm_gGameStatus.isBattle) {
+    if (pm_gGameStatus.context == CONTEXT_BATTLE) {
         pm_Actor *enemy0 = pm_gBattleStatus.enemyActors[0];
         if (enemy0) {
             bool isBowser = FALSE;
@@ -640,7 +640,7 @@ static void updateLzsTrainer(void) {
 }
 
 static void updateSpinTrainer(void) {
-    if (!(pm_gGameStatus.isBattle != 1 &&
+    if (!(pm_gGameStatus.context != CONTEXT_BATTLE &&
           (settings->trainerSpinBarEnabled || settings->pinnedTrainer == TRAINER_SPIN))) {
         return;
     }
@@ -737,7 +737,7 @@ static void blockCheckSuccessOrEarly(void) {
 }
 
 static void updateBlockTrainer(void) {
-    if (settings->trainerAcEnabled && pm_gGameStatus.isBattle) {
+    if (settings->trainerAcEnabled && pm_gGameStatus.context == CONTEXT_BATTLE) {
         // blocks
         switch (pm_gBattleStatus.blockResult) {
             case BLOCK_EARLY:
@@ -828,7 +828,8 @@ static void updateQuickJumpTrainer(void) {
     static bool waitForNextTurn;
     static u8 frameWindow;
 
-    if (settings->trainerQuickJumpsEnabled && pm_gGameStatus.isBattle && pm_gBattleStatus.playerActor) {
+    if (settings->trainerQuickJumpsEnabled && pm_gGameStatus.context == CONTEXT_BATTLE &&
+        pm_gBattleStatus.playerActor) {
         if (pm_gBattleStatus.playerActor->partsTable->curAnimation == 0x10004) {
             waitForNextTurn = FALSE;
             jumpFrame = -1;
