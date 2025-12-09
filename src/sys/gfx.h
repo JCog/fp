@@ -115,6 +115,9 @@ void gfxRdpLoadTile(const struct GfxTexture *texture, s16 textureTile, s8 palett
 
 void gfxSpriteDraw(const struct GfxSprite *sprite);
 
+void gfxRectangleDraw(s16 x, s16 y, s16 width, s16 height, u32 color);
+void gfxTextBackgroundDraw(s16 x, s16 y, u8 chCountW, u8 chCountH, s32 chWidth, s32 chHeight, u32 color);
+
 s32 gfxFontXheight(const struct GfxFont *font);
 void gfxPrintf(const struct GfxFont *font, s32 x, s32 y, const char *format, ...);
 void gfxPrintfN(const struct GfxFont *font, s32 x, s32 y, const char *format, ...);

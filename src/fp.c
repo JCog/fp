@@ -74,6 +74,7 @@ void fpInit(void) {
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, &watches, "watches");
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createDebugMenu(), "debug");
     menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createSettingsMenu(), "settings");
+    menuAddSubmenu(fp.mainMenu, 0, menuIndex++, createAboutMenu(), "about");
 
     // populate watches menu
     watches.selector = menuAddSubmenu(&watches, 0, 0, NULL, "return");
@@ -172,8 +173,6 @@ void fpEmergencySettingsReset(u16 padPressed) {
     }
 }
 
-#define STRINGIFY(S)  STRINGIFY_(S)
-#define STRINGIFY_(S) #S
 void fpDrawVersion(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
     static struct GfxTexture *fpIconTex;
     if (pm_gGameStatus.introState == 5) {
@@ -304,7 +303,7 @@ void fpUpdateCheats(void) {
     if (CHEAT_ACTIVE(CHEAT_FP)) {
         pm_gPlayerData.curFP = pm_gPlayerData.curMaxFP;
     }
-    if (CHEAT_ACTIVE(CHEAT_ATTACK)) {
+    if (CHEAT_ACTIVE(CHEAT_POWER)) {
         pm_gBattleStatus.merleeAttackBoost = 127;
     }
     if (CHEAT_ACTIVE(CHEAT_COINS)) {

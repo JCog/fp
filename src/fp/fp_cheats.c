@@ -3,7 +3,7 @@
 #include "sys/settings.h"
 
 static const char *labels[] = {
-    "hp",       "fp",         "attack",          "coins",        "star power", "star pieces",
+    "hp",       "fp",         "power",           "coins",        "star power", "star pieces",
     "peril",    "auto mash",  "action commands", "power bounce", "peekaboo",   "brighten room",
     "hide hud", "mute music", "quizmo spawns",
 };

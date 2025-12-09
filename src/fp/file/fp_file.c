@@ -120,6 +120,11 @@ s32 fpImportFile(const char *path, void *data) {
                     if (pm_fio_validate_globals_checksums(file)) {
                         pm_gCurrentSaveFile = *file;
                         pm_fio_deserialize_state();
+                        pm_gGameStatus.peachFlags |= pm_gCurrentSaveFile.globalBytes[GB_MARIO_PEACH];
+                        if (pm_gCurrentSaveFile.globalBytes[GB_USING_PARTNER] && !(pm_gGameStatus.peachFlags & 1)) {
+                            pm_gPartnerStatus.partnerActionState = 1;
+                            pm_gGameStatus.keepUsingPartnerOnMapChange = 1;
+                        }
                         fpWarp(file->areaID, file->mapID, file->entryID);
                     } else {
                         fpLog("save file corrupt");
@@ -236,8 +241,8 @@ struct Menu *createFileMenu(void) {
     y++;
 
     menuAddStatic(&menu, 0, y, "quizmo", 0xC0C0C0);
-    struct MenuItem *quizmoInput =
-        menuAddIntinput(&menu, menuX, y++, 10, 2, menuByteModProc, &pm_gCurrentSaveFile.globalBytes[0x161]);
+    struct MenuItem *quizmoInput = menuAddIntinput(&menu, menuX, y++, 10, 2, menuByteModProc,
+                                                   &pm_gCurrentSaveFile.globalBytes[GB_COMPLETED_QUIZZES]);
     menuItemAddChainLink(quizmoInput, progressInput, MENU_NAVIGATE_UP);
     menuAddStatic(&menu, 0, y, "toy box 1", 0xC0C0C0);
     menuAddOption(&menu, menuX, y++,

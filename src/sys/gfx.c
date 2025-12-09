@@ -596,6 +596,18 @@ void gfxSpriteDraw(const struct GfxSprite *sprite) {
     gfxSynced = FALSE;
 }
 
+void gfxRectangleDraw(s16 x, s16 y, s16 width, s16 height, u32 color) {
+    gfxModeReplace(GFX_MODE_COLOR, color);
+    gfxModeReplace(GFX_MODE_COMBINE, G_CC_MODE(G_CC_PRIMITIVE, G_CC_PRIMITIVE));
+    gfxDisp(gsSPScisTextureRectangle(qs102(x), qs102(y), qs102(x + width), qs102(y + height), 0, 0, 0, 0, 0));
+    gfxModePop(GFX_MODE_COLOR);
+    gfxModePop(GFX_MODE_COMBINE);
+}
+
+void gfxTextBackgroundDraw(s16 x, s16 y, u8 chCountW, u8 chCountH, s32 chWidth, s32 chHeight, u32 color) {
+    gfxRectangleDraw(x - 3, y - chHeight - 2, chWidth * chCountW + 6, chHeight * (chCountH + 1) - 1, color);
+}
+
 s32 gfxFontXheight(const struct GfxFont *font) {
     return font->baseline - font->median;
 }
