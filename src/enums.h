@@ -987,4 +987,10 @@ enum PlayerStatusAnimFlags {
     PA_FLAG_80000000 = 0x80000000,
 };
 
+enum GameContext {
+    CONTEXT_WORLD = 0,
+    CONTEXT_BATTLE = 1,
+    CONTEXT_PAUSE = 2,
+};
+
 #endif

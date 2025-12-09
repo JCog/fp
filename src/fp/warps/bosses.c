@@ -137,8 +137,8 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     battle = (u8)((s32)data & 0xFF);
     pm_clear_windows();
     pm_clear_printers();
-    // isBattle is also true when paused, so checking game mode
-    if (pm_gGameStatus.isBattle && pm_CurGameMode != 10 && pm_CurGameMode != 11) {
+    // context is also true when paused, so checking game mode
+    if (pm_gGameStatus.context != CONTEXT_WORLD && pm_CurGameMode != 10 && pm_CurGameMode != 11) {
         // end battle cleanly so next fight can start fresh
         pm_gBattleState = 32;   // BATTLE_STATE_END_BATTLE
         pm_gBattleSubState = 2; // BTL_SUBSTATE_END_BATTLE_EXEC_STAGE_SCRIPT
@@ -150,7 +150,7 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
 }
 
 void bossesUpdateWarps() {
-    if (leavingBattle && !pm_gGameStatus.isBattle) {
+    if (leavingBattle && pm_gGameStatus.context == CONTEXT_WORLD) {
         leavingBattle = FALSE;
         bossWarp();
     } else if (warpCountdown == 30) {

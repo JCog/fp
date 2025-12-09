@@ -320,7 +320,7 @@ void fpUpdateCheats(void) {
         pm_gPlayerData.curHP = 1;
     }
     if (CHEAT_ACTIVE(CHEAT_AUTO_MASH)) {
-        if (pm_gGameStatus.isBattle == 1) {
+        if (pm_gGameStatus.context == CONTEXT_BATTLE) {
             pm_gActionCommandStatus.barFillLevel = 10000;
         }
     }
@@ -558,7 +558,8 @@ void fpDraw(void) {
         trainerDrawPinned(settings->trainerX, settings->trainerY, font, cellWidth, cellHeight, 0xC0C0C0, menuAlpha);
     }
 
-    if (fp.spinTrainerMoving || (settings->trainerSpinBarEnabled && !fp.menuActive && pm_gGameStatus.isBattle == 0)) {
+    if (fp.spinTrainerMoving ||
+        (settings->trainerSpinBarEnabled && !fp.menuActive && pm_gGameStatus.context == CONTEXT_WORLD)) {
         trainerDrawSpinBar(settings->trainerSpinX, settings->trainerSpinY, font, 0xC0C0C0, menuAlpha);
     }
 
