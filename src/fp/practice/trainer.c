@@ -640,8 +640,8 @@ static void updateLzsTrainer(void) {
 }
 
 static void updateSpinTrainer(void) {
-    if (!(pm_gGameStatus.context != CONTEXT_BATTLE &&
-          (settings->trainerSpinBarEnabled || settings->pinnedTrainer == TRAINER_SPIN))) {
+    if (pm_gGameStatus.context == CONTEXT_BATTLE ||
+        !(settings->trainerSpinBarEnabled || settings->pinnedTrainer == TRAINER_SPIN)) {
         return;
     }
 
