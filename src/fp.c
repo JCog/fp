@@ -202,9 +202,9 @@ void fpDrawVersion(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuA
 }
 
 void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
-    u16 dPad = pm_gGameStatus.currentButtons[0].buttons;
-    s8 dX = pm_gGameStatus.stickX[0];
-    s8 dY = pm_gGameStatus.stickY[0];
+    u16 dPad = inputPad().buttons;
+    s8 dX = inputX();
+    s8 dY = inputY();
 
     struct GfxTexture *texture = resourceGet(RES_ICON_BUTTONS);
     struct GfxTexture *controlStick = resourceGet(RES_TEXTURE_CONTROL_STICK);
