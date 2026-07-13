@@ -9,11 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install prerequisite packages
-        run: |
-          sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/PracticeROM/packages/HEAD/scripts/install-debian_amd64.sh)"
-          sudo apt-get install -y practicerom-dev xdelta3 ninja-build
-          pip install --break-system-packages -r requirements.txt
+      - name: Setup environment
+        uses: ./.github/actions/setup-build-env
       - name: Download ROMs
         run: |
           mkdir rom
