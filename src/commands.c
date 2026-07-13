@@ -340,10 +340,10 @@ void commandFloorClip(void) {
 void commandPauseProc(void) {
     if (fp.pendingFrames == 0) {
         fp.pendingFrames = -1;
-        fpLog("game unpaused");
+        fpLog("unpaused");
     } else {
         fp.pendingFrames = 0;
-        fpLog("game paused");
+        fpLog("paused");
     }
 }
 
@@ -352,6 +352,6 @@ void commandFrameAdvanceProc(void) {
         fp.pendingFrames++;
     } else {
         fp.pendingFrames = 0;
-        fpLog("game paused");
+        fpLog("paused");
     }
 }
