@@ -31,6 +31,8 @@ struct Command fpCommands[COMMAND_MAX] = {
     {"store ability",    COMMAND_PRESS_ONCE, 0, commandStoreAbility      },
     {"ignore walls",     COMMAND_PRESS_ONCE, 0, commandIgnoreWalls       },
     {"floor clip",       COMMAND_PRESS_ONCE, 0, commandFloorClip         },
+    {"pause",            COMMAND_PRESS_ONCE, 0, commandPauseProc         },
+    {"frame advance",    COMMAND_PRESS,      0, commandFrameAdvanceProc  },
 };
 
 void showMenu(void) {
@@ -332,5 +334,24 @@ void commandFloorClip(void) {
             partner->pos.y -= 20;
             partner->moveToPos.y -= 20;
         }
+    }
+}
+
+void commandPauseProc(void) {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames = -1;
+        fpLog("game unpaused");
+    } else {
+        fp.pendingFrames = 0;
+        fpLog("game paused");
+    }
+}
+
+void commandFrameAdvanceProc(void) {
+    if (fp.pendingFrames == 0) {
+        fp.pendingFrames++;
+    } else {
+        fp.pendingFrames = 0;
+        fpLog("game paused");
     }
 }

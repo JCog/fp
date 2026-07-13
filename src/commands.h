@@ -25,6 +25,8 @@ enum Commands {
     COMMAND_STORE_ABILITY,
     COMMAND_IGNORE_WALLS,
     COMMAND_FLOOR_CLIP,
+    COMMAND_PAUSE,
+    COMMAND_FRAME_ADVANCE,
     COMMAND_MAX
 };
 
@@ -63,6 +65,8 @@ void commandClippyProc(void);
 void commandStoreAbility(void);
 void commandIgnoreWalls(void);
 void commandFloorClip(void);
+void commandPauseProc(void);
+void commandFrameAdvanceProc(void);
 
 extern struct Command fpCommands[COMMAND_MAX];
 

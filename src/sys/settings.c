@@ -89,6 +89,8 @@ void settingsLoadDefault(void) {
     d->binds[COMMAND_STORE_ABILITY] = bindMake(2, BUTTON_B, BUTTON_D_LEFT);
     d->binds[COMMAND_IGNORE_WALLS] = bindMake(2, BUTTON_B, BUTTON_D_UP);
     d->binds[COMMAND_FLOOR_CLIP] = bindMake(2, BUTTON_L, BUTTON_D_DOWN);
+    d->binds[COMMAND_PAUSE] = bindMake(0);
+    d->binds[COMMAND_FRAME_ADVANCE] = bindMake(0);
     d->cheatEnemyContact = 0;
     d->controlStickRange = 90;
     d->controlStick = 2;
