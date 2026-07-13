@@ -18,7 +18,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .freeCamMoveSpeed = 250, .freeCamPanSpeed = 70, .pendingFrames = -1};
+FpCtxt fp = {.savedArea = 0x1c,
+             .camDistMin = 100,
+             .camDistMax = 1000,
+             .freeCamMoveSpeed = 250,
+             .freeCamPanSpeed = 70,
+             .pendingFrames = -1};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -578,11 +583,12 @@ void fpDraw(void) {
     gfxFlush();
 }
 
-#define PAUSE_DL_LENGTH   1024
-#define PAUSE_BLIT_ROWS   6 // 4KB tmem / (320 * 2) ~= 6
+#define PAUSE_DL_LENGTH 1024
+#define PAUSE_BLIT_ROWS 6 // 4KB tmem / (320 * 2) ~= 6
 
 static struct {
     bool frozen;
+    bool captured;
     bool overrideWasSet;
     s16 bgRenderState;
     u16 *frame;
@@ -590,12 +596,46 @@ static struct {
     Gfx dl[2][PAUSE_DL_LENGTH];
 } pauseFrame;
 
-static void fpPauseFreeze(void) {
+static void fpPauseBlit(const u16 *src, u16 *dst) {
+    gDPPipeSync(pm_gMainGfxPos++);
+    gSPTexture(pm_gMainGfxPos++, -1, -1, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetScissor(pm_gMainGfxPos++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    gDPSetColorImage(pm_gMainGfxPos++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, MIPS_KSEG0_TO_PHYS(dst));
+    gDPSetCycleType(pm_gMainGfxPos++, G_CYC_COPY);
+    gDPSetRenderMode(pm_gMainGfxPos++, G_RM_NOOP, G_RM_NOOP2);
+    gDPSetTexturePersp(pm_gMainGfxPos++, G_TP_NONE);
+    gDPSetTextureLUT(pm_gMainGfxPos++, G_TT_NONE);
+    gDPSetAlphaCompare(pm_gMainGfxPos++, G_AC_NONE);
+    for (s32 y = 0; y < SCREEN_HEIGHT; y += PAUSE_BLIT_ROWS) {
+        gDPLoadTextureTile(pm_gMainGfxPos++, &src[y * SCREEN_WIDTH], G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH,
+                           PAUSE_BLIT_ROWS, 0, 0, SCREEN_WIDTH - 1, PAUSE_BLIT_ROWS - 1, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                           G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPTextureRectangle(pm_gMainGfxPos++, qu102(0), qu102(y), qu102(SCREEN_WIDTH - 1),
+                            qu102(y + PAUSE_BLIT_ROWS - 1), G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
+    }
+}
+
+// emitted into display list before fp so frozen frame doesn't contain stale fp overlay
+static void fpPauseCapture(void) {
+    u16 *cfb = nuGfxCfb_ptr;
     if (pauseFrame.frame == NULL) {
         pauseFrame.frame = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
     }
+    fpPauseBlit(cfb, pauseFrame.frame);
+    gDPPipeSync(pm_gMainGfxPos++);
+    gDPSetColorImage(pm_gMainGfxPos++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, MIPS_KSEG0_TO_PHYS(cfb));
+    pauseFrame.captured = TRUE;
+}
+
+static void fpPauseFreeze(void) {
     nuGfxTaskAllEndWait();
-    memcpy(pauseFrame.frame, osViGetNextFramebuffer(), SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+    if (!pauseFrame.captured) {
+        // game skipped draw pass so copy the fb ourselves
+        if (pauseFrame.frame == NULL) {
+            pauseFrame.frame = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+        }
+        memcpy(pauseFrame.frame, osViGetNextFramebuffer(), SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+    }
     pauseFrame.overrideWasSet = (pm_gOverrideFlags & GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME) != 0;
     pm_gOverrideFlags |= GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME;
     pauseFrame.bgRenderState = pm_gGameStatus.backgroundFlags & BACKGROUND_RENDER_STATE_MASK;
@@ -609,6 +649,7 @@ static void fpPauseUnfreeze(void) {
     }
     pm_gGameStatus.backgroundFlags |= pauseFrame.bgRenderState;
     pauseFrame.frozen = FALSE;
+    pauseFrame.captured = FALSE;
 }
 
 static void fpPauseDrawFrame(void) {
@@ -618,23 +659,7 @@ static void fpPauseDrawFrame(void) {
     pm_gMainGfxPos = dl;
 
     gSPSegment(pm_gMainGfxPos++, 0x00, 0x0);
-    gDPSetScissor(pm_gMainGfxPos++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    gDPPipeSync(pm_gMainGfxPos++);
-    gSPTexture(pm_gMainGfxPos++, -1, -1, 0, G_TX_RENDERTILE, G_ON);
-    gDPSetColorImage(pm_gMainGfxPos++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, MIPS_KSEG0_TO_PHYS(cfb));
-    gDPSetCycleType(pm_gMainGfxPos++, G_CYC_COPY);
-    gDPSetTexturePersp(pm_gMainGfxPos++, G_TP_NONE);
-    gDPSetTextureLUT(pm_gMainGfxPos++, G_TT_NONE);
-    gDPSetRenderMode(pm_gMainGfxPos++, G_RM_NOOP, G_RM_NOOP2);
-    gDPSetAlphaCompare(pm_gMainGfxPos++, G_AC_NONE);
-    for (s32 y = 0; y < SCREEN_HEIGHT; y += PAUSE_BLIT_ROWS) {
-        gDPLoadTextureTile(pm_gMainGfxPos++, &pauseFrame.frame[y * SCREEN_WIDTH], G_IM_FMT_RGBA, G_IM_SIZ_16b,
-                           SCREEN_WIDTH, PAUSE_BLIT_ROWS, 0, 0, SCREEN_WIDTH - 1, PAUSE_BLIT_ROWS - 1, 0,
-                           G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
-                           G_TX_NOLOD, G_TX_NOLOD);
-        gSPTextureRectangle(pm_gMainGfxPos++, qu102(0), qu102(y), qu102(SCREEN_WIDTH - 1),
-                            qu102(y + PAUSE_BLIT_ROWS - 1), G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
-    }
+    fpPauseBlit(pauseFrame.frame, cfb);
 
     initStack(fpDraw);
 
@@ -674,6 +699,9 @@ ENTRY void fpUpdateEntry(void) {
 ENTRY void fpDrawEntry(void) {
     init_gp();
     pm_state_render_frontUI();
+    if (fp.pendingFrames == 0 && !pauseFrame.frozen) {
+        fpPauseCapture();
+    }
     initStack(fpDraw);
 }
 

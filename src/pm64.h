@@ -53,8 +53,8 @@
 #define SCRIPT_BOWSER_FINAL_2_WAVE      0x8023226C
 #define SCRIPT_BOWSER_FINAL_2_LIGHTNING 0x802339F4
 
-#define NU_GFX_UCODE_F3DEX2 0
-#define NU_SC_SWAPBUFFER    1
+#define NU_GFX_UCODE_F3DEX2             0
+#define NU_SC_SWAPBUFFER                1
 
 // NOLINTBEGIN
 typedef struct OSContPad {
