@@ -993,4 +993,12 @@ enum GameContext {
     CONTEXT_PAUSE = 2,
 };
 
+enum GlobalOverrides {
+    GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME = 0x00000008,
+};
+
+enum BackgroundRenderState {
+    BACKGROUND_RENDER_STATE_MASK = 0xF0,
+};
+
 #endif

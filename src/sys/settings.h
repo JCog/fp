@@ -7,7 +7,7 @@
 
 #define SETTINGS_SAVE_FILE_SIZE 0x1380
 #define SETTINGS_PROFILE_MAX    4
-#define SETTINGS_VERSION        9
+#define SETTINGS_VERSION        10
 #define SETTINGS_FIO_PAGE       7
 
 #define SETTINGS_WATCHES_MAX    18

@@ -53,6 +53,9 @@
 #define SCRIPT_BOWSER_FINAL_2_WAVE      0x8023226C
 #define SCRIPT_BOWSER_FINAL_2_LIGHTNING 0x802339F4
 
+#define NU_GFX_UCODE_F3DEX2             0
+#define NU_SC_SWAPBUFFER                1
+
 // NOLINTBEGIN
 typedef struct OSContPad {
     u16 button;
@@ -1439,11 +1442,14 @@ void pm_audio_set_mono(void);
 void pm_remove_effect(pm_EffectInstance *effect);
 void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
 void nuContDataGet(OSContPad *contpad, u32 cont_no);
+void nuGfxTaskStart(Gfx *gfxListPtr, u32 gfxListSize, u32 ucode, u32 flags);
+void nuGfxTaskAllEndWait(void);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
 u64 osGetTime(void);
 void osSetTime(u64 time);
 OSThread *__osGetActiveQueue(void);
+void *osViGetNextFramebuffer(void);
 void osViSwapBuffer(void *vaddr);
 void osViBlack(u8 active);
 void osViRepeatLine(u8 active);

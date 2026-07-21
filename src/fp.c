@@ -12,12 +12,18 @@
 #include "util/geometry.h"
 #include "util/watchlist.h"
 #include <math.h>
+#include <mips.h>
 #include <n64.h>
 #include <startup.h>
 #include <stdlib.h>
 #include <string.h>
 
-FpCtxt fp = {.savedArea = 0x1c, .camDistMin = 100, .camDistMax = 1000, .freeCamMoveSpeed = 250, .freeCamPanSpeed = 70};
+FpCtxt fp = {.savedArea = 0x1c,
+             .camDistMin = 100,
+             .camDistMax = 1000,
+             .freeCamMoveSpeed = 250,
+             .freeCamPanSpeed = 70,
+             .pendingFrames = -1};
 
 // Initializes and uses new stack instead of using games main thread stack.
 static void initStack(void (*func)(void)) {
@@ -29,8 +35,13 @@ static void initStack(void (*func)(void)) {
                      "jalr   %0;"
                      "nop;"
                      "lw     $ra, 0($sp);"
-                     "lw     $sp, 4($sp);" ::"r"(func),
-                     "i"(&stack[sizeof(stack)]));
+                     "lw     $sp, 4($sp);"
+                     :
+                     : "r"(func), "i"(&stack[sizeof(stack)])
+                     // assume that `func` clobbers every caller-saved register
+                     : "memory", "v0", "v1", "a0", "a1", "a2", "a3", "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+                       "t8", "t9", "ra", "hi", "lo", "$f0", "$f1", "$f2", "$f3", "$f4", "$f5", "$f6", "$f7", "$f8",
+                       "$f9", "$f10", "$f11", "$f12", "$f13", "$f14", "$f15", "$f16", "$f17", "$f18", "$f19");
 }
 
 static void mainReturnProc(struct MenuItem *item, void *data) {
@@ -196,9 +207,9 @@ void fpDrawVersion(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuA
 }
 
 void fpDrawInputDisplay(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlpha) {
-    u16 dPad = pm_gGameStatus.currentButtons[0].buttons;
-    s8 dX = pm_gGameStatus.stickX[0];
-    s8 dY = pm_gGameStatus.stickY[0];
+    u16 dPad = inputPad().buttons;
+    s8 dX = inputX();
+    s8 dY = inputY();
 
     struct GfxTexture *texture = resourceGet(RES_ICON_BUTTONS);
     struct GfxTexture *controlStick = resourceGet(RES_TEXTURE_CONTROL_STICK);
@@ -572,6 +583,91 @@ void fpDraw(void) {
     gfxFlush();
 }
 
+#define PAUSE_DL_LENGTH 1024
+#define PAUSE_BLIT_ROWS 6 // 4KB tmem / (320 * 2) ~= 6
+
+static struct {
+    bool frozen;
+    bool captured;
+    bool overrideWasSet;
+    s16 bgRenderState;
+    u16 *frame;
+    s32 dlIdx;
+    Gfx dl[2][PAUSE_DL_LENGTH];
+} pauseFrame;
+
+static void fpPauseBlit(const u16 *src, u16 *dst) {
+    gDPPipeSync(pm_gMainGfxPos++);
+    gSPTexture(pm_gMainGfxPos++, -1, -1, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetScissor(pm_gMainGfxPos++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    gDPSetColorImage(pm_gMainGfxPos++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, MIPS_KSEG0_TO_PHYS(dst));
+    gDPSetCycleType(pm_gMainGfxPos++, G_CYC_COPY);
+    gDPSetRenderMode(pm_gMainGfxPos++, G_RM_NOOP, G_RM_NOOP2);
+    gDPSetTexturePersp(pm_gMainGfxPos++, G_TP_NONE);
+    gDPSetTextureLUT(pm_gMainGfxPos++, G_TT_NONE);
+    gDPSetAlphaCompare(pm_gMainGfxPos++, G_AC_NONE);
+    for (s32 y = 0; y < SCREEN_HEIGHT; y += PAUSE_BLIT_ROWS) {
+        gDPLoadTextureTile(pm_gMainGfxPos++, &src[y * SCREEN_WIDTH], G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH,
+                           PAUSE_BLIT_ROWS, 0, 0, SCREEN_WIDTH - 1, PAUSE_BLIT_ROWS - 1, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                           G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPTextureRectangle(pm_gMainGfxPos++, qu102(0), qu102(y), qu102(SCREEN_WIDTH - 1),
+                            qu102(y + PAUSE_BLIT_ROWS - 1), G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
+    }
+}
+
+// emitted into display list before fp so frozen frame doesn't contain stale fp overlay
+static void fpPauseCapture(void) {
+    u16 *cfb = nuGfxCfb_ptr;
+    if (pauseFrame.frame == NULL) {
+        pauseFrame.frame = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+    }
+    fpPauseBlit(cfb, pauseFrame.frame);
+    gDPPipeSync(pm_gMainGfxPos++);
+    gDPSetColorImage(pm_gMainGfxPos++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, MIPS_KSEG0_TO_PHYS(cfb));
+    pauseFrame.captured = TRUE;
+}
+
+static void fpPauseFreeze(void) {
+    nuGfxTaskAllEndWait();
+    if (!pauseFrame.captured) {
+        // game skipped draw pass so copy the fb ourselves
+        if (pauseFrame.frame == NULL) {
+            pauseFrame.frame = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+        }
+        memcpy(pauseFrame.frame, osViGetNextFramebuffer(), SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pauseFrame.frame));
+    }
+    pauseFrame.overrideWasSet = (pm_gOverrideFlags & GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME) != 0;
+    pm_gOverrideFlags |= GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME;
+    pauseFrame.bgRenderState = pm_gGameStatus.backgroundFlags & BACKGROUND_RENDER_STATE_MASK;
+    pm_gGameStatus.backgroundFlags &= ~BACKGROUND_RENDER_STATE_MASK;
+    pauseFrame.frozen = TRUE;
+}
+
+static void fpPauseUnfreeze(void) {
+    if (!pauseFrame.overrideWasSet) {
+        pm_gOverrideFlags &= ~GLOBAL_OVERRIDES_DISABLE_DRAW_FRAME;
+    }
+    pm_gGameStatus.backgroundFlags |= pauseFrame.bgRenderState;
+    pauseFrame.frozen = FALSE;
+    pauseFrame.captured = FALSE;
+}
+
+static void fpPauseDrawFrame(void) {
+    Gfx *dl = pauseFrame.dl[pauseFrame.dlIdx];
+    pauseFrame.dlIdx ^= 1;
+    u16 *cfb = nuGfxCfb_ptr;
+    pm_gMainGfxPos = dl;
+
+    gSPSegment(pm_gMainGfxPos++, 0x00, 0x0);
+    fpPauseBlit(pauseFrame.frame, cfb);
+
+    initStack(fpDraw);
+
+    gDPFullSync(pm_gMainGfxPos++);
+    gSPEndDisplayList(pm_gMainGfxPos++);
+    nuGfxTaskStart(dl, (u32)(pm_gMainGfxPos - dl) * sizeof(*dl), NU_GFX_UCODE_F3DEX2, NU_SC_SWAPBUFFER);
+}
+
 /* ========================== HOOK ENTRY POINTS ========================== */
 
 ENTRY void fpUpdateEntry(void) {
@@ -582,13 +678,30 @@ ENTRY void fpUpdateEntry(void) {
         PRINTF("\n**** fp initialized ****\n\n");
     }
 
-    pm_step_game_loop();
-    initStack(fpUpdate);
+    if (fp.pendingFrames) {
+        if (fp.pendingFrames > 0) {
+            fp.pendingFrames--;
+        }
+        if (pauseFrame.frozen) {
+            fpPauseUnfreeze();
+        }
+        pm_step_game_loop();
+        initStack(fpUpdate);
+    } else {
+        if (!pauseFrame.frozen) {
+            fpPauseFreeze();
+        }
+        initStack(fpUpdate);
+        fpPauseDrawFrame();
+    }
 }
 
 ENTRY void fpDrawEntry(void) {
     init_gp();
     pm_state_render_frontUI();
+    if (fp.pendingFrames == 0 && !pauseFrame.frozen) {
+        fpPauseCapture();
+    }
     initStack(fpDraw);
 }
 

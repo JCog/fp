@@ -72,6 +72,7 @@ typedef struct {
     u16 freeCamMoveSpeed;
     u16 freeCamPanSpeed;
     bool ignoreWalls;
+    s8 pendingFrames;
 } FpCtxt;
 
 extern FpCtxt fp;
