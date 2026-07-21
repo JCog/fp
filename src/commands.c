@@ -79,6 +79,11 @@ void fpSetInputMask(u32 pad, s8 x, s8 y) {
 }
 
 bool fpWarp(enum Areas area, u16 map, u16 entrance) {
+    if (pm_CurGameMode < 4 || pm_CurGameMode >= 12 || pm_gGameStatus.demoState) {
+        fpLog("can't warp right now");
+        return FALSE;
+    }
+
     pm_bgm_set_song(1, -1, 0, 0, 8); // clear secondary songs
     pm_snd_ambient_stop_all(0);
     pm_au_sfx_reset_players(pm_gSoundManager);
