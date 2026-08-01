@@ -1,4 +1,6 @@
 #include "crash_screen.h"
+#include "pm64.h"
+#include "sys/input.h"
 #include "util/util.h"
 
 static CrashScreen gCrashScreen;
@@ -33,6 +35,38 @@ static void crashScreenSleep(s32 ms) {
     u32 cycles = ms * (OS_CPU_COUNTER / 1000U);
 
     while (getCP0Count() - start < cycles) {}
+}
+
+static CrashScreenPad crashScreenReadPad(void) {
+    static OSMesgQueue siQueue;
+    static OSMesg siMesg;
+    static bool siQueueReady = FALSE;
+    __OSEventState siEvent;
+    CrashScreenPad pad = {0};
+    OSContPad contPad[4];
+
+    if (!siQueueReady) {
+        osCreateMesgQueue(&siQueue, &siMesg, 1);
+        siQueueReady = TRUE;
+    }
+
+    siEvent = __osEventStateTab[OS_EVENT_SI];
+    __osEventStateTab[OS_EVENT_SI].messageQueue = &siQueue;
+    __osEventStateTab[OS_EVENT_SI].message = NULL;
+
+    osContStartReadData(&siQueue);
+    osRecvMesg(&siQueue, NULL, OS_MESG_BLOCK);
+    osContGetReadData(contPad);
+
+    __osEventStateTab[OS_EVENT_SI] = siEvent;
+
+    pad.err = contPad[0].errno;
+    pad.valid = (contPad[0].errno == 0);
+    pad.buttons = contPad[0].button;
+    pad.stickX = contPad[0].stick_x;
+    pad.stickY = contPad[0].stick_y;
+
+    return pad;
 }
 
 static void crashScreenDrawRect(s32 x, s32 y, s32 width, s32 height) {
