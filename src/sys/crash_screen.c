@@ -69,11 +69,7 @@ static CrashScreenPad crashScreenReadPad(void) {
     return pad;
 }
 
-static void crashScreenDrawRect(s32 x, s32 y, s32 width, s32 height) {
-    u16 *ptr;
-    s32 i;
-    s32 j;
-
+static void crashScreenFillRect(s32 x, s32 y, s32 width, s32 height, u16 color) {
     if (gCrashScreen.width == 640) {
         x <<= 1;
         y <<= 1;
@@ -81,12 +77,11 @@ static void crashScreenDrawRect(s32 x, s32 y, s32 width, s32 height) {
         height <<= 1;
     }
 
-    ptr = gCrashScreen.frameBuf + gCrashScreen.width * y + x;
+    u16 *ptr = gCrashScreen.frameBuf + gCrashScreen.width * y + x;
 
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            *ptr = ((*ptr & 0xE738) >> 2) | 1;
-            ptr++;
+    for (s32 i = 0; i < height; i++) {
+        for (s32 j = 0; j < width; j++) {
+            *ptr++ = color;
         }
 
         ptr += gCrashScreen.width - width;
@@ -199,12 +194,10 @@ static void crashScreenPrintFpcsr(u32 value) {
     }
 }
 
-static void crashScreenDraw(OSThread *faultedThread) {
-    s16 causeIndex;
-    __OSThreadContext *ctx;
+static void crashScreenDrawContext(OSThread *faultedThread) {
+    __OSThreadContext *ctx = &faultedThread->context;
 
-    ctx = &faultedThread->context;
-    causeIndex = ((faultedThread->context.cause >> 2) & 0x1F);
+    s16 causeIndex = ((faultedThread->context.cause >> 2) & 0x1F);
 
     if (causeIndex == 23) {
         causeIndex = 16;
@@ -216,18 +209,8 @@ static void crashScreenDraw(OSThread *faultedThread) {
 
     osWritebackDCacheAll();
 
-    crashScreenDrawRect(25, 20, 270, 25);
     crashScreenPrintf(30, 25, "THREAD:%d  (%s)", faultedThread->id, gFaultCauses[causeIndex]);
     crashScreenPrintf(30, 35, "PC:%08XH   SR:%08XH   VA:%08XH", ctx->pc, ctx->sr, ctx->badvaddr);
-
-    crashScreenSleep(2000);
-
-    osViBlack(0);
-    osViRepeatLine(0);
-    osViSwapBuffer(gCrashScreen.frameBuf);
-
-    crashScreenDrawRect(25, 45, 270, 185);
-
     crashScreenPrintf(30, 50, "AT:%08XH   V0:%08XH   V1:%08XH", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
     crashScreenPrintf(30, 60, "A0:%08XH   A1:%08XH   A2:%08XH", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
     crashScreenPrintf(30, 70, "A3:%08XH   T0:%08XH   T1:%08XH", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
@@ -257,10 +240,6 @@ static void crashScreenDraw(OSThread *faultedThread) {
     crashScreenPrintFpr(120, 210, 26, &ctx->fp32[26]);
     crashScreenPrintFpr(210, 210, 28, &ctx->fp32[28]);
     crashScreenPrintFpr(30, 220, 30, &ctx->fp32[30]);
-
-    crashScreenSleep(500);
-
-    crashScreenPrintf(210, 140, "MM:%08XH", *(u32 *)ctx->pc);
 }
 
 static OSThread *crashScreenGetFaultedThread(void) {
@@ -278,9 +257,29 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
+typedef enum {
+    CRASH_PAGE_CONTEXT,
+    CRASH_PAGE_MAX
+} CrashPage;
+
+static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
+    __OSThreadContext *ctx = &faultedThread->context;
+
+    crashScreenFillRect(25, 20, 270, 230, 1);
+
+    switch (page) {
+        case CRASH_PAGE_CONTEXT: crashScreenDrawContext(faultedThread); break;
+        case CRASH_PAGE_MAX: break;
+    }
+
+    crashScreenPrintf(30, 228, "L/R:PAGE %d/%d", page + 1, CRASH_PAGE_MAX);
+}
+
 static void crashScreenThreadEntry(void *unused) {
     OSMesg mesg;
     OSThread *faultedThread;
+
+    init_gp();
 
     osSetEventMesg(OS_EVENT_CPU_BREAK, &gCrashScreen.queue, (OSMesg)1);
     osSetEventMesg(OS_EVENT_FAULT, &gCrashScreen.queue, (OSMesg)2);
@@ -293,13 +292,57 @@ static void crashScreenThreadEntry(void *unused) {
 
     osStopThread(faultedThread);
     PRINTF("drawing crash screen\n");
-    crashScreenDraw(faultedThread);
 
-    while (1) {}
+    void *fb = (void*)MIPS_KSEG0_TO_KSEG1(osViGetCurrentFramebuffer());
+
+    osViBlack(0);
+    osViRepeatLine(0);
+    osViSwapBuffer(gCrashScreen.frameBuf);
+
+    u8 page = CRASH_PAGE_CONTEXT;
+    u16 lastButtons = 0;
+    bool redraw = TRUE;
+    bool drawingCrashScreen = TRUE;
+
+    while (1) {
+        CrashScreenPad pad;
+        pad = crashScreenReadPad();
+        u16 pressed = 0;
+
+        if (pad.valid) {
+            pressed = pad.buttons & ~lastButtons;
+            lastButtons = pad.buttons;
+        }
+
+        if (pressed & BUTTON_R) {
+            page = (page + 1) % CRASH_PAGE_MAX;
+            redraw = TRUE;
+        } else if (pressed & BUTTON_L) {
+            page = (page + CRASH_PAGE_MAX - 1) % CRASH_PAGE_MAX;
+            redraw = TRUE;
+        } else if (pressed & BUTTON_Z) {
+            if (drawingCrashScreen) {
+                drawingCrashScreen = FALSE;
+                osViSwapBuffer(fb);
+                redraw = FALSE;
+            } else {
+                drawingCrashScreen = TRUE;
+                osViSwapBuffer(gCrashScreen.frameBuf);
+                redraw = TRUE;
+            }
+        }
+
+        if (redraw) {
+            crashScreenDrawPage(faultedThread, page);
+            redraw = FALSE;
+        }
+
+        crashScreenSleep(33);
+    }
 }
 
 void crashScreenSetDrawInfoCustom(u16 *frameBufPtr, s16 width, s16 height) {
-    gCrashScreen.frameBuf = (u16 *)((u32)frameBufPtr | 0xA0000000);
+    gCrashScreen.frameBuf = (u16 *)MIPS_KSEG0_TO_KSEG1(frameBufPtr);
     gCrashScreen.width = width;
     gCrashScreen.height = height;
 }
@@ -307,7 +350,7 @@ void crashScreenSetDrawInfoCustom(u16 *frameBufPtr, s16 width, s16 height) {
 void crashScreenInit(void) {
     gCrashScreen.width = SCREEN_WIDTH;
     gCrashScreen.height = 16;
-    gCrashScreen.frameBuf = (u16 *)((osMemSize | 0xA0000000) - ((SCREEN_WIDTH * SCREEN_HEIGHT) * 2));
+    gCrashScreen.frameBuf = (u16 *)(MIPS_KSEG0_TO_KSEG1(osMemSize) - ((SCREEN_WIDTH * SCREEN_HEIGHT) * 2));
     osCreateMesgQueue(&gCrashScreen.queue, &gCrashScreen.mesg, 1);
     osCreateThread(&gCrashScreen.thread, 2, crashScreenThreadEntry, NULL,
                    gCrashScreen.stack + sizeof(gCrashScreen.stack), 0x80);
