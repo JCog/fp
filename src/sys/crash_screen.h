@@ -105,6 +105,24 @@ static const u8 gCrashScreenFont[][CRASH_FONT_HEIGHT] = {
     {0x00, 0x00, 0x09, 0x16, 0x00, 0x00, 0x00}, /* ~ */
 };
 
+typedef struct {
+    bool valid;
+    u16 buttons;
+    s8 stickX;
+    s8 stickY;
+    u8 err;
+} CrashScreenPad;
+
+typedef struct {
+    char stack[0x800];
+    OSThread thread;
+    OSMesgQueue queue;
+    OSMesg mesg;
+    u16 *frameBuf;
+    u16 width;
+    u16 height;
+} CrashScreen;
+
 void crashScreenInit(void);
 void crashScreenSetDrawInfoCustom(u16 *frameBufPtr, s16 width, s16 height);
 

@@ -26,6 +26,14 @@ static inline s32 getIrqf(void) {
     return sr & MIPS_STATUS_IE;
 }
 
+static inline u32 getCP0Count(void) {
+    u32 count;
+
+    asm volatile("mfc0   %[count], $9;" : [count] "=r"(count));
+
+    return count;
+}
+
 static inline void dcacheInv(const void *ptr, size_t len) {
     uintptr_t p = (uintptr_t)ptr & ~0xF;
     uintptr_t e = (uintptr_t)ptr + len;
