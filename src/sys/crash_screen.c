@@ -1,7 +1,26 @@
 #include "crash_screen.h"
+#include "crash_screen_font.h"
 #include "pm64.h"
 #include "sys/input.h"
 #include "util/util.h"
+
+typedef struct {
+    bool valid;
+    u16 buttons;
+    s8 stickX;
+    s8 stickY;
+    u8 err;
+} CrashScreenPad;
+
+typedef struct {
+    char stack[0x800];
+    OSThread thread;
+    OSMesgQueue queue;
+    OSMesg mesg;
+    u16 *frameBuf;
+    u16 width;
+    u16 height;
+} CrashScreen;
 
 static CrashScreen gCrashScreen;
 
