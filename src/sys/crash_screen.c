@@ -1,5 +1,6 @@
 #include "crash_screen.h"
 #include "crash_screen_font.h"
+#include "page.h"
 #include "pm64.h"
 #include "sys/input.h"
 #include "util/util.h"
@@ -185,35 +186,95 @@ static void crashScreenPrintf(s32 x, s32 y, const char *fmt, ...) {
     va_end(args);
 }
 
-static void crashScreenPrintFpr(s32 x, s32 y, s32 regNum, void *addr) {
-    u32 bits = *(u32 *)addr;
-    s32 exponent = ((bits & 0x7F800000U) >> 0x17) - 0x7F;
+static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
+    s16 causeIndex = ((ctx->cause >> 2) & 0x1F);
+    u32 badVAddr = ctx->badvaddr;
 
-    if ((exponent >= -0x7E && exponent <= 0x7F) || bits == 0) {
-        crashScreenPrintf(x, y, "F%02d:%+.3e", regNum, *(f32 *)addr);
-    } else {
-        crashScreenPrintf(x, y, "F%02d:---------", regNum);
-    }
-}
-
-static void crashScreenPrintFpcsr(u32 value) {
-    s32 i;
-    u32 flag = 0x20000;
-
-    crashScreenPrintf(30, 155, "FPCSR:%08XH", value);
-
-    for (i = 0; i < 6;) {
-        if (value & flag) {
-            crashScreenPrintf(132, 155, "(%s)", gFPCSRFaultCauses[i]);
+    switch (causeIndex) {
+        case 1: crashScreenPrintf(x, y, "write to bad pointer: 0x%08x", badVAddr); break;
+        case 2:
+            if (badVAddr < 0x10000) { // probably null pointer + some struct offset
+                crashScreenPrintf(x, y, "load from null pointer: 0x%08x", badVAddr);
+            } else {
+                crashScreenPrintf(x, y, "load from bad pointer: 0x%08x", badVAddr);
+            }
+            break;
+        case 3:
+            if (badVAddr < 0x10000) {
+                crashScreenPrintf(x, y, "write to null pointer: 0x%08x", badVAddr);
+            } else {
+                crashScreenPrintf(x, y, "write to bad pointer: 0x%08x", badVAddr);
+            }
+            break;
+        case 4: crashScreenPrintf(x, y, "unaligned load: 0x%08x", badVAddr); break;
+        case 5: crashScreenPrintf(x, y, "unaligned store: 0x%08x", badVAddr); break;
+        case 6:
+        case 7: crashScreenPrintf(x, y, "address outside ram: 0x%08x", badVAddr); break;
+        case 10: crashScreenPrintf(x, y, "invalid instruction"); break;
+        case 12: crashScreenPrintf(x, y, "integer overflow"); break;
+        case 15: {
             break;
         }
-
-        i++;
-        flag >>= 1;
+        default: crashScreenPrintf(x, y, gFaultCauses[causeIndex]); break;
     }
 }
 
-static void crashScreenDrawContext(OSThread *faultedThread) {
+static void crashScreenDrawLine(u32 y) {
+    for (u32 i = TEXT_L; i < TEXT_R; i++) {
+        crashScreenPrintf(i, y, "-");
+    }
+}
+
+static void crashScreenDrawHeader(__OSThreadContext *ctx, OSId thread) {
+    crashScreenPrintCause(ctx, COL0, HDR_Y0);
+    crashScreenPrintf(COL0, HDR_Y1, "TH: %d PC: %08X SP: %08X RA: %08X", thread, ctx->pc, (u32)ctx->sp, (u32)ctx->ra);
+    crashScreenDrawLine(RULE_HDR);
+}
+
+typedef enum {
+    CRASH_PAGE_SUMMARY,
+    CRASH_PAGE_DETAIL,
+    CRASH_PAGE_FPU,
+    CRASH_PAGE_BACKTRACE,
+    CRASH_PAGE_MAX
+} CrashPage;
+
+static void crashScreenDrawFooter(u8 page) {
+    crashScreenDrawLine(RULE_FOOT);
+    crashScreenPrintf(COL0, FOOT_Y, "L/R %d/%d", page + 1, CRASH_PAGE_MAX);
+    crashScreenPrintf(COL2, FOOT_Y, "Z HIDE");
+}
+
+static void crashScreenDrawSummary(OSThread *faultedThread) {
+    __OSThreadContext *ctx = &faultedThread->context;
+
+    if (!VALID_ADDR(ctx->pc)) {
+        return;
+    }
+
+    crashScreenPrintf(COL0, ROW(0), "DISASSEMBLY");
+
+    u32 addr = ctx->pc - (4 * 4);
+    s32 row = 1;
+
+    for (s32 i = 0; i < 8; i++, row++) {
+        const char *inst = disasmInstruction(*(u32 *)addr, addr);
+        if (addr == ctx->pc) {
+            crashScreenPrintf(COL0, ROW(row), "-> %08x: %s", addr, inst);
+        } else {
+            crashScreenPrintf(COL0 + 18, ROW(row), "%08x: %s", addr, inst);
+        }
+
+        addr += 4;
+    }
+
+    row += 2;
+
+    crashScreenPrintf(COL0, ROW(row), "CALL STACK");
+    for (s32 i = 0; i < 4; i++, row++) {}
+}
+
+static void crashScreenDrawDetail(OSThread *faultedThread) {
     __OSThreadContext *ctx = &faultedThread->context;
 
     s16 causeIndex = ((faultedThread->context.cause >> 2) & 0x1F);
@@ -226,39 +287,65 @@ static void crashScreenDrawContext(OSThread *faultedThread) {
         causeIndex = 17;
     }
 
-    osWritebackDCacheAll();
+    crashScreenPrintf(COL0, ROW(0), "AT:%08XH   V0:%08XH   V1:%08XH", ctx->at, ctx->v0, ctx->v1);
+    crashScreenPrintf(COL0, ROW(1), "A0:%08XH   A1:%08XH   A2:%08XH", ctx->a0, ctx->a1, ctx->a2);
+    crashScreenPrintf(COL0, ROW(2), "A3:%08XH   T0:%08XH   T1:%08XH", ctx->a3, ctx->t0, ctx->t1);
+    crashScreenPrintf(COL0, ROW(3), "T2:%08XH   T3:%08XH   T4:%08XH", ctx->t2, ctx->t3, ctx->t4);
+    crashScreenPrintf(COL0, ROW(4), "T5:%08XH   T6:%08XH   T7:%08XH", ctx->t5, ctx->t6, ctx->t7);
+    crashScreenPrintf(COL0, ROW(5), "S0:%08XH   S1:%08XH   S2:%08XH", ctx->s0, ctx->s1, ctx->s2);
+    crashScreenPrintf(COL0, ROW(6), "S3:%08XH   S4:%08XH   S5:%08XH", ctx->s3, ctx->s4, ctx->s5);
+    crashScreenPrintf(COL0, ROW(7), "S6:%08XH   S7:%08XH   T8:%08XH", ctx->s6, ctx->s7, ctx->t8);
+    crashScreenPrintf(COL0, ROW(8), "T9:%08XH   GP:%08XH   S8:%08XH", ctx->t9, ctx->gp, ctx->s8);
+    crashScreenPrintf(COL0, ROW(10), "SR:%08XH   CAUSE:%08XH", ctx->sr, ctx->cause);
+    crashScreenPrintf(COL0, ROW(11), "HI:%08XH   LO:%08XH", ctx->hi, ctx->lo);
+}
 
-    crashScreenPrintf(30, 25, "THREAD:%d  (%s)", faultedThread->id, gFaultCauses[causeIndex]);
-    crashScreenPrintf(30, 35, "PC:%08XH   SR:%08XH   VA:%08XH", ctx->pc, ctx->sr, ctx->badvaddr);
-    crashScreenPrintf(30, 50, "AT:%08XH   V0:%08XH   V1:%08XH", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
-    crashScreenPrintf(30, 60, "A0:%08XH   A1:%08XH   A2:%08XH", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
-    crashScreenPrintf(30, 70, "A3:%08XH   T0:%08XH   T1:%08XH", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
-    crashScreenPrintf(30, 80, "T2:%08XH   T3:%08XH   T4:%08XH", (u32)ctx->t2, (u32)ctx->t3, (u32)ctx->t4);
-    crashScreenPrintf(30, 90, "T5:%08XH   T6:%08XH   T7:%08XH", (u32)ctx->t5, (u32)ctx->t6, (u32)ctx->t7);
-    crashScreenPrintf(30, 100, "S0:%08XH   S1:%08XH   S2:%08XH", (u32)ctx->s0, (u32)ctx->s1, (u32)ctx->s2);
-    crashScreenPrintf(30, 110, "S3:%08XH   S4:%08XH   S5:%08XH", (u32)ctx->s3, (u32)ctx->s4, (u32)ctx->s5);
-    crashScreenPrintf(30, 120, "S6:%08XH   S7:%08XH   T8:%08XH", (u32)ctx->s6, (u32)ctx->s7, (u32)ctx->t8);
-    crashScreenPrintf(30, 130, "T9:%08XH   GP:%08XH   SP:%08XH", (u32)ctx->t9, (u32)ctx->gp, (u32)ctx->sp);
-    crashScreenPrintf(30, 140, "S8:%08XH   RA:%08XH", (u32)ctx->s8, (u32)ctx->ra);
+static void crashScreenPrintFpcsr(u32 value) {
+    crashScreenPrintf(COL0, ROW(0), "FPCSR:%08XH", value);
+
+    u32 flag = 0x20000;
+    for (s32 i = 0; i < 6; i++) {
+        if (value & flag) {
+            crashScreenPrintf(COL1, ROW(0), "(%s)", gFPCSRFaultCauses[i]);
+            break;
+        }
+
+        flag >>= 1;
+    }
+}
+
+static void crashScreenPrintFpr(s32 x, s32 y, s32 regNum, void *addr) {
+    u32 bits = *(u32 *)addr;
+    s32 exponent = ((bits & 0x7F800000U) >> 0x17) - 0x7F;
+
+    if ((exponent >= -0x7E && exponent <= 0x7F) || bits == 0) {
+        crashScreenPrintf(x, y, "F%02d:%+.3e", regNum, *(f32 *)addr);
+    } else {
+        crashScreenPrintf(x, y, "F%02d:---------", regNum);
+    }
+}
+
+static void crashScreenDrawFpu(OSThread *faultedThread) {
+    __OSThreadContext *ctx = &faultedThread->context;
 
     crashScreenPrintFpcsr(ctx->fpcsr);
 
-    crashScreenPrintFpr(30, 170, 0, &ctx->fp32[0]);
-    crashScreenPrintFpr(120, 170, 2, &ctx->fp32[2]);
-    crashScreenPrintFpr(210, 170, 4, &ctx->fp32[4]);
-    crashScreenPrintFpr(30, 180, 6, &ctx->fp32[6]);
-    crashScreenPrintFpr(120, 180, 8, &ctx->fp32[8]);
-    crashScreenPrintFpr(210, 180, 10, &ctx->fp32[10]);
-    crashScreenPrintFpr(30, 190, 12, &ctx->fp32[12]);
-    crashScreenPrintFpr(120, 190, 14, &ctx->fp32[14]);
-    crashScreenPrintFpr(210, 190, 16, &ctx->fp32[16]);
-    crashScreenPrintFpr(30, 200, 18, &ctx->fp32[18]);
-    crashScreenPrintFpr(120, 200, 20, &ctx->fp32[20]);
-    crashScreenPrintFpr(210, 200, 22, &ctx->fp32[22]);
-    crashScreenPrintFpr(30, 210, 24, &ctx->fp32[24]);
-    crashScreenPrintFpr(120, 210, 26, &ctx->fp32[26]);
-    crashScreenPrintFpr(210, 210, 28, &ctx->fp32[28]);
-    crashScreenPrintFpr(30, 220, 30, &ctx->fp32[30]);
+    crashScreenPrintFpr(COL0, ROW(2), 0, &ctx->fp32[0]);
+    crashScreenPrintFpr(COL1, ROW(2), 2, &ctx->fp32[2]);
+    crashScreenPrintFpr(COL2, ROW(2), 4, &ctx->fp32[4]);
+    crashScreenPrintFpr(COL0, ROW(3), 6, &ctx->fp32[6]);
+    crashScreenPrintFpr(COL1, ROW(3), 8, &ctx->fp32[8]);
+    crashScreenPrintFpr(COL2, ROW(3), 10, &ctx->fp32[10]);
+    crashScreenPrintFpr(COL0, ROW(4), 12, &ctx->fp32[12]);
+    crashScreenPrintFpr(COL1, ROW(4), 14, &ctx->fp32[14]);
+    crashScreenPrintFpr(COL2, ROW(4), 16, &ctx->fp32[16]);
+    crashScreenPrintFpr(COL0, ROW(5), 18, &ctx->fp32[18]);
+    crashScreenPrintFpr(COL1, ROW(5), 20, &ctx->fp32[20]);
+    crashScreenPrintFpr(COL2, ROW(5), 22, &ctx->fp32[22]);
+    crashScreenPrintFpr(COL0, ROW(6), 24, &ctx->fp32[24]);
+    crashScreenPrintFpr(COL1, ROW(6), 26, &ctx->fp32[26]);
+    crashScreenPrintFpr(COL2, ROW(6), 28, &ctx->fp32[28]);
+    crashScreenPrintFpr(COL0, ROW(7), 30, &ctx->fp32[30]);
 }
 
 static OSThread *crashScreenGetFaultedThread(void) {
@@ -276,22 +363,22 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
-typedef enum {
-    CRASH_PAGE_CONTEXT,
-    CRASH_PAGE_MAX
-} CrashPage;
-
 static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
     __OSThreadContext *ctx = &faultedThread->context;
 
-    crashScreenFillRect(25, 20, 270, 230, 1);
+    osWritebackDCacheAll();
+
+    crashScreenFillRect(PAGE_X, PAGE_Y, PAGE_W, PAGE_H, 1);
+
+    crashScreenDrawHeader(ctx, faultedThread->id);
+    crashScreenDrawFooter(page);
 
     switch (page) {
-        case CRASH_PAGE_CONTEXT: crashScreenDrawContext(faultedThread); break;
+        case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(faultedThread); break;
+        case CRASH_PAGE_DETAIL: crashScreenDrawDetail(faultedThread); break;
+        case CRASH_PAGE_FPU: crashScreenDrawFpu(faultedThread); break;
         case CRASH_PAGE_MAX: break;
     }
-
-    crashScreenPrintf(30, 228, "L/R:PAGE %d/%d", page + 1, CRASH_PAGE_MAX);
 }
 
 static void crashScreenThreadEntry(void *unused) {
@@ -312,13 +399,13 @@ static void crashScreenThreadEntry(void *unused) {
     osStopThread(faultedThread);
     PRINTF("drawing crash screen\n");
 
-    void *fb = (void*)MIPS_KSEG0_TO_KSEG1(osViGetCurrentFramebuffer());
+    void *fb = (void *)MIPS_KSEG0_TO_KSEG1(osViGetCurrentFramebuffer());
 
     osViBlack(0);
     osViRepeatLine(0);
     osViSwapBuffer(gCrashScreen.frameBuf);
 
-    u8 page = CRASH_PAGE_CONTEXT;
+    u8 page = CRASH_PAGE_SUMMARY;
     u16 lastButtons = 0;
     bool redraw = TRUE;
     bool drawingCrashScreen = TRUE;
