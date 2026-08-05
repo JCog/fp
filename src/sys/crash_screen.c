@@ -367,6 +367,64 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
+#define ADDIU_SP_SP(x)       (((x) >> 16) == 0x27BD)
+#define SW_RA_SP(x)          (((x) >> 16) == 0xAFBF)
+#define IMM(x)               (((s16)(x) & 0xFFFF))
+#define BACKTRACE_FRAMES_MAX 12
+#define BACKTRACE_SCAN_MAX   0x600
+
+static void crashScreenDrawBacktrace(u32 pc, u32 ra, u32 sp, u32 maxFrames) {
+    for (s32 frame = 0; frame < maxFrames; frame++) {
+        u32 *scan = (u32 *)pc;
+        s32 frameSize = -1;
+        s32 raOffset = -1;
+
+        if (!VALID_ADDR(pc)) {
+            return;
+        }
+
+        crashScreenPrintf(COL0, ROW(frame), "%08X", frame == 0 ? pc : pc - 8);
+
+        for (s32 i = 0; i < BACKTRACE_SCAN_MAX; i++) {
+            if (!VALID_ADDR(scan)) {
+                break;
+            }
+
+            u32 inst = *scan;
+            if (SW_RA_SP(inst)) { // sw ra, raOffset(sp)
+                raOffset = IMM(inst);
+            } else if (ADDIU_SP_SP(inst) && IMM(inst) & 0x8000) { // addiu sp, sp, -frameSize
+                frameSize = -IMM(inst);
+                break;
+            }
+
+            scan--;
+        }
+
+        if (frameSize < 0) {
+            return;
+        }
+
+        if (raOffset < 0) {
+            if (frame != 0) {
+                return;
+            }
+            // we probably crashed in a function with no stack frame so start scanning from call site
+            pc = ra;
+        } else {
+            u32 *slot = (u32 *)(sp + raOffset);
+
+            if (!VALID_ADDR(slot)) {
+                return;
+            }
+
+            pc = *slot;
+        }
+
+        sp += frameSize;
+    }
+}
+
 static void crashScreenDrawStack(__OSThreadContext *ctx) {
     u32 *sp = (u32 *)(u32)ctx->sp;
 
@@ -391,6 +449,9 @@ static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
         case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(faultedThread); break;
         case CRASH_PAGE_DETAIL: crashScreenDrawDetail(faultedThread); break;
         case CRASH_PAGE_FPU: crashScreenDrawFpu(faultedThread); break;
+        case CRASH_PAGE_BACKTRACE:
+            crashScreenDrawBacktrace(ctx->pc, (u32)ctx->ra, (u32)ctx->sp, BACKTRACE_FRAMES_MAX);
+            break;
         case CRASH_PAGE_STACK: crashScreenDrawStack(ctx); break;
         case CRASH_PAGE_MAX: break;
     }
