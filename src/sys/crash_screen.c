@@ -1,5 +1,6 @@
 #include "crash_screen.h"
 #include "crash_screen_font.h"
+#include "disasm.h"
 #include "page.h"
 #include "pm64.h"
 #include "sys/input.h"
