@@ -242,9 +242,11 @@ typedef enum {
 } CrashPage;
 
 static void crashScreenDrawFooter(u8 page) {
+    static const char *pageNames[] = {"SUMMARY", "DETAIL", "FPU", "BACKTRACE", "STACK"};
+
     crashScreenDrawLine(RULE_FOOT);
-    crashScreenPrintf(COL0, FOOT_Y, "L/R %d/%d", page + 1, CRASH_PAGE_MAX);
-    crashScreenPrintf(COL2, FOOT_Y, "Z HIDE");
+    crashScreenPrintf(COL0, FOOT_Y, "L/R %d/%d  %s", page + 1, CRASH_PAGE_MAX, pageNames[page]);
+    crashScreenPrintf(TEXT_R - 60, FOOT_Y, "Z HIDE");
 }
 
 static void crashScreenDrawSummary(OSThread *faultedThread) {
@@ -289,21 +291,21 @@ static void crashScreenDrawDetail(OSThread *faultedThread) {
         causeIndex = 17;
     }
 
-    crashScreenPrintf(COL0, ROW(0), "AT:%08XH   V0:%08XH   V1:%08XH", ctx->at, ctx->v0, ctx->v1);
-    crashScreenPrintf(COL0, ROW(1), "A0:%08XH   A1:%08XH   A2:%08XH", ctx->a0, ctx->a1, ctx->a2);
-    crashScreenPrintf(COL0, ROW(2), "A3:%08XH   T0:%08XH   T1:%08XH", ctx->a3, ctx->t0, ctx->t1);
-    crashScreenPrintf(COL0, ROW(3), "T2:%08XH   T3:%08XH   T4:%08XH", ctx->t2, ctx->t3, ctx->t4);
-    crashScreenPrintf(COL0, ROW(4), "T5:%08XH   T6:%08XH   T7:%08XH", ctx->t5, ctx->t6, ctx->t7);
-    crashScreenPrintf(COL0, ROW(5), "S0:%08XH   S1:%08XH   S2:%08XH", ctx->s0, ctx->s1, ctx->s2);
-    crashScreenPrintf(COL0, ROW(6), "S3:%08XH   S4:%08XH   S5:%08XH", ctx->s3, ctx->s4, ctx->s5);
-    crashScreenPrintf(COL0, ROW(7), "S6:%08XH   S7:%08XH   T8:%08XH", ctx->s6, ctx->s7, ctx->t8);
-    crashScreenPrintf(COL0, ROW(8), "T9:%08XH   GP:%08XH   S8:%08XH", ctx->t9, ctx->gp, ctx->s8);
-    crashScreenPrintf(COL0, ROW(10), "SR:%08XH   CAUSE:%08XH", ctx->sr, ctx->cause);
-    crashScreenPrintf(COL0, ROW(11), "HI:%08XH   LO:%08XH", ctx->hi, ctx->lo);
+    crashScreenPrintf(COL0, ROW(0), "AT:%08X     V0:%08X     V1:%08X", ctx->at, ctx->v0, ctx->v1);
+    crashScreenPrintf(COL0, ROW(1), "A0:%08X     A1:%08X     A2:%08X", ctx->a0, ctx->a1, ctx->a2);
+    crashScreenPrintf(COL0, ROW(2), "A3:%08X     T0:%08X     T1:%08X", ctx->a3, ctx->t0, ctx->t1);
+    crashScreenPrintf(COL0, ROW(3), "T2:%08X     T3:%08X     T4:%08X", ctx->t2, ctx->t3, ctx->t4);
+    crashScreenPrintf(COL0, ROW(4), "T5:%08X     T6:%08X     T7:%08X", ctx->t5, ctx->t6, ctx->t7);
+    crashScreenPrintf(COL0, ROW(5), "S0:%08X     S1:%08X     S2:%08X", ctx->s0, ctx->s1, ctx->s2);
+    crashScreenPrintf(COL0, ROW(6), "S3:%08X     S4:%08X     S5:%08X", ctx->s3, ctx->s4, ctx->s5);
+    crashScreenPrintf(COL0, ROW(7), "S6:%08X     S7:%08X     T8:%08X", ctx->s6, ctx->s7, ctx->t8);
+    crashScreenPrintf(COL0, ROW(8), "T9:%08X     GP:%08X     S8:%08X", ctx->t9, ctx->gp, ctx->s8);
+    crashScreenPrintf(COL0, ROW(10), "SR:%08X   CAUSE:%08X", ctx->sr, ctx->cause);
+    crashScreenPrintf(COL0, ROW(11), "HI:%08X   LO:%08X", ctx->hi, ctx->lo);
 }
 
 static void crashScreenPrintFpcsr(u32 value) {
-    crashScreenPrintf(COL0, ROW(0), "FPCSR:%08XH", value);
+    crashScreenPrintf(COL0, ROW(0), "FPCSR:%08X", value);
 
     u32 flag = 0x20000;
     for (s32 i = 0; i < 6; i++) {
