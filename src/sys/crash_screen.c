@@ -237,6 +237,7 @@ typedef enum {
     CRASH_PAGE_DETAIL,
     CRASH_PAGE_FPU,
     CRASH_PAGE_BACKTRACE,
+    CRASH_PAGE_STACK,
     CRASH_PAGE_MAX
 } CrashPage;
 
@@ -364,6 +365,16 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
+static void crashScreenDrawStack(__OSThreadContext *ctx) {
+    u32 *sp = (u32 *)(u32)ctx->sp;
+
+    crashScreenPrintf(TEXT_L, ROW(0), "    00:       04:       08:       0C:");
+    for (u32 i = 0; i < 16; i++) {
+        crashScreenPrintf(TEXT_L, ROW(i + 1), "%02d: %08X  %08X  %08X  %08X", i, *sp, *(sp + 1), *(sp + 2), *(sp + 3));
+        sp += 4;
+    }
+}
+
 static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
     __OSThreadContext *ctx = &faultedThread->context;
 
@@ -378,6 +389,7 @@ static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
         case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(faultedThread); break;
         case CRASH_PAGE_DETAIL: crashScreenDrawDetail(faultedThread); break;
         case CRASH_PAGE_FPU: crashScreenDrawFpu(faultedThread); break;
+        case CRASH_PAGE_STACK: crashScreenDrawStack(ctx); break;
         case CRASH_PAGE_MAX: break;
     }
 }
