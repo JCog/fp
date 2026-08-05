@@ -369,24 +369,75 @@ static OSThread *crashScreenGetFaultedThread(void) {
 
 #define ADDIU_SP_SP(x)       (((x) >> 16) == 0x27BD)
 #define SW_RA_SP(x)          (((x) >> 16) == 0xAFBF)
-#define IMM(x)               (((s16)(x) & 0xFFFF))
-#define BACKTRACE_FRAMES_MAX 12
-#define BACKTRACE_SCAN_MAX   0x600
+#define IMM(x)               ((s16)((x) & 0xFFFF))
+#define BACKTRACE_FRAMES_MAX 16
+#define BACKTRACE_SCAN_MAX   0x1000
+#define FUNC_SIZE_MAX        0x8000
+
+static void findFuncStart(u32 pc, u32 callAddr, u32 *funcStart) {
+    if (!VALID_ADDR(pc) || !VALID_ADDR(callAddr)) {
+        return;
+    }
+
+    u32 call = *(u32 *)callAddr;
+    if ((call >> 26) != 3) { // not jal
+        return;
+    }
+
+    u32 target = ((callAddr + 4) & 0xF0000000) | ((call & 0x3FFFFFF) << 2);
+    if (!VALID_ADDR(target) || target > pc || pc - target >= FUNC_SIZE_MAX) {
+        return;
+    }
+
+    s32 prologues = 0;
+    for (u32 *p = (u32 *)target; p < (u32 *)pc; p++) {
+        if (ADDIU_SP_SP(*p) && (IMM(*p) & 0x8000)) {
+            prologues++;
+        }
+    }
+
+    if (prologues > 1) {
+        return;
+    }
+
+    *funcStart = target;
+}
+
+typedef struct {
+    u32 pc;
+    u32 funcStart;
+} BacktraceFrame;
 
 static void crashScreenDrawBacktrace(u32 pc, u32 ra, u32 sp, u32 maxFrames) {
-    for (s32 frame = 0; frame < maxFrames; frame++) {
-        u32 *scan = (u32 *)pc;
+    BacktraceFrame frames[BACKTRACE_FRAMES_MAX];
+    u32 frameID = 0;
+
+    if (maxFrames > BACKTRACE_FRAMES_MAX) {
+        maxFrames = BACKTRACE_FRAMES_MAX;
+    }
+
+    while (frameID < maxFrames && VALID_ADDR(pc)) {
+        u32 idx = frameID++;
+        bool leaf = FALSE;
         s32 frameSize = -1;
         s32 raOffset = -1;
 
-        if (!VALID_ADDR(pc)) {
-            return;
+        frames[idx].pc = pc;
+        frames[idx].funcStart = 0;
+
+        if (idx == 0) {
+            findFuncStart(pc, ra - 8, &frames[0].funcStart);
         }
 
-        crashScreenPrintf(COL0, ROW(frame), "%08X", frame == 0 ? pc : pc - 8);
-
+        u32 *scan = (u32 *)pc;
         for (s32 i = 0; i < BACKTRACE_SCAN_MAX; i++) {
             if (!VALID_ADDR(scan)) {
+                break;
+            }
+
+            // reached the start of the function with no prologue
+            if (frames[idx].funcStart != 0 && (u32)scan < frames[idx].funcStart) {
+                leaf = TRUE;
                 break;
             }
 
@@ -401,32 +452,53 @@ static void crashScreenDrawBacktrace(u32 pc, u32 ra, u32 sp, u32 maxFrames) {
             scan--;
         }
 
-        if (frameSize < 0) {
-            return;
+        if (leaf) {
+            frameSize = 0;
+            raOffset = -1;
+        } else if (frameSize < 0) {
+            break;
         }
 
         if (raOffset < 0) {
-            if (frame != 0) {
-                return;
+            if (idx != 0) {
+                break;
             }
             // we probably crashed in a function with no stack frame so start scanning from call site
-            pc = ra;
+            pc = ra - 8;
         } else {
             u32 *slot = (u32 *)(sp + raOffset);
 
             if (!VALID_ADDR(slot)) {
-                return;
+                break;
             }
 
-            pc = *slot;
+            pc = *slot - 8;
         }
 
         sp += frameSize;
+    }
+
+    for (s32 i = 0; i + 1 < frameID; i++) {
+        if (frames[i].funcStart == 0) {
+            findFuncStart(frames[i].pc, frames[i + 1].pc, &frames[i].funcStart);
+        }
+    }
+
+    for (s32 i = 0; i < frameID; i++) {
+        if (frames[i].funcStart != 0) {
+            crashScreenPrintf(COL0, ROW(i), "%08X  <%08X+0x%X>", frames[i].pc, frames[i].funcStart,
+                              frames[i].pc - frames[i].funcStart);
+        } else {
+            crashScreenPrintf(COL0, ROW(i), "%08X", frames[i].pc);
+        }
     }
 }
 
 static void crashScreenDrawStack(__OSThreadContext *ctx) {
     u32 *sp = (u32 *)(u32)ctx->sp;
+    if (!VALID_ADDR(sp)) {
+        return;
+    }
 
     crashScreenPrintf(TEXT_L, ROW(0), "    00:       04:       08:       0C:");
     for (u32 i = 0; i < 16; i++) {
