@@ -3,6 +3,7 @@
 #include "disasm.h"
 #include "page.h"
 #include "pm64.h"
+#include "sys/backtrace.h"
 #include "sys/input.h"
 #include "util/util.h"
 
@@ -22,6 +23,7 @@ typedef struct {
     u16 *frameBuf;
     u16 width;
     u16 height;
+    BacktraceFrame *frames;
 } CrashScreen;
 
 static CrashScreen gCrashScreen;
@@ -249,9 +251,7 @@ static void crashScreenDrawFooter(u8 page) {
     crashScreenPrintf(TEXT_R - 60, FOOT_Y, "Z HIDE");
 }
 
-static void crashScreenDrawSummary(OSThread *faultedThread) {
-    __OSThreadContext *ctx = &faultedThread->context;
-
+static void crashScreenDrawSummary(__OSThreadContext *ctx) {
     if (!VALID_ADDR(ctx->pc)) {
         return;
     }
@@ -278,10 +278,9 @@ static void crashScreenDrawSummary(OSThread *faultedThread) {
     for (s32 i = 0; i < 4; i++, row++) {}
 }
 
-static void crashScreenDrawDetail(OSThread *faultedThread) {
-    __OSThreadContext *ctx = &faultedThread->context;
+static void crashScreenDrawDetail(__OSThreadContext *ctx) {
 
-    s16 causeIndex = ((faultedThread->context.cause >> 2) & 0x1F);
+    s16 causeIndex = ((ctx->cause >> 2) & 0x1F);
 
     if (causeIndex == 23) {
         causeIndex = 16;
@@ -329,9 +328,7 @@ static void crashScreenPrintFpr(s32 x, s32 y, s32 regNum, void *addr) {
     }
 }
 
-static void crashScreenDrawFpu(OSThread *faultedThread) {
-    __OSThreadContext *ctx = &faultedThread->context;
-
+static void crashScreenDrawFpu(__OSThreadContext *ctx) {
     crashScreenPrintFpcsr(ctx->fpcsr);
 
     crashScreenPrintFpr(COL0, ROW(2), 0, &ctx->fp32[0]);
@@ -367,124 +364,13 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
-#define ADDIU_SP_SP(x)       (((x) >> 16) == 0x27BD)
-#define SW_RA_SP(x)          (((x) >> 16) == 0xAFBF)
-#define IMM(x)               ((s16)((x) & 0xFFFF))
-#define BACKTRACE_FRAMES_MAX 16
-#define BACKTRACE_SCAN_MAX   0x1000
-#define FUNC_SIZE_MAX        0x8000
-
-static void findFuncStart(u32 pc, u32 callAddr, u32 *funcStart) {
-    if (!VALID_ADDR(pc) || !VALID_ADDR(callAddr)) {
-        return;
-    }
-
-    u32 call = *(u32 *)callAddr;
-    if ((call >> 26) != 3) { // not jal
-        return;
-    }
-
-    u32 target = ((callAddr + 4) & 0xF0000000) | ((call & 0x3FFFFFF) << 2);
-    if (!VALID_ADDR(target) || target > pc || pc - target >= FUNC_SIZE_MAX) {
-        return;
-    }
-
-    s32 prologues = 0;
-    for (u32 *p = (u32 *)target; p < (u32 *)pc; p++) {
-        if (ADDIU_SP_SP(*p) && (IMM(*p) & 0x8000)) {
-            prologues++;
-        }
-    }
-
-    if (prologues > 1) {
-        return;
-    }
-
-    *funcStart = target;
-}
-
-typedef struct {
-    u32 pc;
-    u32 funcStart;
-} BacktraceFrame;
-
-static void crashScreenDrawBacktrace(u32 pc, u32 ra, u32 sp, u32 maxFrames) {
-    BacktraceFrame frames[BACKTRACE_FRAMES_MAX];
-    u32 frameID = 0;
-
-    if (maxFrames > BACKTRACE_FRAMES_MAX) {
-        maxFrames = BACKTRACE_FRAMES_MAX;
-    }
-
-    while (frameID < maxFrames && VALID_ADDR(pc)) {
-        u32 idx = frameID++;
-        bool leaf = FALSE;
-        s32 frameSize = -1;
-        s32 raOffset = -1;
-
-        frames[idx].pc = pc;
-        frames[idx].funcStart = 0;
-
-        if (idx == 0) {
-            findFuncStart(pc, ra - 8, &frames[0].funcStart);
+static void crashScreenDrawBacktrace(__OSThreadContext *ctx) {
+    BacktraceFrame *frames = gCrashScreen.frames;
+    for (s32 i = 0; i < BACKTRACE_FRAMES_MAX; i++) {
+        if (frames[i].pc == 0) {
+            return;
         }
 
-        u32 *scan = (u32 *)pc;
-        for (s32 i = 0; i < BACKTRACE_SCAN_MAX; i++) {
-            if (!VALID_ADDR(scan)) {
-                break;
-            }
-
-            // reached the start of the function with no prologue
-            if (frames[idx].funcStart != 0 && (u32)scan < frames[idx].funcStart) {
-                leaf = TRUE;
-                break;
-            }
-
-            u32 inst = *scan;
-            if (SW_RA_SP(inst)) { // sw ra, raOffset(sp)
-                raOffset = IMM(inst);
-            } else if (ADDIU_SP_SP(inst) && IMM(inst) & 0x8000) { // addiu sp, sp, -frameSize
-                frameSize = -IMM(inst);
-                break;
-            }
-
-            scan--;
-        }
-
-        if (leaf) {
-            frameSize = 0;
-            raOffset = -1;
-        } else if (frameSize < 0) {
-            break;
-        }
-
-        if (raOffset < 0) {
-            if (idx != 0) {
-                break;
-            }
-            // we probably crashed in a function with no stack frame so start scanning from call site
-            pc = ra - 8;
-        } else {
-            u32 *slot = (u32 *)(sp + raOffset);
-
-            if (!VALID_ADDR(slot)) {
-                break;
-            }
-
-            pc = *slot - 8;
-        }
-
-        sp += frameSize;
-    }
-
-    for (s32 i = 0; i + 1 < frameID; i++) {
-        if (frames[i].funcStart == 0) {
-            findFuncStart(frames[i].pc, frames[i + 1].pc, &frames[i].funcStart);
-        }
-    }
-
-    for (s32 i = 0; i < frameID; i++) {
         if (frames[i].funcStart != 0) {
             crashScreenPrintf(COL0, ROW(i), "%08X  <%08X+0x%X>", frames[i].pc, frames[i].funcStart,
                               frames[i].pc - frames[i].funcStart);
@@ -518,12 +404,10 @@ static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
     crashScreenDrawFooter(page);
 
     switch (page) {
-        case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(faultedThread); break;
-        case CRASH_PAGE_DETAIL: crashScreenDrawDetail(faultedThread); break;
-        case CRASH_PAGE_FPU: crashScreenDrawFpu(faultedThread); break;
-        case CRASH_PAGE_BACKTRACE:
-            crashScreenDrawBacktrace(ctx->pc, (u32)ctx->ra, (u32)ctx->sp, BACKTRACE_FRAMES_MAX);
-            break;
+        case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(ctx); break;
+        case CRASH_PAGE_DETAIL: crashScreenDrawDetail(ctx); break;
+        case CRASH_PAGE_FPU: crashScreenDrawFpu(ctx); break;
+        case CRASH_PAGE_BACKTRACE: crashScreenDrawBacktrace(ctx); break;
         case CRASH_PAGE_STACK: crashScreenDrawStack(ctx); break;
         case CRASH_PAGE_MAX: break;
     }
@@ -557,6 +441,9 @@ static void crashScreenThreadEntry(void *unused) {
     u16 lastButtons = 0;
     bool redraw = TRUE;
     bool drawingCrashScreen = TRUE;
+
+    __OSThreadContext *ctx = &faultedThread->context;
+    gCrashScreen.frames = recoverBacktrace(ctx->pc, (u32)ctx->ra, (u32)ctx->sp);
 
     while (1) {
         CrashScreenPad pad;
