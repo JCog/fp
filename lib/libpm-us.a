@@ -93,6 +93,7 @@ osViGetNextFramebuffer              = 0x800669F0;
 osViSwapBuffer                      = 0x80067020;
 osViBlack                           = 0x80067380;
 osViRepeatLine                      = 0x800673E0;
+osDestroyThread                     = 0x8006C950;
 pm_player_raycast_general           = 0x800DEE5C;
 pm_disable_player_input             = 0x800E0178;
 pm_update_player_input              = 0x800E1F90;
