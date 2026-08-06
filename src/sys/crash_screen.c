@@ -251,6 +251,28 @@ static void crashScreenDrawFooter(u8 page) {
     crashScreenPrintf(TEXT_R - 60, FOOT_Y, "Z HIDE");
 }
 
+static void printBacktrace(s32 x, s32 y, s32 count) {
+    BacktraceFrame *frames = gCrashScreen.frames;
+    if (count > BACKTRACE_FRAMES_MAX) {
+        count = BACKTRACE_FRAMES_MAX;
+    }
+
+    for (s32 i = 0; i < count; i++) {
+        if (frames[i].pc == 0) {
+            return;
+        }
+
+        if (frames[i].funcStart != 0) {
+            crashScreenPrintf(x, y, "%08X  <%08X+0x%X>", frames[i].pc, frames[i].funcStart,
+                              frames[i].pc - frames[i].funcStart);
+        } else {
+            crashScreenPrintf(x, y, "%08X", frames[i].pc);
+        }
+
+        y += LINE;
+    }
+}
+
 static void crashScreenDrawSummary(__OSThreadContext *ctx) {
     if (!VALID_ADDR(ctx->pc)) {
         return;
@@ -261,12 +283,12 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
     u32 addr = ctx->pc - (4 * 4);
     s32 row = 1;
 
-    for (s32 i = 0; i < 8; i++, row++) {
+    for (s32 i = 0; i < 8; i++) {
         const char *inst = disasmInstruction(*(u32 *)addr, addr);
         if (addr == ctx->pc) {
-            crashScreenPrintf(COL0, ROW(row), "-> %08x: %s", addr, inst);
+            crashScreenPrintf(COL0, ROW(row++), "-> %08x: %s", addr, inst);
         } else {
-            crashScreenPrintf(COL0 + 18, ROW(row), "%08x: %s", addr, inst);
+            crashScreenPrintf(COL0 + 18, ROW(row++), "%08x: %s", addr, inst);
         }
 
         addr += 4;
@@ -274,8 +296,8 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
 
     row += 2;
 
-    crashScreenPrintf(COL0, ROW(row), "CALL STACK");
-    for (s32 i = 0; i < 4; i++, row++) {}
+    crashScreenPrintf(COL0, ROW(row++), "CALL STACK");
+    printBacktrace(COL0, ROW(row++), 5);
 }
 
 static void crashScreenDrawDetail(__OSThreadContext *ctx) {
@@ -364,20 +386,8 @@ static OSThread *crashScreenGetFaultedThread(void) {
     return NULL;
 }
 
-static void crashScreenDrawBacktrace(__OSThreadContext *ctx) {
-    BacktraceFrame *frames = gCrashScreen.frames;
-    for (s32 i = 0; i < BACKTRACE_FRAMES_MAX; i++) {
-        if (frames[i].pc == 0) {
-            return;
-        }
-
-        if (frames[i].funcStart != 0) {
-            crashScreenPrintf(COL0, ROW(i), "%08X  <%08X+0x%X>", frames[i].pc, frames[i].funcStart,
-                              frames[i].pc - frames[i].funcStart);
-        } else {
-            crashScreenPrintf(COL0, ROW(i), "%08X", frames[i].pc);
-        }
-    }
+static void crashScreenDrawBacktrace(void) {
+    printBacktrace(COL0, ROW(0), BACKTRACE_FRAMES_MAX);
 }
 
 static void crashScreenDrawStack(__OSThreadContext *ctx) {
@@ -407,7 +417,7 @@ static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
         case CRASH_PAGE_SUMMARY: crashScreenDrawSummary(ctx); break;
         case CRASH_PAGE_DETAIL: crashScreenDrawDetail(ctx); break;
         case CRASH_PAGE_FPU: crashScreenDrawFpu(ctx); break;
-        case CRASH_PAGE_BACKTRACE: crashScreenDrawBacktrace(ctx); break;
+        case CRASH_PAGE_BACKTRACE: crashScreenDrawBacktrace(); break;
         case CRASH_PAGE_STACK: crashScreenDrawStack(ctx); break;
         case CRASH_PAGE_MAX: break;
     }
