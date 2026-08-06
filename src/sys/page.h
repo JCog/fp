@@ -13,8 +13,8 @@
 #define RULE_HDR  42
 #define BODY_Y    48
 #define ROW(n)    (BODY_Y + (n) * LINE)
-#define RULE_FOOT 224
-#define FOOT_Y    230
+#define RULE_FOOT 214
+#define FOOT_Y    220
 #define COL0      TEXT_L
 #define COL1      120
 #define COL2      210
