@@ -125,9 +125,7 @@ void fpInit(void) {
     frameWindow *= -1;
     fp.aceFrameWindow = frameWindow;
 
-#if PM64_VERSION == JP
     crashScreenInit();
-#endif
 
     fp.ready = TRUE;
 }

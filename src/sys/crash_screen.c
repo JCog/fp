@@ -542,6 +542,17 @@ void crashScreenInit(void) {
     gCrashScreen.height = 16;
     gCrashScreen.frameBuf = (u16 *)(MIPS_KSEG0_TO_KSEG1(osMemSize) - ((SCREEN_WIDTH * SCREEN_HEIGHT) * 2));
     osCreateMesgQueue(&gCrashScreen.queue, &gCrashScreen.mesg, 1);
+#if PM64_VERSION == US
+    OSThread *thread = __osGetActiveQueue();
+    while (thread->priority != -1) {
+        if (thread->id == 2) {
+            osDestroyThread(thread);
+            break;
+        }
+
+        thread = thread->tlnext;
+    }
+#endif
     osCreateThread(&gCrashScreen.thread, 2, crashScreenThreadEntry, NULL,
                    gCrashScreen.stack + sizeof(gCrashScreen.stack), 0x80);
     osStartThread(&gCrashScreen.thread);
