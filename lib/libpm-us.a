@@ -81,6 +81,7 @@ _Printf                             = 0x80064AA0;
 osCreateMesgQueue                   = 0x80065580;
 osRecvMesg                          = 0x800656F0;
 osSetEventMesg                      = 0x80065950;
+__osSiRelAccess                     = 0x80065E30;
 osCreateThread                      = 0x80065E60;
 osStartThread                       = 0x80066020;
 osStopThread                        = 0x80066140;

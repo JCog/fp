@@ -1448,6 +1448,7 @@ s32 osContStartReadData(OSMesgQueue *mq);
 void osContGetReadData(OSContPad *pad);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
+void __osSiRelAccess(void);
 u64 osGetTime(void);
 void osSetTime(u64 time);
 OSThread *__osGetActiveQueue(void);
