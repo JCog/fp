@@ -5,6 +5,7 @@
 #include "pm64.h"
 #include "sys/backtrace.h"
 #include "sys/input.h"
+#include "util/assert.h"
 #include "util/util.h"
 
 typedef struct {
@@ -300,6 +301,26 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
     printBacktrace(COL0, ROW(row++), 5);
 }
 
+static void crashScreenPrintAssertMsg(s32 x, s32 y) {
+    char *msg = assertMsg;
+    char *p = msg;
+    for (s32 i = 0; i < ASSERT_BUFFER_SIZE; i++) {
+        if (*p == 0) {
+            crashScreenPrintf(x, y, msg);
+            break;
+        }
+
+        if (*p == '\n') {
+            *p++ = '\0';
+            crashScreenPrintf(x, y, msg);
+            y += LINE;
+            msg = p;
+            continue;
+        }
+        p++;
+    }
+}
+
 static void crashScreenDrawDetail(__OSThreadContext *ctx) {
 
     s16 causeIndex = ((ctx->cause >> 2) & 0x1F);
@@ -323,6 +344,8 @@ static void crashScreenDrawDetail(__OSThreadContext *ctx) {
     crashScreenPrintf(COL0, ROW(8), "T9:%08X     GP:%08X     S8:%08X", ctx->t9, ctx->gp, ctx->s8);
     crashScreenPrintf(COL0, ROW(10), "SR:%08X   CAUSE:%08X", ctx->sr, ctx->cause);
     crashScreenPrintf(COL0, ROW(11), "HI:%08X   LO:%08X", ctx->hi, ctx->lo);
+
+    crashScreenPrintAssertMsg(COL0, ROW(13));
 }
 
 static void crashScreenPrintFpcsr(u32 value) {
