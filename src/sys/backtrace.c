@@ -7,6 +7,15 @@
 #define BACKTRACE_SCAN_MAX 0x1000
 #define FUNC_SIZE_MAX      0x8000
 
+static bool isCall(u32 inst) {
+    // jal or jalr
+    return (inst >> 26) == 3 || ((inst >> 26) == 0 && (inst & 0x3F) == 9);
+}
+
+static bool isCallSite(const u32 *pc) {
+    return VALID_ADDR(pc) && isCall(*pc);
+}
+
 static void findFuncStart(u32 pc, u32 callAddr, u32 *funcStart) {
     if (!VALID_ADDR(pc) || !VALID_ADDR(callAddr)) {
         return;
@@ -85,6 +94,9 @@ BacktraceFrame *recoverBacktrace(u32 pc, u32 ra, u32 sp) {
 
         if (raOffset < 0) {
             if (idx != 0) {
+                break;
+            }
+            if (!isCallSite((u32 *)(ra - 8))) {
                 break;
             }
             // we probably crashed in a function with no stack frame so start scanning from call site
