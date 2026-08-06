@@ -1,6 +1,7 @@
 #include "crash_screen.h"
 #include "crash_screen_font.h"
 #include "disasm.h"
+#include "macros.h"
 #include "page.h"
 #include "pm64.h"
 #include "sys/backtrace.h"
@@ -172,7 +173,7 @@ static void *crashScreenCopyToBuf(void *dest, const char *src, u32 size) {
     return dest + size;
 }
 
-static void crashScreenPrintf(s32 x, s32 y, const char *fmt, ...) {
+static void __attribute__((format(printf, 3, 4))) crashScreenPrintf(s32 x, s32 y, const char *fmt, ...) {
     u8 *ptr;
     s32 size;
     u8 buf[0x100];
@@ -199,6 +200,15 @@ static void crashScreenPrintf(s32 x, s32 y, const char *fmt, ...) {
 
 static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
     s16 causeIndex = ((ctx->cause >> 2) & 0x1F);
+
+    if (causeIndex == 23) {
+        causeIndex = 16;
+    }
+
+    if (causeIndex == 31) {
+        causeIndex = 17;
+    }
+
     u32 badVAddr = ctx->badvaddr;
 
     switch (causeIndex) {
@@ -226,14 +236,12 @@ static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
         case 15: {
             break;
         }
-        default: crashScreenPrintf(x, y, gFaultCauses[causeIndex]); break;
+        default: crashScreenPrintf(x, y, "%s", gFaultCauses[causeIndex]); break;
     }
 }
 
 static void crashScreenDrawLine(u32 y) {
-    for (u32 i = TEXT_L; i < TEXT_R; i++) {
-        crashScreenPrintf(i, y, "-");
-    }
+    crashScreenFillRect(TEXT_L, y, TEXT_R - TEXT_L, 1, 0);
 }
 
 static void crashScreenDrawHeader(__OSThreadContext *ctx, OSId thread) {
@@ -282,14 +290,14 @@ static void printBacktrace(s32 x, s32 y, s32 count) {
 }
 
 static void crashScreenDrawSummary(__OSThreadContext *ctx) {
-    if (!VALID_ADDR(ctx->pc)) {
-        return;
-    }
-
     crashScreenPrintf(COL0, ROW(0), "DISASSEMBLY");
 
     u32 addr = ctx->pc - (4 * 4);
     s32 row = 1;
+
+    if (!VALID_ADDR(addr)) {
+        return;
+    }
 
     for (s32 i = 0; i < 8; i++) {
         const char *inst = disasmInstruction(*(u32 *)addr, addr);
@@ -309,17 +317,19 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
 }
 
 static void crashScreenPrintAssertMsg(s32 x, s32 y) {
-    char *msg = assertMsg;
+    char mmsg[ASSERT_BUFFER_SIZE] = {0};
+    strncpy(mmsg, assertMsg, ARRAY_LENGTH(mmsg));
+    char *msg = mmsg;
     char *p = msg;
     for (s32 i = 0; i < ASSERT_BUFFER_SIZE; i++) {
         if (*p == 0) {
-            crashScreenPrintf(x, y, msg);
+            crashScreenPrintf(x, y, "%s", msg);
             break;
         }
 
         if (*p == '\n') {
             *p++ = '\0';
-            crashScreenPrintf(x, y, msg);
+            crashScreenPrintf(x, y, "%s", msg);
             y += LINE;
             msg = p;
             continue;
@@ -340,17 +350,17 @@ static void crashScreenDrawDetail(__OSThreadContext *ctx) {
         causeIndex = 17;
     }
 
-    crashScreenPrintf(COL0, ROW(0), "AT:%08X     V0:%08X     V1:%08X", ctx->at, ctx->v0, ctx->v1);
-    crashScreenPrintf(COL0, ROW(1), "A0:%08X     A1:%08X     A2:%08X", ctx->a0, ctx->a1, ctx->a2);
-    crashScreenPrintf(COL0, ROW(2), "A3:%08X     T0:%08X     T1:%08X", ctx->a3, ctx->t0, ctx->t1);
-    crashScreenPrintf(COL0, ROW(3), "T2:%08X     T3:%08X     T4:%08X", ctx->t2, ctx->t3, ctx->t4);
-    crashScreenPrintf(COL0, ROW(4), "T5:%08X     T6:%08X     T7:%08X", ctx->t5, ctx->t6, ctx->t7);
-    crashScreenPrintf(COL0, ROW(5), "S0:%08X     S1:%08X     S2:%08X", ctx->s0, ctx->s1, ctx->s2);
-    crashScreenPrintf(COL0, ROW(6), "S3:%08X     S4:%08X     S5:%08X", ctx->s3, ctx->s4, ctx->s5);
-    crashScreenPrintf(COL0, ROW(7), "S6:%08X     S7:%08X     T8:%08X", ctx->s6, ctx->s7, ctx->t8);
-    crashScreenPrintf(COL0, ROW(8), "T9:%08X     GP:%08X     S8:%08X", ctx->t9, ctx->gp, ctx->s8);
+    crashScreenPrintf(COL0, ROW(0), "AT:%08X     V0:%08X     V1:%08X", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
+    crashScreenPrintf(COL0, ROW(1), "A0:%08X     A1:%08X     A2:%08X", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
+    crashScreenPrintf(COL0, ROW(2), "A3:%08X     T0:%08X     T1:%08X", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
+    crashScreenPrintf(COL0, ROW(3), "T2:%08X     T3:%08X     T4:%08X", (u32)ctx->t2, (u32)ctx->t3, (u32)ctx->t4);
+    crashScreenPrintf(COL0, ROW(4), "T5:%08X     T6:%08X     T7:%08X", (u32)ctx->t5, (u32)ctx->t6, (u32)ctx->t7);
+    crashScreenPrintf(COL0, ROW(5), "S0:%08X     S1:%08X     S2:%08X", (u32)ctx->s0, (u32)ctx->s1, (u32)ctx->s2);
+    crashScreenPrintf(COL0, ROW(6), "S3:%08X     S4:%08X     S5:%08X", (u32)ctx->s3, (u32)ctx->s4, (u32)ctx->s5);
+    crashScreenPrintf(COL0, ROW(7), "S6:%08X     S7:%08X     T8:%08X", (u32)ctx->s6, (u32)ctx->s7, (u32)ctx->t8);
+    crashScreenPrintf(COL0, ROW(8), "T9:%08X     GP:%08X     S8:%08X", (u32)ctx->t9, (u32)ctx->gp, (u32)ctx->s8);
     crashScreenPrintf(COL0, ROW(10), "SR:%08X   CAUSE:%08X", ctx->sr, ctx->cause);
-    crashScreenPrintf(COL0, ROW(11), "HI:%08X   LO:%08X", ctx->hi, ctx->lo);
+    crashScreenPrintf(COL0, ROW(11), "HI:%08X   LO:%08X", (u32)ctx->hi, (u32)ctx->lo);
 
     crashScreenPrintAssertMsg(COL0, ROW(13));
 }
@@ -422,7 +432,7 @@ static void crashScreenDrawBacktrace(void) {
 
 static void crashScreenDrawStack(__OSThreadContext *ctx) {
     u32 *sp = (u32 *)(u32)ctx->sp;
-    if (!VALID_ADDR(sp)) {
+    if (!VALID_ADDR(sp) || !VALID_ADDR(sp + 3)) {
         return;
     }
 

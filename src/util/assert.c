@@ -4,7 +4,7 @@
 
 char assertMsg[ASSERT_BUFFER_SIZE] = {0};
 
-void panic(const char *msg, char *file, s32 line) {
+void panic(const char *msg, const char *file, s32 line) {
     osSyncPrintf("file:%s line:%ld  %s", file, line, msg);
     snprintf((char *)assertMsg, sizeof(assertMsg), "file:%s line:%ld\n%s", file, line, msg);
     asm("break");
