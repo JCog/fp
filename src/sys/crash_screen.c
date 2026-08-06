@@ -79,7 +79,14 @@ static CrashScreenPad crashScreenReadPad(void) {
     __osEventStateTab[OS_EVENT_SI].message = NULL;
 
     osContStartReadData(&siQueue);
-    osRecvMesg(&siQueue, NULL, OS_MESG_BLOCK);
+    u32 start = getCP0Count();
+    while (osRecvMesg(&siQueue, NULL, OS_MESG_NOBLOCK) == -1) {
+        if (getCP0Count() - start > OS_CPU_COUNTER / 100) {
+            __osEventStateTab[OS_EVENT_SI] = siEvent;
+            pad.valid = FALSE;
+            return pad;
+        }
+    }
     osContGetReadData(contPad);
 
     __osEventStateTab[OS_EVENT_SI] = siEvent;
@@ -461,7 +468,16 @@ static void crashScreenThreadEntry(void *unused) {
 
     } while (faultedThread == NULL);
 
-    osStopThread(faultedThread);
+    OSThread *thread = __osGetActiveQueue();
+
+    while (thread->priority != -1) {
+        if (thread->priority > 0 && thread->priority < 0x7F && thread->id != gCrashScreen.thread.id) {
+            osStopThread(thread);
+        }
+        thread = thread->tlnext;
+    }
+    __osSiRelAccess();
+
     PRINTF("drawing crash screen\n");
 
     void *fb = (void *)MIPS_KSEG0_TO_KSEG1(osViGetCurrentFramebuffer());
