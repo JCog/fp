@@ -8,6 +8,7 @@
 #include "sys/input.h"
 #include "util/assert.h"
 #include "util/util.h"
+#include <stdio.h>
 
 typedef struct {
     bool valid;
@@ -136,26 +137,21 @@ static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
     }
 }
 
-static void *crashScreenCopyToBuf(void *dest, const char *src, u32 size) {
-    memcpy(dest, src, size);
-    return dest + size;
-}
-
 static void __attribute__((format(printf, 3, 4))) crashScreenPrintf(s32 x, s32 y, const char *fmt, ...) {
-    u8 *ptr;
+    char *ptr;
     s32 size;
-    u8 buf[0x100];
+    char buf[0x100];
     va_list args;
 
     va_start(args, fmt);
 
-    size = _Printf(crashScreenCopyToBuf, buf, fmt, args);
+    size = vsnprintf(buf, sizeof(buf), fmt, args);
 
     if (size > 0) {
         ptr = buf;
 
         while (size > 0) {
-            crashScreenDrawGlyph(x, y, (char)*ptr, 0xFFFF, 1);
+            crashScreenDrawGlyph(x, y, *ptr, 0xFFFF, 1);
 
             x += 6;
             size--;
@@ -274,9 +270,9 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
     for (s32 i = 0; i < 8; i++) {
         const char *inst = disasmInstruction(*(u32 *)addr, addr);
         if (addr == ctx->pc) {
-            crashScreenPrintf(COL0, ROW(row++), "-> %08lx: %s", addr, inst);
+            crashScreenPrintf(COL0, ROW(row++), "-> %08lX: %s", addr, inst);
         } else {
-            crashScreenPrintf(COL0 + 18, ROW(row++), "%08lx: %s", addr, inst);
+            crashScreenPrintf(COL0 + 18, ROW(row++), "%08lX: %s", addr, inst);
         }
 
         addr += 4;
@@ -348,7 +344,7 @@ static void crashScreenPrintFpr(s32 x, s32 y, s32 regNum, void *addr) {
     s32 exponent = ((bits & 0x7F800000U) >> 0x17) - 0x7F;
 
     if ((exponent >= -0x7E && exponent <= 0x7F) || bits == 0) {
-        crashScreenPrintf(x, y, "F%02ld:%+.3e", regNum, *(f32 *)addr);
+        crashScreenPrintf(x, y, "F%02ld:%08lX", regNum, *(u32 *)addr);
     } else {
         crashScreenPrintf(x, y, "F%02ld:---------", regNum);
     }
