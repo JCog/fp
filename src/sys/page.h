@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAGE_H_
+#define PAGE_H_
 
 #define PAGE_X    25
 #define PAGE_Y    20
@@ -18,3 +19,5 @@
 #define COL0      TEXT_L
 #define COL1      120
 #define COL2      210
+
+#endif
