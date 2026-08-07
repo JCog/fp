@@ -1,9 +1,9 @@
 #include "backtrace.h"
+#include "disasm.h"
 #include "macros.h"
 
 #define ADDIU_SP_SP(x)     (((x) >> 16) == 0x27BD)
 #define SW_RA_SP(x)        (((x) >> 16) == 0xAFBF)
-#define IMM(x)             ((s16)((x) & 0xFFFF))
 #define BACKTRACE_SCAN_MAX 0x1000
 #define FUNC_SIZE_MAX      0x8000
 
