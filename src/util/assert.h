@@ -3,10 +3,10 @@
 
 #include "types.h"
 
-#define ASSERT_BUFFER_SIZE 100
+#define ASSERT_BUFFER_SIZE 200
 
 extern char assertMsg[ASSERT_BUFFER_SIZE];
-void panic(const char *msg, const char *file, s32 line);
+void __attribute__((noreturn)) panic(const char *msg, const char *file, s32 line);
 
 #ifdef NDEBUG
 #define IS_DEBUG_PANIC(msg, file, line) \
@@ -22,6 +22,6 @@ void panic(const char *msg, const char *file, s32 line);
         if (!(condition)) {                                                      \
             IS_DEBUG_PANIC("assertion failed: " #condition, __FILE__, __LINE__); \
         }                                                                        \
-    } while (0);
+    } while (0)
 
 #endif
