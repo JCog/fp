@@ -9,6 +9,11 @@ typedef struct {
     u32 funcStart;
 } BacktraceFrame;
 
-BacktraceFrame *recoverBacktrace(u32 pc, u32 ra, u32 sp);
+typedef struct {
+    BacktraceFrame* frames;
+    u32 numFrames;
+} Backtrace;
+
+Backtrace recoverBacktrace(u32 pc, u32 ra, u32 sp);
 
 #endif

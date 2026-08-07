@@ -45,7 +45,7 @@ static void findFuncStart(u32 pc, u32 callAddr, u32 *funcStart) {
     *funcStart = target;
 }
 
-BacktraceFrame *recoverBacktrace(u32 pc, u32 ra, u32 sp) {
+Backtrace recoverBacktrace(u32 pc, u32 ra, u32 sp) {
     static BacktraceFrame frames[BACKTRACE_FRAMES_MAX];
     u32 frameID = 0;
 
@@ -104,11 +104,16 @@ BacktraceFrame *recoverBacktrace(u32 pc, u32 ra, u32 sp) {
         } else {
             u32 *slot = (u32 *)(sp + raOffset);
 
-            if (!VALID_ADDR(slot) || !isCallSite((u32 *)(slot - 8))) {
+            if (!VALID_ADDR(slot)) {
                 break;
             }
 
-            pc = *slot - 8;
+            u32 retAddr = *slot;
+            if (!isCallSite((u32*)(retAddr - 8))) {
+                break;
+            }
+
+            pc = retAddr - 8;
         }
 
         sp += frameSize;
@@ -120,5 +125,9 @@ BacktraceFrame *recoverBacktrace(u32 pc, u32 ra, u32 sp) {
         }
     }
 
-    return frames;
+    Backtrace b;
+    b.frames = frames;
+    b.numFrames = frameID;
+
+    return b;
 }
