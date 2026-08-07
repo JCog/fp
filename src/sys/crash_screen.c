@@ -212,7 +212,7 @@ static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
 }
 
 static void crashScreenDrawLine(u32 y) {
-    crashScreenFillRect(TEXT_L, y, TEXT_R - TEXT_L, 1, 0);
+    crashScreenFillRect(TEXT_L, y, TEXT_R - TEXT_L, 1, 0xFFFF);
 }
 
 static void crashScreenDrawHeader(__OSThreadContext *ctx, OSId thread) {

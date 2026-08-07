@@ -11,7 +11,7 @@
 #define LINE      10
 #define HDR_Y0    25
 #define HDR_Y1    35
-#define RULE_HDR  42
+#define RULE_HDR  45
 #define BODY_Y    48
 #define ROW(n)    (BODY_Y + (n) * LINE)
 #define RULE_FOOT 214
