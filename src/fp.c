@@ -704,7 +704,7 @@ ENTRY void fpDrawEntry(void) {
 }
 
 ENTRY void fpAfterDrawEntry(void) {
-    crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+    crashScreenSetDrawInfoCustom(nuGfxCfb_ptr);
 }
 
 HOOK void fpUpdateCameraZoneInterpHook(pm_Camera *cam) {

@@ -23,9 +23,7 @@ typedef struct {
     OSMesgQueue queue;
     OSMesg mesg;
     u16 *frameBuf;
-    u16 width;
-    u16 height;
-    BacktraceFrame *frames;
+    Backtrace bt;
 } CrashScreen;
 
 static CrashScreen gCrashScreen;
@@ -102,26 +100,18 @@ static CrashScreenPad crashScreenReadPad(void) {
 }
 
 static void crashScreenFillRect(s32 x, s32 y, s32 width, s32 height, u16 color) {
-    if (gCrashScreen.width == 640) {
-        x <<= 1;
-        y <<= 1;
-        width <<= 1;
-        height <<= 1;
-    }
-
-    u16 *ptr = gCrashScreen.frameBuf + gCrashScreen.width * y + x;
+    u16 *ptr = gCrashScreen.frameBuf + SCREEN_WIDTH * y + x;
 
     for (s32 i = 0; i < height; i++) {
         for (s32 j = 0; j < width; j++) {
             *ptr++ = color;
         }
 
-        ptr += gCrashScreen.width - width;
+        ptr += SCREEN_WIDTH - width;
     }
 }
 
 static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
-    u16 width = gCrashScreen.width;
     const u8 *rows;
     s32 i;
     s32 j;
@@ -131,8 +121,7 @@ static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
     }
     rows = gCrashScreenFont[c - CRASH_FONT_GLYPH_MIN];
 
-    if (width == 320) {
-        u16 *ptr = gCrashScreen.frameBuf + width * y + x;
+    u16 *ptr = gCrashScreen.frameBuf + SCREEN_WIDTH * y + x;
 
         for (i = 0; i < CRASH_FONT_HEIGHT; i++) {
             u8 bit = 0x10;
@@ -143,28 +132,7 @@ static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
                 bit >>= 1;
             }
 
-            ptr += width - CRASH_FONT_WIDTH;
-        }
-    } else if (width == 640) {
-        u16 *ptr = gCrashScreen.frameBuf + width * (y * 2) + (x * 2);
-
-        for (i = 0; i < CRASH_FONT_HEIGHT; i++) {
-            u8 rowMask = *rows++;
-            u8 bit = 0x10;
-
-            for (j = 0; j < CRASH_FONT_WIDTH; j++) {
-                u16 temp = (bit & rowMask) ? fg : bg;
-
-                ptr[0] = temp;
-                ptr[1] = temp;
-                ptr[width] = temp;
-                ptr[width + 1] = temp;
-                ptr += 2;
-                bit >>= 1;
-            }
-
-            ptr += (width - CRASH_FONT_WIDTH) * 2;
-        }
+        ptr += SCREEN_WIDTH - CRASH_FONT_WIDTH;
     }
 }
 
@@ -543,15 +511,11 @@ static void crashScreenThreadEntry(void *unused) {
     }
 }
 
-void crashScreenSetDrawInfoCustom(u16 *frameBufPtr, s16 width, s16 height) {
+void crashScreenSetDrawInfoCustom(u16 *frameBufPtr) {
     gCrashScreen.frameBuf = (u16 *)MIPS_KSEG0_TO_KSEG1(frameBufPtr);
-    gCrashScreen.width = width;
-    gCrashScreen.height = height;
 }
 
 void crashScreenInit(void) {
-    gCrashScreen.width = SCREEN_WIDTH;
-    gCrashScreen.height = 16;
     gCrashScreen.frameBuf = (u16 *)(MIPS_KSEG0_TO_KSEG1(osMemSize) - ((SCREEN_WIDTH * SCREEN_HEIGHT) * 2));
     osCreateMesgQueue(&gCrashScreen.queue, &gCrashScreen.mesg, 1);
 #if PM64_VERSION == US
