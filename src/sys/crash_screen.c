@@ -54,6 +54,15 @@ static const char *gFPCSRFaultCauses[6] = {
     "Unimplemented operation", "Invalid operation", "Division by zero", "Overflow", "Underflow", "Inexact operation",
 };
 
+typedef enum {
+    CRASH_PAGE_SUMMARY,
+    CRASH_PAGE_DETAIL,
+    CRASH_PAGE_FPU,
+    CRASH_PAGE_BACKTRACE,
+    CRASH_PAGE_STACK,
+    CRASH_PAGE_MAX
+} CrashPage;
+
 static void crashScreenSleep(s32 ms) {
     u32 start = getCP0Count();
     u32 cycles = ms * (OS_CPU_COUNTER / 1000U);
@@ -113,22 +122,19 @@ static void crashScreenFillRect(s32 x, s32 y, s32 width, s32 height, u16 color) 
 }
 
 static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
-    const u8 *rows;
-    s32 i;
-    s32 j;
+    const u8 *rows = gCrashScreenFont[c - CRASH_FONT_GLYPH_MIN];
 
     if (c < CRASH_FONT_GLYPH_MIN || c > CRASH_FONT_GLYPH_MAX) {
         c = '?';
     }
-    rows = gCrashScreenFont[c - CRASH_FONT_GLYPH_MIN];
 
     u16 *ptr = gCrashScreen.frameBuf + SCREEN_WIDTH * y + x;
 
-    for (i = 0; i < CRASH_FONT_HEIGHT; i++) {
+    for (s32 i = 0; i < CRASH_FONT_HEIGHT; i++) {
         u8 bit = 0x10;
         u8 rowMask = *rows++;
 
-        for (j = 0; j < CRASH_FONT_WIDTH; j++) {
+        for (s32 j = 0; j < CRASH_FONT_WIDTH; j++) {
             *ptr++ = (bit & rowMask) ? fg : bg;
             bit >>= 1;
         }
@@ -218,17 +224,8 @@ static void crashScreenDrawHeader(__OSThreadContext *ctx, OSId thread) {
     crashScreenDrawLine(RULE_HDR);
 }
 
-typedef enum {
-    CRASH_PAGE_SUMMARY,
-    CRASH_PAGE_DETAIL,
-    CRASH_PAGE_FPU,
-    CRASH_PAGE_BACKTRACE,
-    CRASH_PAGE_STACK,
-    CRASH_PAGE_MAX
-} CrashPage;
-
 static void crashScreenDrawFooter(u8 page) {
-    static const char *pageNames[] = {"SUMMARY", "DETAIL", "FPU", "BACKTRACE", "STACK"};
+    static const char *pageNames[CRASH_PAGE_MAX] = {"SUMMARY", "DETAIL", "FPU", "BACKTRACE", "STACK"};
 
     crashScreenDrawLine(RULE_FOOT);
     crashScreenPrintf(COL0, FOOT_Y, "L/R %d/%d  %s", page + 1, CRASH_PAGE_MAX, pageNames[page]);
@@ -371,21 +368,6 @@ static void crashScreenDrawFpu(__OSThreadContext *ctx) {
     crashScreenPrintFpr(COL0, ROW(7), 30, &ctx->fp32[30]);
 }
 
-static OSThread *crashScreenGetFaultedThread(void) {
-    OSThread *thread = __osGetActiveQueue();
-
-    while (thread->priority != -1) {
-        if (thread->priority > 0 && thread->priority < 0x7F && (thread->flags & 3)) {
-            PRINTF("faulted thread detected\n");
-            return thread;
-        }
-
-        thread = thread->tlnext;
-    }
-
-    return NULL;
-}
-
 static void crashScreenDrawBacktrace(void) {
     printBacktrace(COL0, ROW(0), BACKTRACE_FRAMES_MAX);
 }
@@ -422,6 +404,21 @@ static void crashScreenDrawPage(OSThread *faultedThread, CrashPage page) {
         case CRASH_PAGE_STACK: crashScreenDrawStack(ctx); break;
         case CRASH_PAGE_MAX: break;
     }
+}
+
+static OSThread *crashScreenGetFaultedThread(void) {
+    OSThread *thread = __osGetActiveQueue();
+
+    while (thread->priority != -1) {
+        if (thread->priority > 0 && thread->priority < 0x7F && (thread->flags & 3)) {
+            PRINTF("faulted thread detected\n");
+            return thread;
+        }
+
+        thread = thread->tlnext;
+    }
+
+    return NULL;
 }
 
 static void crashScreenThreadEntry(void *unused) {
