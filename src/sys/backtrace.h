@@ -10,7 +10,7 @@ typedef struct {
 } BacktraceFrame;
 
 typedef struct {
-    BacktraceFrame* frames;
+    BacktraceFrame *frames;
     u32 numFrames;
 } Backtrace;
 

@@ -222,10 +222,10 @@ static const InstDesc regimmRt[32] = {
     {"invalid"}
 };
 
-#define INST_SPECIAL            0
-#define INST_REGIMM             1
-#define INST_COP0               16
-#define INST_COP1               17
+#define INST_SPECIAL 0
+#define INST_REGIMM  1
+#define INST_COP0    16
+#define INST_COP1    17
 
 static char instBuf[40] = {0};
 

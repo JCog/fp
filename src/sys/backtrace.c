@@ -109,7 +109,7 @@ Backtrace recoverBacktrace(u32 pc, u32 ra, u32 sp) {
             }
 
             u32 retAddr = *slot;
-            if (!isCallSite((u32*)(retAddr - 8))) {
+            if (!isCallSite((u32 *)(retAddr - 8))) {
                 break;
             }
 
