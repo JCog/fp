@@ -1,5 +1,6 @@
 #ifndef PM64_H
 #define PM64_H
+#include "enums.h"
 #include "types.h"
 #include <n64/gbi.h>
 #include <n64/message.h>
