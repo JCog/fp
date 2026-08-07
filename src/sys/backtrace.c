@@ -9,7 +9,7 @@
 
 static bool isCall(u32 inst) {
     // jal or jalr
-    return (inst >> 26) == 3 || ((inst >> 26) == 0 && (inst & 0x3F) == 9);
+    return OP(inst) == 3 || (OP(inst) == 0 && FUNCT(inst) == 9);
 }
 
 static bool isCallSite(const u32 *pc) {
@@ -22,11 +22,11 @@ static void findFuncStart(u32 pc, u32 callAddr, u32 *funcStart) {
     }
 
     u32 call = *(u32 *)callAddr;
-    if ((call >> 26) != 3) { // not jal
+    if (OP(call) != 3) { // not jal
         return;
     }
 
-    u32 target = ((callAddr + 4) & 0xF0000000) | ((call & 0x3FFFFFF) << 2);
+    u32 target = TARGET(call, callAddr + 4);
     if (!VALID_ADDR(target) || target > pc || pc - target >= FUNC_SIZE_MAX) {
         return;
     }
