@@ -18,7 +18,7 @@ typedef struct {
 } CrashScreenPad;
 
 typedef struct {
-    char stack[0x800];
+    char stack[0x1200];
     OSThread thread;
     OSMesgQueue queue;
     OSMesg mesg;
@@ -123,14 +123,14 @@ static void crashScreenDrawGlyph(s32 x, s32 y, char c, u16 fg, u16 bg) {
 
     u16 *ptr = gCrashScreen.frameBuf + SCREEN_WIDTH * y + x;
 
-        for (i = 0; i < CRASH_FONT_HEIGHT; i++) {
-            u8 bit = 0x10;
-            u8 rowMask = *rows++;
+    for (i = 0; i < CRASH_FONT_HEIGHT; i++) {
+        u8 bit = 0x10;
+        u8 rowMask = *rows++;
 
-            for (j = 0; j < CRASH_FONT_WIDTH; j++) {
-                *ptr++ = (bit & rowMask) ? fg : bg;
-                bit >>= 1;
-            }
+        for (j = 0; j < CRASH_FONT_WIDTH; j++) {
+            *ptr++ = (bit & rowMask) ? fg : bg;
+            bit >>= 1;
+        }
 
         ptr += SCREEN_WIDTH - CRASH_FONT_WIDTH;
     }
@@ -204,10 +204,10 @@ static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
         default:
             if (causeIndex < ARRAY_LENGTH(gFaultCauses)) {
                 crashScreenPrintf(x, y, "%s", gFaultCauses[causeIndex]);
-            break;
+                break;
             } else {
                 crashScreenPrintf(x, y, "cause index: %d", causeIndex);
-        }
+            }
     }
 }
 
@@ -236,13 +236,13 @@ static void crashScreenDrawFooter(u8 page) {
 
     crashScreenDrawLine(RULE_FOOT);
     crashScreenPrintf(COL0, FOOT_Y, "L/R %d/%d  %s", page + 1, CRASH_PAGE_MAX, pageNames[page]);
-    crashScreenPrintf(TEXT_R - 60, FOOT_Y, "Z HIDE");
+    crashScreenPrintf(TEXT_R - 36, FOOT_Y, "Z HIDE");
 }
 
 static void printBacktrace(s32 x, s32 y, s32 count) {
-    BacktraceFrame *frames = gCrashScreen.frames;
-    if (count > BACKTRACE_FRAMES_MAX) {
-        count = BACKTRACE_FRAMES_MAX;
+    BacktraceFrame *frames = gCrashScreen.bt.frames;
+    if (count > gCrashScreen.bt.numFrames) {
+        count = gCrashScreen.bt.numFrames;
     }
 
     for (s32 i = 0; i < count; i++) {
@@ -292,9 +292,9 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
 }
 
 static void crashScreenPrintAssertMsg(s32 x, s32 y) {
-    char mmsg[ASSERT_BUFFER_SIZE] = {0};
-    strncpy(mmsg, assertMsg, ARRAY_LENGTH(mmsg));
-    char *msg = mmsg;
+    char buf[ASSERT_BUFFER_SIZE] = {0};
+    strncpy(buf, assertMsg, ARRAY_LENGTH(buf));
+    char *msg = buf;
     char *p = msg;
     for (s32 i = 0; i < ASSERT_BUFFER_SIZE; i++) {
         if (*p == 0) {
@@ -467,7 +467,7 @@ static void crashScreenThreadEntry(void *unused) {
     bool drawingCrashScreen = TRUE;
 
     __OSThreadContext *ctx = &faultedThread->context;
-    gCrashScreen.frames = recoverBacktrace(ctx->pc, (u32)ctx->ra, (u32)ctx->sp);
+    gCrashScreen.bt = recoverBacktrace(ctx->pc, (u32)ctx->ra, (u32)ctx->sp);
 
     while (1) {
         CrashScreenPad pad;
