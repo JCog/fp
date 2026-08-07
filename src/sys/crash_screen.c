@@ -201,10 +201,13 @@ static void crashScreenPrintCause(__OSThreadContext *ctx, s32 x, s32 y) {
         case 7: crashScreenPrintf(x, y, "address outside ram: 0x%08lx", badVAddr); break;
         case 10: crashScreenPrintf(x, y, "invalid instruction"); break;
         case 12: crashScreenPrintf(x, y, "integer overflow"); break;
-        case 15: {
+        default:
+            if (causeIndex < ARRAY_LENGTH(gFaultCauses)) {
+                crashScreenPrintf(x, y, "%s", gFaultCauses[causeIndex]);
             break;
+            } else {
+                crashScreenPrintf(x, y, "cause index: %d", causeIndex);
         }
-        default: crashScreenPrintf(x, y, "%s", gFaultCauses[causeIndex]); break;
     }
 }
 
@@ -259,14 +262,14 @@ static void printBacktrace(s32 x, s32 y, s32 count) {
 }
 
 static void crashScreenDrawSummary(__OSThreadContext *ctx) {
-    crashScreenPrintf(COL0, ROW(0), "DISASSEMBLY");
-
     u32 addr = ctx->pc - (4 * 4);
     s32 row = 1;
 
     if (!VALID_ADDR(addr)) {
         return;
     }
+
+    crashScreenPrintf(COL0, ROW(0), "DISASSEMBLY");
 
     for (s32 i = 0; i < 8; i++) {
         const char *inst = disasmInstruction(*(u32 *)addr, addr);
@@ -277,9 +280,12 @@ static void crashScreenDrawSummary(__OSThreadContext *ctx) {
         }
 
         addr += 4;
+        if (!VALID_ADDR(addr)) {
+            return;
+        }
     }
 
-    row += 2;
+    row++;
 
     crashScreenPrintf(COL0, ROW(row++), "CALL STACK");
     printBacktrace(COL0, ROW(row++), 5);
@@ -308,17 +314,6 @@ static void crashScreenPrintAssertMsg(s32 x, s32 y) {
 }
 
 static void crashScreenDrawDetail(__OSThreadContext *ctx) {
-
-    s16 causeIndex = ((ctx->cause >> 2) & 0x1F);
-
-    if (causeIndex == 23) {
-        causeIndex = 16;
-    }
-
-    if (causeIndex == 31) {
-        causeIndex = 17;
-    }
-
     crashScreenPrintf(COL0, ROW(0), "AT:%08lX     V0:%08lX     V1:%08lX", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
     crashScreenPrintf(COL0, ROW(1), "A0:%08lX     A1:%08lX     A2:%08lX", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
     crashScreenPrintf(COL0, ROW(2), "A3:%08lX     T0:%08lX     T1:%08lX", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
@@ -401,12 +396,12 @@ static void crashScreenDrawBacktrace(void) {
 
 static void crashScreenDrawStack(__OSThreadContext *ctx) {
     u32 *sp = (u32 *)(u32)ctx->sp;
-    if (!VALID_ADDR(sp) || !VALID_ADDR(sp + 3)) {
-        return;
-    }
 
     crashScreenPrintf(TEXT_L, ROW(0), "    00:       04:       08:       0C:");
-    for (u32 i = 0; i < 16; i++) {
+    for (u32 i = 0; i < 15; i++) {
+        if (!VALID_ADDR(sp) || !VALID_ADDR(sp + 3)) {
+            return;
+        }
         crashScreenPrintf(TEXT_L, ROW(i + 1), "%02ld: %08lX  %08lX  %08lX  %08lX", i, *sp, *(sp + 1), *(sp + 2),
                           *(sp + 3));
         sp += 4;
