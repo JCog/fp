@@ -125,9 +125,7 @@ void fpInit(void) {
     frameWindow *= -1;
     fp.aceFrameWindow = frameWindow;
 
-#if PM64_VERSION == JP
     crashScreenInit();
-#endif
 
     fp.ready = TRUE;
 }
@@ -706,7 +704,7 @@ ENTRY void fpDrawEntry(void) {
 }
 
 ENTRY void fpAfterDrawEntry(void) {
-    crashScreenSetDrawInfoCustom(nuGfxCfb_ptr, SCREEN_WIDTH, SCREEN_HEIGHT);
+    crashScreenSetDrawInfoCustom(nuGfxCfb_ptr);
 }
 
 HOOK void fpUpdateCameraZoneInterpHook(pm_Camera *cam) {

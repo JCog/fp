@@ -1,5 +1,6 @@
 #ifndef PM64_H
 #define PM64_H
+#include "enums.h"
 #include "types.h"
 #include <n64/gbi.h>
 #include <n64/message.h>
@@ -1444,11 +1445,15 @@ void nuPiReadRom(u32 rom_addr, void *buf_ptr, u32 size);
 void nuContDataGet(OSContPad *contpad, u32 cont_no);
 void nuGfxTaskStart(Gfx *gfxListPtr, u32 gfxListSize, u32 ucode, u32 flags);
 void nuGfxTaskAllEndWait(void);
+s32 osContStartReadData(OSMesgQueue *mq);
+void osContGetReadData(OSContPad *pad);
 void osWritebackDCacheAll(void);
 s32 _Printf(PrintCallback pfn, void *arg, const char *fmt, va_list ap);
+void __osSiRelAccess(void);
 u64 osGetTime(void);
 void osSetTime(u64 time);
 OSThread *__osGetActiveQueue(void);
+void *osViGetCurrentFramebuffer(void);
 void *osViGetNextFramebuffer(void);
 void osViSwapBuffer(void *vaddr);
 void osViBlack(u8 active);

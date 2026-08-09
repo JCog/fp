@@ -19,4 +19,6 @@
 #define STRINGIFY(S)      STRINGIFY_H(S)
 #define STRINGIFY_H(S)    #S
 
+#define VALID_ADDR(x)     ((u32)(x) > 0x80000000 && (u32)(x) < 0x80800000 && (((u32)(x) & 3) == 0))
+
 #endif // MACROS_H
