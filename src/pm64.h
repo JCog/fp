@@ -920,8 +920,8 @@ typedef struct pm_NpcSettings {
     /* 0x20 */ s32 flags;
     /* 0x24 */ s32 unk_24;
     /* 0x28 */ s16 level;
-    /* 0x2A */ s16 actionFlags;  // action flags: 1 = jump on seeing player
-} pm_NpcSettings; // size = 0x2C
+    /* 0x2A */ s16 actionFlags; // action flags: 1 = jump on seeing player
+} pm_NpcSettings;               // size = 0x2C
 
 typedef struct pm_Enemy {
     /* 0x00 */ s32 flags;

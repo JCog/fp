@@ -58,6 +58,7 @@ typedef struct {
     bool turbo;
     bool warp;
     u8 warpDelay;
+    s8 enemyContactOverride;
     char *lastImportedSavePath;
     bool freeCam;
     bool lockCam;
