@@ -907,6 +907,22 @@ typedef struct pm_BattleStatus {
     /* 0x45C */ char unk_45C[4];
 } pm_BattleStatus; // size = 0x460
 
+typedef struct pm_NpcSettings {
+    /* 0x00 */ u32 defaultAnim;
+    /* 0x04 */ s16 height;
+    /* 0x06 */ s16 radius;
+    /* 0x08 */ void *otherAI;
+    /* 0x0C */ void *onInteract;
+    /* 0x10 */ void *ai;
+    /* 0x14 */ void *onHit;
+    /* 0x18 */ void *aux;
+    /* 0x1C */ void *onDefeat;
+    /* 0x20 */ s32 flags;
+    /* 0x24 */ s32 unk_24;
+    /* 0x28 */ s16 level;
+    /* 0x2A */ s16 actionFlags;  // action flags: 1 = jump on seeing player
+} pm_NpcSettings; // size = 0x2C
+
 typedef struct pm_Enemy {
     /* 0x00 */ s32 flags;
     /* 0x04 */ s8 encounterIndex;
@@ -917,7 +933,7 @@ typedef struct pm_Enemy {
     /* 0x0A */ s16 spawnPos[3];
     /* 0x10 */ Vec3s unk_10; // TODO hitbox pos?
     /* 0x16 */ char unk_16[2];
-    /* 0x18 */ void *npcSettings;
+    /* 0x18 */ pm_NpcSettings *npcSettings;
     /* 0x1C */ void *initBytecode;
     /* 0x20 */ void *interactBytecode;
     /* 0x24 */ void *aiBytecode;
