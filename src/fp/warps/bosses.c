@@ -101,7 +101,7 @@ static BattlePage *pageList[] = {&pageBowser,      &pageChapterBosses,  &pageJrT
 
 pm_Npc bossesDummyNpc = {0};
 
-static pm_NpcSettings dummyNpcSettings = {.level = 99};
+static pm_NpcSettings dummyNpcSettings = {.level = 100};
 static pm_Enemy dummyEnemy = {.npcID = BOSSES_DUMMY_ID, .npcSettings = &dummyNpcSettings};
 static pm_Encounter dummyEncounter = {.enemy[0] = &dummyEnemy};
 static s8 warpCountdown = 0;
