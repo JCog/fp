@@ -19,6 +19,7 @@
 #include <string.h>
 
 FpCtxt fp = {.savedArea = 0x1c,
+             .enemyContactOverride = -1,
              .camDistMin = 100,
              .camDistMax = 1000,
              .freeCamMoveSpeed = 250,
@@ -305,7 +306,11 @@ void fpDrawTimer(struct GfxFont *font, s32 cellWidth, s32 cellHeight, u8 menuAlp
 }
 
 void fpUpdateCheats(void) {
-    pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
+    if (fp.enemyContactOverride > -1) {
+        pm_gGameStatus.debugEnemyContact = fp.enemyContactOverride;
+    } else {
+        pm_gGameStatus.debugEnemyContact = settings->cheatEnemyContact;
+    }
     if (CHEAT_ACTIVE(CHEAT_HP)) {
         pm_gPlayerData.curHP = pm_gPlayerData.curMaxHP;
     }

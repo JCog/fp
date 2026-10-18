@@ -1,5 +1,6 @@
 #include "bosses.h"
 #include "common.h"
+#include "fp.h"
 #include "menu/menu.h"
 #include <stdlib.h>
 
@@ -100,7 +101,8 @@ static BattlePage *pageList[] = {&pageBowser,      &pageChapterBosses,  &pageJrT
 
 pm_Npc bossesDummyNpc = {0};
 
-static pm_Enemy dummyEnemy = {.npcID = BOSSES_DUMMY_ID};
+static pm_NpcSettings dummyNpcSettings = {.level = 100};
+static pm_Enemy dummyEnemy = {.npcID = BOSSES_DUMMY_ID, .npcSettings = &dummyNpcSettings};
 static pm_Encounter dummyEncounter = {.enemy[0] = &dummyEnemy};
 static s8 warpCountdown = 0;
 static bool leavingBattle = FALSE;
@@ -137,7 +139,7 @@ static void bossWarpProc(struct MenuItem *item, void *data) {
     battle = (u8)((s32)data & 0xFF);
     pm_clear_windows();
     pm_clear_printers();
-    // context is also true when paused, so checking game mode
+    fp.enemyContactOverride = 0; // prevent encounters cheat from interrupting warp
     if (pm_gGameStatus.context != CONTEXT_WORLD && pm_CurGameMode != 10 && pm_CurGameMode != 11) {
         // end battle cleanly so next fight can start fresh
         pm_gBattleState = 32;   // BATTLE_STATE_END_BATTLE
@@ -168,6 +170,9 @@ void bossesUpdateWarps() {
         }
     } else if (warpCountdown > 0) {
         warpCountdown--;
+        if (warpCountdown == 0) {
+            fp.enemyContactOverride = -1;
+        }
     }
 }
 
